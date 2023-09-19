@@ -11,46 +11,46 @@ import {
 
 export const MENU_ITEMS = [
   {
-    key: "overview",
+    key: "dashboard",
     label: "Dashboard",
-    href: "/overview",
+    href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
-    key: "calender",
+    key: "sales",
     label: "Sales",
-    href: "/calender",
+    href: "/sales",
     icon: Inbox,
   },
   {
-    key: "projects",
+    key: "purchases",
     label: "Purchases",
-    href: "/projects",
+    href: "/purchases",
     icon: ShoppingBag,
   },
   {
-    key: "tasks",
+    key: "products",
     label: "Products",
-    href: "/tasks",
+    href: "/products",
     icon: Tag,
   },
 
   {
-    key: "teams",
+    key: "customers",
     label: "Customers",
-    href: "/teams",
+    href: "/customers",
     icon: Users,
   },
   {
-    key: "teams",
+    key: "reports",
     label: "Reports",
-    href: "/teams",
+    href: "/reports",
     icon: BarChart3,
   },
   {
-    key: "teams",
+    key: "users",
     label: "Users",
-    href: "/teams",
+    href: "/users",
     icon: UserCog,
   },
   {

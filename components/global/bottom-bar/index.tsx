@@ -14,7 +14,7 @@ function Bottombar() {
   };
 
   return (
-    <div className="h-[60px] fixed left-0 bottom-0 bg-background border-t w-full md:hidden dark:bg-popover bg-secondary">
+    <div className="h-[60px] fixed left-0 bottom-0 border-t w-full z-10 md:hidden dark:bg-popover bg-secondary">
       <ul className="grid grid-cols-5 h-full px-4 gap-4 place-items-center	">
         {MENU_ITEMS.slice(0, 5).map((el, i) => {
           const Icon = el.icon;
