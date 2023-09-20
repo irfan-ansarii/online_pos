@@ -3,7 +3,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <MobileHeader title="Sales" />
-      <main className="grow md:p-4">{children}</main>
+      <main className="grow p-4">{children}</main>
     </>
   );
 };
