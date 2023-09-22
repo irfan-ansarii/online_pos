@@ -24,7 +24,7 @@ const SaleCard = () => {
           <div className="truncate">Employee</div>
         </div>
 
-        <div className="flex flex-col col-span-3 lg:col-span-2">
+        <div className="flex flex-col col-span-5 sm:col-span-3 lg:col-span-2">
           <div className="truncate">John Doe</div>
           <div className="truncate text-muted-foreground text-xs">
             9958367688
@@ -57,7 +57,7 @@ const SaleCard = () => {
             <Badge className="uppercase text-xs rounded-md py-0">paid</Badge>
           </div>
         </div>
-        <div className="col-span-2 sm:col-span-1">
+        <div className="hidden sm:block col-span-2 sm:col-span-1">
           <Actions />
         </div>
       </CardContent>

@@ -29,9 +29,11 @@ export default function CartActions() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Clear</DropdownMenuItem>
         <DropdownMenuItem>Add Customer</DropdownMenuItem>
-        <DropdownMenuItem>Favorite</DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>Hold</DropdownMenuItem>
+        <DropdownMenuItem>Saved</DropdownMenuItem>
+
         <DropdownMenuSeparator />
 
         <DropdownMenuItem>Clear</DropdownMenuItem>

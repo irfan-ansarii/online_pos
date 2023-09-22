@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-
+import FacetFilter from "./FacetFilter";
 const Filters = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(2022, 0, 20),
@@ -37,6 +37,7 @@ const Filters = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
           />
         </div>
         <div className="relative flex gap-4 justify-end">
+          <FacetFilter />
           <div className={cn("grid gap-2", className)}>
             <Popover>
               <PopoverTrigger asChild>

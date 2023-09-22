@@ -1,6 +1,8 @@
+"use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Accordion,
@@ -8,9 +10,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Plus, Minus, ShoppingBag } from "lucide-react";
+import { User, Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
 import ProceedDialog from "./ProceedDialog";
 import CartActions from "./CartActions";
 
@@ -32,54 +34,79 @@ const Cart = () => {
           </div> */}
 
       <ScrollArea className="grow h-full -mx-4 px-4">
-        <Accordion type="single" collapsible className="h-full space-y-1">
+        <Accordion type="single" collapsible className="h-full space-y-2">
           {[...Array(20)].map((val, i) => (
             <AccordionItem
               value={`item-${i}`}
               className="bg-background dark:bg-popover border-none p-2 rounded-md relative"
             >
-              <div className="grid grid-cols-12 items-center">
-                <div className="flex gap-2 col-span-7 truncate">
-                  <AccordionTrigger className="py-0 hover:no-underline">
-                    <Avatar className="mr-2 w-8 h-8">
+              <AccordionTrigger asChild>
+                <div className="!py-0 hover:no-underline grid grid-cols-12 cursor-pointer">
+                  <div className="col-span-9 flex">
+                    <Avatar className="mr-2 w-14 h-14 rounded-md shrink-0">
                       <AvatarImage
                         src="https://github.com/shadcn.png"
                         alt="@shadcn"
                       />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
-                    <div className="text-left text-sm font-normal">
-                      Is it accessible? Is it accessible? Is it accessible?
+
+                    <div className="text-left  space-y-1 text-sm font-normal  truncate">
+                      <div className="truncate">
+                        Is it accessible? Is it accessible? Is it accessible? Is
+                        it accessible? Is it accessible? Is it accessible?
+                      </div>
+                      <div className="flex justify-between">
+                        <Badge className="inline-flex py-0" variant="secondary">
+                          S
+                        </Badge>
+                        <Badge
+                          className="shrink-0 px-0 py-0 min-w-[5rem] bg-secondary/80"
+                          variant="secondary"
+                        >
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="rounded-full w-6 h-6"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                          <span className="grow text-center shrink-0 min-w-8 block">
+                            4
+                          </span>
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="rounded-full w-6 h-6"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </Badge>
+                      </div>
                     </div>
-                  </AccordionTrigger>
-                </div>
-                <div className="col-span-5 grid grid-cols-12 text-sm">
-                  <div className="flex col-span-5">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="rounded-full w-6 h-6"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="grow text-center shrink-0 min-w-8 block">
-                      4
-                    </span>
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="rounded-full w-6 h-6"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
                   </div>
-                  <div className="col-span-7 text-right">
-                    <div className="font-medium">1,490.05</div>
+                  <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
+                    <div>1,490.05</div>
+                    <div className=" line-through text-muted-foreground">
+                      1,490.05
+                    </div>
                   </div>
                 </div>
-              </div>
-              <AccordionContent>
-                Yes. It adheres to the WAI-ARIA design pattern.
+              </AccordionTrigger>
+
+              <AccordionContent className="[&>div]:pb-0 ">
+                <div className="pt-2">
+                  <div className="grid grid-cols-2 gap-4 border-t pt-2">
+                    <div className="space-y-1">
+                      <Label>Price</Label>
+                      <Input></Input>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Discount</Label>
+                      <Input></Input>
+                    </div>
+                  </div>
+                </div>
               </AccordionContent>
             </AccordionItem>
           ))}
