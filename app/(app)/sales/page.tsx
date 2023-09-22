@@ -6,25 +6,15 @@ const Page = () => {
   return (
     <>
       <MobileHeader title="Sales" />
-      <main className="grow">
+      <main className="grow ">
         <Filters />
-        <div className="space-y-2 px-1 py-4 md:p-4">
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
-          <SaleCard />
+
+        <div className="md:p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 md:gap-4">
+            {[...Array(18)].map((el, i) => (
+              <SaleCard />
+            ))}
+          </div>
         </div>
       </main>
     </>

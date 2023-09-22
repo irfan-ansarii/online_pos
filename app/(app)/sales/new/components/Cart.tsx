@@ -38,20 +38,17 @@ const Cart = () => {
           {[...Array(20)].map((val, i) => (
             <AccordionItem
               value={`item-${i}`}
-              className="bg-background dark:bg-popover border-none p-2 rounded-md relative"
+              className="bg-background dark:bg-popover border-none rounded-md relative"
             >
               <AccordionTrigger asChild>
-                <div className="!py-0 hover:no-underline grid grid-cols-12 cursor-pointer">
-                  <div className="col-span-9 flex">
-                    <Avatar className="mr-2 w-14 h-14 rounded-md shrink-0">
-                      <AvatarImage
-                        src="https://github.com/shadcn.png"
-                        alt="@shadcn"
-                      />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
+                <div className="!py-0 hover:no-underline flex cursor-pointer">
+                  <Avatar className="w-14 h-full rounded-md shrink-0">
+                    <AvatarImage alt="@shadcn" />
+                    <AvatarFallback className=" rounded-md">CN</AvatarFallback>
+                  </Avatar>
 
-                    <div className="text-left  space-y-1 text-sm font-normal  truncate">
+                  <div className="grid grid-cols-12 p-2 grow">
+                    <div className="text-left col-span-9 space-y-1 text-sm font-normal  truncate">
                       <div className="truncate">
                         Is it accessible? Is it accessible? Is it accessible? Is
                         it accessible? Is it accessible? Is it accessible?
@@ -84,27 +81,22 @@ const Cart = () => {
                         </Badge>
                       </div>
                     </div>
-                  </div>
-                  <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
-                    <div>1,490.05</div>
-                    <div className=" line-through text-muted-foreground">
-                      1,490.05
+                    <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
+                      <div>1,490.05</div>
+                      <div className=" line-through text-muted-foreground">
+                        1,490.05
+                      </div>
                     </div>
                   </div>
                 </div>
               </AccordionTrigger>
 
               <AccordionContent className="[&>div]:pb-0 ">
-                <div className="pt-2">
+                <div className="p-2">
                   <div className="grid grid-cols-2 gap-4 border-t pt-2">
-                    <div className="space-y-1">
-                      <Label>Price</Label>
-                      <Input></Input>
-                    </div>
-                    <div className="space-y-1">
-                      <Label>Discount</Label>
-                      <Input></Input>
-                    </div>
+                    <Input></Input>
+
+                    <Input></Input>
                   </div>
                 </div>
               </AccordionContent>

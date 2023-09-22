@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, User } from "lucide-react";
 const CustomerCard = () => {
   return (
-    <Card>
+    <Card className="rounded-none md:rounded-md">
       <CardContent className="p-4">
         <div className="flex gap-2 items-center">
           <Avatar className="w-10 h-10">
