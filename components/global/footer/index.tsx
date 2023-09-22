@@ -4,11 +4,11 @@ const Footer = () => {
   return (
     <footer className="footer flex items-center  px-4 mb-[60px] md:mb-0">
       <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-1 py-2 md:py-5 border-t">
-        <div className="text-muted-foreground text-center md:text-left text-sm md:text-base">
+        <div className="text-muted-foreground text-center md:text-left">
           Copyright © 2023 <span className="font-semibold">Elstar</span> All
           rights reserved.
         </div>
-        <div className="text-muted-foreground text-sm md:text-base text-center md:text-right">
+        <div className="text-muted-foreground text-center md:text-right">
           <a className="hover:underline" href="/" target="_blank">
             Term & Conditions
           </a>

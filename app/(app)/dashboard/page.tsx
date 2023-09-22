@@ -9,8 +9,6 @@ import {
 } from "@/components/ui/popover";
 import * as React from "react";
 
-import { Check } from "lucide-react";
-
 import { useState } from "react";
 
 export function PickerExample() {

@@ -12,20 +12,19 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Plus, Minus, ShoppingBag } from "lucide-react";
 import ProceedDialog from "./ProceedDialog";
+import CartActions from "./CartActions";
+
 const Cart = () => {
   return (
     <div className="flex flex-col h-full w-full relative space-y-4">
-      <div className="relative">
-        <Input type="text" className="pl-10" placeholder="Search..." />
-        <span className="absolute left-0 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
-          <User className="w-5 h-5" />
-        </span>
-        <span className="absolute right-0 inset-y-0 h-full flex items-center justify-center text-muted-foreground">
-          <Button variant="outline" className="w-full">
-            <Plus className="w-4 h-4 mr-2" />
-            Add
-          </Button>
-        </span>
+      <div className="flex gap-4">
+        <div className="relative grow ">
+          <Input type="text" className="pl-10" placeholder="Search..." />
+          <span className="absolute left-0 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
+            <User className="w-5 h-5" />
+          </span>
+        </div>
+        <CartActions />
       </div>
 
       {/* <div className="flex flex-col h-full w-full grow items-center justify-center text-muted-foreground dark:text-background">
