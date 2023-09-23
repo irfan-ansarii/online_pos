@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface StickyHeaderProps {
@@ -11,12 +11,25 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({
   className,
   children,
 }: StickyHeaderProps) => {
+  const ref = useRef(null);
   const containerClass = cn(
-    "sticky top-0 hidden duration-500 z-50 md:flex  border-b bg-background px-4 h-[61px] justify-center flex-col",
+    "hidden duration-500 md:flex border-b bg-background px-4 h-[61px] justify-center flex-col sticky top-0 z-50",
     className
   );
-
-  return <div className={containerClass}>{children}</div>;
+  useEffect(() => {
+    const handleScroll = () => {
+      const scroll = window.scrollY;
+      if (scroll > 100) {
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  return (
+    <div className={containerClass} ref={ref}>
+      {children}
+    </div>
+  );
 };
 
 export default StickyHeader;

@@ -7,26 +7,26 @@ const PurchaseCard = () => {
   return (
     <Card className="rounded-none md:rounded-md">
       <CardContent className="p-4">
-        <div className="grid grid-cols-6 gap-3">
-          <div className="flex flex-col space-y-0.5 col-span-2">
+        <div className="grid grid-cols-8 gap-3">
+          <div className="flex flex-col space-y-0.5 col-span-3">
             <div>GN256533</div>
             <div className="text-muted-foreground text-xs">12-04-2024</div>
           </div>
 
-          <div className="flex flex-col space-y-0.5 col-span-2">
+          <div className="flex flex-col space-y-0.5 col-span-3">
             <div className="truncate">John Doe</div>
             <div className="truncate text-muted-foreground text-xs">
               Jaipur, India
             </div>
           </div>
 
-          <div className="flex flex-col space-y-0.5 col-span-2">
+          <div className="flex flex-col space-y-0.5 col-span-2 items-end">
             <span>540.00</span>
             <span className="text-muted-foreground text-xs uppercase font-medium">
               Items
             </span>
           </div>
-          <div className="col-span-6 space-y-1">
+          <div className="col-span-8 space-y-1">
             <Badge
               className="justify-between w-full uppercase "
               variant="secondary"

@@ -15,7 +15,7 @@ import { User2, Check } from "lucide-react";
 const ProceedDialog = () => {
   return (
     <Dialog>
-      <DialogTrigger asChild className="flex items-center">
+      <DialogTrigger asChild>
         <Button className="w-full">Proceed</Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90%] sm:max-w-md md:top-[10%]">

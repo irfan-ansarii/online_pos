@@ -17,21 +17,12 @@ const ProductCard = () => {
           </AvatarFallback>
         </Avatar>
 
-        <div className="flex flex-col h-full truncate px-4 py-2">
-          <div className="truncate font-medium mb-3">
+        <div className="flex flex-col h-full space-y-2 px-4 py-2">
+          <div className="font-medium">
             Lorem ipsum dolor, sit amet consectetur adipisicing elit.
           </div>
-          <div className="flex gap-1 uppercase">
-            <span className="text-muted-foreground w-1/3">sku:</span>
-            <span>gn746573456</span>
-          </div>
-          <div className="flex gap-1 uppercase">
-            <span className="text-muted-foreground w-1/3">stock:</span>
-            <span>8</span>
-          </div>
-          <Badge className="justify-between mt-3" variant="secondary">
-            <span>1278</span> -<span>3679</span>
-          </Badge>
+          <div className="text-muted-foreground">GN123254</div>
+          <div>1,290.00</div>
         </div>
       </CardContent>
     </Card>
