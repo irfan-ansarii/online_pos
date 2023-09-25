@@ -1,7 +1,16 @@
 import React from "react";
-import { ArrowLeft, Search, MoreVertical } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-const MobileHeader = ({ title }: { title: string }) => {
+
+const MobileHeader = ({
+  title,
+  showSearch = true,
+  children,
+}: {
+  title: string;
+  showSearch?: boolean;
+  children?: React.ReactNode;
+}) => {
   return (
     <div className="md:hidden sticky top-0 bg-background z-50">
       <header className="h-[60px] border-b shadow">
@@ -17,20 +26,17 @@ const MobileHeader = ({ title }: { title: string }) => {
             <div className="text-sm font-medium">{title}</div>
           </div>
           <div className="justify-self-end flex">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="hover:bg-transparent"
-            >
-              <Search className="w-5 h-5" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="hover:bg-transparent"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </Button>
+            {showSearch && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="hover:bg-transparent"
+              >
+                <Search className="w-5 h-5" />
+              </Button>
+            )}
+
+            {children}
           </div>
         </div>
       </header>

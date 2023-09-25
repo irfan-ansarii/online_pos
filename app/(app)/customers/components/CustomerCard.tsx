@@ -1,8 +1,9 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import {  User } from "lucide-react";
+import { User } from "lucide-react";
 const CustomerCard = () => {
   return (
     <Card className="rounded-none md:rounded-md">
@@ -17,25 +18,25 @@ const CustomerCard = () => {
           <div className="truncate">
             <div className="truncate font-medium">Lorem ipsum dolor</div>
             <div className="text-muted-foreground text-xs">+91 9876543210</div>
-            <div className="text-muted-foreground text-xs">example@email.com</div>
+            <div className="text-muted-foreground text-xs">
+              example@email.com
+            </div>
           </div>
         </div>
-    
-        <div className="grid grid-cols-2 gap-4">
-          <Badge className="justify-between" variant="secondary">
-            <div className="text-xs uppercase text-muted-foreground font-medium">
-              Orders
-            </div>
-            <div>10</div>
-          </Badge>
-          <Badge className="justify-between" variant="secondary">
-            <div className="text-xs uppercase text-muted-foreground font-medium">
-              spent
-            </div>
-            <div className="truncate">10,920.00</div>
-          </Badge>
-        </div>
-      
+
+        <Badge className="grid grid-cols-5" variant="secondary">
+          <div className="flex justify-between col-span-2">
+            <span className="uppercase  text-muted-foreground">orders</span>
+            <span>10</span>
+          </div>
+
+          <Separator orientation="vertical" className="mx-auto w-0.5" />
+
+          <div className="flex justify-between col-span-2">
+            <span className="uppercase  text-muted-foreground">spent</span>
+            <span>10,109.00</span>
+          </div>
+        </Badge>
       </CardContent>
     </Card>
   );

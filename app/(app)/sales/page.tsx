@@ -1,5 +1,9 @@
 import React from "react";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 import SaleCard from "./components/SaleCard";
+
 import Filters from "./components/Filters";
 import MobileHeader from "@/components/shared/mobile-header";
 const Page = () => {
@@ -16,6 +20,15 @@ const Page = () => {
             ))}
           </div>
         </div>
+
+        <Button
+          size="icon"
+          className="rounded-full md:hidden fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
+        >
+          <Link href="/sales/new">
+            <Plus className="w-5 h-5" />
+          </Link>
+        </Button>
       </main>
     </>
   );

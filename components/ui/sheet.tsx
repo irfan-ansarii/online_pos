@@ -37,7 +37,7 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+  "fixed z-50 gap-4 bg-background p-4 md:p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
   {
     variants: {
       side: {
@@ -71,11 +71,6 @@ const SheetContent = React.forwardRef<
       {...props}
     >
       {children}
-      <SheetPrimitive.Close className="absolute right-6  top-4 rounded-sm  ring-offset-background transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-        <X className="h-5 w-5" />
-
-        <span className="sr-only">Close</span>
-      </SheetPrimitive.Close>
     </SheetPrimitive.Content>
   </SheetPortal>
 ));
@@ -83,12 +78,17 @@ SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({
   className,
+  children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn("flex flex-col space-y-2 text-left", className)}
-    {...props}
-  />
+  <div className={cn("flex text-left mb-4", className)} {...props}>
+    <div className="grow">{children}</div>
+    <SheetPrimitive.Close className="shrink-0 rounded-sm  ring-offset-background transition-opacity focus:outline-none focus:ring-0 focus:ring-ring focus:ring-offset-0 disabled:pointer-events-none data-[state=open]:bg-secondary">
+      <X className="h-5 w-5" />
+
+      <span className="sr-only">Close</span>
+    </SheetPrimitive.Close>
+  </div>
 );
 SheetHeader.displayName = "SheetHeader";
 
@@ -109,7 +109,7 @@ const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
-    className={cn("font-semibold text-lg text-foreground", className)}
+    className={cn("font-semibold text-base text-foreground", className)}
     {...props}
   />
 ));

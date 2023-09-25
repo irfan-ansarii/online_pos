@@ -8,38 +8,40 @@ const PurchaseCard = () => {
     <Card className="rounded-none md:rounded-md">
       <CardContent className="p-4">
         <div className="grid grid-cols-8 gap-3">
-          <div className="flex flex-col space-y-0.5 col-span-3">
+          <div className="flex flex-col col-span-3">
             <div>GN256533</div>
             <div className="text-muted-foreground text-xs">12-04-2024</div>
           </div>
-
-          <div className="flex flex-col space-y-0.5 col-span-3">
-            <div className="truncate">John Doe</div>
-            <div className="truncate text-muted-foreground text-xs">
-              Jaipur, India
-            </div>
-          </div>
-
-          <div className="flex flex-col space-y-0.5 col-span-2 items-end">
+          <div className="flex flex-col col-span-3">
             <span>540.00</span>
             <span className="text-muted-foreground text-xs uppercase font-medium">
               Items
             </span>
           </div>
-          <div className="col-span-8 space-y-1">
-            <Badge
-              className="justify-between w-full uppercase "
-              variant="secondary"
-            >
-              <span>Tax</span> <span>20,201.00</span>
-            </Badge>
-            <Badge
-              className="justify-between w-full uppercase col-span-3"
-              variant="secondary"
-            >
-              <span>Paid</span> <span>20,201.00</span>
-            </Badge>
+          <div className="flex flex-col items-end col-span-2">
+            <span>540.00</span>
+            <span className="text-muted-foreground text-xs uppercase font-medium">
+              Tax
+            </span>
           </div>
+
+          <Badge
+            className="justify-between uppercase col-span-8 p-0 pr-2"
+            variant="secondary"
+          >
+            <Badge className="pl-1 gap-1">
+              <Avatar className="w-6 h-6">
+                <AvatarFallback className="text-foreground">
+                  <User className="w-4 h-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="truncate leading-tight">John Doe</div>
+            </Badge>
+            <div className="flex justify-between w-3/5">
+              <span className="inline-flex gap-2">Paid</span>
+              <span>20,201.00</span>
+            </div>
+          </Badge>
         </div>
       </CardContent>
     </Card>

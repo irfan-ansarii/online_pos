@@ -15,7 +15,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+
 import { cn } from "@/lib/utils";
 import FacetFilter from "./FacetFilter";
 const Filters = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
