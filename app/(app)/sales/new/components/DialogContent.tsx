@@ -1,20 +1,20 @@
 import React from "react";
 import { DialogContent } from "@/components/ui/dialog";
 
-import AddCustomer from "./AddCustomer";
-import Hold from "./HoldCart";
-import Saved from "./SavedCarts";
-import Clear from "./ClearCart";
+import Save from "./SaveCartDialog";
+import Saved from "./SavedCartsDialog";
+import Clear from "./ClearCartDialog";
 
-const DynamicDialogContent = ({ content }: { content: string | null }) => {
+interface Props {
+  content: React.ReactNode;
+  onOpenChange: (isOpen: boolean) => void;
+}
+const DynamicDialogContent: React.FC<Props> = ({ content, onOpenChange }) => {
   let Content = null;
 
   switch (content) {
-    case "add-customer":
-      Content = AddCustomer;
-      break;
     case "hold":
-      Content = Hold;
+      Content = Save;
       break;
     case "saved":
       Content = Saved;
@@ -27,8 +27,12 @@ const DynamicDialogContent = ({ content }: { content: string | null }) => {
   }
 
   return (
-    <DialogContent className="max-w-[90%] sm:max-w-md md:top-[10%]">
-      {Content ?  <Content />: <div >Loading...</div>}
+    <DialogContent>
+      {Content ? (
+        <Content onOpenChange={onOpenChange} />
+      ) : (
+        <div>Loading...</div>
+      )}
     </DialogContent>
   );
 };

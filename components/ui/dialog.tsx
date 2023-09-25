@@ -5,7 +5,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-
+import { buttonVariants } from "@/components/ui/button";
 const Dialog = DialogPrimitive.Root;
 
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -42,7 +42,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] bottom-6 translate-y-0 md:top-[20%] md:bottom-auto gap-4 border bg-popover p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-bottom-[48%] data-[state=open]:slide-in-from-bottom-[48%] data-[state=open]:slide-in-from-left-1/2 rounded-lg md:w-full",
+        "fixed left-[50%] z-50 grid w-full max-w-[90%] md:max-w-lg translate-x-[-50%] bottom-6 translate-y-0 md:top-[20%] md:bottom-auto gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-bottom-[48%] data-[state=open]:slide-in-from-bottom-[48%] data-[state=open]:slide-in-from-left-1/2 rounded-lg md:w-full",
         className
       )}
       {...props}
@@ -62,10 +62,7 @@ const DialogHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
-      className
-    )}
+    className={cn("flex flex-col space-y-1.5 text-left", className)}
     {...props}
   />
 );
@@ -76,10 +73,7 @@ const DialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-      className
-    )}
+    className={cn("flex justify-between md:justify-end gap-4", className)}
     {...props}
   />
 );
@@ -112,6 +106,18 @@ const DialogDescription = React.forwardRef<
 ));
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
+const DialogCancel = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Close>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Close>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Close
+    ref={ref}
+    className={cn(buttonVariants({ variant: "secondary" }), className)}
+    {...props}
+  />
+));
+DialogCancel.displayName = DialogPrimitive.Close.displayName;
+
 export {
   Dialog,
   DialogTrigger,
@@ -120,4 +126,5 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  DialogCancel,
 };

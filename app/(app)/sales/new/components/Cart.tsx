@@ -2,7 +2,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Accordion,
@@ -12,28 +11,25 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
+
+import { Plus, Minus, ShoppingBag } from "lucide-react";
 import ProceedDialog from "./ProceedDialog";
 import CartActions from "./CartActions";
+import SearchCustomer from "./SearchCustomer";
 
 const Cart = () => {
   return (
     <div className="flex flex-col h-full w-full relative space-y-4">
       <div className="flex gap-4">
-        <div className="relative grow ">
-          <Input type="text" className="pl-10" placeholder="Search..." />
-          <span className="absolute left-0 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
-            <User className="w-5 h-5" />
-          </span>
-        </div>
+        <SearchCustomer />
         <CartActions />
       </div>
 
-      {/* <div className="flex flex-col h-full w-full grow items-center justify-center text-muted-foreground dark:text-background">
-            <ShoppingBag className="w-20 h-20" />
-          </div> */}
+      <div className="flex flex-col h-full w-full grow items-center justify-center text-muted-foreground dark:text-background">
+        <ShoppingBag className="w-20 h-20" />
+      </div>
 
-      <ScrollArea className="grow h-full -mx-4 px-4">
+      {/* <ScrollArea className="grow h-full -mx-4 px-4">
         <Accordion type="single" collapsible className="h-full space-y-2">
           {[...Array(20)].map((val, i) => (
             <AccordionItem
@@ -42,9 +38,11 @@ const Cart = () => {
             >
               <AccordionTrigger asChild>
                 <div className="!py-0 hover:no-underline flex cursor-pointer">
-                  <Avatar className="w-14 h-full rounded-md shrink-0">
+                  <Avatar className="w-14 h-full rounded-md shrink-0 bg-border dark:bg-secondary">
                     <AvatarImage alt="@shadcn" />
-                    <AvatarFallback className=" rounded-md">CN</AvatarFallback>
+                    <AvatarFallback className="bg-transparent rounded-md">
+                      CN
+                    </AvatarFallback>
                   </Avatar>
 
                   <div className="grid grid-cols-12 p-2 grow">
@@ -103,7 +101,7 @@ const Cart = () => {
             </AccordionItem>
           ))}
         </Accordion>
-      </ScrollArea>
+      </ScrollArea> */}
 
       <div className="bg-background dark:bg-popover p-4  rounded-md">
         <div className="flex flex-col text-sm">

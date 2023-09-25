@@ -16,7 +16,7 @@ const ProceedDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full">Proceed</Button>
+        <Button className="w-full">Checkout</Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90%] sm:max-w-md md:top-[10%]">
         <DialogHeader className="text-left pb-4">

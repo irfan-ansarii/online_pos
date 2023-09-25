@@ -1,53 +1,72 @@
+"use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Plus, Search, ScanLine } from "lucide-react";
-import CartDrawer from "./CartDrawer";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogCancel,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 const ProductCard = () => {
   return (
-    <>
-      <CartDrawer />
+    <Dialog>
+      <DialogTrigger asChild>
+        <Card className="cursor-pointer">
+          <CardHeader className="p-0">
+            <Avatar className="w-full h-full rounded-none">
+              <AvatarImage
+                alt="@shadcn"
+                className="object-cover object-cover"
+              />
+              <AvatarFallback className="object-cover object-cover aspect-square rounded-t rounded-b-none">
+                CN
+              </AvatarFallback>
+            </Avatar>
+          </CardHeader>
+          <CardContent className="p-2">
+            <CardTitle className="truncate text-sm font-semibold">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+              Necessitatibus, aspernatur.
+            </CardTitle>
+            <CardDescription className="truncate">1,829.00</CardDescription>
+          </CardContent>
+        </Card>
+      </DialogTrigger>
+      <DialogContent>
+        <div className="grid grid-cols-4 gap-4">
+          {["Card 38fdhj fgdhghfg", "Razorpay", "Cash", "Paytm"].map((el) => (
+            <DialogCancel asChild>
+              <Button
+                key={el}
+                variant="outline"
+                className="border-2 flex-col p-4 truncate space-y-2 w-full h-full hover:bg-background hover:border-primary"
+              >
+                <Avatar className="shrink-0 w-12 h-12">
+                  <AvatarFallback>P</AvatarFallback>
+                </Avatar>
 
-      <div className="flex items-center h-[61px] border-b sticky top-0 z-50 bg-background mb-4">
-        <div className="relative grow">
-          <Input
-            type="text"
-            className="bg-transparent rounded-none border-none pl-10 focus-visible:ring-transparent"
-            placeholder="Search..."
-          />
-          <span className="absolute left-0 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
-            <Search className="w-5 h-5" />
-          </span>
-          <span className="absolute right-0 w-10 inset-y-0 h-full flex items-center justify-center text-muted-foreground">
-            <ScanLine className="w-5 h-5" />
-          </span>
+                <div className="space-y-0.5">
+                  <div className="truncate">{el}</div>
+                  <div className="text-muted-foreground text-xs font-normal">
+                    1,290.00
+                  </div>
+                </div>
+              </Button>
+            </DialogCancel>
+          ))}
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-        {[...Array(20)].map((el, i) => (
-          <div className="rounded-md border" key={i}>
-            <div>
-              <Avatar className="w-full h-full rounded-none">
-                <AvatarImage
-                  alt="@shadcn"
-                  className="object-cover object-cover"
-                />
-                <AvatarFallback className="object-cover object-cover aspect-square rounded-t rounded-b-none">
-                  CN
-                </AvatarFallback>
-              </Avatar>
-            </div>
-            <div className="p-2">
-              <div className="truncate text-sm">Title 86rtfkhgtydgfhfhgy</div>
-              <div className="text-sm text-muted-foreground">Price</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 };
 

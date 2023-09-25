@@ -5,9 +5,9 @@ import { Drawer } from "vaul";
 
 import { cn } from "@/lib/utils";
 
-const Trigger = Drawer.Trigger;
-const Root = Drawer.Root;
-const Content = forwardRef<
+const DrawerTrigger = Drawer.Trigger;
+const DrawerRoot = Drawer.Root;
+const DrawerContent = forwardRef<
   React.ElementRef<typeof Drawer.Content>,
   React.ComponentPropsWithoutRef<typeof Drawer.Content>
 >(({ className, children, ...props }, ref) => (
@@ -26,6 +26,6 @@ const Content = forwardRef<
     </Drawer.Content>
   </Drawer.Portal>
 ));
-Content.displayName = "Content";
+DrawerContent.displayName = "Content";
 
-export { Root, Trigger, Content };
+export { DrawerRoot, DrawerTrigger, DrawerContent };
