@@ -9,8 +9,8 @@ const Page = () => {
       <main className="grow ">
         <Filters />
 
-        <div className="md:p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 md:gap-4">
+        <div className="md:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
             {[...Array(20)].map((el, i) => (
               <PurchaseCard />
             ))}

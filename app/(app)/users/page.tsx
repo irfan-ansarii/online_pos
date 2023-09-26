@@ -17,7 +17,7 @@ const Page = () => {
             ))}
           </div>
         </div>
-        <AddUserDialog />
+        <AddUserDialog className="md:hidden" />
       </main>
     </div>
   );

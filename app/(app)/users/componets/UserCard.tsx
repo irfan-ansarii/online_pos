@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -8,9 +7,7 @@ import { Calendar } from "lucide-react";
 const UserCard = () => {
   return (
     <Card className="rounded-none md:rounded-md ">
-      <CardContent className="p-4 space-y-4 relative">
-        <Link href="/users/2" className="absolute inset-0" />
-
+      <CardContent className="p-4 space-y-3 relative">
         <div className="flex gap-2 items-start">
           <Badge className="absolute right-4 top-4">Admin</Badge>
           <Avatar>
@@ -26,7 +23,7 @@ const UserCard = () => {
           </div>
         </div>
 
-        <Badge className="grid grid-cols-9" variant="secondary">
+        <Badge className="grid grid-cols-9 py-1" variant="secondary">
           <div className="flex justify-between col-span-4">
             <Calendar className="w-4 h-4" />
             <span>10</span>

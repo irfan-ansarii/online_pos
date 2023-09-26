@@ -7,7 +7,7 @@ import { User } from "lucide-react";
 const CustomerCard = () => {
   return (
     <Card className="rounded-none md:rounded-md">
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="p-4 space-y-2">
         <div className="flex gap-2 items-start">
           <Avatar className="w-10 h-10">
             <AvatarFallback className="">
@@ -24,7 +24,7 @@ const CustomerCard = () => {
           </div>
         </div>
 
-        <Badge className="grid grid-cols-5" variant="secondary">
+        <Badge className="grid grid-cols-5 py-1" variant="secondary">
           <div className="flex justify-between col-span-2">
             <span className="uppercase  text-muted-foreground">orders</span>
             <span>10</span>

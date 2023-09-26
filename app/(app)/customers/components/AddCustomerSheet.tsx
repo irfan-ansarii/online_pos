@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Plus, PlusCircle } from "lucide-react";
-const AddUserDialog = () => {
+const AddUserDialog = ({ className }: { className?: string }) => {
   const form = useForm({
     defaultValues: {
       name: "",
@@ -33,7 +33,7 @@ const AddUserDialog = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <div>
+        <div className={className}>
           <Button
             size="icon"
             className="rounded-full md:hidden fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"

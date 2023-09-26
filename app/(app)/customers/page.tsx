@@ -16,7 +16,7 @@ const Page = () => {
             ))}
           </div>
         </div>
-        <AddCustomerSheet />
+        <AddCustomerSheet className="md:hidden" />
       </main>
     </>
   );

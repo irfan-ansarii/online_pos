@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { ReactHTML } from "react";
 import { CardTitle, CardDescription, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
-const AddUserDialog = () => {
+
+const AddUserDialog = ({ className }: { className?: string }) => {
   const form = useForm({
     defaultValues: {
       name: "",
@@ -28,7 +29,7 @@ const AddUserDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div>
+        <div className={className}>
           <Button
             size="icon"
             className="rounded-full md:hidden fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
