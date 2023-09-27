@@ -6,12 +6,12 @@ import {
   SheetTrigger,
   SheetTitle,
   SheetContent,
-  SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -23,13 +23,31 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ImagePlus, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ImagePlus, Trash2, GripVertical, X, PlusCircle } from "lucide-react";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const form = useForm({
     defaultValues: {
-      name: "",
+      image: "",
+      title: "",
+      description: "",
+      type: "simple",
+      sale_price: "",
+      purchase_price: "",
+      sku: "",
+      reorder: "",
+      varinats: [{ name: "", values: [{ value: "" }] }],
     },
+  });
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "varinats",
+  });
+  const type = useWatch({
+    name: "type",
+    control: form.control,
+    defaultValue: "simple",
   });
 
   const onSubmit = (v: any) => {
@@ -38,7 +56,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent>
+      <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -47,165 +65,276 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
             <SheetHeader>
               <SheetTitle>New product</SheetTitle>
             </SheetHeader>
-            <ScrollArea className="grow -mx-6 mt-2 mb-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem className="px-6 mb-6">
-                    <div className="relative rounded-md bg-muted/40">
-                      <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                        <ImagePlus className="w-10 h-10" />
-                      </span>
-                      <FormControl>
-                        <Input
-                          type="file"
-                          {...field}
-                          className="h-24 file:hidden opacity-0"
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem className="px-6 mb-6">
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Example" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem className="px-6 mb-6">
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Type here..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <FormField
-                control={form.control}
-                name="product_type"
-                render={({ field }) => (
-                  <FormItem className="px-6 space-y-0 mb-6">
-                    <FormLabel>Type</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="grid grid-cols-2 gap-4"
-                      >
+            <ScrollArea className="grow -mx-6">
+              <div className="px-6 flex flex-col gap-6 pb-6">
+                <FormField
+                  control={form.control}
+                  name="image"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="relative rounded-md bg-muted/40">
+                        <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                          <ImagePlus className="w-10 h-10" />
+                        </span>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            {...field}
+                            className="h-24 file:hidden opacity-0"
+                          />
+                        </FormControl>
+                      </div>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Example" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Type here..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem className="space-y-0">
+                      <FormLabel>Product Type</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid grid-cols-2 gap-4"
+                        >
+                          <FormItem>
+                            <FormControl>
+                              <RadioGroupItem
+                                value="simple"
+                                className="peer sr-only"
+                              />
+                            </FormControl>
+                            <FormLabel className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                              Simple
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem>
+                            <FormControl>
+                              <RadioGroupItem
+                                value="variable"
+                                className="peer sr-only"
+                              />
+                            </FormControl>
+                            <FormLabel className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                              Variable
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {type === "variable" ? (
+                  <>
+                    <ul className="flex flex-col gap-6">
+                      {fields.map((item, index) => (
+                        <li key={item.id} className="flex gap-2 flex-wrap">
+                          <div className="space-y-4 grow">
+                            <FormField
+                              control={form.control}
+                              name={`varinats.${index}.name`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Variant name"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <Input />
+                          </div>
+
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="shrink-0"
+                            onClick={() => remove(index)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </li>
+                      ))}
+
+                      <li>
+                        <Button
+                          className="border-dashed w-full"
+                          variant="outline"
+                          onClick={() => {
+                            append({ name: "", values: [] }, { focusIndex: 0 });
+                          }}
+                        >
+                          <PlusCircle className="w-4 h-4 mr-2" />
+                          Add Variant
+                        </Button>
+                      </li>
+                    </ul>
+                    <ul className="flex flex-col gap-6">
+                      {fields.map((item, index) => (
+                        <li key={item.id} className="grid grid-cols-2 gap-4">
+                          <div className="bg-muted rounded-md flex justify-between col-span-2 px-6 py-4">
+                            <span className="font-semibold">varinat</span>
+                            <span className="font-semibold">1290.00</span>
+                          </div>
+                          <FormField
+                            control={form.control}
+                            name={`varinats.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Purchase Price</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Variant name"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`varinats.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Sale Price</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="0" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`varinats.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>SKU</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="GN12345" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`varinats.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Reorder Threshold</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="0"
+                                    {...field}
+                                    defaultValue={5}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`purchase_price`}
+                      render={({ field }) => (
                         <FormItem>
+                          <FormLabel>Purchase Price</FormLabel>
                           <FormControl>
-                            <RadioGroupItem
-                              value="simple"
-                              className="peer sr-only"
+                            <Input placeholder="Variant name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`sale_price`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Sale Price</FormLabel>
+                          <FormControl>
+                            <Input placeholder="0" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`sku`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>SKU</FormLabel>
+                          <FormControl>
+                            <Input placeholder="GN12345" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`reorder`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Reorder Threshold</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="0"
+                              {...field}
+                              defaultValue={5}
                             />
                           </FormControl>
-                          <FormLabel className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                            Simple
-                          </FormLabel>
+                          <FormMessage />
                         </FormItem>
-                        <FormItem>
-                          <FormControl>
-                            <RadioGroupItem
-                              value="variable"
-                              className="peer sr-only"
-                            />
-                          </FormControl>
-                          <FormLabel className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                            Variable
-                          </FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* <div className="grid grid-cols-2 gap-x-4 gap-y-6 px-6 mb-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Purchase Price</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sale Price</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SKU</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Reorder Threshold</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div> */}
-              <div className="px-6 space-y-6">
-                <div className="flex gap-4">
-                  <div className="space-y-6 grow">
-                    <Input />
-                    <Input />
+                      )}
+                    />
                   </div>
-
-                  <Button
-                    size="icon"
-                    className="shrink-0"
-                    variant="destructive"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </Button>
-                </div>
+                )}
               </div>
             </ScrollArea>
             <SheetFooter className="md:justify-between">

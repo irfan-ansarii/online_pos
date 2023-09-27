@@ -6,12 +6,12 @@
   html {
     -webkit-tap-highlight-color: transparent;
   }
-  input {
+  input,
+  textarea,
+  button {
     @apply transition duration-500;
   }
-  button {
-    @apply !transition !duration-500;
-  }
+
   * {
     @apply border-border;
   }
