@@ -23,8 +23,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Badge } from "@/components/ui/badge";
-import { ImagePlus, Trash2, GripVertical, X, PlusCircle } from "lucide-react";
+import { ImagePlus, Trash2, PlusCircle } from "lucide-react";
+import VariantValues from "./VariantValues";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const form = useForm({
@@ -37,13 +37,14 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       purchase_price: "",
       sku: "",
       reorder: "",
-      varinats: [{ name: "", values: [{ value: "" }] }],
+      variants: [{ name: "", values: [] }],
     },
   });
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "varinats",
+    name: "variants",
   });
+
   const type = useWatch({
     name: "type",
     control: form.control,
@@ -53,6 +54,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const onSubmit = (v: any) => {
     console.log(v);
   };
+
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
@@ -159,36 +161,46 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                 />
                 {type === "variable" ? (
                   <>
+                    <div className="text-muted-foreground font-semibold uppercase border-b-2 pb-2">
+                      Options
+                    </div>
                     <ul className="flex flex-col gap-6">
                       {fields.map((item, index) => (
-                        <li key={item.id} className="flex gap-2 flex-wrap">
-                          <div className="space-y-4 grow">
-                            <FormField
-                              control={form.control}
-                              name={`varinats.${index}.name`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Variant name"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <Input />
+                        <li key={item.id} className="flex flex-col gap-4">
+                          <div className="flex gap-2">
+                            <div className="grow">
+                              <FormField
+                                control={form.control}
+                                name={`variants.${index}.name`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Variant name"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              onClick={() => remove(index)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
 
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="shrink-0"
-                            onClick={() => remove(index)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <div className="w-full space-y-4">
+                            <VariantValues
+                              control={form.control}
+                              index={index}
+                            />
+                          </div>
                         </li>
                       ))}
 
@@ -197,7 +209,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                           className="border-dashed w-full"
                           variant="outline"
                           onClick={() => {
-                            append({ name: "", values: [] }, { focusIndex: 0 });
+                            append({ name: "", values: [] });
                           }}
                         >
                           <PlusCircle className="w-4 h-4 mr-2" />
@@ -205,7 +217,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                         </Button>
                       </li>
                     </ul>
-                    <ul className="flex flex-col gap-6">
+                    {/* <ul className="flex flex-col gap-6">
                       {fields.map((item, index) => (
                         <li key={item.id} className="grid grid-cols-2 gap-4">
                           <div className="bg-muted rounded-md flex justify-between col-span-2 px-6 py-4">
@@ -273,7 +285,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                           />
                         </li>
                       ))}
-                    </ul>
+                    </ul> */}
                   </>
                 ) : (
                   <div className="grid grid-cols-2 gap-4">

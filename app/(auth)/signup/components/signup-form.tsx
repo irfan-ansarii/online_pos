@@ -18,12 +18,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginValidation } from "@/lib/validations/login";
 import { useToast } from "@/components/ui/use-toast";
-import { useSignUp } from "@/hooks/auth";
+
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function SignupForm({ ...props }: UserAuthFormProps) {
   const { toast } = useToast();
-  const { mutate, isLoading } = useSignUp();
+
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const form = useForm<z.infer<typeof loginValidation>>({
     resolver: zodResolver(loginValidation),
@@ -34,20 +34,20 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
   });
 
   async function onSubmit(values: z.infer<typeof loginValidation>) {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Logged in successfully!",
-        });
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          description: error.message || "Something went wrong",
-        });
-      },
-    });
+    // mutate(values, {
+    //   onSuccess: (res) => {
+    //     toast({
+    //       variant: "success",
+    //       title: "Logged in successfully!",
+    //     });
+    //   },
+    //   onError: (error: any) => {
+    //     toast({
+    //       variant: "error",
+    //       description: error.message || "Something went wrong",
+    //     });
+    //   },
+    // });
   }
 
   return (
@@ -57,9 +57,9 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         {/* loading */}
-        {isLoading && (
+        {/* {isLoading && (
           <div className="absolute w-full h-full transparent z-20"></div>
-        )}
+        )} */}
 
         <FormField
           control={form.control}
@@ -129,11 +129,12 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
         />
 
         <Button type="submit">
-          {isLoading ? (
+          {/* {isLoading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             "Create Account"
-          )}
+          )} */}
+          Create
         </Button>
       </form>
     </Form>

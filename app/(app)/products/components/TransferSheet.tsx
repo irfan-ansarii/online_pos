@@ -6,7 +6,6 @@ import {
   SheetTrigger,
   SheetTitle,
   SheetContent,
-  SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,7 +21,21 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Inbox, Search } from "lucide-react";
 const TransferSheet = ({ children }: { children: React.ReactNode }) => {
+  const [open, setOpen] = React.useState(false);
   const form = useForm({
     defaultValues: {
       name: "",
@@ -72,15 +85,48 @@ const TransferSheet = ({ children }: { children: React.ReactNode }) => {
                     </FormItem>
                   )}
                 />
-                <div className="text-muted-foreground font-semibold bg-muted px-4 rounded-md py-4">
+                <div className="text-muted-foreground font-semibold uppercase border-t-2 pt-2">
                   Items
                 </div>
 
                 <div className="relative">
-                  <Input placeholder="Search..." />
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-full justify-between"
+                      >
+                        Select products...
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0 w-full" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search framework..." />
+                        <CommandEmpty>No framework found.</CommandEmpty>
+                        <CommandGroup>
+                          {["Item1", "Item2", "item 3", "item 4"].map(
+                            (framework) => (
+                              <CommandItem
+                                key={framework}
+                                onSelect={(currentValue) => {
+                                  setOpen(false);
+                                }}
+                              >
+                                {framework}
+                              </CommandItem>
+                            )
+                          )}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
-
-                <div className="text-muted-foreground font-semibold bg-muted px-4 rounded-md py-4">
+                <div className="h-20 flex justify-center items-center text-muted-foreground">
+                  <Inbox className="w-12 h-12" />
+                </div>
+                <div className="text-muted-foreground font-semibold uppercase border-t-2 pt-2">
                   Additional Details
                 </div>
                 <FormField
