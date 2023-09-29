@@ -8,7 +8,7 @@ import {
   SheetContent,
   SheetFooter,
 } from "@/components/ui/sheet";
-
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ImagePlus, Trash2, PlusCircle } from "lucide-react";
+import { ImagePlus, Trash2, PlusCircle, Image } from "lucide-react";
 import VariantValues from "./VariantValues";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
@@ -195,12 +195,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                             </Button>
                           </div>
 
-                          <div className="w-full space-y-4">
-                            <VariantValues
-                              control={form.control}
-                              index={index}
-                            />
-                          </div>
+                          <VariantValues control={form.control} index={index} />
                         </li>
                       ))}
 
@@ -217,16 +212,28 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                         </Button>
                       </li>
                     </ul>
-                    {/* <ul className="flex flex-col gap-6">
+
+                    <ul className="flex flex-col gap-6">
+                      <div className="text-muted-foreground  col-span-2 font-semibold uppercase border-b-2 pb-2 flex justify-between">
+                        Variants
+                      </div>
                       {fields.map((item, index) => (
                         <li key={item.id} className="grid grid-cols-2 gap-4">
-                          <div className="bg-muted rounded-md flex justify-between col-span-2 px-6 py-4">
-                            <span className="font-semibold">varinat</span>
-                            <span className="font-semibold">1290.00</span>
+                          <div className="text-muted-foreground items-center col-span-2 font-semibold uppercase border-b-2 pb-2 flex justify-between">
+                            <div className="flex gap-2 items-center">
+                              <Avatar>
+                                <AvatarImage> </AvatarImage>
+                                <AvatarFallback>
+                                  <Image className="w-5 h-5" />
+                                </AvatarFallback>
+                              </Avatar>
+                              <span>variant</span>
+                            </div>
+                            <span>1290.00</span>
                           </div>
                           <FormField
                             control={form.control}
-                            name={`varinats.${index}.name`}
+                            name={`variants.${index}.name`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Purchase Price</FormLabel>
@@ -242,7 +249,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                           />
                           <FormField
                             control={form.control}
-                            name={`varinats.${index}.name`}
+                            name={`variants.${index}.name`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Sale Price</FormLabel>
@@ -255,7 +262,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                           />
                           <FormField
                             control={form.control}
-                            name={`varinats.${index}.name`}
+                            name={`variants.${index}.name`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>SKU</FormLabel>
@@ -268,10 +275,10 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                           />
                           <FormField
                             control={form.control}
-                            name={`varinats.${index}.name`}
+                            name={`variants.${index}.name`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Reorder Threshold</FormLabel>
+                                <FormLabel>Barcode</FormLabel>
                                 <FormControl>
                                   <Input
                                     placeholder="0"
@@ -285,7 +292,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                           />
                         </li>
                       ))}
-                    </ul> */}
+                    </ul>
                   </>
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
@@ -351,7 +358,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
             </ScrollArea>
             <SheetFooter className="md:justify-between">
               <Button className="w-full" type="submit">
-                Create
+                Save
               </Button>
             </SheetFooter>
           </form>
