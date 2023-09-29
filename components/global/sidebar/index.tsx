@@ -24,7 +24,7 @@ function Sidebar() {
     setLoaded(true);
   }, []);
   return (
-    <div className="top-0 z-30 hidden h-screen w-full shrink-0 sticky md:block ">
+    <div className="top-0 z-30 hidden h-screen w-full bg-accent shrink-0 sticky md:block ">
       <div className="flex flex-col px-4 h-full border-r">
         <div className="border-b shrink-0 -mx-4">
           <div className="h-[60px]">logo</div>
@@ -45,7 +45,7 @@ function Sidebar() {
                   <Link
                     href={el.href}
                     className={cn(
-                      `px-2 group md:justify-center lg:px-4 lg:justify-start py-3 lg:py-2.5 flex gap-3 transition duration-500 items-center text-sm font-medium text-foreground hover:bg-accent  ${
+                      `px-2 group md:justify-center lg:px-4 lg:justify-start py-3 lg:py-2.5 flex gap-3 transition duration-500 items-center text-sm font-medium text-foreground hover:bg-secondary  ${
                         isActive(el.href)
                           ? "bg-primary hover:bg-primary text-primary-foreground"
                           : ""

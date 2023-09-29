@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
 const CustomerCard = () => {
   return (
-    <Card className="rounded-none md:rounded-md">
-      <CardContent className="p-4 space-y-2">
+    <Card>
+      <CardContent className="space-y-2">
         <div className="flex gap-2 items-start">
           <Avatar className="w-10 h-10">
             <AvatarFallback className="">

@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 const UserCard = () => {
   return (
-    <Card className="rounded-none md:rounded-md ">
-      <CardContent className="p-4 space-y-3 relative">
+    <Card>
+      <CardContent className="space-y-3 relative">
         <div className="flex gap-2 items-start">
           <Badge className="absolute right-4 top-4">Admin</Badge>
           <Avatar>

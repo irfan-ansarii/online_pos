@@ -103,7 +103,7 @@ const Cart = () => {
         </Accordion>
       </ScrollArea> */}
 
-      <div className="bg-background dark:bg-popover p-4  rounded-md">
+      <div className="bg-background p-4  rounded-md">
         <div className="flex flex-col text-sm">
           <div className="flex justify-between py-1">
             <div>Subtotal</div>
@@ -119,8 +119,8 @@ const Cart = () => {
             <div>0.00</div>
           </div>
           <div className="relative">
-            <div className="w-6 h-6 rounded-full -left-8 bg-secondary dark:bg-border absolute top-1/2 transform translate-y-[-50%]"></div>
-            <div className="w-6 h-6 rounded-full -right-8 bg-secondary dark:bg-border absolute top-1/2 transform translate-y-[-50%]"></div>
+            <div className="w-6 h-6 rounded-full -left-8 bg-accent absolute top-1/2 transform translate-y-[-50%]"></div>
+            <div className="w-6 h-6 rounded-full -right-8 bg-accent absolute top-1/2 transform translate-y-[-50%]"></div>
             <div className="border-b-2 border-dashed my-2 "></div>
           </div>
           <div className="flex justify-between py-1 text-lg font-medium">

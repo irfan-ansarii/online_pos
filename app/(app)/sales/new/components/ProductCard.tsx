@@ -17,6 +17,7 @@ import {
   DialogCancel,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Image } from "lucide-react";
 const ProductCard = () => {
   return (
     <Dialog>
@@ -28,8 +29,8 @@ const ProductCard = () => {
                 alt="@shadcn"
                 className="object-cover object-cover"
               />
-              <AvatarFallback className="object-cover object-cover aspect-square rounded-t rounded-b-none">
-                CN
+              <AvatarFallback className="object-cover text-muted-foreground object-cover aspect-square rounded-t rounded-b-none">
+                <Image className="w-10 h-10" />
               </AvatarFallback>
             </Avatar>
           </CardHeader>

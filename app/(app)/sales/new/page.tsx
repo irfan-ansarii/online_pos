@@ -9,7 +9,7 @@ const Page = () => {
           <CartDrawer />
           <Products />
         </div>
-        <div className="hidden lg:block -mr-4 p-4 lg:col-span-6 xl:col-span-5 2xl:col-span-4 sticky bg-secondary dark:bg-border h-screen top-0 bottom-0 z-50">
+        <div className="hidden lg:block -mr-4 p-4 lg:col-span-6 xl:col-span-5 2xl:col-span-4 sticky bg-accent h-screen top-0 bottom-0 z-50">
           <Cart />
         </div>
       </div>

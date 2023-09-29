@@ -9,7 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 const ProductCard = () => {
   return (
-    <Card className="overflow-hidden rounded-none md:rounded-md relative">
+    <Card className="overflow-hidden relative">
       <Badge className="absolute right-4 top-4">In stock</Badge>
       <CardContent className="p-0">
         <div className="flex items-stretch">

@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
 const SaleCard = () => {
   return (
-    <Card className="rounded-none md:rounded-md">
-      <CardContent className="p-4">
+    <Card>
+      <CardContent>
         <div className="grid grid-cols-5 gap-2">
           <div className="flex flex-col col-span-3">
             <div>GN256533</div>

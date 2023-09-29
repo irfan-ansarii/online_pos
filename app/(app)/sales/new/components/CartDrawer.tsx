@@ -18,7 +18,7 @@ const CartDrawer = () => {
           <ShoppingBag className="w-5 h-5" />
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-[90%] p-4 pt-10">
+      <DrawerContent className="h-[90%] p-4 pt-10 bg-accent">
         <Cart />
       </DrawerContent>
     </DrawerRoot>

@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// users schema
 model Users {
   id               Int       @id @default(autoincrement())
   firstName        String?
@@ -31,4 +32,39 @@ enum Status {
 enum Role {
   admin
   user
+}
+
+// products schema
+model Products {
+  id          Int           @id @default(autoincrement())
+  title       String
+  description String        @db.Text
+  type        Type          @default(simple)
+  status      ProductStatus @default(active)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Variants    Variants[]
+}
+
+enum Type {
+  simple
+  variable
+}
+
+enum ProductStatus {
+  active
+  archived
+  trash
+}
+
+// variants schema
+model Variants {
+  id            Int      @id @default(autoincrement())
+  productId     Int
+  product       Products @relation(fields: [productId], references: [id])
+  sku           String
+  name          String
+  purchasePrice Float
+  salePrice     Float
+  option        Json
 }

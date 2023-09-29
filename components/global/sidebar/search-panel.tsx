@@ -46,7 +46,7 @@ export default function SearchPanel() {
         variant="ghost"
         onClick={() => setOpen(true)}
         size="icon"
-        className="group lg:border w-full flex justify-center bg-accent lg:bg-background lg:justify-between gap-3 rounded-md items-center h-[44px] lg:px-4"
+        className="group lg:border w-full flex justify-center bg-secondary lg:bg-background lg:justify-between gap-3 rounded-md items-center h-[44px] lg:px-4"
       >
         <span className="inline-flex">
           <Search className="w-5 h-5 text-muted-foreground" />

@@ -11,12 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
 const Orders = () => {
   return (
-    <Card className="rounded-none md:rounded-md">
-      <CardHeader className="p-4">
+    <Card>
+      <CardHeader>
         <CardTitle>Recent Purchases</CardTitle>
         <CardDescription>You made 265 sales this month.</CardDescription>
       </CardHeader>
-      <CardContent className="p-4">
+      <CardContent>
         <div className="divide-y">
           {[...Array(6)].map(() => (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 py-3 first:pt-0 last:pb-0">
