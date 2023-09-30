@@ -9,18 +9,25 @@ datasource db {
 
 // users schema
 model Users {
-  id               Int       @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   firstName        String?
   lastName         String?
-  email            String    @unique
-  phone            String?   @unique
-  phoneConfirmedAt DateTime? @db.Timestamptz()
-  emailConfirmedAt DateTime? @db.Timestamptz()
-  status           Status    @default(invited)
-  role             Role      @default(user)
-  lastSignInAt     DateTime? @db.Timestamptz()
-  createdAt        DateTime  @default(now())
-  updatedaAt       DateTime  @updatedAt
+  email            String?    @unique
+  phone            String?    @unique
+  imageId          Int?
+  phoneConfirmedAt DateTime?  @db.Timestamptz()
+  emailConfirmedAt DateTime?  @db.Timestamptz()
+  invitedAt        DateTime?  @db.Timestamptz()
+  password         String?
+  recoveryToken    String?
+  recoverySentAt   DateTime?  @db.Timestamptz()
+  status           Status     @default(invited)
+  role             Role       @default(user)
+  locationId       Int?
+  location         Locations? @relation(fields: [locationId], references: [id])
+  lastSignInAt     DateTime?  @db.Timestamptz()
+  createdAt        DateTime   @default(now())
+  updatedaAt       DateTime   @updatedAt
 }
 
 enum Status {
@@ -32,6 +39,44 @@ enum Status {
 enum Role {
   admin
   user
+  customer
+  supplier
+}
+
+// user addresses schema
+model Addresses {
+  id       Int     @id @default(autoincrement())
+  company  String?
+  address  String
+  address2 String
+  city     String
+  state    String
+  zip      String
+  country  String
+  userId   String
+}
+
+// locations schema
+
+model Locations {
+  id        Int          @id @default(autoincrement())
+  type      LocationType @default(store)
+  name      String
+  phone     String
+  email     String
+  address   String
+  address2  String
+  city      String
+  state     String
+  zip       String
+  country   String
+  users     Users[]
+  inventory Inventory[]
+}
+
+enum LocationType {
+  store
+  warehouse
 }
 
 // products schema
@@ -41,9 +86,11 @@ model Products {
   description String        @db.Text
   type        Type          @default(simple)
   status      ProductStatus @default(active)
+  variants    Variants[]
+  inventory   Inventory?
+  label       Labels?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  Variants    Variants[]
 }
 
 enum Type {
@@ -59,12 +106,41 @@ enum ProductStatus {
 
 // variants schema
 model Variants {
-  id            Int      @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   productId     Int
-  product       Products @relation(fields: [productId], references: [id])
+  product       Products   @relation(fields: [productId], references: [id])
   sku           String
   name          String
   purchasePrice Float
   salePrice     Float
-  option        Json
+  inventory     Inventory?
+  label         Labels?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+// inventory schema
+model Inventory {
+  id         Int       @id @default(autoincrement())
+  locationId Int
+  location   Locations @relation(fields: [locationId], references: [id])
+  productId  Int       @unique
+  product    Products  @relation(fields: [productId], references: [id])
+  variantId  Int       @unique
+  variant    Variants  @relation(fields: [variantId], references: [id])
+  stock      Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Labels {
+  id         Int      @id @default(autoincrement())
+  locationId Int      @unique
+  productId  Int      @unique
+  product    Products @relation(fields: [productId], references: [id])
+  variantId  Int      @unique
+  variant    Variants @relation(fields: [variantId], references: [id])
+  count      Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
