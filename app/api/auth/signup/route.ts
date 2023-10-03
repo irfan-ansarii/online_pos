@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await prisma.users.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email } });
 
     // if user exists and active
     if (user?.email && user?.status !== "invited") {
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcryptjs.hash(password, salt);
 
     // create user
-    const response = await prisma.users.update({
+    const response = await prisma.user.update({
       where: { email },
       data: {
         ...body,

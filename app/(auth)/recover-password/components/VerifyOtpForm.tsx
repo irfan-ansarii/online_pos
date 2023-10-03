@@ -41,7 +41,7 @@ export function VerifyOtpForm() {
           variant: "success",
           title: res.data.message,
         });
-        router.replace("/recover-password?setp=3");
+        router.replace("/recover-password?step=3");
       },
       onError: (error: any) => {
         toast({

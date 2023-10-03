@@ -16,21 +16,18 @@ export async function POST(request: NextRequest) {
     }
 
     // find user by email
-    const user = await prisma.users.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email } });
 
     // if no user found
     if (!user) {
       return NextResponse.json(
-        { message: "email is not registered" },
+        { message: "Email is not registered" },
         { status: 404 }
       );
     }
 
     // if user is not application user or user is not active
-    if (
-      (user.role !== "admin" && user.role !== "user") ||
-      user.status !== "active"
-    ) {
+    if (user.role !== "admin" && user.role !== "user") {
       return NextResponse.json(
         { message: "Action not allowed" },
         { status: 403 }
@@ -40,7 +37,7 @@ export async function POST(request: NextRequest) {
     // 1. generate otp
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    await prisma.users.update({
+    await prisma.user.update({
       where: {
         email,
       },

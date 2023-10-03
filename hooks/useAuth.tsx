@@ -1,4 +1,4 @@
-import { useMutation, useQuery, QueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 interface Props {
@@ -41,7 +41,7 @@ const logout = async () => {
 };
 
 export const useLogout = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   return useMutation(logout, {
     onSuccess: () => {
       queryClient.removeQueries();

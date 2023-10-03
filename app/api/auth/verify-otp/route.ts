@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export default async function POST(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { otp } = body;
     const email = request.cookies.get("_recovery_email")?.value || null;
 
+    // if cookie is not set
     if (!otp || !email) {
       return NextResponse.json(
         { message: "Invalid request  data" },
@@ -14,10 +15,12 @@ export default async function POST(request: NextRequest) {
       );
     }
 
-    const user = await prisma.users.findUnique({
+    // find user by email
+    const user = await prisma.user.findUnique({
       where: { email },
     });
 
+    // if correct otp
     if (user?.recoveryOtp === otp) {
       const response = NextResponse.json(
         {
@@ -25,9 +28,12 @@ export default async function POST(request: NextRequest) {
         },
         { status: 200 }
       );
-      response.cookies.set("_recovery_otp", otp);
+      response.cookies.set("_recovery_otp", otp, { httpOnly: true });
       return response;
-    } else if (user?.recoveryOtp !== otp) {
+    }
+
+    // if incorrect otp
+    if (user?.recoveryOtp !== otp) {
       return NextResponse.json(
         {
           message: "Incorrect OTP",
@@ -36,6 +42,7 @@ export default async function POST(request: NextRequest) {
       );
     }
 
+    // general error
     return NextResponse.json(
       {
         message: "Something went wrong",

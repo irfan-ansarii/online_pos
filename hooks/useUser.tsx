@@ -1,17 +1,22 @@
-import axios from "axios";
 import { useMutation, useInfiniteQuery, useQuery } from "@tanstack/react-query";
-
+import { api } from "@/lib/utils";
 /**
  * get users
  * @param query
  * @returns
  */
-const users = async (query: any) => {
-  return await axios.get("/api/users", query);
+const users = async ({ pageParam = 1 }) => {
+  return await api.get(`/users?page=${pageParam}`);
 };
 
 export const useUsers = () => {
-  return useInfiniteQuery(["users"], users);
+  return useInfiniteQuery(["users"], users, {
+    getNextPageParam: (lastPage, allPages) => {
+      console.log(lastPage, allPages);
+
+      return undefined;
+    },
+  });
 };
 
 /**
@@ -19,12 +24,12 @@ export const useUsers = () => {
  * @param {number} id
  * @returns
  */
-const user = async (id: number) => {
-  return await axios.get(`/api/user/${id}`);
+const user = async () => {
+  return await api.get(`/user/`);
 };
 
 export const useUser = () => {
-  return useQuery(["user"], user);
+  return useQuery(["user", "1"], user);
 };
 
 /**
@@ -33,7 +38,7 @@ export const useUser = () => {
  * @returns
  */
 const invite = async ({ email }: { email: string }) => {
-  return await axios.post("/api/users", { email });
+  return await api.post("/users", { email });
 };
 
 export const useInviteUser = () => {
@@ -46,7 +51,7 @@ export const useInviteUser = () => {
  * @returns
  */
 const updateRole = async ({ id, role }: { id: number; role: string }) => {
-  return await axios.put(`/api/users/${id}`, { role });
+  return await api.put(`/users/${id}`, { role });
 };
 export const useUpdateUserRole = () => {
   return useMutation(updateRole);
@@ -58,7 +63,7 @@ export const useUpdateUserRole = () => {
  * @returns
  */
 const updateStatus = async ({ id, status }: { id: number; status: string }) => {
-  return await axios.patch(`/api/users/${id}`, { status });
+  return await api.patch(`/users/${id}`, { status });
 };
 export const useUpdateUserStatus = () => {
   return useMutation(updateStatus);
@@ -69,7 +74,7 @@ export const useUpdateUserStatus = () => {
  * @param {number} id
  */
 const deleteUser = async (id: number) => {
-  return await axios.delete(`/api/users/${id}`);
+  return await api.delete(`/users/${id}`);
 };
 
 export const useDeleteUser = () => {

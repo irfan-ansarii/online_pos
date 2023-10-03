@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // find user
-    const user = await prisma.users.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email } });
 
     // validate password
     const isValid = await bcryptjs.compare(password, user?.password as string);
@@ -59,6 +59,14 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set("token", token, {
       httpOnly: true,
+    });
+
+    // update last sign in
+    await prisma.user.update({
+      where: { email },
+      data: {
+        lastSignInAt: new Date(),
+      },
     });
 
     return response;

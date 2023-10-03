@@ -21,13 +21,13 @@ model User {
   createdAt        DateTime  @default(now())
   updatedaAt       DateTime  @updatedAt
   imageId          Int?      @unique
-  image            Image?    @relation(fields: [imageId], references: [id])
   invitedAt        DateTime? @db.Timestamptz(6)
   password         String?
   recoverySentAt   DateTime? @db.Timestamptz(6)
   invitedById      Int?      @unique
   locationsId      Int?
   recoveryOtp      String?
+  image            Image?    @relation(fields: [imageId], references: [id])
   invitedBy        User?     @relation("InvitedBy", fields: [invitedById], references: [id])
   invitedByUser    User?     @relation("InvitedBy")
   Locations        Location? @relation(fields: [locationsId], references: [id])

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // find user
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email },
     });
 
@@ -47,22 +47,28 @@ export async function POST(request: NextRequest) {
       const hashedPassword = await bcryptjs.hash(confirmNewPassword, salt);
 
       // update user
-      await prisma.users.update({
+      await prisma.user.update({
         where: { email },
         data: {
           password: hashedPassword,
           recoveryOtp: "",
+          recoverySentAt: "",
         },
       });
 
       // return response
       const response = NextResponse.json(
-        { message: "Password created successfully" },
+        { message: "Password changed successfully" },
         { status: 200 }
       );
 
-      response.cookies.set("_recovery_otp", "", { expires: new Date(0) });
-      response.cookies.set("_recovery_email", "", { expires: new Date(0) });
+      response.cookies.set("_recovery_otp", "", {
+        httpOnly: true,
+        expires: new Date(0),
+      });
+      response.cookies.set("_recovery_email", "", {
+        expires: new Date(0),
+      });
 
       return response;
     }
