@@ -14,16 +14,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { loginValidation } from "@/lib/validations/login";
+import { loginValidation } from "@/lib/validations/auth";
 import { useToast } from "@/components/ui/use-toast";
+import { useLogin } from "@/hooks/useAuth";
 
-export function LoginForm({ ...props }) {
-  const { mutate, isLoading } = { mutate: "", isLoading: false };
+export function LoginForm() {
+  const { mutate, isLoading } = useLogin();
   const router = useRouter();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -41,14 +41,14 @@ export function LoginForm({ ...props }) {
       onSuccess: () => {
         toast({
           variant: "success",
-          description: "Logged in successfully!",
+          title: "Logged in successfully!",
         });
         router.replace("/overview");
       },
       onError: (error: any) => {
         toast({
           variant: "error",
-          description: error.message || "Something went wrong",
+          title: error.response.data.message || "Something went wrong",
         });
       },
     });
@@ -72,7 +72,7 @@ export function LoginForm({ ...props }) {
             <FormItem className="flex w-full flex-col">
               <FormLabel>Email</FormLabel>
               <div className="relative">
-                <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-2">
+                <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
                   <Mail className="w-4 h-4" />
                 </span>
                 <FormControl
@@ -83,7 +83,7 @@ export function LoginForm({ ...props }) {
                       : ""
                   }
                 >
-                  <Input type="text" {...field} className="pl-8" />
+                  <Input type="text" {...field} className="pl-10" />
                 </FormControl>
               </div>
               <FormMessage />
@@ -98,11 +98,11 @@ export function LoginForm({ ...props }) {
             <FormItem className="flex w-full flex-col">
               <FormLabel>Password</FormLabel>
               <div className="relative">
-                <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-2">
+                <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
                   <Lock className="w-4 h-4" />
                 </span>
                 <span
-                  className="absolute text-muted-foreground inset-y-0 right-0 flex flex-col justify-center px-2 cursor-pointer"
+                  className="absolute text-muted-foreground inset-y-0 right-0 flex flex-col justify-center px-3 cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -123,7 +123,7 @@ export function LoginForm({ ...props }) {
                   <Input
                     type={showPassword ? "text" : "password"}
                     {...field}
-                    className="px-8"
+                    className="px-10"
                   />
                 </FormControl>
               </div>
@@ -141,9 +141,9 @@ export function LoginForm({ ...props }) {
               Remember me
             </Label>
           </div>
-          <Link href="/signup" className="text-sm hover:underline">
-            Forgot Password?
-          </Link>
+          <Button variant="link" className="py-0 h-auto">
+            <Link href="/recover-password">Forgot Password?</Link>
+          </Button>
         </div>
         <Button type="submit">
           {isLoading ? (

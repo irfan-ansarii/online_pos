@@ -1,6 +1,6 @@
 "use client";
 import * as z from "zod";
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -16,14 +16,14 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { loginValidation } from "@/lib/validations/login";
+import { loginValidation } from "@/lib/validations/auth";
 import { useToast } from "@/components/ui/use-toast";
-
+import { useSignup } from "@/hooks/useAuth";
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function SignupForm({ ...props }: UserAuthFormProps) {
   const { toast } = useToast();
-
+  const { mutate, isLoading } = useSignup();
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const form = useForm<z.infer<typeof loginValidation>>({
     resolver: zodResolver(loginValidation),
@@ -34,20 +34,20 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
   });
 
   async function onSubmit(values: z.infer<typeof loginValidation>) {
-    // mutate(values, {
-    //   onSuccess: (res) => {
-    //     toast({
-    //       variant: "success",
-    //       title: "Logged in successfully!",
-    //     });
-    //   },
-    //   onError: (error: any) => {
-    //     toast({
-    //       variant: "error",
-    //       description: error.message || "Something went wrong",
-    //     });
-    //   },
-    // });
+    mutate(values, {
+      onSuccess: (res) => {
+        toast({
+          variant: "success",
+          title: res.data.message,
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          variant: "error",
+          title: error.response.data.message || "Something went wrong",
+        });
+      },
+    });
   }
 
   return (
@@ -57,9 +57,9 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         {/* loading */}
-        {/* {isLoading && (
+        {isLoading && (
           <div className="absolute w-full h-full transparent z-20"></div>
-        )} */}
+        )}
 
         <FormField
           control={form.control}
@@ -68,7 +68,7 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
             <FormItem className="flex w-full flex-col">
               <FormLabel>Email</FormLabel>
               <div className="relative">
-                <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-2">
+                <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
                   <Mail className="w-4 h-4" />
                 </span>
                 <FormControl
@@ -79,7 +79,7 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
                       : ""
                   }
                 >
-                  <Input type="text" {...field} className="pl-8" />
+                  <Input type="text" {...field} className="pl-10" />
                 </FormControl>
               </div>
               <FormMessage />
@@ -94,11 +94,11 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
             <FormItem className="flex w-full flex-col">
               <FormLabel>Password</FormLabel>
               <div className="relative">
-                <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-2">
+                <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
                   <Lock className="w-4 h-4" />
                 </span>
                 <span
-                  className="absolute text-muted-foreground inset-y-0 right-0 flex flex-col justify-center px-2 cursor-pointer"
+                  className="absolute text-muted-foreground inset-y-0 right-0 flex flex-col justify-center px-3 cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -119,7 +119,7 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
                   <Input
                     type={showPassword ? "text" : "password"}
                     {...field}
-                    className="px-8"
+                    className="px-10"
                   />
                 </FormControl>
               </div>
@@ -129,12 +129,11 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
         />
 
         <Button type="submit">
-          {/* {isLoading ? (
+          {isLoading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             "Create Account"
-          )} */}
-          Create
+          )}
         </Button>
       </form>
     </Form>

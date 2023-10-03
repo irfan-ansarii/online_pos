@@ -7,27 +7,129 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// users schema
-model Users {
-  id               Int        @id @default(autoincrement())
+model User {
+  id               Int       @id @default(autoincrement())
   firstName        String?
   lastName         String?
-  email            String?    @unique
-  phone            String?    @unique
-  imageId          Int?
-  phoneConfirmedAt DateTime?  @db.Timestamptz()
-  emailConfirmedAt DateTime?  @db.Timestamptz()
-  invitedAt        DateTime?  @db.Timestamptz()
+  email            String?   @unique
+  phone            String?   @unique
+  phoneConfirmedAt DateTime? @db.Timestamptz(6)
+  emailConfirmedAt DateTime? @db.Timestamptz(6)
+  status           Status    @default(invited)
+  role             Role      @default(user)
+  lastSignInAt     DateTime? @db.Timestamptz(6)
+  createdAt        DateTime  @default(now())
+  updatedaAt       DateTime  @updatedAt
+  imageId          Int?      @unique
+  image            Image?    @relation(fields: [imageId], references: [id])
+  invitedAt        DateTime? @db.Timestamptz(6)
   password         String?
-  recoveryToken    String?
-  recoverySentAt   DateTime?  @db.Timestamptz()
-  status           Status     @default(invited)
-  role             Role       @default(user)
-  locationId       Int?
-  location         Locations? @relation(fields: [locationId], references: [id])
-  lastSignInAt     DateTime?  @db.Timestamptz()
-  createdAt        DateTime   @default(now())
-  updatedaAt       DateTime   @updatedAt
+  recoverySentAt   DateTime? @db.Timestamptz(6)
+  invitedById      Int?      @unique
+  locationsId      Int?
+  recoveryOtp      String?
+  invitedBy        User?     @relation("InvitedBy", fields: [invitedById], references: [id])
+  invitedByUser    User?     @relation("InvitedBy")
+  Locations        Location? @relation(fields: [locationsId], references: [id])
+
+  @@map("users")
+}
+
+model Image {
+  id   Int   @id @default(autoincrement())
+  user User?
+}
+
+model Address {
+  id       Int     @id @default(autoincrement())
+  company  String?
+  address  String
+  address2 String
+  city     String
+  state    String
+  zip      String
+  country  String
+  userId   String
+
+  @@map("addressed")
+}
+
+model Location {
+  id        Int          @id @default(autoincrement())
+  type      LocationType @default(store)
+  name      String
+  phone     String
+  email     String
+  address   String
+  address2  String
+  city      String
+  state     String
+  zip       String
+  country   String
+  inventory Inventory[]
+  users     User[]
+
+  @@map("locations")
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  title       String
+  description String
+  type        Type          @default(simple)
+  status      ProductStatus @default(active)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  inventory   Inventory?
+  label       Label?
+  variants    Variant[]
+
+  @@map("products")
+}
+
+model Variant {
+  id            Int        @id @default(autoincrement())
+  productId     Int
+  sku           String
+  name          String
+  purchasePrice Float
+  salePrice     Float
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  inventory     Inventory?
+  label         Label?
+  product       Product    @relation(fields: [productId], references: [id])
+
+  @@map("variants")
+}
+
+model Inventory {
+  id         Int      @id @default(autoincrement())
+  locationId Int
+  productId  Int      @unique
+  variantId  Int      @unique
+  stock      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  location   Location @relation(fields: [locationId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+  variant    Variant  @relation(fields: [variantId], references: [id])
+
+  @@map("inventory")
+}
+
+model Label {
+  id         Int      @id @default(autoincrement())
+  locationId Int      @unique
+  productId  Int      @unique
+  variantId  Int      @unique
+  count      Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  product    Product  @relation(fields: [productId], references: [id])
+  variant    Variant  @relation(fields: [variantId], references: [id])
+
+  @@map("labels")
 }
 
 enum Status {
@@ -43,54 +145,9 @@ enum Role {
   supplier
 }
 
-// user addresses schema
-model Addresses {
-  id       Int     @id @default(autoincrement())
-  company  String?
-  address  String
-  address2 String
-  city     String
-  state    String
-  zip      String
-  country  String
-  userId   String
-}
-
-// locations schema
-
-model Locations {
-  id        Int          @id @default(autoincrement())
-  type      LocationType @default(store)
-  name      String
-  phone     String
-  email     String
-  address   String
-  address2  String
-  city      String
-  state     String
-  zip       String
-  country   String
-  users     Users[]
-  inventory Inventory[]
-}
-
 enum LocationType {
   store
   warehouse
-}
-
-// products schema
-model Products {
-  id          Int           @id @default(autoincrement())
-  title       String
-  description String        @db.Text
-  type        Type          @default(simple)
-  status      ProductStatus @default(active)
-  variants    Variants[]
-  inventory   Inventory?
-  label       Labels?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
 }
 
 enum Type {
@@ -102,45 +159,4 @@ enum ProductStatus {
   active
   archived
   trash
-}
-
-// variants schema
-model Variants {
-  id            Int        @id @default(autoincrement())
-  productId     Int
-  product       Products   @relation(fields: [productId], references: [id])
-  sku           String
-  name          String
-  purchasePrice Float
-  salePrice     Float
-  inventory     Inventory?
-  label         Labels?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-}
-
-// inventory schema
-model Inventory {
-  id         Int       @id @default(autoincrement())
-  locationId Int
-  location   Locations @relation(fields: [locationId], references: [id])
-  productId  Int       @unique
-  product    Products  @relation(fields: [productId], references: [id])
-  variantId  Int       @unique
-  variant    Variants  @relation(fields: [variantId], references: [id])
-  stock      Int
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-}
-
-model Labels {
-  id         Int      @id @default(autoincrement())
-  locationId Int      @unique
-  productId  Int      @unique
-  product    Products @relation(fields: [productId], references: [id])
-  variantId  Int      @unique
-  variant    Variants @relation(fields: [variantId], references: [id])
-  count      Int      @default(1)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
 }
