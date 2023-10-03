@@ -6,7 +6,10 @@ export async function POST() {
       message: "Logout successfull",
       success: true,
     });
-    response.cookies.set("token", "", { httpOnly: true, expires: new Date(0) });
+    response.cookies.set("_auth_token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
     return response;
   } catch (error: any) {
     return NextResponse.json(

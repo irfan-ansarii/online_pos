@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import SaleCard from "./components/SaleCard";
-
+import Loading from "./components/Loading";
 import Filters from "./components/Filters";
 import MobileHeader from "@/components/shared/mobile-header";
 const Page = () => {
@@ -15,6 +15,9 @@ const Page = () => {
 
         <div className="md:p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
+            {[...Array(6)].map((el, i) => (
+              <Loading />
+            ))}
             {[...Array(18)].map((el, i) => (
               <SaleCard />
             ))}

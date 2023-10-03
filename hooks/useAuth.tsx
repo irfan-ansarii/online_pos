@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { api } from "@/lib/utils";
 
 interface Props {
   email: string;
@@ -12,7 +12,7 @@ interface Props {
  * @returns
  */
 const signup = async (data: Props) => {
-  return await axios.post("/api/auth/signup", data);
+  return await api.post("/auth/signup", data);
 };
 
 export const useSignup = () => {
@@ -25,7 +25,7 @@ export const useSignup = () => {
  * @returns
  */
 const login = async (data: Props) => {
-  return await axios.post("/api/auth/login", data);
+  return await api.post("/auth/login", data);
 };
 
 export const useLogin = () => {
@@ -37,7 +37,7 @@ export const useLogin = () => {
  * @returns
  */
 const logout = async () => {
-  return await axios.post("/api/auth/logout");
+  return await api.post("/auth/logout");
 };
 
 export const useLogout = () => {
@@ -55,7 +55,7 @@ export const useLogout = () => {
  * @returns
  */
 const session = async () => {
-  return await axios.get("/api/auth/session");
+  return await api.get("/auth/session");
 };
 export const useSession = () => {
   return useQuery(["session"], session, { retry: 0 });
@@ -67,7 +67,7 @@ export const useSession = () => {
  * @returns
  */
 const sendOTP = async (data: { email: string }) => {
-  return await axios.post("/api/auth/send-otp", data);
+  return await api.post("/auth/send-otp", data);
 };
 export const useSendOTP = () => {
   return useMutation(sendOTP);
@@ -79,7 +79,7 @@ export const useSendOTP = () => {
  * @returns
  */
 const verifyOtp = async (data: { otp: string }) => {
-  return await axios.post("/api/auth/verify-otp", data);
+  return await api.post("/auth/verify-otp", data);
 };
 
 export const useVerifyOTP = () => {
@@ -95,7 +95,7 @@ const resetPassword = async (data: {
   newPassword: string;
   confirmNewPassword: string;
 }) => {
-  return await axios.post("/api/auth/reset-password", data);
+  return await api.post("/auth/reset-password", data);
 };
 
 export const useResetPassword = () => {

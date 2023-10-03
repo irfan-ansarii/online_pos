@@ -13,12 +13,12 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import CreateWorkspace from "./workspace-create";
-import { Plus } from "lucide-react";
+import { Home, Plus } from "lucide-react";
 
 interface WorkspaceDialogProps {
   children?: React.ReactNode;
 }
-const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
+const LocationDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const { data: workspaces, refetch, isLoading } = {};
   const { mutate } = {};
@@ -46,7 +46,8 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
   ) : (
     children || (
       <Button variant="secondary">
-        {activeWorkspace?.name || "Select Workspace"}
+        <Home className="w-5 h-5 mr-2" />
+        {activeWorkspace?.name || "Select Location"}
       </Button>
     )
   );
@@ -57,26 +58,26 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
       </DialogTrigger>
       <DialogContent className="max-w-[90%] sm:max-w-md">
         <DialogHeader className="text-left pb-4">
-          <DialogTitle className="text-xl">Select Workspace</DialogTitle>
+          <DialogTitle className="text-xl">Select Location</DialogTitle>
         </DialogHeader>
         <RadioGroup
           defaultValue={activeWorkspace?.id}
           className="space-y-2 mb-4"
           onValueChange={onChange}
         >
-          {workspaces?.map((item) => (
+          {[...Array(4)].map((item, i) => (
             <Label
-              htmlFor={item.id}
+              htmlFor={`${i}`}
               className={`flex border px-5 py-4 rounded-md cursor-pointer justify-between items-center`}
             >
               <div>
-                <p className="font-medium mb-1">{item.name}</p>
+                <p className="font-medium mb-1">Location</p>
                 <span className="inline text-muted-foreground">
                   some text here
                 </span>
               </div>
 
-              <RadioGroupItem value={item.id} id={item.id} />
+              <RadioGroupItem value={`${i}`} id={`${i}`} />
             </Label>
           ))}
         </RadioGroup>
@@ -84,7 +85,7 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
           trigger={
             <DialogTrigger asChild>
               <Button variant="secondary" className="w-full">
-                <Plus className="w-5 h-5 mr-2" /> New Workspace
+                <Plus className="w-5 h-5 mr-2" /> New
               </Button>
             </DialogTrigger>
           }
@@ -94,4 +95,4 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
   );
 };
 
-export default WorkspaceDialog;
+export default LocationDialog;

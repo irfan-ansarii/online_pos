@@ -5,7 +5,11 @@ import Loading from "./Loading";
 import { useUsers } from "@/hooks/useUser";
 import EmptyBox from "@/components/shared/empty-box";
 const Users = () => {
-  const { data: users, isLoading, isError } = useUsers();
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useUsers({ page: 1, perPage: 10 });
   return (
     <>
       {/* loading */}

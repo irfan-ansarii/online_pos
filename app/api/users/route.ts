@@ -2,26 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
+  try {
+    const { searchParams } = req.nextUrl;
 
-  const params = Object.fromEntries([...searchParams.entries()]);
+    const params = Object.fromEntries([...searchParams.entries()]);
 
-  const { page, perPage, search } = params;
+    const { page, perPage, search } = params;
 
-  const currentPage = parseInt(page, 10) || 1;
-  const itemsPerPage = parseInt(perPage, 10) || 10;
+    const currentPage = parseInt(page, 10) || 1;
+    const itemsPerPage = parseInt(perPage, 10) || 10;
 
-  const offset = (currentPage - 1) * itemsPerPage;
+    const offset = (currentPage - 1) * itemsPerPage;
 
-  const users = await prisma.user.findMany({
-    skip: offset,
-    take: itemsPerPage,
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+    const users = await prisma.user.findMany({
+      skip: offset,
+      take: itemsPerPage,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-  return NextResponse.json({ data: users }, { status: 200 });
+    return NextResponse.json({ data: users }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: NextRequest) {

@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import WorkspaceDialog from "./workspace-dialog";
+import LocationDialog from "./location-dialog";
 import { ChevronDown, Power } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -36,11 +36,11 @@ const Profile = () => {
         <DropdownMenuItem>Profile</DropdownMenuItem>
         <DropdownMenuItem>Teams</DropdownMenuItem>
 
-        <WorkspaceDialog>
+        <LocationDialog>
           <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground">
             Workspace
           </div>
-        </WorkspaceDialog>
+        </LocationDialog>
 
         <DropdownMenuSeparator />
         <DropdownMenuItem

@@ -1,35 +1,52 @@
-import { useMutation, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/utils";
+import { useMutation, useInfiniteQuery, useQuery } from "@tanstack/react-query";
+
+interface UsersQueryKey {
+  query: {
+    perPage?: number;
+    search?: string;
+  };
+  pageParam: number;
+}
+
 /**
  * get users
  * @param query
  * @returns
  */
-const users = async ({ pageParam = 1 }) => {
-  return await api.get(`/users?page=${pageParam}`);
-};
-
-export const useUsers = () => {
-  return useInfiniteQuery(["users"], users, {
-    getNextPageParam: (lastPage, allPages) => {
-      console.log(lastPage, allPages);
-
-      return undefined;
+const getUsers = async ({ query, pageParam = 1 }: UsersQueryKey) => {
+  return await api.get("/users", {
+    params: {
+      ...query,
+      page: pageParam,
     },
   });
 };
 
+export const useUsers = (query: any) => {
+  return useInfiniteQuery(
+    ["users"],
+    ({ pageParam }) => getUsers({ query, pageParam }),
+    {
+      getNextPageParam: (lastPage, allPages) => {
+        return undefined;
+      },
+      retry: 0,
+    }
+  );
+};
 /**
  * get user
  * @param {number} id
  * @returns
  */
-const user = async () => {
-  return await api.get(`/user/`);
+const getUser = async ({ queryKey }: { queryKey: [string, number] }) => {
+  const [_, id] = queryKey;
+  return await api.get(`/user/${id}`);
 };
 
-export const useUser = () => {
-  return useQuery(["user", "1"], user);
+export const useUser = (id: number) => {
+  return useQuery(["user", id], getUser);
 };
 
 /**
