@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { sanitize } from "@/lib/sanitize-user";
 import { PAGE_SIZE } from "@/lib/CONSTANTS";
 /**
- * get users
+ * get locations
  * @param req
  * @returns
  */
@@ -21,34 +21,26 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
-    // find users
-    const users = await prisma.user.findMany({
+    // find locations
+    const locations = await prisma.location.findMany({
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
         createdAt: "desc",
       },
-      where: {
-        role: { in: ["user", "admin"] },
-        status: { not: "invited" },
-      },
     });
 
     // get pagination
-    const total = await prisma.user.count({
+    const total = await prisma.location.count({
       orderBy: {
         createdAt: "desc",
-      },
-      where: {
-        role: { in: ["user", "admin"] },
-        status: { not: "invited" },
       },
     });
 
     // return response
     return NextResponse.json(
       {
-        data: users.map((user) => sanitize(user)),
+        data: locations,
         pagination: {
           page: currentPage,
           PAGE_SIZE,
@@ -68,46 +60,24 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * create user
+ * create location
  * @param req
  * @returns
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, role } = body;
-    console.log(body);
-    // if email or password is missing
-    if (!email || !role)
-      return NextResponse.json(
-        { message: "Email and role is required" },
-        { status: 400 }
-      );
 
-    // check if user already exists
-    const user = await prisma.user.findUnique({ where: { email } });
-
-    if (user) {
-      return NextResponse.json(
-        { message: "Email already registered" },
-        { status: 400 }
-      );
-    }
-
-    // create user
-    const createdUser = await prisma.user.create({
+    // create location
+    const location = await prisma.location.create({
       data: {
-        email,
-        role,
-        invitedAt: new Date(),
+        ...body,
       },
     });
 
-    // send email and message with signup link
-
     // return response
     return NextResponse.json(
-      { message: "Invited", data: createdUser },
+      { message: "Success", data: location },
       { status: 201 }
     );
   } catch (error) {

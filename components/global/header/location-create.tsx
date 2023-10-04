@@ -24,33 +24,37 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
-
+import { useToast } from "@/components/ui/use-toast";
 import { Loader2, Store, Home } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { validation } from "@/lib/validations/workspace";
+import { locationValidation } from "@/lib/validations/locations";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useCreateLocation } from "@/hooks/useUser";
 
 const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
   const [open, setOpen] = React.useState<boolean>(false);
+  const { toast } = useToast();
+  const { mutate, isLoading } = useCreateLocation();
 
-  const { mutate, isLoading } = {};
-
-  const form = useForm<z.infer<typeof validation>>({
-    resolver: zodResolver(validation),
-    defaultValues: {
-      name: "",
-      description: "",
-    },
+  const form = useForm<z.infer<typeof locationValidation>>({
+    resolver: zodResolver(locationValidation),
+    defaultValues: {},
   });
 
-  const onSubmit = (values: { name: string; description: string }) => {
+  const onSubmit = (values: z.infer<typeof locationValidation>) => {
     mutate(values, {
-      onSuccess: () => {
-        console.log("success");
+      onSuccess: (res) => {
+        toast({
+          variant: "success",
+          title: res.data.message,
+        });
       },
-      onError: (err) => {
-        console.log(err);
+      onError: (err: any) => {
+        toast({
+          variant: "error",
+          title: err.response.data.message,
+        });
       },
     });
   };

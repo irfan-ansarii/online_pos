@@ -41,33 +41,37 @@ model Image {
 }
 
 model Address {
-  id       Int     @id @default(autoincrement())
-  company  String?
-  address  String
-  address2 String
-  city     String
-  state    String
-  zip      String
-  country  String
-  userId   String
+  id         Int      @id @default(autoincrement())
+  company    String?
+  address    String
+  address2   String
+  city       String
+  state      String
+  zip        String
+  country    String
+  userId     String
+  createdAt  DateTime @default(now())
+  updatedaAt DateTime @updatedAt
 
   @@map("addressed")
 }
 
 model Location {
-  id        Int          @id @default(autoincrement())
-  type      LocationType @default(store)
-  name      String
-  phone     String
-  email     String
-  address   String
-  address2  String
-  city      String
-  state     String
-  zip       String
-  country   String
-  inventory Inventory[]
-  users     User?
+  id         Int          @id @default(autoincrement())
+  type       LocationType @default(store)
+  name       String
+  phone      String
+  email      String
+  address    String
+  address2   String
+  city       String
+  state      String
+  zip        String
+  country    String
+  createdAt  DateTime     @default(now())
+  updatedaAt DateTime     @updatedAt
+  inventory  Inventory[]
+  users      User?
 
   @@map("locations")
 }

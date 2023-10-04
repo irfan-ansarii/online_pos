@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import NewSheet from "./components/NewSheet";
 import TransferSheet from "./components/TransferSheet";
+import Loading from "./components/Loading";
 const Page = () => {
   return (
     <>
@@ -14,8 +15,11 @@ const Page = () => {
         <PageHeader />
         <div className="md:p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
-            {[...Array(18)].map(() => (
+            {[...Array(4)].map(() => (
               <ProductCard />
+            ))}
+            {[...Array(6)].map(() => (
+              <Loading />
             ))}
           </div>
         </div>

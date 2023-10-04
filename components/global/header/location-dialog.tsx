@@ -11,27 +11,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
+import { useLocations, useSwitchLocation } from "@/hooks/useUser";
 import CreateLocation from "./location-create";
 import { Home, Plus } from "lucide-react";
 
-interface WorkspaceDialogProps {
+const LocationDialog: React.FC = ({
+  children,
+}: {
   children?: React.ReactNode;
-}
-const LocationDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
-  const [open, setOpen] = React.useState<boolean>(false);
-  const { data: workspaces, refetch, isLoading } = {};
-  const { mutate } = {};
+}) => {
+  const [open, setOpen] = React.useState(false);
+  const { data: locations, refetch, isLoading } = useLocations();
+  const { mutate, isLoading: switching } = useSwitchLocation();
 
-  const activeWorkspace = useMemo(() => {
-    return workspaces?.find((item) => item.active === true);
-  }, [workspaces]);
+  const activeLocation = useMemo(() => {
+    return locations?.data?.find((item: any) => item.active === true);
+  }, [locations]);
 
   const onChange = (value: string) => {
-    const workspaceId = Number(value);
+    const locationId = Number(value);
 
     mutate(
-      { workspace: workspaceId },
+      { locationId: locationId },
       {
         onSuccess: () => {
           refetch();
@@ -47,7 +48,7 @@ const LocationDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
     children || (
       <Button variant="secondary">
         <Home className="w-5 h-5 mr-2" />
-        {activeWorkspace?.name || "Select Location"}
+        {activeLocation?.name || "Select Location"}
       </Button>
     )
   );
@@ -61,7 +62,7 @@ const LocationDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
           <DialogTitle className="text-xl">Select Location</DialogTitle>
         </DialogHeader>
         <RadioGroup
-          defaultValue={activeWorkspace?.id}
+          defaultValue={activeLocation?.id}
           className="space-y-2 mb-4"
           onValueChange={onChange}
         >

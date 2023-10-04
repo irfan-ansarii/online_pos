@@ -1,16 +1,8 @@
 import React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { MapPin } from "lucide-react";
+import { MapPin, User } from "lucide-react";
 const Profile = () => {
   return (
     <Card className="border-0 md:border">
@@ -18,7 +10,9 @@ const Profile = () => {
         <div className="flex gap-2 items-center">
           <Avatar className="w-12 h-12">
             <AvatarImage></AvatarImage>
-            <AvatarFallback>P</AvatarFallback>
+            <AvatarFallback>
+              <User className="w-5 h-5" />
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col space-y-0.5">
             <CardTitle className="text-sm font-medium">John Doe</CardTitle>
@@ -32,8 +26,8 @@ const Profile = () => {
 
       <CardContent>
         <Separator className="mb-6" />
-        <div className="text-muted-foreground uppercase mb-6 font-medium">
-          Contact information
+        <div className="text-muted-foreground mb-6 font-medium">
+          Contact Information
         </div>
         <div className="space-y-2 mb-6">
           <div className="flex">
@@ -61,8 +55,8 @@ const Profile = () => {
           </div>
         </div>
         <Separator className="mb-6" />
-        <div className="text-muted-foreground uppercase mb-6 font-medium">
-          Basic information
+        <div className="text-muted-foreground mb-6 font-medium">
+          Basic Information
         </div>
         <div className="space-y-2">
           <div className="flex">

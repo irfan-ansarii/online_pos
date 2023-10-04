@@ -12,3 +12,5 @@ export const THEMES = [
   "yellow",
   "violet",
 ];
+
+export const PAGE_SIZE = 12;

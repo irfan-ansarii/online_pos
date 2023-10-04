@@ -15,37 +15,54 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Plus, User, UserCog, Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus, Loader2 } from "lucide-react";
 import { userInviteValidation } from "@/lib/validations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Toaster, toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
 import { useInviteUser } from "@/hooks/useUser";
+import { useLocations } from "@/hooks/useUser";
+
 const AddUserDialog = ({ className }: { className?: string }) => {
+  const [open, setOpen] = React.useState(false);
   const form = useForm<z.infer<typeof userInviteValidation>>({
     resolver: zodResolver(userInviteValidation),
     defaultValues: {
-      role: "",
+      role: "admin",
       email: "",
+      location: undefined,
     },
   });
-
+  const { toast } = useToast();
   const { mutate, isLoading } = useInviteUser();
+  const { data: locations } = useLocations();
 
   const onSubmit = (values: z.infer<typeof userInviteValidation>) => {
-    console.log(values);
     mutate(values, {
       onSuccess: (res) => {
-        toast.success(res.data.message);
+        toast({
+          variant: "success",
+          title: res.data.message,
+        });
+        setOpen(false);
       },
       onError: (error: any) => {
-        toast.error(error.response.data.message);
+        toast({
+          variant: "error",
+          title: error.response.data.message,
+        });
       },
     });
   };
 
   return (
-    <Dialog>
-      <Toaster richColors />
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <div className={className}>
           <Button
@@ -79,48 +96,6 @@ const AddUserDialog = ({ className }: { className?: string }) => {
             >
               <FormField
                 control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem className="space-y-0">
-                    <FormLabel>Role</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="grid grid-cols-2 gap-4"
-                      >
-                        <FormItem>
-                          <FormControl>
-                            <RadioGroupItem
-                              value="admin"
-                              className="peer sr-only"
-                            />
-                          </FormControl>
-                          <FormLabel className="flex text-foreground gap-2 cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                            <UserCog className="w-5 h-5" />
-                            Admin
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem>
-                          <FormControl>
-                            <RadioGroupItem
-                              value="user"
-                              className="peer sr-only"
-                            />
-                          </FormControl>
-                          <FormLabel className="flex gap-2 text-foreground cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                            <User className="w-5 h-5" />
-                            User
-                          </FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage className="!mt-2" />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -138,6 +113,68 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="grid grid-cols-2 gap-4"
+                      >
+                        <FormItem className="relative space-y-0">
+                          <FormControl className="absolute right-3 top-1/2 -translate-y-1/2 peer">
+                            <RadioGroupItem value="admin" />
+                          </FormControl>
+                          <FormLabel className="flex font-normal p-3 border-2 rounded-md peer-data-[state=checked]:border-primary cursor-pointer">
+                            Admin
+                          </FormLabel>
+                        </FormItem>
+
+                        <FormItem className="relative space-y-0">
+                          <FormControl className="absolute right-3 top-1/2 -translate-y-1/2 peer">
+                            <RadioGroupItem value="user" />
+                          </FormControl>
+                          <FormLabel className="flex font-normal p-3 border-2 rounded-md peer-data-[state=checked]:border-primary cursor-pointer">
+                            User
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={`${field.value}`}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select location" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {locations?.data?.map((location: any) => (
+                          <SelectItem value={location.id}>
+                            {location.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <Button type="submit" className="w-full">
                 {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

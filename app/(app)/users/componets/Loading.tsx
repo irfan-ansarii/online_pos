@@ -9,9 +9,9 @@ const Loading = () => {
         <div className="flex gap-2 items-start">
           <Skeleton className="w-10 h-10 rounded-full" />
           <div className="space-y-2 grow">
-            <Skeleton className="h-4 w-1/2 rounded-full" />
-            <Skeleton className="h-3 w-3/4" />
-            <Skeleton className="h-3" />
+            <Skeleton className="h-3 w-1/2 rounded-full" />
+            <Skeleton className="h-2.5 w-3/4" />
+            <Skeleton className="h-2.5" />
           </div>
         </div>
         <Skeleton className="h-5 rounded-full" />

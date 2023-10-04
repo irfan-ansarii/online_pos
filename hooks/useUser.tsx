@@ -1,9 +1,14 @@
 import { api } from "@/lib/utils";
 import { useMutation, useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { locationValidation } from "@/lib/validations/locations";
+import {
+  userInviteValidation,
+  updateUserValidation,
+} from "@/lib/validations/user";
+import * as z from "zod";
 
 interface UsersQueryKey {
   query: {
-    perPage?: number;
     search?: string;
   };
   pageParam: number;
@@ -23,7 +28,7 @@ const getUsers = async ({ query, pageParam = 1 }: UsersQueryKey) => {
   });
 };
 
-export const useUsers = (query: any) => {
+export const useUsers = (query: { search?: string }) => {
   return useInfiniteQuery(
     ["users"],
     ({ pageParam }) => getUsers({ query, pageParam }),
@@ -58,7 +63,7 @@ export const useUser = (id: number) => {
  * @param email
  * @returns
  */
-const invite = async (values: { email: string; role: string }) => {
+const invite = async (values: z.infer<typeof userInviteValidation>) => {
   return await api.post("/users", values);
 };
 
@@ -67,27 +72,18 @@ export const useInviteUser = () => {
 };
 
 /**
- * change user role
+ * update user
  * @param {object}
  * @returns
  */
-const updateRole = async ({ id, role }: { id: number; role: string }) => {
-  return await api.put(`/users/${id}`, { role });
+const update = async ({
+  id,
+  ...rest
+}: z.infer<typeof updateUserValidation>) => {
+  return await api.put(`/users/${id}`, { ...rest });
 };
-export const useUpdateUserRole = () => {
-  return useMutation(updateRole);
-};
-
-/**
- * block or unblock user
- * @param {object}
- * @returns
- */
-const updateStatus = async ({ id, status }: { id: number; status: string }) => {
-  return await api.patch(`/users/${id}`, { status });
-};
-export const useUpdateUserStatus = () => {
-  return useMutation(updateStatus);
+export const useUpdateUser = () => {
+  return useMutation(update);
 };
 
 /**
@@ -100,4 +96,41 @@ const deleteUser = async (id: number) => {
 
 export const useDeleteUser = () => {
   return useMutation(deleteUser);
+};
+
+/**
+ * get locations
+ * @returns
+ */
+const locations = async () => {
+  return api.get("/locations");
+};
+export const useLocations = () => {
+  return useQuery(["locations"], locations);
+};
+
+/**
+ * create location
+ * @param data
+ * @returns
+ */
+const createLocation = async (data: z.infer<typeof locationValidation>) => {
+  return api.post("/locations", data);
+};
+
+export const useCreateLocation = () => {
+  return useMutation(createLocation);
+};
+
+/**
+ * switch location
+ * @param data
+ * @returns
+ */
+const switchLocation = async (data: any) => {
+  return api.post("/users/locations", data);
+};
+
+export const useSwitchLocation = () => {
+  return useMutation(switchLocation);
 };

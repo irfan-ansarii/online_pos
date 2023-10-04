@@ -8,6 +8,12 @@ interface Params {
   };
 }
 
+/**
+ * get user
+ * @param req
+ * @param param1
+ * @returns
+ */
 export async function GET(req: NextRequest, { params }: Params) {
   const { id } = params;
 
@@ -20,14 +26,22 @@ export async function GET(req: NextRequest, { params }: Params) {
   return NextResponse.json({ data: sanitize(user) }, { status: 200 });
 }
 
-export async function PUT() {
+/**
+ * update user
+ * @param req
+ * @param param1
+ * @returns
+ */
+export async function PUT(req: NextRequest, { params }: Params) {
   return NextResponse.json({ message: "PUT User" }, { status: 200 });
 }
 
-export async function PATCH() {
-  return NextResponse.json({ message: "PATCH User" }, { status: 200 });
-}
-
-export async function DELETE() {
+/**
+ * delete user
+ * @param req
+ * @param param1
+ * @returns
+ */
+export async function DELETE(req: NextRequest, { params }: Params) {
   return NextResponse.json({ message: "DELETE User" }, { status: 200 });
 }
