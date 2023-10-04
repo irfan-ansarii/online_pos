@@ -1,14 +1,18 @@
+"use client";
 import React from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Search, ScanLine } from "lucide-react";
 import ProductCard from "./ProductCard";
-
+import Scanner from "./Scanner";
 const Products = () => {
+  const [open, setOpen] = React.useState(false);
+
   return (
     <>
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <div className="flex items-center h-[61px] border-b sticky top-0 z-50 bg-background mb-4">
           <div className="relative grow">
             <Input
@@ -30,7 +34,9 @@ const Products = () => {
             </DialogTrigger>
           </div>
         </div>
-        <DialogContent>scanne</DialogContent>
+        <DialogContent className="p-0 overflow-hidden max-h-md bottom-auto top-6">
+          <Scanner open={open} setOpen={setOpen} />
+        </DialogContent>
       </Dialog>
 
       <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">

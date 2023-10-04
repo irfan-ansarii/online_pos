@@ -13,8 +13,7 @@ import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import DynamicDialogContent from "./DialogContent";
 import {
-  MoreHorizontal,
-  Plus,
+  MoreVertical,
   Trash2,
   BookmarkPlus,
   Bookmark,
@@ -31,11 +30,11 @@ export default function CartActions() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="outline"
+              variant="link"
               size="icon"
-              className="flex data-[state=open]:bg-muted  ml-auto"
+              className="flex data-[state=open]:bg-muted ml-auto"
             >
-              <MoreHorizontal className="w-5 h-5" />
+              <MoreVertical className="w-5 h-5" />
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>

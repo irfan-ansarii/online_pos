@@ -1,28 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { sanitize } from "@/lib/sanitize-user";
 
 export async function GET(req: NextRequest) {
   try {
+    // get params
     const { searchParams } = req.nextUrl;
-
     const params = Object.fromEntries([...searchParams.entries()]);
 
+    // destructure params
     const { page, perPage, search } = params;
 
+    // pagination
     const currentPage = parseInt(page, 10) || 1;
-    const itemsPerPage = parseInt(perPage, 10) || 10;
+    const pageSize = parseInt(perPage, 10) || 12;
+    const offset = (currentPage - 1) * pageSize;
 
-    const offset = (currentPage - 1) * itemsPerPage;
-
+    // find users
     const users = await prisma.user.findMany({
       skip: offset,
-      take: itemsPerPage,
+      take: pageSize,
       orderBy: {
         createdAt: "desc",
       },
+      where: {
+        role: { in: ["user", "admin"] },
+        status: { not: "invited" },
+      },
     });
 
-    return NextResponse.json({ data: users }, { status: 200 });
+    // get pagination
+    const total = await prisma.user.count({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        role: { in: ["user", "admin"] },
+        status: { not: "invited" },
+      },
+    });
+
+    // return response
+    return NextResponse.json(
+      {
+        data: users.map((user) => sanitize(user)),
+        pagination: {
+          page: currentPage,
+          pageSize,
+          pageCount: Math.ceil(total / pageSize),
+          total,
+        },
+      },
+
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       { message: "Internal server error" },
@@ -35,7 +66,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { email, role } = body;
-
+    console.log(body);
     // if email or password is missing
     if (!email || !role)
       return NextResponse.json(

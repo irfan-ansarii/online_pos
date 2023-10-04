@@ -17,7 +17,7 @@ const EmptyBox = ({
         className
       )}
     >
-      <PackageOpen className="w-24 h-24 text-primary/80" />
+      <PackageOpen className="w-24 h-24 text-foreground/80" />
       <h3 className="mt-2 font-semibold">{title || "No data found"}</h3>
 
       <div className="mt-4 text-muted-foreground">{description}</div>

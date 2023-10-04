@@ -28,13 +28,17 @@ export const useUsers = (query: any) => {
     ["users"],
     ({ pageParam }) => getUsers({ query, pageParam }),
     {
-      getNextPageParam: (lastPage, allPages) => {
+      getNextPageParam: (pages) => {
+        if (pages.data.pagination.page < pages.data.pagination.pageCount) {
+          return pages.data.pagination.page + 1;
+        }
         return undefined;
       },
       retry: 0,
     }
   );
 };
+
 /**
  * get user
  * @param {number} id
@@ -42,7 +46,7 @@ export const useUsers = (query: any) => {
  */
 const getUser = async ({ queryKey }: { queryKey: [string, number] }) => {
   const [_, id] = queryKey;
-  return await api.get(`/user/${id}`);
+  return await api.get(`/users/${id}`);
 };
 
 export const useUser = (id: number) => {
@@ -54,8 +58,8 @@ export const useUser = (id: number) => {
  * @param email
  * @returns
  */
-const invite = async ({ email }: { email: string }) => {
-  return await api.post("/users", { email });
+const invite = async (values: { email: string; role: string }) => {
+  return await api.post("/users", values);
 };
 
 export const useInviteUser = () => {

@@ -5,24 +5,29 @@ import Loading from "./Loading";
 import { useUsers } from "@/hooks/useUser";
 import EmptyBox from "@/components/shared/empty-box";
 const Users = () => {
-  const {
-    data: users,
-    isLoading,
-    isError,
-  } = useUsers({ page: 1, perPage: 10 });
+  const { data: users, isLoading, isError } = useUsers();
+
   return (
     <>
       {/* loading */}
 
-      {[...Array(6)].map((e, i) => (
-        <Loading key={i} />
-      ))}
+      {isLoading && [...Array(6)].map((e, i) => <Loading key={i} />)}
 
       {/* card */}
-      <UserCard />
+      {users?.pages.map((page) =>
+        page.data.data.map((user: any) => (
+          <UserCard user={user} key={user.id} />
+        ))
+      )}
+
+      {/* <UserCard /> */}
 
       {/* empty */}
-      <EmptyBox className="col-span-3" title="No Users Found" />
+      <EmptyBox
+        className="col-span-1 md:col-span-2 xl:col-span-3"
+        title="No Users Found"
+      />
+
       {/* error */}
     </>
   );

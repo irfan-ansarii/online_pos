@@ -1,13 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { sanitize } from "@/lib/sanitize-user";
 
 interface Params {
   params: {
-    id: string;
+    id: number;
   };
 }
+
 export async function GET(req: NextRequest, { params }: Params) {
-  return NextResponse.json({ message: "Get User" }, { status: 200 });
+  const { id } = params;
+
+  const user = await prisma.user.findUnique({ where: { id: Number(id) } });
+
+  if (!user) {
+    return NextResponse.json({ message: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ data: sanitize(user) }, { status: 200 });
 }
+
 export async function PUT() {
   return NextResponse.json({ message: "PUT User" }, { status: 200 });
 }

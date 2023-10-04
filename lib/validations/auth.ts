@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 export const loginValidation = z.object({
-  email: z.string().email(),
+  email: z.string().email({ message: "Enter valid email" }),
   password: z.string().nonempty({ message: "Passsword is required" }),
 });
 

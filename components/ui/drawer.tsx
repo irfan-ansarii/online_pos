@@ -16,12 +16,12 @@ const DrawerContent = forwardRef<
     <Drawer.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 h-96 max-h-[96%] rounded-t-xl bg-secondary dark:bg-border",
+        "fixed inset-x-0 bottom-0 z-50 mt-24 h-96 max-h-[96%] rounded-t-xl bg-accent",
         className
       )}
       {...props}
     >
-      <div className="absolute left-1/2 top-3 h-2 w-16 translate-x-[-50%] rounded-full bg-border dark:bg-background" />
+      <div className="absolute left-1/2 top-3 h-1.5 w-10 translate-x-[-50%] rounded-full bg-border dark:bg-background" />
       {children}
     </Drawer.Content>
   </Drawer.Portal>

@@ -1,5 +1,5 @@
 export const sanitize = (data: any) => {
-  const removeConditions = ["password", "recoveryToken", "recoveryTokenSentAt"];
+  const removeConditions = ["password", "recoveryOtp", "recoverySentAt"];
 
   removeConditions.forEach((item) => {
     if (data.hasOwnProperty(item)) {

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-import CreateWorkspace from "./workspace-create";
+import CreateLocation from "./location-create";
 import { Home, Plus } from "lucide-react";
 
 interface WorkspaceDialogProps {
@@ -81,7 +81,7 @@ const LocationDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
             </Label>
           ))}
         </RadioGroup>
-        <CreateWorkspace
+        <CreateLocation
           trigger={
             <DialogTrigger asChild>
               <Button variant="secondary" className="w-full">
@@ -89,7 +89,7 @@ const LocationDialog: React.FC<WorkspaceDialogProps> = ({ children }) => {
               </Button>
             </DialogTrigger>
           }
-        ></CreateWorkspace>
+        ></CreateLocation>
       </DialogContent>
     </Dialog>
   );

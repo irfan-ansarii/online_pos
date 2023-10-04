@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import SingleHeader from "@/components/shared/single-header";
 import MobileHeader from "@/components/shared/mobile-header";
@@ -5,8 +6,10 @@ import MobileHeader from "@/components/shared/mobile-header";
 import Profile from "./components/Profile";
 import Analytics from "./components/Analytics";
 import Orders from "./components/Orders";
-
+import { useUser } from "@/hooks/useUser";
 const Page = ({ params }: any) => {
+  const { data: user, isLoading } = useUser(params.id);
+  console.log(user);
   return (
     <>
       <MobileHeader title="user" showSearch={false} />
