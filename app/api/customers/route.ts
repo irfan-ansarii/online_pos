@@ -84,25 +84,27 @@ export async function POST(req: NextRequest) {
 
     if (user) {
       return NextResponse.json(
-        { message: "Email already registered" },
+        { message: "Email or phone already registered" },
         { status: 400 }
       );
     }
 
-    // create user
+    // create customer and address
     const createdUser = await prisma.user.create({
       data: {
-        email,
-        role,
-        invitedAt: new Date(),
+        ...body,
+        role: "customer",
+        addresses: {
+          create: {
+            ...body,
+          },
+        },
       },
     });
 
-    // send email and message with signup link
-
     // return response
     return NextResponse.json(
-      { message: "Invited", data: createdUser },
+      { message: "Customer created successfully", data: createdUser },
       { status: 201 }
     );
   } catch (error) {

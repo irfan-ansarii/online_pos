@@ -126,16 +126,10 @@ const CreateWorkspace = ({
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-col">
+                    <FormItem>
                       <FormLabel>Name</FormLabel>
                       <div className="relative">
-                        <FormControl
-                          className={
-                            form.formState.errors?.name
-                              ? "!ring-destructive/50 border-destructive"
-                              : ""
-                          }
-                        >
+                        <FormControl>
                           <Input type="text" {...field} />
                         </FormControl>
                       </div>
@@ -148,19 +142,11 @@ const CreateWorkspace = ({
                   control={form.control}
                   name="phone"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-col">
+                    <FormItem>
                       <FormLabel>Phone</FormLabel>
-                      <div className="relative">
-                        <FormControl
-                          className={
-                            form.formState.errors?.phone
-                              ? "!ring-destructive/50 border-destructive"
-                              : ""
-                          }
-                        >
-                          <Input {...field} />
-                        </FormControl>
-                      </div>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -169,19 +155,11 @@ const CreateWorkspace = ({
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-col">
+                    <FormItem>
                       <FormLabel>Email</FormLabel>
-                      <div className="relative">
-                        <FormControl
-                          className={
-                            form.formState.errors?.email
-                              ? "!ring-destructive/50 border-destructive"
-                              : ""
-                          }
-                        >
-                          <Input {...field} />
-                        </FormControl>
-                      </div>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -190,19 +168,11 @@ const CreateWorkspace = ({
                   control={form.control}
                   name="address"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-col">
+                    <FormItem>
                       <FormLabel>Address</FormLabel>
-                      <div className="relative">
-                        <FormControl
-                          className={
-                            form.formState.errors?.address
-                              ? "!ring-destructive/50 border-destructive"
-                              : ""
-                          }
-                        >
-                          <Input {...field} />
-                        </FormControl>
-                      </div>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -211,19 +181,11 @@ const CreateWorkspace = ({
                   control={form.control}
                   name="address2"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-col">
+                    <FormItem>
                       <FormLabel>Address2</FormLabel>
-                      <div className="relative">
-                        <FormControl
-                          className={
-                            form.formState.errors?.address
-                              ? "!ring-destructive/50 border-destructive"
-                              : ""
-                          }
-                        >
-                          <Input {...field} />
-                        </FormControl>
-                      </div>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -233,19 +195,11 @@ const CreateWorkspace = ({
                     control={form.control}
                     name="city"
                     render={({ field }) => (
-                      <FormItem className="flex w-full flex-col">
+                      <FormItem>
                         <FormLabel>City</FormLabel>
-                        <div className="relative">
-                          <FormControl
-                            className={
-                              form.formState.errors?.city
-                                ? "!ring-destructive/50 border-destructive"
-                                : ""
-                            }
-                          >
-                            <Input {...field} />
-                          </FormControl>
-                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -254,19 +208,11 @@ const CreateWorkspace = ({
                     control={form.control}
                     name="state"
                     render={({ field }) => (
-                      <FormItem className="flex w-full flex-col">
+                      <FormItem>
                         <FormLabel>State</FormLabel>
-                        <div className="relative">
-                          <FormControl
-                            className={
-                              form.formState.errors?.state
-                                ? "!ring-destructive/50 border-destructive"
-                                : ""
-                            }
-                          >
-                            <Input {...field} />
-                          </FormControl>
-                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -275,19 +221,11 @@ const CreateWorkspace = ({
                     control={form.control}
                     name="zip"
                     render={({ field }) => (
-                      <FormItem className="flex w-full flex-col">
+                      <FormItem>
                         <FormLabel>Zip</FormLabel>
-                        <div className="relative">
-                          <FormControl
-                            className={
-                              form.formState.errors?.zip
-                                ? "!ring-destructive/50 border-destructive"
-                                : ""
-                            }
-                          >
-                            <Input {...field} />
-                          </FormControl>
-                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -296,19 +234,11 @@ const CreateWorkspace = ({
                     control={form.control}
                     name="country"
                     render={({ field }) => (
-                      <FormItem className="flex w-full flex-col">
+                      <FormItem>
                         <FormLabel>Country</FormLabel>
-                        <div className="relative">
-                          <FormControl
-                            className={
-                              form.formState.errors?.country
-                                ? "!ring-destructive/50 border-destructive"
-                                : ""
-                            }
-                          >
-                            <Input {...field} />
-                          </FormControl>
-                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

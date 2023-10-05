@@ -68,9 +68,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // create location
-    const location = await prisma.location.create({
+    const location = await prisma.address.create({
       data: {
         ...body,
+        location: {
+          create: {
+            ...body,
+          },
+        },
       },
     });
 
