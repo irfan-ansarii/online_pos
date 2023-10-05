@@ -14,6 +14,7 @@ interface Params {
  * @param param1
  * @returns
  */
+
 export async function GET(req: NextRequest, { params }: Params) {
   const { id } = params;
 

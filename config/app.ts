@@ -60,3 +60,5 @@ export const MENU_ITEMS = [
     icon: Settings,
   },
 ];
+
+export const PAGE_SIZE = 12;

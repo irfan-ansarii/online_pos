@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { sanitize } from "@/lib/sanitize-user";
 import { PAGE_SIZE } from "@/config/app";
 /**
- * get users
+ * get customers
  * @param req
  * @returns
  */
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
-    // find users
+    // find users with customer role
     const users = await prisma.user.findMany({
       skip: offset,
       take: PAGE_SIZE,
@@ -29,8 +29,7 @@ export async function GET(req: NextRequest) {
         createdAt: "desc",
       },
       where: {
-        role: { in: ["user", "admin"] },
-        status: { not: "invited" },
+        role: { equals: "customer" },
       },
     });
 
@@ -40,8 +39,7 @@ export async function GET(req: NextRequest) {
         createdAt: "desc",
       },
       where: {
-        role: { in: ["user", "admin"] },
-        status: { not: "invited" },
+        role: { equals: "customer" },
       },
     });
 
@@ -68,25 +66,21 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * create user
+ * create customer
  * @param req
  * @returns
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, role, location } = body;
-    // if email or password is missing
-
-    if (!email || !role || !location) {
-      return NextResponse.json(
-        { message: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+    const { email, phone } = body;
 
     // check if user already exists
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ email: { equals: email } }, { phone: { equals: phone } }],
+      },
+    });
 
     if (user) {
       return NextResponse.json(
@@ -100,12 +94,11 @@ export async function POST(req: NextRequest) {
       data: {
         email,
         role,
-        locationId: parseInt(location, 10),
+        invitedAt: new Date(),
       },
     });
 
-    // TODO
-    // !send email and message with signup link
+    // send email and message with signup link
 
     // return response
     return NextResponse.json(

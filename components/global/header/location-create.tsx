@@ -25,14 +25,20 @@ import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Store, Home } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { locationValidation } from "@/lib/validations/locations";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCreateLocation } from "@/hooks/useUser";
 
-const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
+const CreateWorkspace = ({
+  trigger,
+  refetch,
+}: {
+  trigger?: React.ReactNode;
+  refetch: () => void;
+}) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const { toast } = useToast();
   const { mutate, isLoading } = useCreateLocation();
@@ -47,8 +53,11 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
       onSuccess: (res) => {
         toast({
           variant: "success",
-          title: res.data.message,
+          title: "Location created successfully!",
         });
+
+        setOpen(false);
+        refetch();
       },
       onError: (err: any) => {
         toast({
@@ -82,7 +91,7 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                   control={form.control}
                   name="type"
                   render={({ field }) => (
-                    <FormItem className="space-y-0">
+                    <FormItem>
                       <FormLabel>Location Type</FormLabel>
                       <FormControl>
                         <RadioGroup
@@ -90,27 +99,19 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                           defaultValue={field.value}
                           className="grid grid-cols-2 gap-4"
                         >
-                          <FormItem>
-                            <FormControl>
-                              <RadioGroupItem
-                                value="simple"
-                                className="peer sr-only"
-                              />
+                          <FormItem className="relative space-y-0">
+                            <FormControl className="absolute right-3 top-1/2 -translate-y-1/2 ">
+                              <RadioGroupItem value="store" />
                             </FormControl>
-                            <FormLabel className="flex gap-2 cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                              <Store className="w-5 h-5" />
+                            <FormLabel className="flex text-foreground font-normal p-3 border rounded-md cursor-pointer">
                               Store
                             </FormLabel>
                           </FormItem>
-                          <FormItem>
-                            <FormControl>
-                              <RadioGroupItem
-                                value="variable"
-                                className="peer sr-only"
-                              />
+                          <FormItem className="relative space-y-0">
+                            <FormControl className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <RadioGroupItem value="warehouse" />
                             </FormControl>
-                            <FormLabel className="flex gap-2 cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                              <Home className="w-5 h-5" />
+                            <FormLabel className="flex  text-foreground font-normal p-3 border rounded-md  cursor-pointer">
                               Warehouse
                             </FormLabel>
                           </FormItem>
@@ -129,7 +130,6 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                       <FormLabel>Name</FormLabel>
                       <div className="relative">
                         <FormControl
-                          placeholder="Workspace name"
                           className={
                             form.formState.errors?.name
                               ? "!ring-destructive/50 border-destructive"
@@ -152,7 +152,6 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                       <FormLabel>Phone</FormLabel>
                       <div className="relative">
                         <FormControl
-                          placeholder="Type here..."
                           className={
                             form.formState.errors?.phone
                               ? "!ring-destructive/50 border-destructive"
@@ -174,7 +173,6 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                       <FormLabel>Email</FormLabel>
                       <div className="relative">
                         <FormControl
-                          placeholder="Type here..."
                           className={
                             form.formState.errors?.email
                               ? "!ring-destructive/50 border-destructive"
@@ -196,7 +194,6 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                       <FormLabel>Address</FormLabel>
                       <div className="relative">
                         <FormControl
-                          placeholder="Type here..."
                           className={
                             form.formState.errors?.address
                               ? "!ring-destructive/50 border-destructive"
@@ -218,7 +215,6 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                       <FormLabel>Address2</FormLabel>
                       <div className="relative">
                         <FormControl
-                          placeholder="Type here..."
                           className={
                             form.formState.errors?.address
                               ? "!ring-destructive/50 border-destructive"
@@ -241,7 +237,6 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                         <FormLabel>City</FormLabel>
                         <div className="relative">
                           <FormControl
-                            placeholder="Type here..."
                             className={
                               form.formState.errors?.city
                                 ? "!ring-destructive/50 border-destructive"
@@ -263,7 +258,6 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                         <FormLabel>State</FormLabel>
                         <div className="relative">
                           <FormControl
-                            placeholder="Type here..."
                             className={
                               form.formState.errors?.state
                                 ? "!ring-destructive/50 border-destructive"
@@ -285,7 +279,6 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                         <FormLabel>Zip</FormLabel>
                         <div className="relative">
                           <FormControl
-                            placeholder="Type here..."
                             className={
                               form.formState.errors?.zip
                                 ? "!ring-destructive/50 border-destructive"
@@ -307,7 +300,6 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                         <FormLabel>Country</FormLabel>
                         <div className="relative">
                           <FormControl
-                            placeholder="Type here..."
                             className={
                               form.formState.errors?.country
                                 ? "!ring-destructive/50 border-destructive"

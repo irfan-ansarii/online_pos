@@ -1,7 +1,6 @@
 "use client";
 import {
   Toast,
-  ToastClose,
   ToastDescription,
   ToastProvider,
   ToastTitle,
@@ -56,12 +55,12 @@ export function Toaster() {
         return (
           <Toast key={id} {...props}>
             <div className="flex gap-3 items-start">
-              {variant && (
-                <div className="shrink-0 grow-0">
+              {variant && variant !== "default" && (
+                <div className="w-5 h-5">
                   <Icon variant={variant} />
                 </div>
               )}
-              <div className="grid gap-1 grow shrink-0">
+              <div className="grid gap-1 flex-1">
                 {title && <ToastTitle>{title}</ToastTitle>}
 
                 {description && (
@@ -69,11 +68,6 @@ export function Toaster() {
                 )}
               </div>
             </div>
-            <ToastClose
-              className={`${
-                !title ? "top-1/2 transform -translate-y-1/2" : ""
-              } invisible sm:visible`}
-            />
           </Toast>
         );
       })}

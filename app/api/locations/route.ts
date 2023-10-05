@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sanitize } from "@/lib/sanitize-user";
 import { PAGE_SIZE } from "@/lib/CONSTANTS";
 /**
  * get locations
@@ -43,7 +42,7 @@ export async function GET(req: NextRequest) {
         data: locations,
         pagination: {
           page: currentPage,
-          PAGE_SIZE,
+          pageSize: PAGE_SIZE,
           pageCount: Math.ceil(total / PAGE_SIZE),
           total,
         },
@@ -76,11 +75,9 @@ export async function POST(req: NextRequest) {
     });
 
     // return response
-    return NextResponse.json(
-      { message: "Success", data: location },
-      { status: 201 }
-    );
+    return NextResponse.json({ data: location }, { status: 201 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

@@ -25,17 +25,16 @@ ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 // ! add this class to animate from bottom top top
 // data-[state=open]:sm:slide-in-from-bottom-full
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border px-4 py-5 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full",
   {
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
-        loading: "border bg-background text-foreground",
-        info: "group info bg-background  text-primary",
-        warning: "group warning bg-background text-orange-600",
-        error:
-          "group error border-destructive bg-destructive text-destructive-foreground",
-        success: "group success bg-background text-emerald-500",
+        default: "border bg-background border text-foreground",
+        loading: "border bg-background border text-foreground",
+        info: "group info bg-background border-info  text-info",
+        warning: "group warning bg-background border-warning text-warning",
+        error: "group error border-error bg-background text-error",
+        success: "group success bg-background border-success text-success",
       },
     },
     defaultVariants: {
@@ -110,7 +109,7 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Description
     ref={ref}
-    className={cn("text-sm opacity-90", className)}
+    className={cn("text-sm opacity-90 text-muted-foreground", className)}
     {...props}
   />
 ));

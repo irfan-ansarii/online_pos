@@ -36,7 +36,6 @@ const AddUserDialog = ({ className }: { className?: string }) => {
     defaultValues: {
       role: "admin",
       email: "",
-      location: undefined,
     },
   });
   const { toast } = useToast();
@@ -48,7 +47,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
       onSuccess: (res) => {
         toast({
           variant: "success",
-          title: res.data.message,
+          title: "User been invited successfully!",
         });
         setOpen(false);
       },
@@ -126,19 +125,19 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                         className="grid grid-cols-2 gap-4"
                       >
                         <FormItem className="relative space-y-0">
-                          <FormControl className="absolute right-3 top-1/2 -translate-y-1/2 peer">
+                          <FormControl className="absolute right-3 top-1/2 -translate-y-1/2">
                             <RadioGroupItem value="admin" />
                           </FormControl>
-                          <FormLabel className="flex font-normal p-3 border-2 rounded-md peer-data-[state=checked]:border-primary cursor-pointer">
+                          <FormLabel className="flex font-normal p-3 border rounded-md cursor-pointer">
                             Admin
                           </FormLabel>
                         </FormItem>
 
                         <FormItem className="relative space-y-0">
-                          <FormControl className="absolute right-3 top-1/2 -translate-y-1/2 peer">
+                          <FormControl className="absolute right-3 top-1/2 -translate-y-1/2">
                             <RadioGroupItem value="user" />
                           </FormControl>
-                          <FormLabel className="flex font-normal p-3 border-2 rounded-md peer-data-[state=checked]:border-primary cursor-pointer">
+                          <FormLabel className="flex font-normal p-3 border rounded-md cursor-pointer">
                             User
                           </FormLabel>
                         </FormItem>
@@ -155,7 +154,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                     <FormLabel>Location</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={`${field.value}`}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -163,8 +162,8 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {locations?.data?.map((location: any) => (
-                          <SelectItem value={location.id}>
+                        {locations?.data?.data?.map((location: any) => (
+                          <SelectItem value={`${location.id}`}>
                             {location.name}
                           </SelectItem>
                         ))}

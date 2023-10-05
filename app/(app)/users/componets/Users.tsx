@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import UserCard from "./UserCard";
 import Loading from "./Loading";
@@ -17,22 +16,18 @@ const Users = () => {
 
       {/* pages */}
 
-      {users?.pages.map((page) => {
-        // cards
-        page.data.data.map((user: any) => (
-          <UserCard user={user} key={user.id} />
-        ));
-
-        //  empty data
-        {
-          page.data.data.length == 0 && (
-            <EmptyBox
-              className="col-span-1 md:col-span-2 xl:col-span-3"
-              title="No Users Found"
-            />
-          );
-        }
-      })}
+      {users?.pages.map((page) =>
+        page.data.data.length === 0 ? (
+          <EmptyBox
+            className="col-span-1 md:col-span-2 xl:col-span-3"
+            title="No Users Found"
+          />
+        ) : (
+          page.data.data.map((user: any) => (
+            <UserCard user={user} key={user.id} />
+          ))
+        )
+      )}
 
       {/* error */}
       {isError && (

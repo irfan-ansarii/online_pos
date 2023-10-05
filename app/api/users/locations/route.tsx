@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sanitize } from "@/lib/sanitize-user";
-import { PAGE_SIZE } from "@/lib/CONSTANTS";
+import { decodeJwt, JwtPayload } from "@/lib/decode-jwt";
 
 /**
  * swicth location
@@ -13,31 +12,30 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { locationId } = body;
 
-    if (!locationId) {
+    const session = decodeJwt(req) as JwtPayload | undefined;
+
+    if (!session)
       return NextResponse.json(
-        { message: "Location id is required" },
-        { status: 400 }
+        { message: "Missing or invalid credentials" },
+        { status: 401 }
       );
+
+    if (session.role === "admin") {
+      const location = await prisma.user.update({
+        where: {
+          id: session.id,
+        },
+        data: {
+          locationId,
+        },
+        include: {
+          location: true,
+        },
+      });
+      return NextResponse.json({ data: location }, { status: 200 });
     }
 
-    // TODO
-    // check if user role is admin
-
-    // update user location
-    const location = await prisma.user.update({
-      where: {
-        id: 1,
-      },
-      data: {
-        locationId,
-      },
-    });
-
-    // return response
-    return NextResponse.json(
-      { message: "Success", data: location },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: "Permission Denied" }, { status: 403 });
   } catch (error) {
     return NextResponse.json(
       { message: "Internal server error" },
