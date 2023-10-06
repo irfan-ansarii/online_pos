@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useEffect } from "react";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +27,7 @@ const LocationDialog: React.FC = ({
   const { data: locations, refetch, isLoading } = useLocations();
   const { mutate, isLoading: switching } = useSwitchLocation();
 
-  const { data: session } = useSession();
+  const { data: session, refetch: refreshSession } = useSession();
 
   const onChange = (value: string) => {
     const locationId = Number(value);
@@ -40,6 +40,7 @@ const LocationDialog: React.FC = ({
             variant: "success",
             title: `Location changed to ${res.data.data.location.name}`,
           });
+          refreshSession();
           refetch();
         },
         onError: (err: any) => {

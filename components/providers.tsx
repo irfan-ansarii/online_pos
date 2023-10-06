@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 export function Provider({ children, ...props }: ThemeProviderProps) {
   const queryClient = new QueryClient();
+
   return (
     <QueryClientProvider client={queryClient}>
       <NextThemesProvider {...props}>

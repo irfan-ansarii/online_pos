@@ -66,14 +66,33 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
+    const {
+      type,
+      name,
+      phone,
+      email,
+      address,
+      address2,
+      city,
+      state,
+      zip,
+      country,
+    } = body;
     // create location
     const location = await prisma.address.create({
       data: {
-        ...body,
+        address,
+        address2,
+        city,
+        state,
+        zip,
+        country,
         location: {
           create: {
-            ...body,
+            type,
+            name,
+            email,
+            phone,
           },
         },
       },

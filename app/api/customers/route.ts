@@ -73,7 +73,18 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, phone } = body;
+    const {
+      firstName,
+      lastName,
+      phone,
+      email,
+      address,
+      address2,
+      city,
+      state,
+      zip,
+      country,
+    } = body;
 
     // check if user already exists
     const user = await prisma.user.findFirst({
@@ -81,7 +92,7 @@ export async function POST(req: NextRequest) {
         OR: [{ email: { equals: email } }, { phone: { equals: phone } }],
       },
     });
-
+    console.log(user);
     if (user) {
       return NextResponse.json(
         { message: "Email or phone already registered" },
@@ -90,23 +101,29 @@ export async function POST(req: NextRequest) {
     }
 
     // create customer and address
-    const createdUser = await prisma.user.create({
+    const customer = await prisma.user.create({
       data: {
-        ...body,
+        firstName,
+        lastName,
+        phone,
+        email,
         role: "customer",
+        status: "active",
         addresses: {
           create: {
-            ...body,
+            address,
+            address2,
+            city,
+            state,
+            zip,
+            country,
           },
         },
       },
     });
 
     // return response
-    return NextResponse.json(
-      { message: "Customer created successfully", data: createdUser },
-      { status: 201 }
-    );
+    return NextResponse.json({ data: customer }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { message: "Internal server error" },

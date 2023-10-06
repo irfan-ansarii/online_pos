@@ -33,33 +33,20 @@ model User {
   @@map("users")
 }
 
-enum Status {
-  invited
-  active
-  blocked
-}
-
-enum Role {
-  admin
-  user
-  customer
-  supplier
-}
-
 model Address {
   id         Int       @id @default(autoincrement())
   company    String?
-  address    String
-  address2   String
-  city       String
-  state      String
-  zip        String
-  country    String
+  address    String?
+  address2   String?
+  city       String?
+  state      String?
+  zip        String?
+  country    String?
   createdAt  DateTime  @default(now())
   updatedaAt DateTime  @updatedAt
   userId     Int?
   user       User?     @relation(fields: [userId], references: [id])
-  Location   Location?
+  location   Location?
 
   @@map("addresses")
 }
@@ -70,19 +57,14 @@ model Location {
   name       String
   phone      String
   email      String
-  addressId  Int?         @unique
-  address    Address?     @relation(fields: [addressId], references: [id])
   createdAt  DateTime     @default(now())
   updatedaAt DateTime     @updatedAt
+  addressId  Int?         @unique
   inventory  Inventory[]
+  address    Address?     @relation(fields: [addressId], references: [id])
   users      User[]
 
   @@map("locations")
-}
-
-enum LocationType {
-  store
-  warehouse
 }
 
 model Product {
@@ -96,17 +78,6 @@ model Product {
   variants    Variant[]
 
   @@map("products")
-}
-
-enum Type {
-  simple
-  variable
-}
-
-enum ProductStatus {
-  active
-  archived
-  trash
 }
 
 model Variant {
@@ -148,4 +119,33 @@ model Label {
   variant    Variant  @relation(fields: [variantId], references: [id])
 
   @@map("labels")
+}
+
+enum Status {
+  invited
+  active
+  blocked
+}
+
+enum Role {
+  admin
+  user
+  customer
+  supplier
+}
+
+enum LocationType {
+  store
+  warehouse
+}
+
+enum Type {
+  simple
+  variable
+}
+
+enum ProductStatus {
+  active
+  archived
+  trash
 }

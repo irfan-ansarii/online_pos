@@ -1,7 +1,8 @@
 import * as z from "zod";
 
 export const customerValidation = z.object({
-  name: z.string().nonempty(),
+  firstName: z.string().nonempty(),
+  lastName: z.string().optional(),
   phone: z.string().nonempty().length(10),
   email: z.string().nonempty().email(),
   address: z.string().optional(),

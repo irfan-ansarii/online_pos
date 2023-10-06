@@ -6,7 +6,7 @@ import Setting from "@/components/global/header/setting";
 import LocationDialog from "@/components/global/header/location-dialog";
 import { useSession } from "@/hooks/useAuth";
 
-const Header = async () => {
+const Header = () => {
   const { data } = useSession();
 
   return (

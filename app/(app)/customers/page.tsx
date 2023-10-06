@@ -1,23 +1,26 @@
 import React from "react";
 import MobileHeader from "@/components/shared/mobile-header";
-import CustomerCard from "./components/CustomerCard";
-import PageHeader from "./components/PageHeader";
 import AddCustomerSheet from "./components/AddCustomerSheet";
-import Loading from "../users/componets/Loading";
-const Page = () => {
+import Customers from "./components/Customers";
+import StickyHeader from "@/components/shared/sticky-header";
+import SearchInput from "@/components/shared/search-input";
+
+const Page = async () => {
   return (
     <>
       <MobileHeader title="Customers" />
       <main className="grow">
-        <PageHeader />
+        <StickyHeader>
+          <div className="grid grid-cols-2 items-center">
+            <SearchInput />
+            <div className="relative flex gap-4 justify-end">
+              <AddCustomerSheet />
+            </div>
+          </div>
+        </StickyHeader>
         <div className="md:p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 md:gap-4">
-            {[...Array(4)].map(() => (
-              <CustomerCard />
-            ))}
-            {[...Array(4)].map(() => (
-              <Loading />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
+            <Customers />
           </div>
         </div>
         <AddCustomerSheet className="md:hidden" />

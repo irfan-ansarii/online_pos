@@ -21,13 +21,13 @@ const UserCard = ({ user }: { user: any }) => {
             </Avatar>
             <div className="font-medium space-y-0.5">
               <div>{`${user.firstName} ${user.lastName}`}</div>
-              <div className="text-muted-foreground text-xs flex gap-2 items-center">
-                {user.phone}{" "}
+              <div className="text-muted-foreground flex gap-2 items-center">
+                {user.phone}
                 {user.phoneConfirmedAt && (
                   <BadgeCheck className="w-4 h-4 text-emerald-500" />
                 )}
               </div>
-              <div className="text-muted-foreground text-xs flex gap-2 items-center">
+              <div className="text-muted-foreground flex gap-2 items-center">
                 {user.email}
                 {user.emailConfirmedAt && (
                   <BadgeCheck className="w-4 h-4 text-emerald-500" />
