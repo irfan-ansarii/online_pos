@@ -18,7 +18,7 @@ const Page = async () => {
             </div>
           </div>
         </StickyHeader>
-        <div className="md:p-4">
+        <div className="md:p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
             <Customers />
           </div>

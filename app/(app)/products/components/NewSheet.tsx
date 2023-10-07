@@ -8,9 +8,9 @@ import {
   SheetContent,
   SheetFooter,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Button } from "@/components/ui/button";
+
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import {
   Form,
@@ -24,19 +24,29 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ImagePlus, Trash2, PlusCircle, Image } from "lucide-react";
-import VariantValues from "./VariantValues";
+import { ImagePlus, Trash2, PlusCircle } from "lucide-react";
+
+import OptionValues from "./OptionValues";
+import Variants from "./Variants";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const form = useForm({
     defaultValues: {
+      image: "",
+      title: "",
+      description: "",
+      purchasePrice: 0,
+      salePrice: 0,
+      sku: "",
+      initialStock: 0,
       type: "simple",
-      variants: [{ name: "", values: [] }],
+      options: [{ name: "", values: [] }],
     },
   });
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "variants",
+    name: "options",
   });
 
   const type = useWatch({
@@ -168,12 +178,12 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                           <div className="grow">
                             <FormField
                               control={form.control}
-                              name={`variants.${index}.name`}
+                              name={`options.${index}.name`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
                                     <Input
-                                      placeholder="Variant name"
+                                      placeholder="Option name"
                                       {...field}
                                     />
                                   </FormControl>
@@ -192,7 +202,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                           </Button>
                         </div>
 
-                        <VariantValues control={form.control} index={index} />
+                        <OptionValues control={form.control} index={index} />
                       </li>
                     ))}
 
@@ -209,90 +219,13 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                       </Button>
                     </li>
                   </ul>
-
-                  <ul className="flex flex-col gap-6">
-                    {fields.map((item, index) => (
-                      <li
-                        key={item.id}
-                        className="grid grid-cols-2 gap-4 bg-background p-6"
-                      >
-                        <div className="text-muted-foreground items-center col-span-2 font-semibold uppercase border-b-2 pb-2 flex justify-between">
-                          <div className="flex gap-2 items-center">
-                            <Avatar>
-                              <AvatarImage> </AvatarImage>
-                              <AvatarFallback>
-                                <Image className="w-5 h-5" />
-                              </AvatarFallback>
-                            </Avatar>
-                            <span>variant</span>
-                          </div>
-                          <span>1290.00</span>
-                        </div>
-                        <FormField
-                          control={form.control}
-                          name={`variants.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Purchase Price</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Variant name" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`variants.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Sale Price</FormLabel>
-                              <FormControl>
-                                <Input placeholder="0" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`variants.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>SKU</FormLabel>
-                              <FormControl>
-                                <Input placeholder="GN12345" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`variants.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Barcode</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="0"
-                                  {...field}
-                                  defaultValue={5}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </li>
-                    ))}
-                  </ul>
+                  <Variants form={form} />
                 </>
               ) : (
                 <div className="grid grid-cols-2 gap-4 bg-background p-6">
                   <FormField
                     control={form.control}
-                    name={`purchase_price`}
+                    name={`purchasePrice`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Purchase Price</FormLabel>
@@ -305,7 +238,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   />
                   <FormField
                     control={form.control}
-                    name={`sale_price`}
+                    name={`salePrice`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Sale Price</FormLabel>
@@ -331,10 +264,10 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   />
                   <FormField
                     control={form.control}
-                    name={`reorder`}
+                    name={`initialStock`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Reorder Threshold</FormLabel>
+                        <FormLabel>Initial Stock</FormLabel>
                         <FormControl>
                           <Input placeholder="0" {...field} defaultValue={5} />
                         </FormControl>

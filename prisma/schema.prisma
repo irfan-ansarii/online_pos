@@ -73,6 +73,7 @@ model Product {
   description String
   type        Type          @default(simple)
   status      ProductStatus @default(active)
+  options     Json?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   variants    Variant[]

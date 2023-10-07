@@ -4,17 +4,16 @@ import { useFieldArray } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
 import { X, Plus } from "lucide-react";
 
 interface VariantProps {
   control: any;
   index: number;
 }
-const VariantValues = ({ control, index }: VariantProps) => {
+const OptionValues = ({ control, index }: VariantProps) => {
   const { fields, remove, append } = useFieldArray({
     control,
-    name: `variants.${index}.values`,
+    name: `options.${index}.values`,
   });
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -38,7 +37,7 @@ const VariantValues = ({ control, index }: VariantProps) => {
             ref={inputRef}
             onKeyDown={handleKeyDown}
             defaultValue=""
-            placeholder="Variant value"
+            placeholder="Option value"
           />
         </div>
         <Button
@@ -46,8 +45,10 @@ const VariantValues = ({ control, index }: VariantProps) => {
           size="icon"
           className="shrink-0"
           onClick={() => {
-            append({ value: inputRef?.current?.value });
-            if (inputRef && inputRef.current) inputRef.current.value = "";
+            if (inputRef?.current?.value) {
+              append({ value: inputRef?.current?.value });
+              if (inputRef && inputRef.current) inputRef.current.value = "";
+            }
           }}
         >
           <Plus className="w-5 h-5" />
@@ -60,7 +61,7 @@ const VariantValues = ({ control, index }: VariantProps) => {
             variant="outline"
             key={i}
           >
-            <span>{item ? item.value : ""}</span>
+            <span>{item && item.value}</span>
             <span
               onClick={() => remove(i)}
               className="bg-secondary hover:bg-destructive w-4 flex items-center justify-center h-4 rounded-full cursor-pointer"
@@ -74,4 +75,4 @@ const VariantValues = ({ control, index }: VariantProps) => {
   );
 };
 
-export default VariantValues;
+export default OptionValues;

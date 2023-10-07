@@ -10,7 +10,7 @@ const CustomerCard = ({ customer }: any) => {
   return (
     <Card className="relative">
       <Link href={`customers/${customer.id}`}>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 relative h-full flex flex-col justify-between">
           <div className="flex gap-2 items-start">
             <Avatar className="w-10 h-10">
               <AvatarFallback className="">

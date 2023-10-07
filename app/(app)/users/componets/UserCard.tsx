@@ -10,7 +10,7 @@ const UserCard = ({ user }: { user: any }) => {
   return (
     <Card>
       <Link href={`/users/${user.id}`}>
-        <CardContent className="space-y-3 relative">
+        <CardContent className="space-y-4 relative h-full flex flex-col justify-between">
           <div className="flex gap-2 items-start">
             <Badge className="absolute right-4 top-4 capitalize">
               {user.role}
