@@ -1,5 +1,8 @@
 "use client";
+
 import React from "react";
+import PropTypes from "prop-types";
+
 import { useFieldArray, useWatch } from "react-hook-form";
 import {
   FormControl,
@@ -11,104 +14,121 @@ import {
 import { Input } from "@/components/ui/input";
 
 const Variants = ({ form }) => {
-  const formOptions = useWatch({
+  const options = useWatch({
     name: "options",
     control: form.control,
-    defaultValue: "simple",
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "variants",
   });
 
-  function generateCombinations(arr) {
-    function helper(index, currentCombination) {
-      if (index === arr.length) {
-        combinations.push([...currentCombination]);
+  function generateVariants(options) {
+    remove();
+    function generate(current, index) {
+      if (index === options.length) {
+        append({ name: current.join("/") });
         return;
       }
 
-      const item = arr[index];
-      for (const value of item.values) {
-        currentCombination.push({ name: item.name, value });
-        helper(index + 1, currentCombination);
-        currentCombination.pop();
+      for (const value of options[index].values) {
+        generate([...current, value.value], index + 1);
       }
     }
 
-    const combinations = [];
-    helper(0, []);
-    return combinations;
+    generate([], 0);
   }
 
   React.useEffect(() => {
-    console.log(generateCombinations(formOptions));
-  }, [formOptions]);
+    generateVariants(options);
+  }, [options]);
 
   return (
-    <ul className="flex flex-col gap-6">
-      {fields.map((item, index) => (
-        <li key={item.id} className="grid grid-cols-2 gap-4 bg-background p-6">
-          <div className="text-muted-foreground items-center col-span-2 font-semibold  border-b-2 pb-2 flex justify-between">
-            <span className="uppercase">{item.name}</span>
-            <span>1290.00</span>
-          </div>
-          <FormField
-            control={form.control}
-            name={`variants.${index}.purchasePrice`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Purchase Price</FormLabel>
-                <FormControl>
-                  <Input placeholder="Variant name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name={`variants.${index}.salePrice`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sale Price</FormLabel>
-                <FormControl>
-                  <Input placeholder="0" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name={`variants.${index}.sku`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>SKU</FormLabel>
-                <FormControl>
-                  <Input placeholder="GN12345" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name={`variants.${index}.initialStock`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Initial Stock</FormLabel>
-                <FormControl>
-                  <Input placeholder="0" {...field} defaultValue={5} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </li>
-      ))}
-    </ul>
+    <div>
+      <ul className="flex flex-col gap-1 overflow-x-auto">
+        {/* header row */}
+        {fields && fields.length > 0 && (
+          <li className="flex items-center bg-background">
+            <div className="sticky left-0 p-3 pl-6 w-28 shrink-0 z-10 bg-background border-r">
+              <div className="font-medium text-muted-foreground truncate uppercase">
+                Variant
+              </div>
+            </div>
+            <div className="flex w-full">
+              <div className="basis-2/5 shrink-0 bg-background p-3">
+                <div className="truncate font-medium text-muted-foreground text-center uppercase">
+                  Purchase Price
+                </div>
+              </div>
+              <div className="basis-2/5 shrink-0 bg-background p-3">
+                <div className="truncate font-medium text-muted-foreground text-center uppercase">
+                  Sale Price
+                </div>
+              </div>
+              <div className="basis-2/5 shrink-0 bg-background p-3">
+                <div className="truncate font-medium text-muted-foreground text-center  uppercase">
+                  SKU
+                </div>
+              </div>
+            </div>
+          </li>
+        )}
+
+        {/* data row */}
+        {fields.map((item, index) => (
+          <li key={index} className="flex items-center bg-background">
+            <div className="sticky left-0 p-3 pl-6 w-28 shrink-0 z-10 bg-background border-r">
+              <span className="font-medium">{item.name}</span>
+            </div>
+            <div className="flex w-full">
+              <div className="basis-2/5 shrink-0 bg-background p-3">
+                <FormField
+                  control={form.control}
+                  name={`variants.${index}.purchasePrice`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="0.00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="basis-2/5 shrink-0 bg-background p-3">
+                <FormField
+                  control={form.control}
+                  name={`variants.${index}.salePrice`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="0.00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="basis-2/5 shrink-0 bg-background p-3">
+                <FormField
+                  control={form.control}
+                  name={`variants.${index}.sku`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="ABC1234" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 
