@@ -30,11 +30,10 @@ export default function CartActions() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="link"
-              size="icon"
+              variant="secondary"
               className="flex data-[state=open]:bg-muted ml-auto"
             >
-              <MoreVertical className="w-5 h-5" />
+              Menu
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>

@@ -2,18 +2,17 @@
 
 import React from "react";
 import PropTypes from "prop-types";
-
 import { useFieldArray, useWatch } from "react-hook-form";
+
 import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const Variants = ({ form }) => {
+const Variants = ({ form }: { form: any }) => {
   const options = useWatch({
     name: "options",
     control: form.control,
@@ -24,9 +23,11 @@ const Variants = ({ form }) => {
     name: "variants",
   });
 
-  function generateVariants(options) {
+  function generateVariants(
+    options: [{ name: string; values: [{ value: string }] }]
+  ) {
     remove();
-    function generate(current, index) {
+    function generate(current: string[], index: number) {
       if (index === options.length) {
         append({ name: current.join("/") });
         return;
@@ -45,89 +46,67 @@ const Variants = ({ form }) => {
   }, [options]);
 
   return (
-    <div>
-      <ul className="flex flex-col gap-1 overflow-x-auto">
-        {/* header row */}
-        {fields && fields.length > 0 && (
-          <li className="flex items-center bg-background">
-            <div className="sticky left-0 p-3 pl-6 w-28 shrink-0 z-10 bg-background border-r">
-              <div className="font-medium text-muted-foreground truncate uppercase">
-                Variant
-              </div>
-            </div>
-            <div className="flex w-full">
-              <div className="basis-2/5 shrink-0 bg-background p-3">
-                <div className="truncate font-medium text-muted-foreground text-center uppercase">
-                  Purchase Price
-                </div>
-              </div>
-              <div className="basis-2/5 shrink-0 bg-background p-3">
-                <div className="truncate font-medium text-muted-foreground text-center uppercase">
-                  Sale Price
-                </div>
-              </div>
-              <div className="basis-2/5 shrink-0 bg-background p-3">
-                <div className="truncate font-medium text-muted-foreground text-center  uppercase">
-                  SKU
-                </div>
-              </div>
-            </div>
-          </li>
-        )}
+    <div className="divide-y border-y">
+      {/* header */}
+      {fields && fields.length > 0 && (
+        <div className="grid grid-cols-4 gap-2 font-medium text-muted-foreground">
+          <div className="py-3 truncate">Variant</div>
+          <div className="py-3 truncate">Purchase Price</div>
+          <div className="py-3 truncate">Sale Price</div>
+          <div className="py-3 truncate">SKU</div>
+        </div>
+      )}
 
-        {/* data row */}
-        {fields.map((item, index) => (
-          <li key={index} className="flex items-center bg-background">
-            <div className="sticky left-0 p-3 pl-6 w-28 shrink-0 z-10 bg-background border-r">
-              <span className="font-medium">{item.name}</span>
-            </div>
-            <div className="flex w-full">
-              <div className="basis-2/5 shrink-0 bg-background p-3">
-                <FormField
-                  control={form.control}
-                  name={`variants.${index}.purchasePrice`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="basis-2/5 shrink-0 bg-background p-3">
-                <FormField
-                  control={form.control}
-                  name={`variants.${index}.salePrice`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="basis-2/5 shrink-0 bg-background p-3">
-                <FormField
-                  control={form.control}
-                  name={`variants.${index}.sku`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="ABC1234" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {/* row */}
+      {fields.map((field, index) => (
+        <div className="grid grid-cols-4 gap-2">
+          <div className="py-2 inline-flex items-center truncate font-medium">
+            {field?.name}
+          </div>
+          <div className="py-2">
+            <FormField
+              control={form.control}
+              name={`variants.${index}.purchasePrice`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input placeholder="0.00" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="py-2">
+            <FormField
+              control={form.control}
+              name={`variants.${index}.salePrice`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input placeholder="0.00" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="py-2">
+            <FormField
+              control={form.control}
+              name={`variants.${index}.sku`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input placeholder="ABC1234" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
