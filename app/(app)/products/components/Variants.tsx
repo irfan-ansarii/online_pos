@@ -29,7 +29,7 @@ const Variants = ({ form }: { form: any }) => {
     remove();
     function generate(current: string[], index: number) {
       if (index === options.length) {
-        append({ name: current.join("/") });
+        append({ title: current.join("/") });
         return;
       }
 
@@ -61,7 +61,7 @@ const Variants = ({ form }: { form: any }) => {
       {fields.map((field, index) => (
         <div className="grid grid-cols-4 gap-2">
           <div className="py-2 inline-flex items-center truncate font-medium">
-            {field?.name}
+            {field?.title}
           </div>
           <div className="py-2">
             <FormField

@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,12 +17,16 @@ import {
   DialogContent,
   DialogCancel,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Image } from "lucide-react";
-const ProductCard = () => {
+
+const ProductCard = ({ product }: { product: any }) => {
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <DialogTrigger
+        asChild
+        onClick={(e) => {
+          if (product.type === "simple") e.preventDefault();
+        }}
+      >
         <Card className="cursor-pointer">
           <CardHeader className="p-0">
             <Avatar className="w-full h-full rounded-none">
@@ -36,19 +41,20 @@ const ProductCard = () => {
           </CardHeader>
           <CardContent className="p-2">
             <CardTitle className="truncate text-sm font-semibold">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-              Necessitatibus, aspernatur.
+              {product.title}
             </CardTitle>
-            <CardDescription className="truncate">1,829.00</CardDescription>
+            <CardDescription className="truncate">
+              {product.variants[0].salePrice}
+            </CardDescription>
           </CardContent>
         </Card>
       </DialogTrigger>
       <DialogContent>
         <div className="grid grid-cols-4 gap-4">
-          {["Card 38fdhj fgdhghfg", "Razorpay", "Cash", "Paytm"].map((el) => (
+          {product.variants.map((variant: any) => (
             <DialogCancel asChild>
               <Button
-                key={el}
+                key={variant.id}
                 variant="outline"
                 className="border-2 flex-col p-4 truncate space-y-2 w-full h-full hover:bg-background hover:border-primary"
               >
@@ -57,9 +63,9 @@ const ProductCard = () => {
                 </Avatar>
 
                 <div className="space-y-0.5">
-                  <div className="truncate">{el}</div>
+                  <div className="truncate">{variant.title}</div>
                   <div className="text-muted-foreground text-xs font-normal">
-                    1,290.00
+                    {variant.salePrice}
                   </div>
                 </div>
               </Button>

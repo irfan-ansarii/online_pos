@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
       purchasePrice,
       salePrice,
       variants,
+      options,
       sku,
     } = body;
 
@@ -94,19 +95,21 @@ export async function POST(req: NextRequest) {
         description,
         type,
         status: "active",
+        options,
         variants: {
           create:
             type === "variable"
               ? variants.map((item: any) => {
                   return {
-                    name: item.name,
+                    title: item.title,
                     purchasePrice: parseFloat(item.purchasePrice),
                     salePrice: parseFloat(item.salePrice),
                     sku: item.sku,
+                    option: item.option,
                   };
                 })
               : {
-                  name: "default",
+                  title: "default",
                   purchasePrice: parseFloat(purchasePrice),
                   salePrice: parseFloat(salePrice),
                   sku,
@@ -118,7 +121,6 @@ export async function POST(req: NextRequest) {
     // return response
     return NextResponse.json({ data: product }, { status: 201 });
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

@@ -26,6 +26,8 @@ model User {
   recoveryOtp      String?
   locationId       Int?
   addresses        Address[]
+  customer         Sale[]    @relation("customer")
+  employee         Sale[]    @relation("employee")
   invitedBy        User?     @relation("InvitedBy", fields: [invitedById], references: [id])
   invitedByUser    User?     @relation("InvitedBy")
   location         Location? @relation(fields: [locationId], references: [id])
@@ -73,9 +75,9 @@ model Product {
   description String
   type        Type          @default(simple)
   status      ProductStatus @default(active)
-  options     Json?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  options     Json?
   variants    Variant[]
 
   @@map("products")
@@ -85,11 +87,12 @@ model Variant {
   id            Int         @id @default(autoincrement())
   productId     Int
   sku           String
-  name          String
+  title         String
   purchasePrice Float
   salePrice     Float
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  option        Json?
   inventory     Inventory[]
   label         Label[]
   product       Product     @relation(fields: [productId], references: [id])
@@ -126,11 +129,95 @@ model Tax {
   id        Int      @id @default(autoincrement())
   name      String
   state     String
-  amount    Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  rate      Float
 
   @@map("taxes")
+}
+
+model Sale {
+  id              Int                 @id @default(autoincrement())
+  title           String
+  customerId      Int?
+  employeeId      Int?
+  billingAddress  Json?
+  shippingAddress Json?
+  lineItemsTotal  Float
+  subtotal        Float
+  totalTax        Float
+  totalDiscount   Float
+  total           Float
+  totalDue        Float
+  taxLines        Json?
+  discountLines   Json?
+  status          String?
+  financialStatus SaleFinancialStatus @default(pending)
+  happenedAt      DateTime            @db.Timestamptz(6)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  lineItems       LineItem[]
+  customer        User?               @relation("customer", fields: [customerId], references: [id])
+  employee        User?               @relation("employee", fields: [employeeId], references: [id])
+
+  @@map("sales")
+}
+
+model LineItem {
+  id            Int      @id @default(autoincrement())
+  saleId        Int
+  title         String
+  variantTitle  String
+  sku           String?
+  price         Float
+  quantity      Float
+  totalDiscount Float
+  totalTax      Float
+  total         Float
+  taxable       Boolean  @default(true)
+  taxLines      Json?
+  discountLines Json?
+  productId     Int?
+  variantId     Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  sale          Sale     @relation(fields: [saleId], references: [id])
+
+  @@map("line_items")
+}
+
+model Transaction {
+  id        Int               @id @default(autoincrement())
+  name      String
+  amount    Float
+  kind      TransactionKind
+  saleId    Int
+  status    TransactionStatus @default(pending)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@map("transactions")
+}
+
+enum SaleFinancialStatus {
+  pending
+  paid
+  partialy_paid
+  partially_refunded
+  refunded
+  voided
+}
+
+enum TransactionKind {
+  sale
+  void
+  refund
+}
+
+enum TransactionStatus {
+  pending
+  failure
+  success
 }
 
 enum Status {
