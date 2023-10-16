@@ -19,10 +19,12 @@ const ProductCard = ({ product }: { product: any }) => {
             </AvatarFallback>
           </Avatar>
 
-          <div className="grow p-4 flex flex-col space-y-2">
-            <div className="font-semibold">{product.title}</div>
-            <div className="text-muted-foreground">
-              {product.variants[0].sku}
+          <div className="grow p-4 flex flex-col justify-between">
+            <div className="space-y-1">
+              <div className="font-semibold">{product.title}</div>
+              <div className="text-muted-foreground">
+                {product.variants[0].sku}
+              </div>
             </div>
             <div>{product.variants[0].salePrice}</div>
           </div>

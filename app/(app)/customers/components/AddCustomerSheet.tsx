@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import query from "india-pincode-search";
 import * as z from "zod";
 import {
   Sheet,
@@ -167,10 +168,51 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                   </FormItem>
                 )}
               />
+
               <div className="grid grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
+                  name="zip"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Zip</FormLabel>
+                      <FormControl
+                        onChange={(e) => {
+                          field.onChange();
+                          const value = e.target.value;
+
+                          if (!value || value.length !== 6) {
+                            form.setValue("city", "");
+                            form.setValue("state", "");
+                            form.setError("zip", {
+                              type: "custom",
+                              message: "custom message",
+                            });
+                            return;
+                          }
+                          const res = query.search(value);
+
+                          if (res && res.length > 0) {
+                            const { city, state } = res[0];
+                            form.setValue("city", city);
+                            form.setValue("state", state);
+                            form.clearErrors("zip");
+                          } else {
+                            form.setError("zip", {
+                              message: "custom message",
+                            });
+                          }
+                        }}
+                      >
+                        <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="city"
+                  disabled={true}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>City</FormLabel>
@@ -183,6 +225,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                 <FormField
                   control={form.control}
                   name="state"
+                  disabled={true}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>State</FormLabel>
@@ -192,21 +235,11 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="zip"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Zip</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+
                 <FormField
                   control={form.control}
                   name="country"
+                  disabled={true}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>

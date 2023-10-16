@@ -13,7 +13,7 @@ interface Props {
   query: {
     search?: string;
   };
-  pageParam: number;
+  pageParam?: number | undefined;
 }
 const getCustomers = async ({ query, pageParam = 1 }: Props) => {
   return await api.get("/customers", {
@@ -38,6 +38,10 @@ export const useCustomers = (query: { search?: string }) => {
       retry: 0,
     }
   );
+};
+
+export const useSearchCustomer = (query: { search?: string | undefined }) => {
+  return useQuery(["search-customer"], () => getCustomers({ query }));
 };
 
 /**

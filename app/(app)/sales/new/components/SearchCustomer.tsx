@@ -1,16 +1,13 @@
-import React from "react";
+import React, { type KeyboardEvent } from "react";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
+  CommandList,
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import { Button } from "@/components/ui/button";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { User, Plus } from "lucide-react";
@@ -23,44 +20,70 @@ const frameworks = [
 
 const SearchCustomer = () => {
   const [open, setOpen] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const [inputValue, setInputValue] = React.useState<string>("");
+
+  const handleKeyDown = React.useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      const input = inputRef.current;
+      if (!input) {
+        return;
+      }
+
+      // Keep the options displayed when the user is typing
+      if (!open) {
+        setOpen(true);
+      }
+
+      // This is not a default behaviour of the <input /> field
+      if (event.key === "Enter" && input.value !== "") {
+      }
+
+      if (event.key === "Escape") {
+        input.blur();
+      }
+    },
+    [open]
+  );
+
+  const handleBlur = React.useCallback(() => {
+    setOpen(false);
+  }, []);
+
   return (
-    <div className="relative grow ">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="justify-start w-full"
-          >
-            <User className="w-5 h-5 mr-2" />
-            Select customer...
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="p-0" align="start">
-          <Command>
-            <CommandInput placeholder="Search customer..." />
-            <CommandEmpty>No framework found.</CommandEmpty>
-            <CommandGroup>
-              {frameworks.map((framework) => (
-                <CommandItem
-                  key={framework.value}
-                  onSelect={(currentValue) => {
-                    setOpen(false);
-                  }}
-                >
-                  {framework.label}
+    <Command onKeyDown={handleKeyDown} className="overflow-visible">
+      <div>
+        <CommandInput
+          ref={inputRef}
+          value={inputValue}
+          onValueChange={setInputValue}
+          onBlur={handleBlur}
+          onFocus={() => setOpen(true)}
+          placeholder="Search..."
+          className="text-base border-none"
+        />
+      </div>
+      <div className="relative">
+        {open && (
+          <div className="absolute top-1 bg-accent border z-50 w-full rounded-md overflow-hidden outline-none animate-in fade-in-0 zoom-in-95">
+            <CommandList>
+              <CommandEmpty>No framework found.</CommandEmpty>
+              <CommandGroup>
+                <CommandItem>hello</CommandItem>
+                <CommandItem>hello</CommandItem>
+                <CommandItem>hello</CommandItem>
+                <CommandItem>hello</CommandItem>
+                <DropdownMenuSeparator />
+                <CommandItem>
+                  <Plus className="w-5 h-5 mr-2" /> Add Customer
                 </CommandItem>
-              ))}
-              <DropdownMenuSeparator />
-              <CommandItem>
-                <Plus className="w-5 h-5 mr-2" /> Add Customer
-              </CommandItem>
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
+              </CommandGroup>
+            </CommandList>
+          </div>
+        )}
+      </div>
+    </Command>
   );
 };
 

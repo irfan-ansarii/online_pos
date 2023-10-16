@@ -122,6 +122,17 @@ model Label {
   @@map("labels")
 }
 
+model Tax {
+  id        Int      @id @default(autoincrement())
+  name      String
+  state     String
+  amount    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("taxes")
+}
+
 enum Status {
   invited
   active

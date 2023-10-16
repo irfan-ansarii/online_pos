@@ -21,7 +21,7 @@ const Cart = () => {
   return (
     <div className="flex flex-col h-full w-full relative space-y-4">
       <div className="flex gap-1 border-b-2 border-dashed pb-2 items-center -mt-2">
-        <div>Cart</div>
+        <SearchCustomer />
         <CartActions />
       </div>
 
