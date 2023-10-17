@@ -1,78 +1,40 @@
-"use client";
-import React, { useState } from "react";
+import React from "react";
+import { Settings } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-
-import DynamicDialogContent from "./DialogContent";
-import {
-  MoreVertical,
-  Trash2,
-  BookmarkPlus,
-  Bookmark,
-  Settings,
-} from "lucide-react";
 import ClearCartDialog from "./ClearCartDialog";
-
-export default function CartActions() {
-  const [selected, setSelected] = useState<string | null>(null);
-  const [open, setOpen] = React.useState(false);
+import SaveCartDialog from "./SaveCartDialog";
+import SavedCartsDialog from "./SavedCartsDialog";
+const CartActions = () => {
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <AlertDialog>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="secondary"
-              className="flex data-[state=open]:bg-muted ml-auto"
-            >
-              Menu
-              <span className="sr-only">Open menu</span>
+    <div className="grid grid-cols-4 mt-4 -mb-3 border-t-2 border-dashed pt-2 items-center divide-x">
+      <div>
+        <SaveCartDialog />
+      </div>
+      <div>
+        <SavedCartsDialog />
+      </div>
+      <div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" className="w-full">
+              <Settings className="w-5 h-5" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[160px]">
-            {/* dialog */}
-            <DialogTrigger asChild>
-              <DropdownMenuItem onSelect={() => setSelected("hold")}>
-                <BookmarkPlus className="w-4 h-4 mr-2" />
-                Save
-              </DropdownMenuItem>
-            </DialogTrigger>
-
-            <DialogTrigger asChild>
-              <DropdownMenuItem onSelect={() => setSelected("saved")}>
-                <Bookmark className="w-4 h-4 mr-2" />
-                Saved
-              </DropdownMenuItem>
-            </DialogTrigger>
-
-            <DropdownMenuItem onSelect={() => setSelected("saved")}>
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {/* alert dialog */}
-            <AlertDialogTrigger asChild>
-              <DropdownMenuItem className="text-destructive focus:bg-destructive focus:text-popover-foreground">
-                <Trash2 className="w-4 h-4 mr-2" />
-                Clear
-              </DropdownMenuItem>
-            </AlertDialogTrigger>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DynamicDialogContent content={selected} onOpenChange={setOpen} />
-
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Settings</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+      <div>
         <ClearCartDialog />
-      </AlertDialog>
-    </Dialog>
+      </div>
+    </div>
   );
-}
+};
+
+export default CartActions;

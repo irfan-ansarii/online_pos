@@ -1,27 +1,34 @@
 import React from "react";
-
-import { CardTitle, CardDescription, CardHeader } from "@/components/ui/card";
+import { BookmarkPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import { useForm } from "react-hook-form";
 
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogHeader,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
-const SaveCartDialog = ({
-  onOpenChange,
-}: {
-  onOpenChange: (isOpen: boolean) => void;
-}) => {
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+const SaveCartDialog = () => {
   const form = useForm({
     defaultValues: {
       name: "",
@@ -33,33 +40,50 @@ const SaveCartDialog = ({
   };
 
   return (
-    <div className="relative">
-      <CardHeader className="p-0 mb-6 space-y-0">
-        <CardTitle className="text-lg">Save Cart</CardTitle>
-        <CardDescription>Click on the button bellow to select.</CardDescription>
-      </CardHeader>
+    <Dialog>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button variant="ghost" className="w-full">
+              <BookmarkPlus className="w-5 h-5" />
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Save cart</p>
+        </TooltipContent>
+      </Tooltip>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Example" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" className="w-full">
-            Save
-          </Button>
-        </form>
-      </Form>
-    </div>
+      <DialogContent>
+        <DialogHeader className="p-0 mb-6 space-y-0">
+          <DialogTitle className="text-lg">Save Cart</DialogTitle>
+          <DialogDescription>
+            Click on the button bellow to select.
+          </DialogDescription>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Example" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full">
+              Save
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

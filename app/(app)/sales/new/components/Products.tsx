@@ -15,6 +15,7 @@ import ProductCard from "./ProductCard";
 import Scanner from "./Scanner";
 
 import ProductLoading from "./ProductLoading";
+
 const Products = () => {
   const [open, setOpen] = React.useState(false);
   const { data: products, isLoading, isError, error } = useProducts({});

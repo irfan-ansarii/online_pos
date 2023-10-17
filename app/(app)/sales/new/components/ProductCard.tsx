@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useFormContext } from "react-hook-form";
 import { Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,14 +20,40 @@ import {
 } from "@/components/ui/dialog";
 
 const ProductCard = ({ product }: { product: any }) => {
+  const form = useFormContext();
+
+  const { fields, append, remove, update } = form;
+
+  const handleClick = (e) => {
+    if (product.type === "simple") {
+      e.preventDefault();
+
+      const index = fields.findIndex(
+        (item) => item.variantId === product.variants[0].id
+      );
+      console.log(index);
+      if (index === -1) {
+        append({
+          title: product.title,
+          variantTitle: null,
+          sku: product.variants[0].sku,
+          price: product.variants[0].price,
+          quantity: 1,
+          productId: product.id,
+          variantId: product.variants[0].id,
+        });
+      } else {
+        update(index, {
+          ...fields[index],
+          quantity: fields[index].quantity + 1,
+        });
+      }
+    }
+  };
+
   return (
     <Dialog>
-      <DialogTrigger
-        asChild
-        onClick={(e) => {
-          if (product.type === "simple") e.preventDefault();
-        }}
-      >
+      <DialogTrigger asChild onClick={handleClick}>
         <Card className="cursor-pointer">
           <CardHeader className="p-0">
             <Avatar className="w-full h-full rounded-none">
