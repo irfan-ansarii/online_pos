@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
-import { useFormContext, useFieldArray } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
+import { useFormContext } from "react-hook-form";
 import { Plus, Minus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,22 @@ import CartActions from "./CartActions";
 
 const Cart = () => {
   const form = useFormContext();
-  const { fields } = form;
+  const { fields, update, remove } = form;
+
+  const handleMinus = (e, index: number) => {
+    e.preventDefault();
+    const currentQuantity = fields[index].quantity;
+    if (currentQuantity > 1) {
+      update(index, { ...fields[index], quantity: fields[index].quantity - 1 });
+      return;
+    }
+    remove(index);
+  };
+
+  const handlePlus = (e, index: number) => {
+    e.preventDefault();
+    update(index, { ...fields[index], quantity: fields[index].quantity + 1 });
+  };
 
   return (
     <div className="flex flex-col h-full w-full relative space-y-2">
@@ -31,7 +47,7 @@ const Cart = () => {
       {fields && fields.length > 0 && (
         <ScrollArea className="grow h-full -mx-4 px-4">
           <Accordion type="single" collapsible className="h-full space-y-2">
-            {fields.map((field, i) => (
+            {fields.map((field: any, i: number) => (
               <AccordionItem
                 value={`item-${i}`}
                 className="bg-background dark:bg-popover border-none rounded-md relative"
@@ -49,17 +65,21 @@ const Cart = () => {
                       <div className="text-left col-span-9 space-y-1 text-sm font-normal  truncate">
                         <div className="truncate">{field.title}</div>
                         <div className="flex justify-between">
+                          {field.variantTitle && (
+                            <Badge
+                              className="inline-flex py-0"
+                              variant="secondary"
+                            >
+                              {field.variantTitle}
+                            </Badge>
+                          )}
+
                           <Badge
-                            className="inline-flex py-0"
-                            variant="secondary"
-                          >
-                            S
-                          </Badge>
-                          <Badge
-                            className="shrink-0 px-0 py-0 min-w-[5rem] bg-secondary/80"
+                            className="shrink-0 px-0 py-0 min-w-[5rem] bg-secondary/80 ml-auto"
                             variant="secondary"
                           >
                             <Button
+                              onClick={(e) => handleMinus(e, i)}
                               size="icon"
                               variant="secondary"
                               className="rounded-full w-6 h-6"
@@ -71,6 +91,7 @@ const Cart = () => {
                             </span>
                             <Button
                               size="icon"
+                              onClick={(e) => handlePlus(e, i)}
                               variant="secondary"
                               className="rounded-full w-6 h-6"
                             >
@@ -80,9 +101,21 @@ const Cart = () => {
                         </div>
                       </div>
                       <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
-                        <div>1,490.05</div>
+                        <div>
+                          <NumericFormat
+                            value={field.price}
+                            decimalScale={2}
+                            fixedDecimalScale
+                            displayType="text"
+                          />
+                        </div>
                         <div className=" line-through text-muted-foreground">
-                          1,490.05
+                          <NumericFormat
+                            value={field.price}
+                            decimalScale={2}
+                            fixedDecimalScale
+                            displayType="text"
+                          />
                         </div>
                       </div>
                     </div>

@@ -1,5 +1,5 @@
-"use client";
 import React from "react";
+import { NumericFormat } from "react-number-format";
 import { useFormContext } from "react-hook-form";
 import { Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,41 +19,68 @@ import {
   DialogCancel,
 } from "@/components/ui/dialog";
 
-const ProductCard = ({ product }: { product: any }) => {
+interface ProductType {
+  id: number;
+  variantId: number;
+  productId: number;
+  title: string;
+  variantTitle: string | null;
+  variants: any[];
+  sku: string;
+  price: number;
+  salePrice: number;
+  purchasePrice: number;
+  type: string;
+  action?: string;
+}
+
+const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
   const form = useFormContext();
+  const { fields, append, update } = form;
 
-  const { fields, append, remove, update } = form;
-
-  const handleClick = (e) => {
+  const handleClick = (
+    e: React.MouseEvent<HTMLElement>,
+    clickedItem: ProductType
+  ) => {
+    if (clickedItem.action === "skip") {
+      return;
+    }
     if (product.type === "simple") {
       e.preventDefault();
+    }
 
-      const index = fields.findIndex(
-        (item) => item.variantId === product.variants[0].id
-      );
-      console.log(index);
-      if (index === -1) {
-        append({
-          title: product.title,
-          variantTitle: null,
-          sku: product.variants[0].sku,
-          price: product.variants[0].price,
-          quantity: 1,
-          productId: product.id,
-          variantId: product.variants[0].id,
-        });
-      } else {
-        update(index, {
-          ...fields[index],
-          quantity: fields[index].quantity + 1,
-        });
-      }
+    const index = fields.findIndex(
+      (item) => item.variantId === clickedItem.variantId
+    );
+
+    const updatedItem =
+      index === -1
+        ? { ...clickedItem, quantity: 1 }
+        : { ...fields[index], quantity: fields[index].quantity + 1 };
+
+    if (index === -1) {
+      append(updatedItem);
+    } else {
+      update(index, updatedItem);
     }
   };
 
   return (
     <Dialog>
-      <DialogTrigger asChild onClick={handleClick}>
+      <DialogTrigger
+        asChild
+        onClick={(e) =>
+          handleClick(e, {
+            action: product.type !== "simple" ? "skip" : "continue",
+            title: product.title,
+            variantTitle: null,
+            sku: product.variants[0].sku,
+            price: product.variants[0].salePrice,
+            productId: product.id,
+            variantId: product.variants[0].id,
+          })
+        }
+      >
         <Card className="cursor-pointer">
           <CardHeader className="p-0">
             <Avatar className="w-full h-full rounded-none">
@@ -71,7 +98,12 @@ const ProductCard = ({ product }: { product: any }) => {
               {product.title}
             </CardTitle>
             <CardDescription className="truncate">
-              {product.variants[0].salePrice}
+              <NumericFormat
+                value={product.variants[0].salePrice}
+                decimalScale={2}
+                fixedDecimalScale
+                displayType="text"
+              />
             </CardDescription>
           </CardContent>
         </Card>
@@ -79,7 +111,19 @@ const ProductCard = ({ product }: { product: any }) => {
       <DialogContent>
         <div className="grid grid-cols-4 gap-4">
           {product.variants.map((variant: any) => (
-            <DialogCancel asChild>
+            <DialogCancel
+              asChild
+              onClick={(e) =>
+                handleClick(e, {
+                  title: product.title,
+                  variantTitle: variant.title,
+                  sku: variant.sku,
+                  price: variant.salePrice,
+                  productId: product.id,
+                  variantId: variant.id,
+                })
+              }
+            >
               <Button
                 key={variant.id}
                 variant="outline"
@@ -88,7 +132,6 @@ const ProductCard = ({ product }: { product: any }) => {
                 <Avatar className="shrink-0 w-12 h-12">
                   <AvatarFallback>P</AvatarFallback>
                 </Avatar>
-
                 <div className="space-y-0.5">
                   <div className="truncate">{variant.title}</div>
                   <div className="text-muted-foreground text-xs font-normal">
