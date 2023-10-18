@@ -1,7 +1,10 @@
 import React from "react";
-import { NumericFormat } from "react-number-format";
+import numeral from "numeral";
+
 import { useFormContext } from "react-hook-form";
+
 import { Image } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,19 +22,23 @@ import {
   DialogCancel,
 } from "@/components/ui/dialog";
 
-interface ProductType {
-  id: number;
-  variantId: number;
-  productId: number;
+interface VariantType {
+  id?: number;
   title: string;
   variantTitle: string | null;
-  variants: any[];
   sku: string;
-  price: number;
   salePrice: number;
-  purchasePrice: number;
+  productId: number;
+  variantId: number;
+}
+
+interface ProductType {
+  id: number;
+  title: string;
+  description: string;
   type: string;
-  action?: string;
+  options: [];
+  variants: VariantType[];
 }
 
 const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
@@ -40,22 +47,24 @@ const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
 
   const handleClick = (
     e: React.MouseEvent<HTMLElement>,
-    clickedItem: ProductType
+    clickedItem: VariantType,
+    action: string | null
   ) => {
-    if (clickedItem.action === "skip") {
+    if (action === "skip") {
       return;
     }
+
     if (product.type === "simple") {
       e.preventDefault();
     }
 
     const index = fields.findIndex(
-      (item) => item.variantId === clickedItem.variantId
+      (item: VariantType) => item.variantId === clickedItem.variantId
     );
 
     const updatedItem =
       index === -1
-        ? { ...clickedItem, quantity: 1 }
+        ? { ...clickedItem, quantity: 1, discount: 0 }
         : { ...fields[index], quantity: fields[index].quantity + 1 };
 
     if (index === -1) {
@@ -70,15 +79,18 @@ const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
       <DialogTrigger
         asChild
         onClick={(e) =>
-          handleClick(e, {
-            action: product.type !== "simple" ? "skip" : "continue",
-            title: product.title,
-            variantTitle: null,
-            sku: product.variants[0].sku,
-            price: product.variants[0].salePrice,
-            productId: product.id,
-            variantId: product.variants[0].id,
-          })
+          handleClick(
+            e,
+            {
+              title: product.title,
+              variantTitle: null,
+              sku: product?.variants?.[0]?.sku!,
+              salePrice: product?.variants?.[0].salePrice,
+              productId: product.id,
+              variantId: product?.variants?.[0].id!,
+            },
+            product.type !== "simple" ? "skip" : null
+          )
         }
       >
         <Card className="cursor-pointer">
@@ -98,12 +110,7 @@ const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
               {product.title}
             </CardTitle>
             <CardDescription className="truncate">
-              <NumericFormat
-                value={product.variants[0].salePrice}
-                decimalScale={2}
-                fixedDecimalScale
-                displayType="text"
-              />
+              {numeral(product.variants[0].salePrice).format()}
             </CardDescription>
           </CardContent>
         </Card>
@@ -114,14 +121,18 @@ const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
             <DialogCancel
               asChild
               onClick={(e) =>
-                handleClick(e, {
-                  title: product.title,
-                  variantTitle: variant.title,
-                  sku: variant.sku,
-                  price: variant.salePrice,
-                  productId: product.id,
-                  variantId: variant.id,
-                })
+                handleClick(
+                  e,
+                  {
+                    title: product.title,
+                    variantTitle: variant.title,
+                    sku: variant.sku,
+                    salePrice: variant.salePrice,
+                    productId: product.id,
+                    variantId: variant.id,
+                  },
+                  null
+                )
               }
             >
               <Button

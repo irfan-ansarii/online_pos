@@ -151,8 +151,7 @@ model Sale {
   totalDue        Float
   taxLines        Json?
   discountLines   Json?
-  status          String?
-  financialStatus SaleFinancialStatus @default(pending)
+  status          SaleFinancialStatus @default(pending)
   happenedAt      DateTime            @db.Timestamptz(6)
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt

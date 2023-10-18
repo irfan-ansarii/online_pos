@@ -1,10 +1,15 @@
 "use client";
 import React from "react";
-import { NumericFormat } from "react-number-format";
+
+import Numeral from "numeral";
+
 import { useFormContext } from "react-hook-form";
-import { Plus, Minus, ShoppingBag } from "lucide-react";
+
+import { Plus, Minus, ShoppingBag, Image } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Accordion,
@@ -20,9 +25,10 @@ import CartActions from "./CartActions";
 
 const Cart = () => {
   const form = useFormContext();
-  const { fields, update, remove } = form;
 
-  const handleMinus = (e, index: number) => {
+  const { fields, update, remove, register } = form!;
+
+  const handleMinus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
     const currentQuantity = fields[index].quantity;
     if (currentQuantity > 1) {
@@ -32,7 +38,7 @@ const Cart = () => {
     remove(index);
   };
 
-  const handlePlus = (e, index: number) => {
+  const handlePlus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
     update(index, { ...fields[index], quantity: fields[index].quantity + 1 });
   };
@@ -56,8 +62,8 @@ const Cart = () => {
                   <div className="!py-0 hover:no-underline flex cursor-pointer">
                     <Avatar className="w-14 h-full rounded-md shrink-0 bg-border dark:bg-secondary">
                       <AvatarImage alt="@shadcn" />
-                      <AvatarFallback className="bg-transparent rounded-md">
-                        CN
+                      <AvatarFallback className="bg-transparent text-muted-foreground rounded-md">
+                        <Image className="w-5 h-5" />
                       </AvatarFallback>
                     </Avatar>
 
@@ -101,21 +107,11 @@ const Cart = () => {
                         </div>
                       </div>
                       <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
-                        <div>
-                          <NumericFormat
-                            value={field.price}
-                            decimalScale={2}
-                            fixedDecimalScale
-                            displayType="text"
-                          />
-                        </div>
+                        <div>{Numeral(field.salePrice).format()}</div>
                         <div className=" line-through text-muted-foreground">
-                          <NumericFormat
-                            value={field.price}
-                            decimalScale={2}
-                            fixedDecimalScale
-                            displayType="text"
-                          />
+                          <div>
+                            {Numeral(field.salePrice * field.discount).format()}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -125,9 +121,14 @@ const Cart = () => {
                 <AccordionContent className="[&>div]:pb-0 ">
                   <div className="p-2">
                     <div className="grid grid-cols-2 gap-4 border-t pt-2">
-                      <Input></Input>
-
-                      <Input></Input>
+                      <div className="space-y-1.5">
+                        <Label>Price</Label>
+                        <Input {...register(`lineItems.${i}.price`)} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Discount (%)</Label>
+                        <Input {...register(`lineItems.${i}.discount`)} />
+                      </div>
                     </div>
                   </div>
                 </AccordionContent>
@@ -140,22 +141,22 @@ const Cart = () => {
         <div className="flex flex-col text-sm">
           <div className="flex justify-between py-1">
             <div>Subtotal</div>
-            <div>0.00</div>
+            <div>{Numeral(form.getValues("subtotal")).format()}</div>
           </div>
           <div className="flex justify-between py-1">
             <div>Discount</div>
-            <div>0.00</div>
+            <div>{Numeral(form.getValues("totalDiscount")).format()}</div>
           </div>
           <div className="flex justify-between py-1">
             <div>Tax</div>
-            <div>0.00</div>
+            <div>{Numeral(form.getValues("totalTax")).format()}</div>
           </div>
 
           <div className="border-b-2 border-dashed my-2 " />
 
           <div className="flex justify-between py-1 text-lg font-medium">
             <div>Total</div>
-            <div>0.00</div>
+            <div>{Numeral(form.getValues("total")).format()}</div>
           </div>
         </div>
 
