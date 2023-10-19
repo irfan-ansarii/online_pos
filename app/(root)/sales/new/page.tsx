@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { ShoppingBag } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,12 +12,28 @@ import { Button } from "@/components/ui/button";
 
 import Cart from "./components/Cart";
 import Products from "./components/Products";
-import { useForm, FormProvider, useFieldArray } from "react-hook-form";
+import {
+  useForm,
+  FormProvider,
+  useFieldArray,
+  useWatch,
+} from "react-hook-form";
 import { saleValidation } from "@/lib/validations/sale";
 const Page = () => {
   const form = useForm<z.infer<typeof saleValidation>>({
     resolver: zodResolver(saleValidation),
-    defaultValues: {},
+    defaultValues: {
+      lineItems: [],
+      lineItemsTotal: 0,
+      subtotal: 0,
+      totalTax: 0,
+      totalDiscount: 0,
+      total: 0,
+      totalDue: 0,
+      taxLines: [],
+      discountLines: [],
+      happenedAt: new Date().toString(),
+    },
   });
 
   const lineItems = useFieldArray({
@@ -37,6 +54,7 @@ const Page = () => {
   const onSubmit = (values: z.infer<typeof saleValidation>) => {
     console.log(values);
   };
+
   return (
     <main className="grow pb-4 px-1 md:p-4  md:mt-[-4.8rem]">
       <FormProvider {...form} {...lineItems}>

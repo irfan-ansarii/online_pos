@@ -1,8 +1,9 @@
 import * as z from "zod";
 
 export const saleValidation = z.object({
-  customer: z.number(),
-  employee: z.number(),
+  happenedAt: z.string().nonempty(),
+  customerId: z.number(),
+  employeeId: z.number(),
   billingAddress: z.any(),
   shippingAddress: z.any(),
   lineItems: z
@@ -36,6 +37,7 @@ export const saleValidation = z.object({
     .nonempty(),
   lineItemsTotal: z.number(),
   subtotal: z.number(),
+  totalTax: z.number(),
   totalDiscount: z.number(),
   total: z.number(),
   totalDue: z.number(),

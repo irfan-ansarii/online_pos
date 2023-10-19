@@ -25,7 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const tabs = ["employee", "customer", "payment", "completed"];
 
 const paymentOptions = ["cash", "credit/debit Card", "UPI", "Paytm"];
-const ProceedDialog = () => {
+const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const [open, setOpen] = useToggle(false);
   const [active, setActive] = React.useState(tabs[0]);
 
@@ -50,7 +50,11 @@ const ProceedDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full" onClick={() => setOpen(true)}>
+        <Button
+          className="w-full"
+          disabled={disabled}
+          onClick={() => setOpen(true)}
+        >
           Checkout
         </Button>
       </DialogTrigger>

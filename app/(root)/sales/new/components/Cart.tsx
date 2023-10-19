@@ -3,7 +3,7 @@ import React from "react";
 
 import Numeral from "numeral";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { Plus, Minus, ShoppingBag, Image } from "lucide-react";
 
@@ -27,7 +27,7 @@ const Cart = () => {
   const form = useFormContext();
 
   const { fields, update, remove, register } = form!;
-
+  const lineItems = useWatch({ name: "lineItems", control: form.control });
   const handleMinus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
     const currentQuantity = fields[index].quantity;
@@ -42,6 +42,9 @@ const Cart = () => {
     e.preventDefault();
     update(index, { ...fields[index], quantity: fields[index].quantity + 1 });
   };
+  React.useEffect(() => {
+    console.log(fields);
+  }, [lineItems]);
 
   return (
     <div className="flex flex-col h-full w-full relative space-y-2">
@@ -107,7 +110,7 @@ const Cart = () => {
                         </div>
                       </div>
                       <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
-                        <div>{Numeral(field.salePrice).format()}</div>
+                        <div>{Numeral(field.total).format()}</div>
                         <div className=" line-through text-muted-foreground">
                           <div>
                             {Numeral(field.salePrice * field.discount).format()}
@@ -123,11 +126,11 @@ const Cart = () => {
                     <div className="grid grid-cols-2 gap-4 border-t pt-2">
                       <div className="space-y-1.5">
                         <Label>Price</Label>
-                        <Input {...register(`lineItems.${i}.price`)} />
+                        <Input {...register(`lineItems.${i}.salePrice`)} />
                       </div>
                       <div className="space-y-1.5">
-                        <Label>Discount (%)</Label>
-                        <Input {...register(`lineItems.${i}.discount`)} />
+                        <Label>Discount</Label>
+                        <Input {...register(`lineItems.${i}.totalDiscount`)} />
                       </div>
                     </div>
                   </div>
@@ -161,7 +164,7 @@ const Cart = () => {
         </div>
 
         <div className="mt-2">
-          <ProceedDialog />
+          <ProceedDialog disabled={fields.length <= 0} />
         </div>
         <CartActions />
       </div>

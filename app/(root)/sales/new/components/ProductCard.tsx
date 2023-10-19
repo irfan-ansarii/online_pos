@@ -62,10 +62,27 @@ const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
       (item: VariantType) => item.variantId === clickedItem.variantId
     );
 
-    const updatedItem =
-      index === -1
-        ? { ...clickedItem, quantity: 1, discount: 0 }
-        : { ...fields[index], quantity: fields[index].quantity + 1 };
+    let updatedItem = {};
+    if (index === -1) {
+      const totalTax =
+        clickedItem.salePrice - clickedItem.salePrice / (12 / 100 + 1);
+
+      updatedItem = {
+        ...clickedItem,
+        quantity: 1,
+        totalDiscount: 0,
+        totalTax,
+        total: clickedItem.salePrice * 1,
+      };
+    } else {
+      const { quantity, discount, salePrice } = fields[index];
+
+      updatedItem = {
+        ...fields[index],
+        quantity: quantity + 1,
+        total: salePrice * (quantity + 1) - discount,
+      };
+    }
 
     if (index === -1) {
       append(updatedItem);
