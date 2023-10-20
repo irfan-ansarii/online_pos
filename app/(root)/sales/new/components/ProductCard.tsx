@@ -1,7 +1,7 @@
 import React from "react";
-import numeral from "numeral";
+import Numeral from "numeral";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { Image } from "lucide-react";
 
@@ -47,7 +47,10 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
 }) => {
   const form = useFormContext();
   const { fields, append, update } = lineItems;
-
+  const updatedLineItems = useWatch({
+    control: form.control,
+    name: "lineItems",
+  });
   const handleClick = (
     e: React.MouseEvent<HTMLElement>,
     clickedItem: VariantType,
@@ -68,6 +71,7 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
     if (index === -1) {
       append({
         ...clickedItem,
+        price: clickedItem.salePrice,
         quantity: 1,
         totalDiscount: 0,
         totalTax:
@@ -76,7 +80,8 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
       });
     } else {
       update(index, {
-        ...fields[index],
+        ...updatedLineItems[index],
+        totalDiscount: updatedLineItems[index].totalDiscount,
         quantity: Number(fields[index].quantity) + 1,
       });
     }
@@ -118,7 +123,7 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
               {product.title}
             </CardTitle>
             <CardDescription className="truncate">
-              {numeral(product.variants[0].salePrice).format()}
+              {Numeral(product.variants[0].salePrice).format()}
             </CardDescription>
           </CardContent>
         </Card>
