@@ -9,7 +9,7 @@ import { Plus, Minus, ShoppingBag, Image } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Accordion,
@@ -19,20 +19,32 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import {
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+  FormLabel,
+} from "@/components/ui/form";
 import ProceedDialog from "./ProceedDialog";
 import CartActions from "./CartActions";
 
-const Cart = () => {
+const Cart = ({ lineItems }: { lineItems: any }) => {
   const form = useFormContext();
 
-  const { fields, update, remove, register } = form!;
-  const lineItems = useWatch({ name: "lineItems", control: form.control });
+  const { fields, remove, update } = lineItems;
+  const updatedLineItems = useWatch({
+    control: form.control,
+    name: "lineItems",
+  });
   const handleMinus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
     const currentQuantity = fields[index].quantity;
     if (currentQuantity > 1) {
-      update(index, { ...fields[index], quantity: fields[index].quantity - 1 });
+      update(index, {
+        ...fields[index],
+        quantity: Number(fields[index].quantity) - 1,
+      });
       return;
     }
     remove(index);
@@ -40,12 +52,25 @@ const Cart = () => {
 
   const handlePlus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
-    update(index, { ...fields[index], quantity: fields[index].quantity + 1 });
-  };
-  React.useEffect(() => {
-    console.log(fields);
-  }, [lineItems]);
 
+    update(index, {
+      ...fields[index],
+      quantity: Number(fields[index].quantity) + 1,
+    });
+  };
+
+  React.useEffect(() => {
+    for (let i = 0; i < updatedLineItems.length; i++) {
+      const { salePrice, quantity, totalDiscount, totalTax } =
+        updatedLineItems[i];
+
+      update(i, {
+        ...updatedLineItems[i],
+        total: salePrice * quantity,
+        totalTax,
+      });
+    }
+  }, []);
   return (
     <div className="flex flex-col h-full w-full relative space-y-2">
       {(!fields || fields.length === 0) && (
@@ -58,6 +83,7 @@ const Cart = () => {
           <Accordion type="single" collapsible className="h-full space-y-2">
             {fields.map((field: any, i: number) => (
               <AccordionItem
+                key={field.id}
                 value={`item-${i}`}
                 className="bg-background dark:bg-popover border-none rounded-md relative"
               >
@@ -110,12 +136,18 @@ const Cart = () => {
                         </div>
                       </div>
                       <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
-                        <div>{Numeral(field.total).format()}</div>
-                        <div className=" line-through text-muted-foreground">
-                          <div>
-                            {Numeral(field.salePrice * field.discount).format()}
-                          </div>
+                        <div>
+                          {Numeral(form.watch(`lineItems.${i}.total`)).format()}
                         </div>
+
+                        {field.total <
+                          field.total + parseFloat(field.totalDiscount) && (
+                          <div className="line-through text-muted-foreground">
+                            {Numeral(
+                              field.total + field.totalDiscount
+                            ).format()}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -125,12 +157,93 @@ const Cart = () => {
                   <div className="p-2">
                     <div className="grid grid-cols-2 gap-4 border-t pt-2">
                       <div className="space-y-1.5">
-                        <Label>Price</Label>
-                        <Input {...register(`lineItems.${i}.salePrice`)} />
+                        <FormField
+                          control={form.control}
+                          name={`lineItems.${i}.salePrice`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Price</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`lineItems.${i}.totalDiscount`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Discount</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                       <div className="space-y-1.5">
-                        <Label>Discount</Label>
-                        <Input {...register(`lineItems.${i}.totalDiscount`)} />
+                        <FormField
+                          control={form.control}
+                          name={`lineItems.${i}.totalTax`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tax</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  value={
+                                    fields[i].salePrice * fields[i].quantity -
+                                    (fields[i].salePrice * fields[i].quantity) /
+                                      (12 / 100 + 1)
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`lineItems.${i}.total`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Total</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  value={
+                                    fields[i].salePrice * fields[i].quantity -
+                                    fields[i].totalDiscount
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`lineItems.${i}.quantity`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>quantity</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                     </div>
                   </div>
@@ -164,6 +277,9 @@ const Cart = () => {
         </div>
 
         <div className="mt-2">
+          <Button className="w-full" type="submit">
+            Submit
+          </Button>
           <ProceedDialog disabled={fields.length <= 0} />
         </div>
         <CartActions />

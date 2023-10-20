@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 export const saleValidation = z.object({
-  happenedAt: z.string().nonempty(),
+  happenedAt: z.string(),
   customerId: z.number(),
   employeeId: z.number(),
   billingAddress: z.any(),
@@ -10,26 +10,29 @@ export const saleValidation = z.object({
     .object({
       productId: z.number(),
       variantId: z.number(),
-      title: z.string().nonempty(),
-      variantTitle: z.string().nonempty(),
-      sku: z.string().nonempty(),
-      price: z.number().positive(),
+      title: z.string(),
+      variantTitle: z.string(),
+      sku: z.string(),
+      price: z.number(),
       quantity: z.number(),
-      totalDiscount: z.number().positive(),
-      totalTax: z.number().positive(),
-      total: z.number().positive(),
+      totalDiscount: z.preprocess(
+        (a) => parseFloat(z.string().parse(a)),
+        z.number().positive()
+      ),
+      totalTax: z.number(),
+      total: z.number(),
       taxable: z.boolean(),
       taxLines: z
         .object({
           name: z.string(),
-          rate: z.number().positive(),
-          amount: z.number().positive(),
+          rate: z.number(),
+          amount: z.number(),
         })
         .array(),
       discountLines: z
         .object({
           name: z.string(),
-          amount: z.number().positive(),
+          amount: z.number(),
         })
         .array(),
     })

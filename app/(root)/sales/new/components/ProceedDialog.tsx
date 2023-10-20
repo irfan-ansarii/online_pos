@@ -193,6 +193,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
             <TabsList className="mt-6 h-2 bg-transparent p-0 gap-1 flex">
               {tabs.map((tab) => (
                 <TabsTrigger
+                  key={tab}
                   value={tab}
                   className="data-[state=active]:bg-primary py-0 h-2 data-[state=active]:w-10 data-[state=active]:opacity-100 opacity-60 bg-secondary rounded-full"
                 ></TabsTrigger>

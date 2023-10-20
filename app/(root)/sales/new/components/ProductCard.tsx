@@ -41,9 +41,12 @@ interface ProductType {
   variants: VariantType[];
 }
 
-const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
+const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
+  product,
+  lineItems,
+}) => {
   const form = useFormContext();
-  const { fields, append, update } = form;
+  const { fields, append, update } = lineItems;
 
   const handleClick = (
     e: React.MouseEvent<HTMLElement>,
@@ -62,32 +65,20 @@ const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
       (item: VariantType) => item.variantId === clickedItem.variantId
     );
 
-    let updatedItem = {};
     if (index === -1) {
-      const totalTax =
-        clickedItem.salePrice - clickedItem.salePrice / (12 / 100 + 1);
-
-      updatedItem = {
+      append({
         ...clickedItem,
         quantity: 1,
         totalDiscount: 0,
-        totalTax,
-        total: clickedItem.salePrice * 1,
-      };
+        totalTax:
+          clickedItem.salePrice - clickedItem.salePrice / (12 / 100 + 1),
+        total: clickedItem.salePrice,
+      });
     } else {
-      const { quantity, discount, salePrice } = fields[index];
-
-      updatedItem = {
+      update(index, {
         ...fields[index],
-        quantity: quantity + 1,
-        total: salePrice * (quantity + 1) - discount,
-      };
-    }
-
-    if (index === -1) {
-      append(updatedItem);
-    } else {
-      update(index, updatedItem);
+        quantity: Number(fields[index].quantity) + 1,
+      });
     }
   };
 
@@ -137,6 +128,7 @@ const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
           {product.variants.map((variant: any) => (
             <DialogCancel
               asChild
+              key={variant.id}
               onClick={(e) =>
                 handleClick(
                   e,

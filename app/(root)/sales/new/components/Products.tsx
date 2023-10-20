@@ -16,7 +16,7 @@ import Scanner from "./Scanner";
 
 import ProductLoading from "./ProductLoading";
 
-const Products = () => {
+const Products = ({ lineItems }) => {
   const [open, setOpen] = React.useState(false);
   const { data: products, isLoading, isError, error } = useProducts({});
   return (
@@ -60,7 +60,11 @@ const Products = () => {
             />
           ) : (
             page.data.data.map((product: any) => (
-              <ProductCard product={product} key={product.id} />
+              <ProductCard
+                product={product}
+                key={product.id}
+                lineItems={lineItems}
+              />
             ))
           )
         )}
