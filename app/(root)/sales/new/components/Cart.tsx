@@ -2,14 +2,10 @@
 import React from "react";
 
 import Numeral from "numeral";
-
 import { useFormContext, useWatch } from "react-hook-form";
-
 import { Plus, Minus, ShoppingBag, Image, Pencil } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Accordion,
@@ -38,10 +34,13 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
   const form = useFormContext();
 
   const { fields, remove, update } = lineItems;
+
   const updatedLineItems = useWatch({
     control: form.control,
     name: "lineItems",
   });
+
+  // handle quantity minus
   const handleMinus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
     const currentQuantity = fields[index].quantity;
@@ -50,37 +49,34 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
         ...updatedLineItems[index],
         quantity: Number(fields[index].quantity) - 1,
       });
+      calculate();
       return;
     }
     remove(index);
   };
 
+  // handle quantity plus
   const handlePlus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
-
     update(index, {
       ...updatedLineItems[index],
       quantity: Number(fields[index].quantity) + 1,
     });
+    calculate();
   };
 
-  React.useEffect(() => {
-    const result = updatedLineItems.reduce(
-      (acc, curr) => {
-        acc.subtotal =
-          Numeral(curr.price)._value * Numeral(curr.quantity)._value;
-        return acc;
-      },
-      {
-        lineItemsTotal: 0,
-        subtotal: 0,
-        totalTax: 0,
-        totalDiscount: 0,
-        total: 0,
-      }
-    );
-  }, [updatedLineItems]);
-  console.log(updatedLineItems);
+  const calculate = () => {
+    fields.forEach((field: any, index: number) => {
+      const { price, quantity, totalDiscount } = field;
+      const total =
+        parseFloat(price) * parseFloat(quantity) - parseFloat(totalDiscount);
+
+      const totalTax = total - total / (12 / 100 + 1);
+      form.setValue(`lineItems.${index}.total`, total);
+      form.setValue(`lineItems.${index}.totalTax`, totalTax);
+    });
+  };
+
   return (
     <div className="flex flex-col h-full w-full relative space-y-2">
       {(!fields || fields.length === 0) && (
@@ -94,7 +90,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
             {fields.map((field: any, i: number) => (
               <AccordionItem
                 key={field.id}
-                value={`item-${i}`}
+                value={field.id}
                 className="bg-background dark:bg-popover border-none rounded-md relative"
               >
                 <AccordionTrigger asChild>
@@ -150,11 +146,13 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                           {Numeral(updatedLineItems[i]?.total).format()}
                         </div>
 
-                        {field.total <
-                          field.total + parseFloat(field.totalDiscount) && (
+                        {updatedLineItems[i]?.total <
+                          parseFloat(updatedLineItems[i]?.total) +
+                            parseFloat(updatedLineItems[i]?.totalDiscount) && (
                           <div className="line-through text-muted-foreground">
                             {Numeral(
-                              field.total + parseFloat(field.totalDiscount)
+                              parseFloat(updatedLineItems[i]?.total) +
+                                parseFloat(updatedLineItems[i]?.totalDiscount)
                             ).format()}
                           </div>
                         )}
@@ -176,6 +174,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                               <FormControl>
                                 <Input {...field} />
                               </FormControl>
+
                               <FormMessage />
                             </FormItem>
                           )}
@@ -191,26 +190,6 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                               <FormLabel>Discount</FormLabel>
                               <FormControl>
                                 <Input {...field} />
-                              </FormControl>
-
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`lineItems.${i}.total`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Total</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  value={
-                                    updatedLineItems[i].price *
-                                    updatedLineItems[i].quantity
-                                  }
-                                />
                               </FormControl>
 
                               <FormMessage />
