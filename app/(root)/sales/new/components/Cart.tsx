@@ -35,7 +35,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
 
   const { fields, remove, update } = lineItems;
 
-  const updatedLineItems = useWatch({
+  const watch = useWatch({
     control: form.control,
     name: "lineItems",
   });
@@ -46,10 +46,10 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
     const currentQuantity = fields[index].quantity;
     if (currentQuantity > 1) {
       update(index, {
-        ...updatedLineItems[index],
+        ...watch[index],
         quantity: Number(fields[index].quantity) - 1,
       });
-      calculate();
+
       return;
     }
     remove(index);
@@ -58,24 +58,52 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
   // handle quantity plus
   const handlePlus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
+
     update(index, {
-      ...updatedLineItems[index],
-      quantity: Number(fields[index].quantity) + 1,
+      ...watch[index],
+      quantity: Number(watch[index].quantity) + 1,
     });
-    calculate();
   };
 
   const calculate = () => {
-    fields.forEach((field: any, index: number) => {
-      const { price, quantity, totalDiscount } = field;
+    watch.map((curr: any, i: number) => {
       const total =
-        parseFloat(price) * parseFloat(quantity) - parseFloat(totalDiscount);
+        parseFloat(curr.price) * parseFloat(curr.quantity) -
+        (parseFloat(curr.totalDiscount) || 0);
 
-      const totalTax = total - total / (12 / 100 + 1);
-      form.setValue(`lineItems.${index}.total`, total);
-      form.setValue(`lineItems.${index}.totalTax`, totalTax);
+      form.setValue(`lineItems.${i}.total`, total);
     });
   };
+
+  React.useEffect(() => {
+    calculate();
+  }, [fields]);
+
+  React.useEffect(() => {
+    const result = watch.reduce(
+      (acc: any, curr: any, i: number) => {
+        const total =
+          parseFloat(curr.price) * parseFloat(curr.quantity) -
+          (parseFloat(curr.totalDiscount) || 0);
+
+        const totalTax = total - total / (12 / 100 + 1);
+
+        acc.subtotal += total - totalTax;
+        acc.totalTax += totalTax;
+        acc.total += total;
+        return acc;
+      },
+      {
+        subtotal: 0,
+        totalTax: 0,
+        totalDiscount: 0,
+        total: 0,
+      }
+    );
+    Object.entries(result).map(([key, value]) => {
+      form.setValue(key, value);
+    });
+  }, [watch, fields]);
 
   return (
     <div className="flex flex-col h-full w-full relative space-y-2">
@@ -86,12 +114,12 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
       )}
       {fields && fields.length > 0 && (
         <ScrollArea className="grow h-full -mx-4 px-4">
-          <Accordion type="single" collapsible className="h-full space-y-2">
+          <Accordion type="single" collapsible className="h-full divide-y">
             {fields.map((field: any, i: number) => (
               <AccordionItem
                 key={field.id}
                 value={field.id}
-                className="bg-background dark:bg-popover border-none rounded-md relative"
+                className="border-b-0 py-1 first:pt-0 last:pb-0 relative"
               >
                 <AccordionTrigger asChild>
                   <div className="!py-0 hover:no-underline flex cursor-pointer">
@@ -142,17 +170,15 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                         </div>
                       </div>
                       <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
-                        <div>
-                          {Numeral(updatedLineItems[i]?.total).format()}
-                        </div>
+                        <div>{Numeral(watch[i]?.total).format()}</div>
 
-                        {updatedLineItems[i]?.total <
-                          parseFloat(updatedLineItems[i]?.total) +
-                            parseFloat(updatedLineItems[i]?.totalDiscount) && (
+                        {watch[i]?.total <
+                          parseFloat(watch[i]?.total) +
+                            parseFloat(watch[i]?.totalDiscount) && (
                           <div className="line-through text-muted-foreground">
                             {Numeral(
-                              parseFloat(updatedLineItems[i]?.total) +
-                                parseFloat(updatedLineItems[i]?.totalDiscount)
+                              parseFloat(watch[i]?.total) +
+                                parseFloat(watch[i]?.totalDiscount)
                             ).format()}
                           </div>
                         )}
@@ -162,7 +188,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                 </AccordionTrigger>
 
                 <AccordionContent className="[&>div]:pb-0 ">
-                  <div className="p-2">
+                  <div className="py-2">
                     <div className="grid grid-cols-2 gap-4 border-t pt-2">
                       <div className="space-y-1.5">
                         <FormField
@@ -172,7 +198,22 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                             <FormItem>
                               <FormLabel>Price</FormLabel>
                               <FormControl>
-                                <Input {...field} />
+                                <Input
+                                  {...field}
+                                  onChange={(e) => {
+                                    form.setValue(
+                                      `lineItems.${i}.total`,
+                                      (parseFloat(e.target.value) || 0) *
+                                        watch[i].quantity -
+                                        watch[i].totalDiscount
+                                    );
+
+                                    return field.onChange(e);
+                                  }}
+                                  onBlur={(e) =>
+                                    field.onChange(e.target.value || 0)
+                                  }
+                                />
                               </FormControl>
 
                               <FormMessage />
@@ -189,7 +230,21 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                             <FormItem>
                               <FormLabel>Discount</FormLabel>
                               <FormControl>
-                                <Input {...field} />
+                                <Input
+                                  {...field}
+                                  onChange={(e) => {
+                                    form.setValue(
+                                      `lineItems.${i}.total`,
+                                      parseFloat(watch[i].price) *
+                                        watch[i].quantity -
+                                        (parseFloat(e.target.value) || 0)
+                                    );
+                                    return field.onChange(e);
+                                  }}
+                                  onBlur={(e) =>
+                                    field.onChange(e.target.value || 0)
+                                  }
+                                />
                               </FormControl>
 
                               <FormMessage />
@@ -209,7 +264,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
         <div className="flex flex-col text-sm">
           <div className="flex justify-between py-1">
             <div>Subtotal</div>
-            <div>{Numeral(form.getValues("subtotal")).format()}</div>
+            <div>{Numeral(form.watch("subtotal")).format()}</div>
           </div>
           <div className="flex items-center py-1">
             <div>Discount</div>
@@ -231,13 +286,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
               </PopoverContent>
             </Popover>
             <div className="ml-auto">
-              {Numeral(form.getValues("totalDiscount")).format()}
-            </div>
-          </div>
-          <div className="flex items-center py-1">
-            <div>Tax</div>
-            <div className="ml-auto">
-              {Numeral(form.getValues("totalTax")).format()}
+              {Numeral(form.watch("totalDiscount")).format()}
             </div>
           </div>
 
@@ -245,7 +294,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
 
           <div className="flex justify-between py-1 text-lg font-medium">
             <div>Total</div>
-            <div>{Numeral(form.getValues("total")).format()}</div>
+            <div>{Numeral(form.watch("total")).format()}</div>
           </div>
         </div>
 

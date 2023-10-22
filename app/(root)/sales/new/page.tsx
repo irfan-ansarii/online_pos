@@ -30,6 +30,7 @@ const Page = () => {
       taxLines: [],
       discountLines: [],
       happenedAt: new Date().toString(),
+      test: "",
     },
   });
 
@@ -52,11 +53,6 @@ const Page = () => {
     console.log(values);
   };
 
-  // React.useEffect(() => {
-  //   const { fields } = lineItems;
-  //   console.log(fields[0]);
-  //   form.setValue(`lineItems.${0}.total`, fields[0].price * fields[0].quantity);
-  // }, [lineItems.fields]);
   return (
     <main className="grow pb-4 px-1 md:p-4  md:mt-[-4.8rem]">
       <Form {...form} {...lineItems}>
