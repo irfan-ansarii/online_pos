@@ -1,8 +1,10 @@
+"use client";
 import React from "react";
 import { BookmarkPlus } from "lucide-react";
+import { useForm, useFormContext } from "react-hook-form";
+import { useToggle, useLocalStorage } from "@uidotdev/usehooks";
+import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-
-import { useForm } from "react-hook-form";
 
 import {
   Form,
@@ -29,28 +31,54 @@ import {
 } from "@/components/ui/tooltip";
 
 const SaveCartDialog = () => {
+  const { toast } = useToast();
+  const [open, toggle] = useToggle(false);
+
+  const [savedCarts, saveCart] = useLocalStorage("carts", JSON.stringify([]));
+
+  const { watch, reset } = useFormContext();
+
   const form = useForm({
     defaultValues: {
       name: "",
     },
   });
 
-  const onSubmit = (v: any) => {
-    console.log(v);
+  const onSubmit = ({ name }: { name: string }) => {
+    const json = JSON.parse(savedCarts);
+    const cart = watch();
+    json.push({
+      name: name,
+      cart: cart,
+      total: cart.total,
+      createdAt: new Date(),
+    });
+
+    saveCart(JSON.stringify(json));
+    reset();
+    toast({
+      variant: "success",
+      description: "Cart saved successfully!",
+    });
+    toggle(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={toggle}>
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button variant="ghost" className="w-full">
+            <Button
+              variant="ghost"
+              className="w-full"
+              disabled={!watch("lineItems") || watch("lineItems").length < 1}
+            >
               <BookmarkPlus className="w-5 h-5" />
             </Button>
           </DialogTrigger>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Save cart</p>
+          <p>Save</p>
         </TooltipContent>
       </Tooltip>
 
@@ -67,11 +95,12 @@ const SaveCartDialog = () => {
             <FormField
               control={form.control}
               name="name"
+              rules={{ required: "Name is required." }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Example" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

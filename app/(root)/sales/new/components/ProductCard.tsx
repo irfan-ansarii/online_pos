@@ -106,7 +106,7 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
           )
         }
       >
-        <Card className="cursor-pointer">
+        <Card className="cursor-pointer rounded-md">
           <CardHeader className="p-0">
             <Avatar className="w-full h-full rounded-none">
               <AvatarImage

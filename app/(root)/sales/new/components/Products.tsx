@@ -4,6 +4,9 @@ import React from "react";
 import { Search, ScanLine } from "lucide-react";
 
 import { useProducts } from "@/hooks/useProduct";
+import { useQueryParams } from "@/hooks/useQueryParams";
+import { useDebounce } from "@uidotdev/usehooks";
+import { useToggle } from "@uidotdev/usehooks";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,18 +19,33 @@ import Scanner from "./Scanner";
 
 import ProductLoading from "./ProductLoading";
 
-const Products = ({ lineItems }) => {
-  const [open, setOpen] = React.useState(false);
+const Products = ({ lineItems }: { lineItems: any }) => {
+  const [open, toggle] = useToggle(false);
+
+  const { queryParams, setQueryParams } = useQueryParams();
+  const search = queryParams?.get("search");
+  const [searchTerm, setSearchTerm] = React.useState(search);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
   const { data: products, isLoading, isError, error } = useProducts({});
+
+  React.useEffect(() => {
+    setQueryParams({ search: debouncedSearchTerm || null });
+  }, [debouncedSearchTerm]);
+
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={toggle}>
         <div className="flex items-center h-[61px] border-b sticky top-0 z-50 bg-background mb-4">
           <div className="relative grow">
             <Input
               type="text"
               className="bg-transparent rounded-none border-none pl-10 focus-visible:ring-transparent"
               placeholder="Search..."
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
+              value={searchTerm || ""}
             />
             <span className="absolute left-0 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
               <Search className="w-5 h-5" />
@@ -44,11 +62,11 @@ const Products = ({ lineItems }) => {
           </div>
         </div>
         <DialogContent className="p-0 overflow-hidden max-h-md bottom-auto top-6">
-          <Scanner open={open} setOpen={setOpen} />
+          <Scanner open={open} toggle={toggle} />
         </DialogContent>
       </Dialog>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2  xl:grid-cols-4 2xl:grid-cols-5 gap-4">
         {/* loading cards */}
         {isLoading && [...Array(6)].map((_, i) => <ProductLoading key={i} />)}
 
@@ -59,13 +77,15 @@ const Products = ({ lineItems }) => {
               title="No Product Found"
             />
           ) : (
-            page.data.data.map((product: any) => (
-              <ProductCard
-                product={product}
-                key={product.id}
-                lineItems={lineItems}
-              />
-            ))
+            page.data.data.map((product: any) => {
+              return (
+                <ProductCard
+                  product={product}
+                  key={product.id}
+                  lineItems={lineItems}
+                />
+              );
+            })
           )
         )}
         {/* error box */}

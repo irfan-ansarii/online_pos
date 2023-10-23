@@ -2,7 +2,7 @@ import React from "react";
 import Webcam from "react-webcam";
 import Quagga from "quagga";
 
-const Scanner = ({ open, setOpen }) => {
+const Scanner = ({ open, toggle }) => {
   const webcamRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -30,7 +30,7 @@ const Scanner = ({ open, setOpen }) => {
 
     Quagga.onDetected((result: any) => {
       console.log("Scanned Barcode:", result.codeResult.code);
-      setOpen(false);
+      toggle();
     });
     return () => {
       Quagga.stop();

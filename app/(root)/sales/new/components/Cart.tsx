@@ -3,7 +3,15 @@ import React from "react";
 
 import Numeral from "numeral";
 import { useFormContext, useWatch } from "react-hook-form";
-import { Plus, Minus, ShoppingBag, Image, Pencil } from "lucide-react";
+import {
+  Plus,
+  Minus,
+  ShoppingBag,
+  Image,
+  Pencil,
+  PenSquare,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,6 +35,7 @@ import {
   FormMessage,
   FormLabel,
 } from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ProceedDialog from "./ProceedDialog";
 import CartActions from "./CartActions";
 
@@ -66,7 +75,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
   };
 
   const calculate = () => {
-    watch.map((curr: any, i: number) => {
+    fields.map((curr: any, i: number) => {
       const total =
         parseFloat(curr.price) * parseFloat(curr.quantity) -
         (parseFloat(curr.totalDiscount) || 0);
@@ -113,8 +122,8 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
         </div>
       )}
       {fields && fields.length > 0 && (
-        <ScrollArea className="grow h-full -mx-4 px-4">
-          <Accordion type="single" collapsible className="h-full divide-y">
+        <ScrollArea className="grow h-full -mx-4">
+          <Accordion type="single" collapsible className="h-full divide-y px-4">
             {fields.map((field: any, i: number) => (
               <AccordionItem
                 key={field.id}
@@ -131,7 +140,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                     </Avatar>
 
                     <div className="grid grid-cols-12 p-2 grow">
-                      <div className="text-left col-span-9 space-y-1 text-sm font-normal  truncate">
+                      <div className="text-left col-span-9 space-y-1 text-sm font-normal truncate">
                         <div className="truncate">{field.title}</div>
                         <div className="flex justify-between">
                           {field.variantTitle && (
@@ -171,7 +180,6 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                       </div>
                       <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
                         <div>{Numeral(watch[i]?.total).format()}</div>
-
                         {watch[i]?.total <
                           parseFloat(watch[i]?.total) +
                             parseFloat(watch[i]?.totalDiscount) && (
@@ -187,8 +195,8 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                   </div>
                 </AccordionTrigger>
 
-                <AccordionContent className="[&>div]:pb-0 ">
-                  <div className="py-2">
+                <AccordionContent className="[&>div]:pb-0">
+                  <div className="py-1">
                     <div className="grid grid-cols-2 gap-4 border-t pt-2">
                       <div className="space-y-1.5">
                         <FormField
@@ -271,18 +279,19 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
             <Popover>
               <PopoverTrigger asChild>
                 <span className="ml-4 cursor-pointer text-muted-foreground">
-                  <Pencil className="w-4 h-4" />
+                  <PenSquare className="w-3 h-3" />
                 </span>
               </PopoverTrigger>
-              <PopoverContent className="w-80 bg-background flex flex-col space-y-3">
-                <div className="space-y-1">
+              <PopoverContent className="w-80 bg-background flex flex-col space-y-4">
+                <div className="space-y-2">
                   <FormLabel>Amount</FormLabel>
                   <Input />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <FormLabel>Reason</FormLabel>
                   <Input />
                 </div>
+                <Button>Apply</Button>
               </PopoverContent>
             </Popover>
             <div className="ml-auto">
@@ -292,9 +301,37 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
 
           <div className="border-b-2 border-dashed my-2 " />
 
-          <div className="flex justify-between py-1 text-lg font-medium">
+          <div className="flex items-center py-1 text-lg font-medium">
             <div>Total</div>
-            <div>{Numeral(form.watch("total")).format()}</div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <span className="ml-4 cursor-pointer text-muted-foreground inline-flex items-center">
+                  <span className="text-sm font-normal">(Tax Inclusive)</span>
+                  <PenSquare className="w-3 h-3 ml-2" />
+                </span>
+              </PopoverTrigger>
+              <PopoverContent className="w-52 bg-background flex flex-col space-y-4">
+                <RadioGroup defaultValue="Inclusive" className="space-y-2">
+                  {["Inclusive", "Exclusive"].map((el) => (
+                    <FormLabel
+                      htmlFor={el}
+                      key={el}
+                      className="block cursor-pointer flex justify-between"
+                    >
+                      <div className="truncate w-full">{el}</div>
+                      <RadioGroupItem
+                        value={el}
+                        id={el}
+                        className="opacity-0 data-[state=checked]:opacity-100"
+                      />
+                    </FormLabel>
+                  ))}
+                </RadioGroup>
+              </PopoverContent>
+            </Popover>
+            <div className="ml-auto">
+              {Numeral(form.watch("total")).format()}
+            </div>
           </div>
         </div>
 

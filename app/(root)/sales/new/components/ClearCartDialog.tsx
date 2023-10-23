@@ -1,4 +1,7 @@
+"use client";
 import React from "react";
+import { useFormContext } from "react-hook-form";
+import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -11,21 +14,24 @@ import {
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Trash2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+
 const ClearCartDialog = () => {
+  const { watch, reset } = useFormContext();
   const { toast } = useToast();
 
   const onClick = () => {
-    localStorage.removeItem("current");
+    reset();
+    localStorage.removeItem("current_cart");
     toast({
       variant: "success",
-      description: "Removed card items.",
+      description: "Cart items removed.",
     });
   };
   return (
@@ -33,7 +39,11 @@ const ClearCartDialog = () => {
       <Tooltip>
         <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" className="w-full">
+            <Button
+              variant="ghost"
+              className="w-full"
+              disabled={!watch("lineItems") || watch("lineItems").length < 1}
+            >
               <Trash2 className="w-5 h-5" />
             </Button>
           </AlertDialogTrigger>

@@ -3,7 +3,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 const ProductLoading = () => {
   return (
-    <Card className="cursor-pointer">
+    <Card className="cursor-pointer rounded-md">
       <CardHeader className="p-0">
         <Skeleton className="aspect-square rounded-t rounded-b-none w-full" />
       </CardHeader>
