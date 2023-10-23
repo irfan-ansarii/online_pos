@@ -3,18 +3,11 @@ import React from "react";
 
 import Numeral from "numeral";
 import { useFormContext, useWatch } from "react-hook-form";
-import {
-  Plus,
-  Minus,
-  ShoppingBag,
-  Image,
-  Pencil,
-  PenSquare,
-  Check,
-} from "lucide-react";
+import { Plus, Minus, ShoppingBag, Image, PenSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
 import {
   Accordion,
   AccordionContent,
@@ -38,15 +31,29 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ProceedDialog from "./ProceedDialog";
 import CartActions from "./CartActions";
+import DiscountPopover from "./DiscountPopover";
 
 const Cart = ({ lineItems }: { lineItems: any }) => {
   const form = useFormContext();
 
   const { fields, remove, update } = lineItems;
 
+  // listen line item changes
   const watch = useWatch({
     control: form.control,
     name: "lineItems",
+  });
+
+  // listen discount changes
+  const discount = useWatch({
+    control: form.control,
+    name: "lineItems",
+  });
+
+  // listen tax type changes
+  const taxType = useWatch({
+    control: form.control,
+    name: "taxType",
   });
 
   // handle quantity minus
@@ -74,7 +81,8 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
     });
   };
 
-  const calculate = () => {
+  //  calculate line items total on line items change
+  React.useEffect(() => {
     fields.map((curr: any, i: number) => {
       const total =
         parseFloat(curr.price) * parseFloat(curr.quantity) -
@@ -82,12 +90,9 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
 
       form.setValue(`lineItems.${i}.total`, total);
     });
-  };
-
-  React.useEffect(() => {
-    calculate();
   }, [fields]);
 
+  // calculate cart on line items, discount, and tax type change
   React.useEffect(() => {
     const result = watch.reduce(
       (acc: any, curr: any, i: number) => {
@@ -95,10 +100,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
           parseFloat(curr.price) * parseFloat(curr.quantity) -
           (parseFloat(curr.totalDiscount) || 0);
 
-        const totalTax = total - total / (12 / 100 + 1);
-
-        acc.subtotal += total - totalTax;
-        acc.totalTax += totalTax;
+        acc.subtotal += total;
         acc.total += total;
         return acc;
       },
@@ -276,24 +278,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
           </div>
           <div className="flex items-center py-1">
             <div>Discount</div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <span className="ml-4 cursor-pointer text-muted-foreground">
-                  <PenSquare className="w-3 h-3" />
-                </span>
-              </PopoverTrigger>
-              <PopoverContent className="w-80 bg-background flex flex-col space-y-4">
-                <div className="space-y-2">
-                  <FormLabel>Amount</FormLabel>
-                  <Input />
-                </div>
-                <div className="space-y-2">
-                  <FormLabel>Reason</FormLabel>
-                  <Input />
-                </div>
-                <Button>Apply</Button>
-              </PopoverContent>
-            </Popover>
+            <DiscountPopover />
             <div className="ml-auto">
               {Numeral(form.watch("totalDiscount")).format()}
             </div>
@@ -306,27 +291,46 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
             <Popover>
               <PopoverTrigger asChild>
                 <span className="ml-4 cursor-pointer text-muted-foreground inline-flex items-center">
-                  <span className="text-sm font-normal">(Tax Inclusive)</span>
+                  <span className="text-sm font-normal capitalize">
+                    (Tax {taxType})
+                  </span>
                   <PenSquare className="w-3 h-3 ml-2" />
                 </span>
               </PopoverTrigger>
               <PopoverContent className="w-52 bg-background flex flex-col space-y-4">
-                <RadioGroup defaultValue="Inclusive" className="space-y-2">
-                  {["Inclusive", "Exclusive"].map((el) => (
-                    <FormLabel
-                      htmlFor={el}
-                      key={el}
-                      className="block cursor-pointer flex justify-between"
-                    >
-                      <div className="truncate w-full">{el}</div>
-                      <RadioGroupItem
-                        value={el}
-                        id={el}
-                        className="opacity-0 data-[state=checked]:opacity-100"
-                      />
-                    </FormLabel>
-                  ))}
-                </RadioGroup>
+                <FormField
+                  control={form.control}
+                  name="taxType"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Tax Type</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          className="space-y-2"
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          {[
+                            { id: 1, value: "included", label: "Included" },
+                            { id: 2, value: "excluded", label: "Excluded" },
+                          ].map((el) => (
+                            <FormItem
+                              className="flex items-center justify-between space-y-0"
+                              key={el.id}
+                            >
+                              <FormLabel className="font-normal flex-1 cursor-pointer">
+                                {el.label}
+                              </FormLabel>
+                              <FormControl>
+                                <RadioGroupItem value={el.value} />
+                              </FormControl>
+                            </FormItem>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </PopoverContent>
             </Popover>
             <div className="ml-auto">

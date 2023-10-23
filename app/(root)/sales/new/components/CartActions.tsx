@@ -1,16 +1,28 @@
 import React from "react";
-import { Settings } from "lucide-react";
+import { CalendarDays } from "lucide-react";
+import format from "date-fns/format";
+import { useToggle } from "@uidotdev/usehooks";
+import { useFormContext } from "react-hook-form";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import ClearCartDialog from "./ClearCartDialog";
 import SaveCartDialog from "./SaveCartDialog";
 import SavedCartsDialog from "./SavedCartsDialog";
+
 const CartActions = () => {
+  const [open, toggle] = useToggle(false);
+  const form = useFormContext();
+
   return (
     <div className="grid grid-cols-4 mt-4 -mb-3 border-t-2 border-dashed pt-2 items-center divide-x">
       <div>
@@ -21,14 +33,29 @@ const CartActions = () => {
       </div>
       <div>
         <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" className="w-full">
-              <Settings className="w-5 h-5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Settings</p>
-          </TooltipContent>
+          <Popover open={open} onOpenChange={toggle}>
+            <PopoverTrigger asChild>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" className="w-full">
+                  <CalendarDays className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+            </PopoverTrigger>
+            <TooltipContent>
+              {format(new Date(form.watch("happenedAt")), "dd-MM-yyyy")}
+            </TooltipContent>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                initialFocus
+                selected={new Date(form.watch("happenedAt"))}
+                onSelect={(value) => {
+                  form.setValue("happenedAt", value);
+                  toggle();
+                }}
+              />
+            </PopoverContent>
+          </Popover>
         </Tooltip>
       </div>
       <div>

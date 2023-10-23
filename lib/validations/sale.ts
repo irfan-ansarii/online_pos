@@ -19,25 +19,12 @@ export const saleValidation = z.object({
         (a) => parseFloat(z.string().parse(a)),
         z.number().positive()
       ),
-      totalTax: z.number(),
       total: z.number(),
       taxable: z.boolean(),
-      taxLines: z
-        .object({
-          name: z.string(),
-          rate: z.number(),
-          amount: z.number(),
-        })
-        .array(),
-      discountLines: z
-        .object({
-          name: z.string(),
-          amount: z.number(),
-        })
-        .array(),
     })
     .array()
     .nonempty(),
+  taxType: z.string(),
   lineItemsTotal: z.number(),
   subtotal: z.number(),
   totalTax: z.number(),

@@ -21,6 +21,7 @@ const Page = () => {
     resolver: zodResolver(saleValidation),
     defaultValues: {
       lineItems: [],
+      taxType: "included",
       lineItemsTotal: 0,
       subtotal: 0,
       totalTax: 0,
@@ -28,25 +29,14 @@ const Page = () => {
       total: 0,
       totalDue: 0,
       taxLines: [],
-      discountLines: [],
+      discountLines: [{ type: "percent", value: "0", title: "" }],
       happenedAt: new Date().toString(),
-      test: "",
     },
   });
 
   const lineItems = useFieldArray({
     control: form.control,
     name: "lineItems",
-  });
-
-  const taxLines = useFieldArray({
-    control: form.control,
-    name: "taxLines",
-  });
-
-  const discountLines = useFieldArray({
-    control: form.control,
-    name: "discountLines",
   });
 
   const onSubmit = (values: z.infer<typeof saleValidation>) => {
