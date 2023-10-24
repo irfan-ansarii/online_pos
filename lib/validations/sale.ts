@@ -32,7 +32,7 @@ export const saleValidation = z.object({
   total: z.number(),
   totalDue: z.number(),
   taxLines: z.any(),
-  discountLines: z.any(),
+  discountLine: z.any(),
 });
 
 export const updateUserValidation = z.object({

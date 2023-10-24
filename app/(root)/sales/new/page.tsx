@@ -29,7 +29,7 @@ const Page = () => {
       total: 0,
       totalDue: 0,
       taxLines: [],
-      discountLines: [{ type: "percent", value: "0", title: "" }],
+      discountLine: { type: "percent", value: "0", title: "" },
       happenedAt: new Date().toString(),
     },
   });
