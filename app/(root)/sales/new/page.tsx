@@ -31,6 +31,7 @@ const Page = () => {
       taxLines: [],
       discountLine: { type: "percent", value: "0", title: "" },
       happenedAt: new Date().toString(),
+      taxAllocations: ["cgst", "sgst"],
     },
   });
 

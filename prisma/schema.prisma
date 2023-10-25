@@ -91,6 +91,7 @@ model Variant {
   title         String
   purchasePrice Float
   salePrice     Float
+  taxRate       Int
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   option        Json?
@@ -126,18 +127,6 @@ model Label {
   @@map("labels")
 }
 
-model Tax {
-  id        Int      @id @default(autoincrement())
-  name      String
-  state     String
-  rate      Float
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("taxes")
-}
-
 model Sale {
   id              Int                 @id @default(autoincrement())
   title           String
@@ -147,6 +136,7 @@ model Sale {
   shippingAddress Json?
   lineItemsTotal  Float
   subtotal        Float
+  taxType         String              @default("included")
   totalTax        Float
   totalDiscount   Float
   total           Float

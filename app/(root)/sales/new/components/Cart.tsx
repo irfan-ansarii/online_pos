@@ -3,7 +3,7 @@ import React from "react";
 
 import Numeral from "numeral";
 import { useFormContext, useWatch } from "react-hook-form";
-import { Plus, Minus, ShoppingBag, Image, PenSquare } from "lucide-react";
+import { Plus, Minus, ShoppingBag, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,12 +14,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  PopoverClose,
-} from "@/components/ui/popover";
+
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -29,10 +24,11 @@ import {
   FormMessage,
   FormLabel,
 } from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import ProceedDialog from "./ProceedDialog";
 import CartActions from "./CartActions";
 import DiscountPopover from "./DiscountPopover";
+import TaxPopover from "./TaxPopover";
 
 const Cart = ({ lineItems }: { lineItems: any }) => {
   const form = useFormContext();
@@ -43,12 +39,6 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
   const watch = useWatch({
     control: form.control,
     name: "lineItems",
-  });
-
-  // listen tax type changes
-  const taxType = useWatch({
-    control: form.control,
-    name: "taxType",
   });
 
   // handle quantity minus
@@ -76,26 +66,73 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
     });
   };
 
-  //  calculate line items total on line items change
-  React.useEffect(() => {
-    const taxtype = form.getValues("taxType");
-    fields.map((curr: any, i: number) => {
-      const total =
-        parseFloat(curr.price) * parseFloat(curr.quantity) -
-        (parseFloat(curr.totalDiscount) || 0);
+  // handle price change
+  // const handlePriceChange = ({ index, price }) => {};
 
+  // handle discount change
+  // const handleDiscountChange = ({ index, discount }) => {
+  //   const discountLine = { type: "fixed", value: discount, title: "" };
+  //   const total =
+  //     parseFloat(watch[index].price) * parseFloat(watch[index].quantity) -
+  //     parseFloat(discount);
+  //   form.setValue(`lineItems.${index}.total`, total);
+  //   form.setValue(`lineItems.${index}.discountLine`, discountLine);
+  // };
+
+  // on line item field change
+  const onFieldChange = (params: {
+    index: number;
+    price: string;
+    quantity: string;
+    discount: string;
+  }) => {
+    const { index, price, quantity, discount } = params;
+
+    const total =
+      parseFloat(price) * parseFloat(quantity) - parseFloat(discount);
+
+    form.setValue(`lineItems.${index}.total`, total);
+  };
+
+  React.useEffect(() => {
+    const taxType = form.watch("taxType");
+    const discountLine = form.watch("discountLine");
+
+    fields.forEach((item: any, i: number) => {
+      // item total
+      const itemTotal =
+        parseFloat(item.price || 0) * parseFloat(item.quantity || 0);
+
+      // discount amount
+      const discountAmount =
+        discountLine.type === "fixed"
+          ? discountLine.value
+          : itemTotal * (discountLine.value / 100);
+
+      // taxable amount
+      const taxableAmount = itemTotal - discountAmount;
+
+      // tax rate
+      const taxRate = parseFloat(item.taxRate || 12);
+
+      // tax amount
       const taxAmount =
-        taxtype === "included"
-          ? total - total / (1 + 12 / 100)
-          : total * (12 / 100);
-      console.log(taxAmount);
-      form.setValue(`lineItems.${i}.total`, total);
+        taxType === "included"
+          ? taxableAmount - taxableAmount / (1 + taxRate / 100)
+          : taxableAmount * (taxRate / 100);
+
+      form.setValue(`lineItems.${i}.totalDiscount`, discountAmount);
+      form.setValue(`lineItems.${i}.discountLine`, discountLine);
+
       form.setValue(`lineItems.${i}.totalTax`, taxAmount);
+
+      form.setValue(`lineItems.${i}.total`, itemTotal - discountAmount);
     });
-  }, [fields]);
+  }, [form.watch("taxType"), form.watch("taxAllocations"), fields]);
 
   // calculate cart on line items, discount, and tax type change
   React.useEffect(() => {
+    const taxType = form.getValues("taxType");
     const result = watch.reduce(
       (acc: any, curr: any, i: number) => {
         const total =
@@ -105,7 +142,8 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
         acc.subtotal += total + parseFloat(curr.totalDiscount || 0);
         acc.totalDiscount += parseFloat(curr.totalDiscount || 0);
         acc.totalTax += curr.totalTax;
-        acc.total += total;
+
+        acc.total += taxType === "included" ? total : total + curr.totalTax;
         return acc;
       },
       {
@@ -118,7 +156,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
     Object.entries(result).map(([key, value]) => {
       form.setValue(key, value);
     });
-  }, [watch, fields]);
+  }, [watch]);
 
   return (
     <div className="flex flex-col h-full w-full relative space-y-2">
@@ -215,12 +253,12 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                                 <Input
                                   {...field}
                                   onChange={(e) => {
-                                    form.setValue(
-                                      `lineItems.${i}.total`,
-                                      (parseFloat(e.target.value) || 0) *
-                                        watch[i].quantity -
-                                        watch[i].totalDiscount
-                                    );
+                                    onFieldChange({
+                                      index: i,
+                                      price: e.target.value,
+                                      quantity: watch[i].quantity,
+                                      discount: watch[i].totalDiscount,
+                                    });
 
                                     return field.onChange(e);
                                   }}
@@ -247,12 +285,13 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                                 <Input
                                   {...field}
                                   onChange={(e) => {
-                                    form.setValue(
-                                      `lineItems.${i}.total`,
-                                      parseFloat(watch[i].price) *
-                                        watch[i].quantity -
-                                        (parseFloat(e.target.value) || 0)
-                                    );
+                                    onFieldChange({
+                                      index: i,
+                                      price: watch[i].price,
+                                      quantity: watch[i].quantity,
+                                      discount: e.target.value,
+                                    });
+
                                     return field.onChange(e);
                                   }}
                                   onBlur={(e) =>
@@ -280,64 +319,10 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
             <div>Subtotal</div>
             <div>{Numeral(form.watch("subtotal")).format()}</div>
           </div>
-          <div className="flex items-center py-1">
-            <div>Discount</div>
-            <DiscountPopover />
-            <div className="ml-auto">
-              {form.watch("totalDiscount") > 0 && "- "}
-              {Numeral(form.watch("totalDiscount")).format()}
-            </div>
-          </div>
-          <div className="flex items-center py-1">
-            <div>Estimated Tax</div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <span className="ml-4 cursor-pointer text-muted-foreground inline-flex items-center">
-                  <span className="text-sm font-normal capitalize">
-                    ({taxType})
-                  </span>
-                  <PenSquare className="w-3 h-3 ml-2" />
-                </span>
-              </PopoverTrigger>
-              <PopoverContent className="w-52 bg-background flex flex-col space-y-4">
-                <FormField
-                  control={form.control}
-                  name="taxType"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Tax Type</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          className="space-y-2"
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          {[
-                            { id: 1, value: "included", label: "Included" },
-                            { id: 2, value: "excluded", label: "Excluded" },
-                          ].map((el) => (
-                            <PopoverClose asChild key={el.id}>
-                              <FormItem className="flex items-center justify-between space-y-0">
-                                <FormLabel className="font-normal flex-1 cursor-pointer">
-                                  {el.label}
-                                </FormLabel>
-                                <FormControl>
-                                  <RadioGroupItem value={el.value} />
-                                </FormControl>
-                              </FormItem>
-                            </PopoverClose>
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </PopoverContent>
-            </Popover>
-            <div className="ml-auto">
-              {Numeral(form.watch("totalTax")).format()}
-            </div>
-          </div>
+
+          <DiscountPopover />
+
+          <TaxPopover />
 
           <div className="border-b-2 border-dashed my-2 " />
 
