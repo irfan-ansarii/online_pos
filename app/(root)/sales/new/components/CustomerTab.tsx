@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Check, Mail, Phone } from "lucide-react";
-
+import ScrollBar from "react-perfect-scrollbar";
 import { TabsContent } from "@/components/ui/tabs";
 import {
   DialogHeader,
@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import ScrollBar from "react-perfect-scrollbar";
 import {
   FormControl,
   FormField,
@@ -22,6 +22,7 @@ import {
 
 import { useFormContext } from "react-hook-form";
 import { useCustomers } from "@/hooks/useCustomer";
+
 const CustomerTab = () => {
   const form = useFormContext();
   const { isLoading, data } = useCustomers({});
@@ -41,7 +42,20 @@ const CustomerTab = () => {
         <Input placeholder="Search..." className="bg-border" />
       </div>
 
-      <ScrollBar className="h-full max-h-[17rem]">
+      <ScrollBar className="max-h-[18rem] h-72 w-full">
+        {isLoading && (
+          <div className="divide-y border-y">
+            {[...Array(4)].map((_, i) => (
+              <div className="flex py-3 items-center" key={i}>
+                <div className="space-y-2 grow">
+                  <Skeleton className="w-32 h-3" />
+                  <Skeleton className="w-48 h-2.5" />
+                </div>
+                <Skeleton className="w-16 h-3" />
+              </div>
+            ))}
+          </div>
+        )}
         <FormField
           control={form.control}
           name="customerId"
