@@ -14,25 +14,28 @@ export const saleValidation = z.object({
       variantTitle: z.string(),
       sku: z.string(),
       price: z.number(),
+      taxRate: z.number(),
       quantity: z.number(),
       totalDiscount: z.preprocess(
         (a) => parseFloat(z.string().parse(a)),
         z.number().positive()
       ),
       total: z.number(),
-      taxable: z.boolean(),
     })
     .array()
     .nonempty(),
   taxType: z.string(),
-  lineItemsTotal: z.number(),
   subtotal: z.number(),
   totalTax: z.number(),
   totalDiscount: z.number(),
   total: z.number(),
   totalDue: z.number(),
   taxLines: z.any(),
-  discountLine: z.any(),
+  taxAllocations: z.string().array(),
+  discountLine: z.object({
+    type: z.string(),
+    value: z.number(),
+  }),
 });
 
 export const updateUserValidation = z.object({

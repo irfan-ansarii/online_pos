@@ -17,7 +17,6 @@ import {
   FormItem,
   FormControl,
   FormLabel,
-  FormDescription,
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -58,15 +57,10 @@ const TaxPopover = () => {
             name="taxType"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <div className="space-y-1">
-                  <FormLabel>Tax Type</FormLabel>
-                  <FormDescription>
-                    Tax will be calculated according to the selected type.
-                  </FormDescription>
-                </div>
+                <FormLabel>Tax Type</FormLabel>
                 <FormControl>
                   <RadioGroup
-                    className="space-y-2"
+                    className="gap-3"
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
@@ -101,13 +95,7 @@ const TaxPopover = () => {
             name="taxAllocations"
             render={() => (
               <FormItem className="space-y-3">
-                <div className="space-y-1">
-                  <FormLabel>Tax Allocations</FormLabel>
-                  <FormDescription>
-                    Tax amount will be divided among the selected taxes.
-                  </FormDescription>
-                </div>
-
+                <FormLabel>Tax Allocations</FormLabel>
                 {items.map((item) => (
                   <FormField
                     key={item.id}

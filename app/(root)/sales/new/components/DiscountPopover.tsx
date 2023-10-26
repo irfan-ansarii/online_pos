@@ -28,6 +28,10 @@ const DiscountPopover = () => {
     control: form.control,
     name: "lineItems",
   });
+  const discount = useWatch({
+    control: form.control,
+    name: "discountLine",
+  });
 
   // check if has applied discount
   const hasProductDiscount = React.useMemo(() => {
@@ -38,6 +42,30 @@ const DiscountPopover = () => {
       return false;
     }
   }, [lineItems]);
+
+  React.useEffect(() => {
+    const taxType = form.getValues("taxType");
+
+    lineItems.forEach((item: any, i: number) => {
+      const itemTotal =
+        parseFloat(item.price || 0) * parseFloat(item.quantity || 0);
+
+      const discountAmount =
+        discount.type === "fixed"
+          ? discount.value
+          : itemTotal * (discount.value / 100);
+      const taxableAmount = itemTotal - discountAmount;
+
+      const taxAmount =
+        taxType === "included"
+          ? taxableAmount - taxableAmount / (1 + item.taxRate / 100)
+          : taxableAmount * (item.taxRate / 100);
+
+      form.setValue(`lineItems.${i}.totalTax`, taxAmount);
+      form.setValue(`lineItems.${i}.total`, taxableAmount);
+      form.setValue(`lineItems.${i}.totalDiscount`, discountAmount || 0);
+    });
+  }, [discount]);
 
   return (
     <Popover>
@@ -100,20 +128,6 @@ const DiscountPopover = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Discount Value</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="space-y-2">
-            <FormField
-              control={form.control}
-              name={`discountLine.title`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Reason</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

@@ -74,7 +74,6 @@ model Product {
   title       String
   description String
   type        Type          @default(simple)
-  taxable     Boolean       @default(true)
   status      ProductStatus @default(active)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -91,10 +90,10 @@ model Variant {
   title         String
   purchasePrice Float
   salePrice     Float
-  taxRate       Int
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   option        Json?
+  taxRate       Int
   inventory     Inventory[]
   label         Label[]
   product       Product     @relation(fields: [productId], references: [id])
@@ -136,17 +135,16 @@ model Sale {
   shippingAddress Json?
   lineItemsTotal  Float
   subtotal        Float
-  taxType         String              @default("included")
   totalTax        Float
   totalDiscount   Float
   total           Float
   totalDue        Float
   taxLines        Json?
-  discountLine    Json?
-  status          SaleFinancialStatus @default(pending)
   happenedAt      DateTime            @db.Timestamptz(6)
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
+  status          SaleFinancialStatus @default(pending)
+  taxType         String              @default("included")
   lineItems       LineItem[]
   customer        User?               @relation("customer", fields: [customerId], references: [id])
   employee        User?               @relation("employee", fields: [employeeId], references: [id])
@@ -165,13 +163,12 @@ model LineItem {
   totalDiscount Float
   totalTax      Float
   total         Float
-  taxable       Boolean  @default(true)
   taxLines      Json?
-  discountLine  Json?
   productId     Int?
   variantId     Int?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  taxRate       Int
   sale          Sale     @relation(fields: [saleId], references: [id])
 
   @@map("line_items")

@@ -66,83 +66,87 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
     });
   };
 
-  // handle price change
-  // const handlePriceChange = ({ index, price }) => {};
+  /**
+   * calculate tax helper function
+   * @param {taxRate, itemTotal}
+   * @returns
+   */
+  const calculateTax = ({
+    taxRate,
+    total,
+  }: {
+    taxRate: number;
+    total: number;
+  }) => {
+    const taxType = form.watch("taxType");
 
-  // handle discount change
-  // const handleDiscountChange = ({ index, discount }) => {
-  //   const discountLine = { type: "fixed", value: discount, title: "" };
-  //   const total =
-  //     parseFloat(watch[index].price) * parseFloat(watch[index].quantity) -
-  //     parseFloat(discount);
-  //   form.setValue(`lineItems.${index}.total`, total);
-  //   form.setValue(`lineItems.${index}.discountLine`, discountLine);
-  // };
+    const taxAmount =
+      taxType === "included"
+        ? total - total / (1 + taxRate / 100)
+        : total * (taxRate / 100);
 
-  // on line item field change
-  const onFieldChange = (params: {
+    return taxAmount;
+  };
+
+  /**
+   * handle price and discount change
+   * @param {index, price, discount}
+   */
+  const handleFieldChange = ({
+    index,
+    price,
+    discount,
+  }: {
     index: number;
     price: string;
-    quantity: string;
     discount: string;
   }) => {
-    const { index, price, quantity, discount } = params;
-
     const total =
-      parseFloat(price) * parseFloat(quantity) - parseFloat(discount);
+      parseFloat(price) * parseFloat(fields[index].quantity) -
+      parseFloat(discount || "0");
 
+    const taxAmount = calculateTax({
+      taxRate: parseFloat(fields[index].taxRate || 0),
+      total: total,
+    });
+
+    form.setValue(`lineItems.${index}.totalTax`, taxAmount);
     form.setValue(`lineItems.${index}.total`, total);
   };
 
+  /**
+   * calculate tax and total on line item or tax type change
+   */
   React.useEffect(() => {
-    const taxType = form.watch("taxType");
-    const discountLine = form.watch("discountLine");
-
     fields.forEach((item: any, i: number) => {
-      // item total
-      const itemTotal =
-        parseFloat(item.price || 0) * parseFloat(item.quantity || 0);
+      const taxableAmount =
+        parseFloat(item.price || 0) * parseFloat(item.quantity || 0) -
+        parseFloat(item.totalDiscount || 0);
 
-      // discount amount
-      const discountAmount =
-        discountLine.type === "fixed"
-          ? discountLine.value
-          : itemTotal * (discountLine.value / 100);
-
-      // taxable amount
-      const taxableAmount = itemTotal - discountAmount;
-
-      // tax rate
-      const taxRate = parseFloat(item.taxRate || 12);
-
-      // tax amount
-      const taxAmount =
-        taxType === "included"
-          ? taxableAmount - taxableAmount / (1 + taxRate / 100)
-          : taxableAmount * (taxRate / 100);
-
-      form.setValue(`lineItems.${i}.totalDiscount`, discountAmount);
-      form.setValue(`lineItems.${i}.discountLine`, discountLine);
+      const taxAmount = calculateTax({
+        taxRate: parseFloat(item.taxRate || 0),
+        total: taxableAmount,
+      });
 
       form.setValue(`lineItems.${i}.totalTax`, taxAmount);
-
-      form.setValue(`lineItems.${i}.total`, itemTotal - discountAmount);
+      form.setValue(`lineItems.${i}.total`, taxableAmount);
     });
-  }, [form.watch("taxType"), form.watch("taxAllocations"), fields]);
+  }, [form.watch("taxType"), fields]);
 
-  // calculate cart on line items, discount, and tax type change
+  /**
+   * calculate cart on line item change
+   */
   React.useEffect(() => {
     const taxType = form.getValues("taxType");
     const result = watch.reduce(
-      (acc: any, curr: any, i: number) => {
+      (acc: any, curr: any) => {
         const total =
           parseFloat(curr.price) * parseFloat(curr.quantity) -
-          (parseFloat(curr.totalDiscount) || 0);
+          parseFloat(curr.totalDiscount || 0);
 
         acc.subtotal += total + parseFloat(curr.totalDiscount || 0);
         acc.totalDiscount += parseFloat(curr.totalDiscount || 0);
         acc.totalTax += curr.totalTax;
-
         acc.total += taxType === "included" ? total : total + curr.totalTax;
         return acc;
       },
@@ -253,10 +257,9 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                                 <Input
                                   {...field}
                                   onChange={(e) => {
-                                    onFieldChange({
+                                    handleFieldChange({
                                       index: i,
                                       price: e.target.value,
-                                      quantity: watch[i].quantity,
                                       discount: watch[i].totalDiscount,
                                     });
 
@@ -285,10 +288,9 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                                 <Input
                                   {...field}
                                   onChange={(e) => {
-                                    onFieldChange({
+                                    handleFieldChange({
                                       index: i,
                                       price: watch[i].price,
-                                      quantity: watch[i].quantity,
                                       discount: e.target.value,
                                     });
 

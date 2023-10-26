@@ -28,6 +28,7 @@ interface VariantType {
   variantTitle: string | null;
   sku: string;
   salePrice: number;
+  taxRate: number;
   productId: number;
   variantId: number;
 }
@@ -51,9 +52,10 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
     control: form.control,
     name: "lineItems",
   });
+
   const handleClick = (
     e: React.MouseEvent<HTMLElement>,
-    clickedItem: VariantType,
+    variant: VariantType,
     action: string | null
   ) => {
     if (action === "skip") {
@@ -65,23 +67,19 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
     }
 
     const index = fields.findIndex(
-      (item: VariantType) => item.variantId === clickedItem.variantId
+      (item: VariantType) => item.variantId === variant.variantId
     );
 
     if (index === -1) {
       append({
-        ...clickedItem,
-        price: clickedItem.salePrice,
+        ...variant,
+        price: variant.salePrice,
         quantity: 1,
-        totalDiscount: 0,
-        totalTax:
-          clickedItem.salePrice - clickedItem.salePrice / (12 / 100 + 1),
-        total: clickedItem.salePrice,
       });
     } else {
       update(index, {
         ...updatedLineItems[index],
-        totalDiscount: updatedLineItems[index].totalDiscount,
+        totalDiscount: updatedLineItems[index].totalDiscount || 0,
         quantity: Number(fields[index].quantity) + 1,
       });
     }
@@ -99,6 +97,7 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
               variantTitle: null,
               sku: product?.variants?.[0]?.sku!,
               salePrice: product?.variants?.[0].salePrice,
+              taxRate: product?.variants?.[0].taxRate,
               productId: product.id,
               variantId: product?.variants?.[0].id!,
             },
@@ -142,6 +141,7 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
                     variantTitle: variant.title,
                     sku: variant.sku,
                     salePrice: variant.salePrice,
+                    taxRate: variant.taxRate,
                     productId: product.id,
                     variantId: variant.id,
                   },
