@@ -1,5 +1,6 @@
 import React from "react";
 import { useToggle } from "@uidotdev/usehooks";
+import { useFormContext } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
@@ -19,33 +20,31 @@ import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, Mail, Phone } from "lucide-react";
+import { Check } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const tabs = ["employee", "customer", "payment", "completed"];
+import EmployeeTab from "./EmployeeTab";
+import CustomerTab from "./CustomerTab";
 
 const paymentOptions = ["cash", "credit/debit Card", "UPI", "Paytm"];
+
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
+  const form = useFormContext();
+
   const [open, setOpen] = useToggle(false);
-  const [active, setActive] = React.useState(tabs[0]);
+  const [active, setActive] = React.useState("employee");
 
-  const buttonText = React.useMemo(() => {
-    const index = tabs.findIndex((tab) => tab === active);
+  const isNextEnabled = React.useMemo(() => {
+    const values = form.watch();
 
-    if (index === tabs.length - 1) return "Done";
-
-    return "Next";
-  }, [active]);
-
-  const handleButtonClick = () => {
-    const index = tabs.findIndex((tab) => tab === active) + 1;
-
-    if (tabs[index] !== undefined) {
-      setActive(tabs[index]);
-    } else {
-      setOpen(false);
+    switch (active) {
+      case "employee":
+        return values.employeeId ? true : false;
+      case "customer":
+        return values.customerId ? true : false;
+      default:
+        return false;
     }
-  };
+  }, [form.watch()]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -64,83 +63,10 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
           onValueChange={setActive}
           className="flex flex-col h-full justify-between"
         >
-          <TabsContent value="employee">
-            <DialogHeader className="text-left pb-6">
-              <DialogTitle>Select sales executive</DialogTitle>
-              <DialogDescription>
-                Add a new payment method to your account.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="pb-6">
-              <Input placeholder="Search..." className="bg-border" />
-            </div>
-            <RadioGroup
-              defaultValue="card"
-              className="grid grid-cols-1 gap-0 divide-y border-y"
-            >
-              {["Irfan Ansari", "John Doe", "Maria", "Debolina", "Guptil"].map(
-                (el) => (
-                  <div key={el} className="relative">
-                    <RadioGroupItem
-                      value={el}
-                      id={el}
-                      className="peer sr-only"
-                    />
-                    <div className="absolute text-muted-foreground right-0 inset-y-0 flex items-center h-full opacity-0 peer-data-[state=checked]:opacity-100">
-                      <Check className="w-4 h-4" />
-                    </div>
-                    <Label htmlFor={el} className="block py-4 cursor-pointer">
-                      <div className="truncate w-full">{el}</div>
-                    </Label>
-                  </div>
-                )
-              )}
-            </RadioGroup>
-          </TabsContent>
-          <TabsContent value="customer">
-            <DialogHeader className="text-left pb-6">
-              <DialogTitle>Select customer</DialogTitle>
-              <DialogDescription>
-                Select the option bellow send or print invoice
-              </DialogDescription>
-            </DialogHeader>
-            <div className="pb-6">
-              <Input placeholder="Search..." className="bg-border" />
-            </div>
-            <RadioGroup
-              defaultValue="card"
-              className="grid grid-cols-1 gap-0 divide-y border-y"
-            >
-              {["Irfan Ansari", "John Doe", "Maria", "Debolina", "Guptil"].map(
-                (el) => (
-                  <div key={el} className="relative">
-                    <RadioGroupItem
-                      value={el}
-                      id={el}
-                      className="peer sr-only"
-                    />
-                    <div className="absolute text-muted-foreground right-0 inset-y-0 flex items-center h-full opacity-0 peer-data-[state=checked]:opacity-100">
-                      <Check className="w-4 h-4" />
-                    </div>
-                    <Label htmlFor={el} className="block py-3 cursor-pointer">
-                      <div className="truncate w-full text-left mb-1">{el}</div>
+          <EmployeeTab />
 
-                      <div className="flex gap-4 text-xs items-center">
-                        <div className="text-muted-foreground font-normal inline-flex items-center">
-                          <Phone className="w-3 h-3 mr-1" />
-                          9958367688
-                        </div>
-                        <div className="text-muted-foreground font-normal inline-flex items-center">
-                          <Mail className="w-3 h-3 mr-1" />
-                          example@domain.com
-                        </div>
-                      </div>
-                    </Label>
-                  </div>
-                )
-              )}
-            </RadioGroup>
-          </TabsContent>
+          <CustomerTab />
+
           <TabsContent value="payment">
             <DialogHeader className="text-left pb-6">
               <DialogTitle>Enter payment details</DialogTitle>
@@ -161,6 +87,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
               ))}
             </Accordion>
           </TabsContent>
+
           <TabsContent value="completed">
             <DialogHeader className="text-left pb-6">
               <DialogTitle>Sale created successfully!</DialogTitle>
@@ -190,17 +117,28 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
             </RadioGroup>
           </TabsContent>
           <div>
-            <TabsList className="mt-6 h-2 bg-transparent p-0 gap-1 flex">
-              {tabs.map((tab) => (
+            <TabsList className="mt-6 bg-transparent flex-col flex">
+              <div className="flex gap-1">
                 <TabsTrigger
-                  key={tab}
-                  value={tab}
+                  value="employee"
                   className="data-[state=active]:bg-primary py-0 h-2 data-[state=active]:w-10 data-[state=active]:opacity-100 opacity-60 bg-secondary rounded-full"
                 ></TabsTrigger>
-              ))}
+                <TabsTrigger
+                  value="customer"
+                  className="data-[state=active]:bg-primary py-0 h-2 data-[state=active]:w-10 data-[state=active]:opacity-100 opacity-60 bg-secondary rounded-full"
+                ></TabsTrigger>
+                <TabsTrigger
+                  value="payment"
+                  className="data-[state=active]:bg-primary py-0 h-2 data-[state=active]:w-10 data-[state=active]:opacity-100 opacity-60 bg-secondary rounded-full"
+                ></TabsTrigger>
+                <TabsTrigger
+                  value="completed"
+                  className="data-[state=active]:bg-primary py-0 h-2 data-[state=active]:w-10 data-[state=active]:opacity-100 opacity-60 bg-secondary rounded-full"
+                ></TabsTrigger>
+              </div>
             </TabsList>
-            <Button className="mt-6 w-full" onClick={handleButtonClick}>
-              {buttonText}
+            <Button className="w-full" disabled={!isNextEnabled}>
+              Next
             </Button>
           </div>
         </Tabs>

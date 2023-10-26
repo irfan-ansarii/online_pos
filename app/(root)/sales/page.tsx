@@ -14,8 +14,8 @@ const Page = () => {
         <Filters />
 
         <div className="md:p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
-            {[...Array(6)].map((el, i) => (
+          <div className="grid grid-cols-1 md:gap-2">
+            {[...Array(2)].map((el, i) => (
               <Loading />
             ))}
             {[...Array(18)].map((el, i) => (

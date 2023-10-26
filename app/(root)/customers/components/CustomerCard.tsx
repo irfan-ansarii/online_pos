@@ -10,27 +10,31 @@ const CustomerCard = ({ customer }: any) => {
   return (
     <Card className="relative">
       <Link href={`customers/${customer.id}`}>
-        <CardContent className="space-y-4 relative h-full flex flex-col justify-between">
-          <div className="flex gap-2 items-start">
+        <CardContent className="grid grid-cols-6 gap-3 items-center">
+          <div className="flex gap-2 items-center col-span-3 md:col-span-2">
             <Avatar className="w-10 h-10">
               <AvatarFallback className="">
                 <User className="w-5 h-5" />
               </AvatarFallback>
             </Avatar>
-
-            <div className="truncate">
+            <div>
               <div className="truncate font-medium">{customer.firstName}</div>
-              <div className="text-muted-foreground">{customer.phone}</div>
-              <div className="text-muted-foreground">{customer.email}</div>
+              <div className="text-muted-foreground">Delhi</div>
             </div>
           </div>
+          <div className="col-span-3 md:col-span-2">
+            <div className="text-muted-foreground">{customer.phone}</div>
+            <div className="text-muted-foreground">{customer.email}</div>
+          </div>
 
-          <Badge className="grid grid-cols-5 py-1" variant="secondary">
+          <Badge
+            className="grid grid-cols-5 py-1 col-span-6 md:col-span-2"
+            variant="secondary"
+          >
             <div className="flex justify-between col-span-2">
               <span className="uppercase  text-muted-foreground">orders</span>
               <span>10</span>
             </div>
-
             <Separator orientation="vertical" className="mx-auto w-0.5" />
 
             <div className="flex justify-between col-span-2">

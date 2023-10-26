@@ -226,18 +226,18 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                           </Badge>
                         </div>
                       </div>
-                      <div className="col-span-3 space-y-1.5 h-full font-medium text-right">
-                        <div>{Numeral(watch[i]?.total).format()}</div>
+                      <div className="col-span-3 flex flex-col justify-end pb-1 h-full font-medium text-right">
                         {watch[i]?.total <
                           parseFloat(watch[i]?.total) +
                             parseFloat(watch[i]?.totalDiscount) && (
-                          <div className="line-through text-muted-foreground">
+                          <div className="line-through text-muted-foreground text-xs">
                             {Numeral(
                               parseFloat(watch[i]?.total) +
                                 parseFloat(watch[i]?.totalDiscount)
                             ).format()}
                           </div>
                         )}
+                        <div>{Numeral(watch[i]?.total).format()}</div>
                       </div>
                     </div>
                   </div>
