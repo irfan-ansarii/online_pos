@@ -28,7 +28,13 @@ import { useCreateCustomer } from "@/hooks/useCustomer";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
-const AddUserDialog = ({ className }: { className?: string }) => {
+const AddUserDialog = ({
+  className,
+  button,
+}: {
+  className?: string;
+  button?: React.ReactNode;
+}) => {
   const [open, setOpen] = React.useState(false);
   const form = useForm<z.infer<typeof customerValidation>>({
     resolver: zodResolver(customerValidation),
@@ -59,20 +65,24 @@ const AddUserDialog = ({ className }: { className?: string }) => {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <div className={className}>
-          <Button
-            size="icon"
-            className="rounded-full md:hidden fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
-          >
-            <Plus className="w-5 h-5" />
-          </Button>
-          <Button className="hidden md:flex">
-            <Plus className="w-5 h-5 mr-2" />
-            New
-          </Button>
-        </div>
-      </SheetTrigger>
+      {button ? (
+        <SheetTrigger asChild>{button}</SheetTrigger>
+      ) : (
+        <SheetTrigger asChild>
+          <div className={className}>
+            <Button
+              size="icon"
+              className="rounded-full md:hidden fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
+            >
+              <Plus className="w-5 h-5" />
+            </Button>
+            <Button className="hidden md:flex">
+              <Plus className="w-5 h-5 mr-2" />
+              New
+            </Button>
+          </div>
+        </SheetTrigger>
+      )}
       <SheetContent className="flex flex-col h-full ">
         <Form {...form}>
           <form

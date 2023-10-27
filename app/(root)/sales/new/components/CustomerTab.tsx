@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Check, Mail, Phone } from "lucide-react";
+import { Check, Mail, Phone, Plus } from "lucide-react";
 import SimpleBar from "simplebar-react";
 import { TabsContent } from "@/components/ui/tabs";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -19,6 +19,7 @@ import {
 import { useFormContext } from "react-hook-form";
 import { useCustomers } from "@/hooks/useCustomer";
 import AddCustomerSheet from "@/app/(root)/customers/components/AddCustomerSheet";
+import { Button } from "@/components/ui/button";
 
 const CustomerTab = () => {
   const form = useFormContext();
@@ -48,13 +49,25 @@ const CustomerTab = () => {
                   <Skeleton className="w-32 h-3" />
                   <Skeleton className="w-48 h-2.5" />
                 </div>
-                <Skeleton className="w-16 h-3" />
+                <Skeleton className="w-4 h-4" />
               </div>
             ))}
           </div>
         )}
+
         {/* add customer sheet*/}
-        {users && users.length === 0 && <AddCustomerSheet />}
+        {!isLoading && users?.length === 0 && (
+          <div className="text-center space-y-4">
+            <div>No results found.</div>
+            <AddCustomerSheet
+              button={
+                <Button className="w-full">
+                  <Plus className="w-5 h-5 mr-2" /> Create a new customer
+                </Button>
+              }
+            />
+          </div>
+        )}
 
         <FormField
           control={form.control}
@@ -68,18 +81,15 @@ const CustomerTab = () => {
                   className="flex flex-col"
                 >
                   {users?.map((user) => (
-                    <FormItem
-                      className="space-y-0 px-3 rounded-md border relative"
-                      key={user.id}
-                    >
+                    <FormItem className="space-y-0 relative" key={user.id}>
                       <FormControl className="peer sr-only">
                         <RadioGroupItem value={user.id} />
                       </FormControl>
-                      <div className="absolute w-5 h-5 bg-primary top-1/2 -translate-y-1/2 right-3 rounded-full inline-flex items-center justify-center opacity-0 peer-data-[state=checked]:opacity-100">
+                      <div className="absolute text-primary-foreground w-4 h-4 bg-primary top-1/2 -translate-y-1/2 right-3 rounded-full inline-flex items-center justify-center opacity-0 peer-data-[state=checked]:opacity-100">
                         <Check className="w-3 h-3" />
                       </div>
-                      <FormLabel className="font-normal py-2 block cursor-pointer">
-                        <div className="mb-1.5">{user.firstName}</div>
+                      <FormLabel className="space-y-1.5 py-2 px-3 rounded-md border block cursor-pointer hover:bg-accent transition duration-300 peer-data-[state=checked]:bg-accent">
+                        <div>{user.firstName}</div>
                         <div className="flex gap-4 text-xs items-center">
                           <div className="text-muted-foreground font-normal inline-flex items-center">
                             <Phone className="w-3 h-3 mr-1" />

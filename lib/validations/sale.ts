@@ -4,38 +4,40 @@ export const saleValidation = z.object({
   happenedAt: z.string(),
   customerId: z.number(),
   employeeId: z.number(),
-  billingAddress: z.any(),
-  shippingAddress: z.any(),
   lineItems: z
     .object({
       productId: z.number(),
       variantId: z.number(),
       title: z.string(),
-      variantTitle: z.string(),
+      variantTitle: z.any(),
       sku: z.string(),
-      price: z.number(),
-      taxRate: z.number(),
-      quantity: z.number(),
-      totalDiscount: z.preprocess(
-        (a) => parseFloat(z.string().parse(a)),
-        z.number().positive()
-      ),
-      total: z.number(),
+      price: z.any(),
+      taxRate: z.any(),
+      quantity: z.any(),
+      totalDiscount: z.any(),
+      total: z.any(),
     })
     .array()
     .nonempty(),
   taxType: z.string(),
-  subtotal: z.number(),
-  totalTax: z.number(),
-  totalDiscount: z.number(),
-  total: z.number(),
-  totalDue: z.number(),
+  subtotal: z.any(),
+  totalTax: z.any(),
+  totalDiscount: z.any(),
+  total: z.any(),
+  totalDue: z.any(),
   taxLines: z.any(),
   taxAllocations: z.string().array(),
   discountLine: z.object({
     type: z.string(),
-    value: z.number(),
+    value: z.any(),
   }),
+  transactions: z
+    .object({
+      name: z.string(),
+      label: z.string(),
+      amount: z.any(),
+    })
+    .array(),
 });
 
 export const updateUserValidation = z.object({

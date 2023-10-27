@@ -6,7 +6,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
-
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   FormControl,
   FormField,
@@ -29,7 +29,7 @@ const EmployeeTab = () => {
   return (
     <TabsContent value="employee" className="mt-0">
       <DialogHeader className="text-left pb-6">
-        <DialogTitle>Select sales executive</DialogTitle>
+        <DialogTitle>Select Sales Executive</DialogTitle>
       </DialogHeader>
       <div className="pb-6">
         <Input placeholder="Search..." className="bg-border" />
@@ -46,10 +46,13 @@ const EmployeeTab = () => {
                   <Skeleton className="w-32 h-3" />
                   <Skeleton className="w-48 h-2.5" />
                 </div>
-                <Skeleton className="w-16 h-3" />
+                <Skeleton className="w-4 h-4 rounded-full" />
               </div>
             ))}
           </div>
+        )}
+        {!isLoading && users?.length === 0 && (
+          <div className="text-center">No results found.</div>
         )}
         <FormField
           control={form.control}
@@ -63,18 +66,22 @@ const EmployeeTab = () => {
                   className="flex flex-col"
                 >
                   {users?.map((user) => (
-                    <FormItem
-                      className="space-y-0 px-3 rounded-md border relative"
-                      key={user.id}
-                    >
+                    <FormItem className="space-y-0 relative" key={user.id}>
                       <FormControl className="peer sr-only">
                         <RadioGroupItem value={user.id} />
                       </FormControl>
-                      <div className="absolute w-5 h-5 bg-primary top-1/2 -translate-y-1/2 right-3 rounded-full inline-flex items-center justify-center opacity-0 peer-data-[state=checked]:opacity-100">
+                      <div className="absolute text-primary-foreground w-4 h-4 bg-primary top-1/2 -translate-y-1/2 right-3 rounded-full inline-flex items-center justify-center opacity-0 peer-data-[state=checked]:opacity-100">
                         <Check className="w-3 h-3" />
                       </div>
-                      <FormLabel className="font-normal py-3 block cursor-pointer">
-                        {user.firstName}
+                      <FormLabel className="flex gap-3 px-3 py-2 rounded-md border items-center cursor-pointer hover:bg-accent transition duration-300 peer-data-[state=checked]:bg-accent">
+                        <Avatar>
+                          <AvatarImage
+                            src="https://github.com/shadcn.png"
+                            alt="@shadcn"
+                          />
+                          <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">{user.firstName}</div>
                       </FormLabel>
                     </FormItem>
                   ))}

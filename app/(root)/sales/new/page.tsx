@@ -32,10 +32,10 @@ const Page = () => {
       happenedAt: new Date().toString(),
       taxAllocations: ["cgst", "sgst"],
       transactions: [
-        { name: "cash", label: "Cash", amount: "" },
-        { name: "card", label: "Credit/Debit Card", amount: "" },
-        { name: "upi", label: "UPI", amount: "" },
-        { name: "paytm", label: "Paytm Wallet", amount: "" },
+        { name: "cash", label: "Cash", amount: undefined },
+        { name: "card", label: "Credit/Debit Card", amount: undefined },
+        { name: "upi", label: "UPI", amount: undefined },
+        { name: "paytm", label: "Paytm Wallet", amount: undefined },
       ],
     },
   });
@@ -49,6 +49,7 @@ const Page = () => {
     console.log(values);
   };
 
+  console.log(form.formState.errors);
   return (
     <main className="grow pb-4 px-1 md:p-4  md:mt-[-4.8rem]">
       <Form {...form} {...lineItems}>

@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
 import Numeral from "numeral";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
-import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import SimpleBar from "simplebar-react";
 import {
   Dialog,
@@ -49,6 +50,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   });
   const handleNext = () => {
     const current = tabs.findIndex((tab) => tab === active);
+
     if (current < tabs.length - 1) {
       setActive(tabs[current + 1]);
     } else {
@@ -111,13 +113,13 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
             <DialogHeader className="text-left pb-6">
               <DialogTitle className="mb-3">Collect Payment</DialogTitle>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-primary/40 p-3 space-y-1 rounded-md text-center">
+                <div className="bg-border p-3 space-y-1 rounded-md text-center">
                   <div className="font-medium text-xs uppercase">TOTAL</div>
                   <div className="font-medium text-lg">
                     {Numeral(form.watch("total")).format()}
                   </div>
                 </div>
-                <div className="bg-primary/40 p-3 space-y-1 rounded-md text-center">
+                <div className="bg-border p-3 space-y-1 rounded-md text-center">
                   <div className="font-medium text-xs uppercase">DUE</div>
                   <div className="font-medium text-lg">
                     {Numeral(form.watch("totalDue")).format()}
@@ -125,24 +127,40 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                 </div>
               </div>
             </DialogHeader>
-            <SimpleBar className="h-72">
+            <SimpleBar className="h-64">
               <Accordion type="single" className="w-full space-y-2">
                 {form.watch("transactions").map((item: any, i: number) => (
                   <FormField
                     control={form.control}
                     name={`transactions.${i}.amount`}
                     render={({ field }) => (
-                      <FormItem className="px-4 rounded-md border">
+                      <FormItem>
                         <AccordionItem
                           value={`${item.name}${i}`}
-                          className="border-none"
+                          className="px-3 rounded-md border hover:bg-accent transition duration-300 data-[state=open]:bg-accent"
                         >
                           <AccordionTrigger>
-                            <FormLabel>{item.label}</FormLabel>
+                            <FormLabel className="flex w-full cursor-pointer">
+                              {item.label}
+
+                              {parseFloat(
+                                form.watch(`transactions.${i}.amount`) || 0
+                              ) > 0 && (
+                                <span className="ml-auto text-muted-foreground">
+                                  {Numeral(
+                                    form.watch(`transactions.${i}.amount`)
+                                  ).format()}
+                                </span>
+                              )}
+                            </FormLabel>
                           </AccordionTrigger>
                           <FormControl>
                             <AccordionContent className="overflow-visible">
-                              <Input placeholder="shadcn" {...field} />
+                              <Input
+                                placeholder="shadcn"
+                                className="bg-accent"
+                                {...field}
+                              />
                             </AccordionContent>
                           </FormControl>
                           <FormMessage />
@@ -194,27 +212,33 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
               <div
                 key={el}
                 className={`py-0 block h-2 rounded-full ${
-                  active === el ? "bg-primary w-16" : "bg-secondary w-10"
+                  active === el ? "bg-primary w-10" : "bg-secondary w-6"
                 }`}
               />
             ))}
           </div>
 
           {/* handle step */}
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-4 mt-3">
             {!isFirst && !isLast && (
               <Button className="flex-1" onClick={handlePrev}>
                 Prev
               </Button>
             )}
 
-            <Button
-              className="flex-1"
-              disabled={isDisabled()}
-              onClick={handleNext}
-            >
-              {isLast ? "Done" : "Next"}
-            </Button>
+            {active === "payment" ? (
+              <Button className="flex-1" type="submit">
+                Next
+              </Button>
+            ) : (
+              <Button
+                className="flex-1"
+                disabled={isDisabled()}
+                onClick={handleNext}
+              >
+                {isLast ? "Done" : "Next"}
+              </Button>
+            )}
           </div>
         </Tabs>
       </DialogContent>
