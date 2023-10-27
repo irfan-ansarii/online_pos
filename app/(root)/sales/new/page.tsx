@@ -31,6 +31,12 @@ const Page = () => {
       discountLine: { type: "percent", value: 0 },
       happenedAt: new Date().toString(),
       taxAllocations: ["cgst", "sgst"],
+      transactions: [
+        { name: "cash", label: "Cash", amount: "" },
+        { name: "card", label: "Credit/Debit Card", amount: "" },
+        { name: "upi", label: "UPI", amount: "" },
+        { name: "paytm", label: "Paytm Wallet", amount: "" },
+      ],
     },
   });
 

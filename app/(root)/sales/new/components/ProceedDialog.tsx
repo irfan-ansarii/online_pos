@@ -1,7 +1,9 @@
+"use client";
 import React from "react";
+import Numeral from "numeral";
 import { useToggle } from "@uidotdev/usehooks";
-import { useFormContext } from "react-hook-form";
-import ScrollBar from "react-perfect-scrollbar";
+import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
+import SimpleBar from "simplebar-react";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +18,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
@@ -26,7 +35,6 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import EmployeeTab from "./EmployeeTab";
 import CustomerTab from "./CustomerTab";
 
-const paymentOptions = ["cash", "credit/debit Card", "UPI", "Paytm"];
 const tabs = ["employee", "customer", "payment", "completed"];
 
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
@@ -35,6 +43,10 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const [open, setOpen] = useToggle(false);
   const [active, setActive] = React.useState("employee");
 
+  const transactions = useWatch({
+    control: form.control,
+    name: "transactions",
+  });
   const handleNext = () => {
     const current = tabs.findIndex((tab) => tab === active);
     if (current < tabs.length - 1) {
@@ -56,14 +68,24 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const isLast = active === "completed";
 
   const isDisabled = () => {
-    if (active === "employee" && !form.watch("employeeId")) {
+    if (active === tabs[0] && !form.watch("employeeId")) {
       return true;
     }
-    if (active === "customer" && !form.watch("customerId")) {
+    if (active === tabs[1] && !form.watch("customerId")) {
       return true;
     }
     return false;
   };
+
+  React.useEffect(() => {
+    const total = form.getValues("total");
+    const received = transactions.reduce((acc: any, curr: any) => {
+      acc += parseFloat(curr.amount || 0);
+      return acc;
+    }, 0);
+    form.setValue("totalDue", total - received);
+  }, [transactions]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -85,41 +107,63 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
 
           <CustomerTab />
 
-          <TabsContent value="payment" className="flex flex-col h-full">
+          <TabsContent value="payment" className="mt-0">
             <DialogHeader className="text-left pb-6">
-              <DialogTitle>Enter payment details</DialogTitle>
-              <DialogDescription>
-                Add a new payment method to your account.
-              </DialogDescription>
+              <DialogTitle className="mb-3">Collect Payment</DialogTitle>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-primary/40 p-3 space-y-1 rounded-md text-center">
+                  <div className="font-medium text-xs uppercase">TOTAL</div>
+                  <div className="font-medium text-lg">
+                    {Numeral(form.watch("total")).format()}
+                  </div>
+                </div>
+                <div className="bg-primary/40 p-3 space-y-1 rounded-md text-center">
+                  <div className="font-medium text-xs uppercase">DUE</div>
+                  <div className="font-medium text-lg">
+                    {Numeral(form.watch("totalDue")).format()}
+                  </div>
+                </div>
+              </div>
             </DialogHeader>
-            <ScrollBar className="h-72 w-full grow">
-              <Accordion type="multiple" className="w-full border-t">
-                {paymentOptions.map((item) => (
-                  <AccordionItem value={item} key={item}>
-                    <AccordionTrigger className="capitalize">
-                      {item}
-                    </AccordionTrigger>
-                    <AccordionContent className="overflow-visible">
-                      <Input />
-                    </AccordionContent>
-                  </AccordionItem>
+            <SimpleBar className="h-72">
+              <Accordion type="single" className="w-full space-y-2">
+                {form.watch("transactions").map((item: any, i: number) => (
+                  <FormField
+                    control={form.control}
+                    name={`transactions.${i}.amount`}
+                    render={({ field }) => (
+                      <FormItem className="px-4 rounded-md border">
+                        <AccordionItem
+                          value={`${item.name}${i}`}
+                          className="border-none"
+                        >
+                          <AccordionTrigger>
+                            <FormLabel>{item.label}</FormLabel>
+                          </AccordionTrigger>
+                          <FormControl>
+                            <AccordionContent className="overflow-visible">
+                              <Input placeholder="shadcn" {...field} />
+                            </AccordionContent>
+                          </FormControl>
+                          <FormMessage />
+                        </AccordionItem>
+                      </FormItem>
+                    )}
+                  />
                 ))}
               </Accordion>
-            </ScrollBar>
+            </SimpleBar>
           </TabsContent>
 
-          <TabsContent value="completed" className="flex flex-col h-full">
+          <TabsContent value="completed" className="mt-0">
             <DialogHeader className="text-left pb-6">
               <DialogTitle>Sale created successfully!</DialogTitle>
               <DialogDescription>
                 Select the option bellow send or print invoice
               </DialogDescription>
             </DialogHeader>
-            <ScrollBar className="h-72 w-full grow">
-              <RadioGroup
-                defaultValue="card"
-                className="grid grid-cols-1 gap-0 divide-y border-y"
-              >
+            <SimpleBar className="h-72">
+              <RadioGroup defaultValue="card" className="flex flex-col">
                 {["Email", "Text", "What's App", "Print"].map((el) => (
                   <div key={el} className="relative">
                     <RadioGroupItem
@@ -127,8 +171,8 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                       id={el}
                       className="peer sr-only"
                     />
-                    <div className="absolute text-muted-foreground right-0 inset-y-0 flex items-center h-full opacity-0 peer-data-[state=checked]:opacity-100">
-                      <Check className="w-4 h-4" />
+                    <div className="absolute w-5 h-5 bg-primary top-1/2 -translate-y-1/2 right-3 rounded-full inline-flex items-center justify-center opacity-0 peer-data-[state=checked]:opacity-100">
+                      <Check className="w-3 h-3" />
                     </div>
                     <Label htmlFor={el} className="block py-3 cursor-pointer">
                       <div className="truncate w-full text-left mb-1">{el}</div>
@@ -141,7 +185,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                   </div>
                 ))}
               </RadioGroup>
-            </ScrollBar>
+            </SimpleBar>
           </TabsContent>
 
           {/* indicator */}
