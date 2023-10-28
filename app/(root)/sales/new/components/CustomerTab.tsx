@@ -37,7 +37,7 @@ const CustomerTab = () => {
         <Input placeholder="Search..." className="bg-border" />
       </div>
 
-      <SimpleBar className="h-72">
+      <SimpleBar className="h-80">
         {isLoading && (
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (

@@ -20,8 +20,9 @@ import { useFormContext } from "react-hook-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const EmployeeTab = () => {
+  const [search, setSearch] = React.useState("");
   const form = useFormContext();
-  const { isLoading, data } = useUsers({});
+  const { isLoading, data } = useUsers({ search });
   const users = React.useMemo(() => {
     return data?.pages.flatMap((page) => page.data.data);
   }, [data]);
@@ -32,9 +33,14 @@ const EmployeeTab = () => {
         <DialogTitle>Select Sales Executive</DialogTitle>
       </DialogHeader>
       <div className="pb-6">
-        <Input placeholder="Search..." className="bg-border" />
+        <Input
+          placeholder="Search..."
+          className="bg-border"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
-      <SimpleBar className="h-72">
+      <SimpleBar className="h-80">
         {isLoading && (
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (

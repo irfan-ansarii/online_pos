@@ -20,6 +20,7 @@ interface UsersQueryKey {
  * @returns
  */
 const getUsers = async ({ query, pageParam = 1 }: UsersQueryKey) => {
+  console.log("fetcher:", query, pageParam);
   return await api.get("/users", {
     params: {
       ...query,

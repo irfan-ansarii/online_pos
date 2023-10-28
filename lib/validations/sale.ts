@@ -9,7 +9,7 @@ export const saleValidation = z.object({
       productId: z.number(),
       variantId: z.number(),
       title: z.string(),
-      variantTitle: z.any(),
+      variantTitle: z.any().optional(),
       sku: z.string(),
       price: z.any(),
       taxRate: z.any(),
@@ -20,24 +20,27 @@ export const saleValidation = z.object({
     .array()
     .nonempty(),
   taxType: z.string(),
-  subtotal: z.any(),
+  subtotal: z.string(),
   totalTax: z.any(),
   totalDiscount: z.any(),
   total: z.any(),
   totalDue: z.any(),
   taxLines: z.any(),
   taxAllocations: z.string().array(),
-  discountLine: z.object({
-    type: z.string(),
-    value: z.any(),
-  }),
+  discountLine: z
+    .object({
+      type: z.string(),
+      value: z.any(),
+    })
+    .optional(),
   transactions: z
     .object({
       name: z.string(),
       label: z.string(),
-      amount: z.any(),
+      amount: z.any().optional(),
     })
-    .array(),
+    .array()
+    .optional(),
 });
 
 export const updateUserValidation = z.object({

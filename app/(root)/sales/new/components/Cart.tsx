@@ -337,9 +337,6 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
         </div>
 
         <div className="mt-2">
-          <Button className="flex-1" type="submit">
-            Next
-          </Button>
           <ProceedDialog disabled={fields.length <= 0} />
         </div>
         <CartActions />

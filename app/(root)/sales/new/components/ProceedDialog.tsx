@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
 import Numeral from "numeral";
-import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useWatch, useForm, useFormContext } from "react-hook-form";
 import SimpleBar from "simplebar-react";
+import { Form } from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
@@ -41,21 +41,29 @@ const tabs = ["employee", "customer", "payment", "completed"];
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
 
-  const [open, setOpen] = useToggle(false);
+  const [open, toggle] = useToggle(false);
   const [active, setActive] = React.useState("employee");
 
   const transactions = useWatch({
     control: form.control,
     name: "transactions",
   });
-  const handleNext = () => {
-    const current = tabs.findIndex((tab) => tab === active);
 
-    if (current < tabs.length - 1) {
-      setActive(tabs[current + 1]);
-    } else {
-      setOpen();
-      setActive(tabs[0]);
+  const handleNext = () => {
+    if (active === "employee") {
+      setActive("customer");
+      return;
+    }
+    if (active === "customer") {
+      setActive("payment");
+      return;
+    }
+    if (active === "payment") {
+      form.handleSubmit(
+        (e) => console.log("success:", e),
+        (e) => console.log("error:", e)
+      )();
+      return;
     }
   };
 
@@ -79,32 +87,34 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     return false;
   };
 
-  React.useEffect(() => {
+  const updateDue = () => {
     const total = form.getValues("total");
     const received = transactions.reduce((acc: any, curr: any) => {
       acc += parseFloat(curr.amount || 0);
       return acc;
     }, 0);
     form.setValue("totalDue", total - received);
-  }, [transactions]);
+  };
+  React.useEffect(() => {
+    updateDue();
+  }, [transactions, form.watch("lineItems")]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={toggle}>
       <DialogTrigger asChild>
         <Button
           className="w-full"
           disabled={disabled}
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            toggle();
+            updateDue();
+          }}
         >
           Checkout
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[90%] sm:max-w-md md:top-[10%] min-h-[60vh]">
-        <Tabs
-          value={active}
-          onValueChange={setActive}
-          className="flex flex-col h-full justify-between"
-        >
+      <DialogContent className="max-w-[90%] sm:max-w-md md:top-[10%]">
+        <Tabs value={active} onValueChange={setActive}>
           <EmployeeTab />
 
           <CustomerTab />
@@ -127,10 +137,11 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                 </div>
               </div>
             </DialogHeader>
-            <SimpleBar className="h-64">
+            <SimpleBar className="h-72">
               <Accordion type="single" className="w-full space-y-2">
                 {form.watch("transactions").map((item: any, i: number) => (
                   <FormField
+                    key={`${item.name}${i}`}
                     control={form.control}
                     name={`transactions.${i}.amount`}
                     render={({ field }) => (
@@ -180,7 +191,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                 Select the option bellow send or print invoice
               </DialogDescription>
             </DialogHeader>
-            <SimpleBar className="h-72">
+            <SimpleBar className="h-80">
               <RadioGroup defaultValue="card" className="flex flex-col">
                 {["Email", "Text", "What's App", "Print"].map((el) => (
                   <div key={el} className="relative">
@@ -205,40 +216,36 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
               </RadioGroup>
             </SimpleBar>
           </TabsContent>
+          <div className="space-y-3 mt-3">
+            {/* indicator */}
+            <div className="flex gap-1 justify-center">
+              {tabs.map((el) => (
+                <div
+                  key={el}
+                  className={`py-0 block h-2 rounded-full ${
+                    active === el ? "bg-primary w-10" : "bg-secondary w-6"
+                  }`}
+                />
+              ))}
+            </div>
 
-          {/* indicator */}
-          <div className="flex gap-1 mt-3 justify-center">
-            {tabs.map((el) => (
-              <div
-                key={el}
-                className={`py-0 block h-2 rounded-full ${
-                  active === el ? "bg-primary w-10" : "bg-secondary w-6"
-                }`}
-              />
-            ))}
-          </div>
+            {/* handle step */}
+            <div className="flex gap-4">
+              {!isFirst && !isLast && (
+                <Button className="flex-1" type="button" onClick={handlePrev}>
+                  Prev
+                </Button>
+              )}
 
-          {/* handle step */}
-          <div className="flex gap-4 mt-3">
-            {!isFirst && !isLast && (
-              <Button className="flex-1" onClick={handlePrev}>
-                Prev
-              </Button>
-            )}
-
-            {active === "payment" ? (
-              <Button className="flex-1" type="submit">
-                Next
-              </Button>
-            ) : (
               <Button
                 className="flex-1"
-                disabled={isDisabled()}
+                type="button"
                 onClick={handleNext}
+                disabled={isDisabled()}
               >
                 {isLast ? "Done" : "Next"}
               </Button>
-            )}
+            </div>
           </div>
         </Tabs>
       </DialogContent>
