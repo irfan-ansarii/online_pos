@@ -2,9 +2,8 @@
 import React from "react";
 import Numeral from "numeral";
 import { useToggle } from "@uidotdev/usehooks";
-import { useWatch, useForm, useFormContext } from "react-hook-form";
+import { useWatch, useFormContext } from "react-hook-form";
 import SimpleBar from "simplebar-react";
-import { Form } from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
@@ -40,43 +39,45 @@ const tabs = ["employee", "customer", "payment", "completed"];
 
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
-
   const [open, toggle] = useToggle(false);
   const [active, setActive] = React.useState("employee");
+  const isFirst = active === "employee";
+  const isLast = active === "completed";
 
+  // listen to transactions changes
   const transactions = useWatch({
     control: form.control,
     name: "transactions",
   });
 
+  /**
+   * handle next step click
+   */
   const handleNext = () => {
     if (active === "employee") {
       setActive("customer");
-      return;
-    }
-    if (active === "customer") {
+    } else if (active === "customer") {
       setActive("payment");
-      return;
-    }
-    if (active === "payment") {
-      form.handleSubmit(
-        (e) => console.log("success:", e),
-        (e) => console.log("error:", e)
-      )();
-      return;
+    } else if (active === "payment") {
+      form.handleSubmit(onSubmit, (e) => console.log("error:", e))();
+    } else {
+      toggle();
     }
   };
 
+  /**
+   * handle prev step click
+   */
   const handlePrev = () => {
-    const current = tabs.findIndex((tab) => tab === active);
-    if (current > 0) {
-      setActive(tabs[current - 1]);
+    const index = tabs.indexOf(active);
+    if (index > 0) {
+      setActive(tabs[index - 1]);
     }
   };
 
-  const isFirst = active === "employee";
-  const isLast = active === "completed";
-
+  /**
+   * handle next step disabled/enabled
+   */
   const isDisabled = () => {
     if (active === tabs[0] && !form.watch("employeeId")) {
       return true;
@@ -87,6 +88,9 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     return false;
   };
 
+  /**
+   * update due amount
+   */
   const updateDue = () => {
     const total = form.getValues("total");
     const received = transactions.reduce((acc: any, curr: any) => {
@@ -95,9 +99,48 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     }, 0);
     form.setValue("totalDue", total - received);
   };
+
+  /**
+   * update due amount useEffect
+   */
   React.useEffect(() => {
     updateDue();
   }, [transactions, form.watch("lineItems")]);
+
+  /**
+   * hanlde form submit
+   * @param values
+   */
+  const onSubmit = (values: any) => {
+    // tax lines
+    values.taxLines = values.taxAllocations.map((tax: string) => {
+      return {
+        title: tax,
+        amount: values.totalTax / values.taxAllocations.length,
+      };
+    });
+
+    // transactions
+    values.transactions = values.transactions
+      .filter((transaction: any) => parseFloat(transaction.amount) > 0)
+      .map((transaction: any) => {
+        return {
+          name: transaction.name,
+          kind: "sale",
+          amount: parseFloat(transaction.amount),
+          status: "success",
+        };
+      });
+
+    // payment status
+    values.status = "pending";
+    if (values.totalDue === values.total) {
+      values.status = "paid";
+    } else if (values.totalDue > 0 && values.totalDue < values.total) {
+      values.status = "partialy_paid";
+    }
+    // call react query mutation
+  };
 
   return (
     <Dialog open={open} onOpenChange={toggle}>

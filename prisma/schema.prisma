@@ -156,7 +156,7 @@ model LineItem {
   id            Int      @id @default(autoincrement())
   saleId        Int
   title         String
-  variantTitle  String
+  variantTitle  String?
   sku           String?
   price         Float
   quantity      Float

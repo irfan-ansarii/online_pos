@@ -74,6 +74,7 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
       append({
         ...variant,
         price: variant.salePrice,
+        totalDiscount: "",
         quantity: 1,
       });
     } else {
@@ -94,7 +95,7 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
             e,
             {
               title: product.title,
-              variantTitle: null,
+              variantTitle: "",
               sku: product?.variants?.[0]?.sku!,
               salePrice: product?.variants?.[0].salePrice,
               taxRate: product?.variants?.[0].taxRate,

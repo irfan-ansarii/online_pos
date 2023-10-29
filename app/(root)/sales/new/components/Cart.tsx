@@ -265,9 +265,6 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
 
                                     return field.onChange(e);
                                   }}
-                                  onBlur={(e) =>
-                                    field.onChange(e.target.value || 0)
-                                  }
                                 />
                               </FormControl>
 
@@ -296,9 +293,6 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
 
                                     return field.onChange(e);
                                   }}
-                                  onBlur={(e) =>
-                                    field.onChange(e.target.value || 0)
-                                  }
                                 />
                               </FormControl>
 

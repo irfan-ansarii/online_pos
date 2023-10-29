@@ -19,6 +19,7 @@ import Products from "./components/Products";
 const Page = () => {
   const form = useForm<z.infer<typeof saleValidation>>({
     resolver: zodResolver(saleValidation),
+    mode: "onChange",
     defaultValues: {
       lineItems: [],
       taxType: "included",
