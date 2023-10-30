@@ -22,6 +22,7 @@ export const saleValidation = z.object({
       taxRate: z.number(),
       quantity: z.number(),
       totalDiscount: number,
+      totalTax: number,
       total: number,
     })
     .array()
@@ -44,10 +45,8 @@ export const saleValidation = z.object({
   transactions: z
     .object({
       name: z.string(),
-      kind: z.string().default("sale"),
-      status: z.string().default("success"),
       label: z.string(),
-      amount: number.optional(),
+      amount: number,
     })
     .array()
     .optional(),

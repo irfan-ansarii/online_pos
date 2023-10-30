@@ -87,25 +87,59 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
    * @param values
    */
   const onSubmit = (values: any) => {
+    const locationId = session?.data?.data?.data.locationId;
+
     values.title = "GN1234";
-    values.locationId = session?.data?.data?.data.locationId;
-    values.lineItemsTotal = 0;
+    values.locationId = locationId;
     values.createdAt = new Date(values.createdAt);
     values.roundedOff = Math.ceil(values.total) - values.total;
     values.total = Math.ceil(values.total);
+
+    // line item total
+    values.lineItemsTotal = values.lineItems.reduce((acc: any, curr: any) => {
+      return (acc += curr.total);
+    }, 0);
+
+    // line items tax
+    values.lineItems = values.lineItems.map((item: any) => {
+      return {
+        ...item,
+        locationId,
+        createdAt: values.createdAt,
+        taxLines: values.taxAllocations.map((tax: any) => {
+          return {
+            name: tax,
+            amount:
+              Math.round((item.totalTax / values.taxAllocations.length) * 100) /
+              100,
+          };
+        }),
+      };
+    });
 
     // tax lines
     values.taxLines = values.taxAllocations.map((tax: string) => {
       return {
         title: tax,
-        amount: values.totalTax / values.taxAllocations.length,
+        amount:
+          Math.round((values.totalTax / values.taxAllocations.length) * 100) /
+          100,
       };
     });
 
     // transactions
-    values.transactions = values.transactions?.filter(
-      (transaction: any) => parseFloat(transaction.amount) > 0
-    );
+    values.transactions = values.transactions
+      ?.filter((transaction: any) => parseFloat(transaction.amount) > 0)
+      .map((txn: any) => {
+        return {
+          locationId,
+          name: txn.name,
+          kind: "sale",
+          status: "success",
+          amount: Math.round(txn.amount * 100) / 100,
+          createdAt: values.createdAt,
+        };
+      });
 
     // payment status
     if (values.totalDue <= 0) {
@@ -113,8 +147,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     } else if (values.totalDue > 0 && values.totalDue < values.total) {
       values.status = "partialy_paid";
     }
-    console.log(values);
-    return;
+
     // call react query mutation
     mutate(values, {
       onSuccess: () => {
@@ -226,7 +259,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
             </DialogHeader>
             <SimpleBar className="h-72">
               <Accordion type="single" className="w-full space-y-2">
-                {form.watch("transactions").map((item: any, i: number) => (
+                {form.getValues("transactions").map((item: any, i: number) => (
                   <FormField
                     key={`${item.name}${i}`}
                     control={form.control}

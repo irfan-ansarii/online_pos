@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
       transactions,
     } = body;
     const session = decodeJwt(req) as JwtPayload | undefined;
-    console.log("session:", session);
+
     // sale, line items and transactions
     const product = await prisma.sale.create({
       data: {
@@ -114,9 +114,9 @@ export async function POST(req: NextRequest) {
         taxLines,
         status,
         taxType,
-        // lineItems: {
-        //   create: [...lineItems],
-        // },
+        lineItems: {
+          create: [...lineItems],
+        },
         transactions: {
           create: [...transactions],
         },

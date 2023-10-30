@@ -47,8 +47,7 @@ const DiscountPopover = () => {
     const taxType = form.getValues("taxType");
 
     lineItems.forEach((item: any, i: number) => {
-      const itemTotal =
-        parseFloat(item.price || 0) * parseFloat(item.quantity || 0);
+      const itemTotal = item.price * item.quantity;
 
       const discountAmount =
         discount.type === "fixed"
@@ -71,7 +70,6 @@ const DiscountPopover = () => {
     <Popover>
       <div className="flex items-center py-1">
         <div>Discount</div>
-
         <PopoverTrigger asChild>
           <span
             className={`ml-4 cursor-pointer inline-flex items-center text-muted-foreground`}

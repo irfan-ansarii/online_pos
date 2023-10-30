@@ -155,7 +155,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
       form.setValue(key, value);
     });
   }, [watch]);
-
+  console.log(form.watch());
   return (
     <div className="flex flex-col h-full w-full relative space-y-2">
       {(!fields || fields.length === 0) && (
