@@ -2,7 +2,7 @@
 import React from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { ImagePlus, Trash2, PlusCircle, Loader2 } from "lucide-react";
-
+import SimpleBar from "simplebar-react";
 import {
   Sheet,
   SheetHeader,
@@ -94,7 +94,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               <SheetTitle>New product</SheetTitle>
             </SheetHeader>
 
-            <PerfectScrollbar className="-mx-6 px-6 relative">
+            <SimpleBar className="-mx-6 px-6 relative">
               {isLoading && (
                 <div className="absolute w-full h-full top-0 left-0 z-20"></div>
               )}
@@ -290,7 +290,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   </div>
                 )}
               </div>
-            </PerfectScrollbar>
+            </SimpleBar>
 
             <SheetFooter className="md:justify-between pt-4 md:pt-6">
               <Button className="w-full" type="submit">

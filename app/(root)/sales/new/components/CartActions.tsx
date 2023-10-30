@@ -42,15 +42,15 @@ const CartActions = () => {
               </TooltipTrigger>
             </PopoverTrigger>
             <TooltipContent>
-              {format(new Date(form.watch("happenedAt")), "dd-MM-yyyy")}
+              {format(new Date(form.watch("createdAt")), "dd-MM-yyyy")}
             </TooltipContent>
             <PopoverContent className="w-auto p-0">
               <Calendar
                 mode="single"
                 initialFocus
-                selected={new Date(form.watch("happenedAt"))}
+                selected={new Date(form.watch("createdAt"))}
                 onSelect={(value) => {
-                  form.setValue("happenedAt", value);
+                  form.setValue("createdAt", value?.toISOString());
                   toggle();
                 }}
               />

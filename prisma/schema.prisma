@@ -128,6 +128,7 @@ model Label {
 
 model Sale {
   id              Int                 @id @default(autoincrement())
+  locationId      Int
   title           String
   customerId      Int?
   employeeId      Int?
@@ -137,10 +138,10 @@ model Sale {
   subtotal        Float
   totalTax        Float
   totalDiscount   Float
+  roundedOff      Float               @default(0)
   total           Float
   totalDue        Float
   taxLines        Json?
-  happenedAt      DateTime            @db.Timestamptz(6)
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
   status          SaleFinancialStatus @default(pending)
@@ -148,12 +149,14 @@ model Sale {
   lineItems       LineItem[]
   customer        User?               @relation("customer", fields: [customerId], references: [id])
   employee        User?               @relation("employee", fields: [employeeId], references: [id])
+  transactions    Transaction[]
 
   @@map("sales")
 }
 
 model LineItem {
   id            Int      @id @default(autoincrement())
+  locationId    Int
   saleId        Int
   title         String
   variantTitle  String?
@@ -175,14 +178,16 @@ model LineItem {
 }
 
 model Transaction {
-  id        Int               @id @default(autoincrement())
-  name      String
-  amount    Float
-  kind      TransactionKind
-  saleId    Int
-  status    TransactionStatus @default(pending)
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id         Int               @id @default(autoincrement())
+  saleId     Int
+  locationId Int               @default(1)
+  name       String
+  amount     Float
+  kind       TransactionKind
+  status     TransactionStatus @default(pending)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  sale       Sale              @relation(fields: [saleId], references: [id])
 
   @@map("transactions")
 }

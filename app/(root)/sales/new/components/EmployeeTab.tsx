@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Check } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import SimpleBar from "simplebar-react";
 import { TabsContent } from "@/components/ui/tabs";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -19,7 +19,7 @@ import { useUsers } from "@/hooks/useUser";
 import { useFormContext } from "react-hook-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const EmployeeTab = () => {
+const EmployeeTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
   const [search, setSearch] = React.useState("");
   const form = useFormContext();
   const { isLoading, data } = useUsers({ search });
@@ -29,8 +29,11 @@ const EmployeeTab = () => {
 
   return (
     <TabsContent value="employee" className="mt-0">
-      <DialogHeader className="text-left pb-6">
-        <DialogTitle>Select Sales Executive</DialogTitle>
+      <DialogHeader className="pb-6">
+        <div className="flex item-center">
+          {headerIcon}
+          <DialogTitle>Select Sales Executive</DialogTitle>
+        </div>
       </DialogHeader>
       <div className="pb-6">
         <Input

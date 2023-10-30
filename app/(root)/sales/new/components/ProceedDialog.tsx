@@ -3,6 +3,9 @@ import React from "react";
 import Numeral from "numeral";
 import { useToggle } from "@uidotdev/usehooks";
 import { useWatch, useFormContext } from "react-hook-form";
+import { useCreateSale } from "@/hooks/useSale";
+import { useToast } from "@/components/ui/use-toast";
+import { useSession } from "@/hooks/useAuth";
 import SimpleBar from "simplebar-react";
 import {
   Dialog,
@@ -30,7 +33,7 @@ import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check } from "lucide-react";
+import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import EmployeeTab from "./EmployeeTab";
 import CustomerTab from "./CustomerTab";
@@ -39,10 +42,12 @@ const tabs = ["employee", "customer", "payment", "completed"];
 
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
+  const session = useSession();
+
+  const { isLoading, mutate } = useCreateSale();
+  const { toast } = useToast();
   const [open, toggle] = useToggle(false);
   const [active, setActive] = React.useState("employee");
-  const isFirst = active === "employee";
-  const isLast = active === "completed";
 
   // listen to transactions changes
   const transactions = useWatch({
@@ -72,21 +77,86 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     const index = tabs.indexOf(active);
     if (index > 0) {
       setActive(tabs[index - 1]);
+    } else {
+      toggle();
     }
+  };
+
+  /**
+   * hanlde form submit
+   * @param values
+   */
+  const onSubmit = (values: any) => {
+    values.title = "GN1234";
+    values.locationId = session?.data?.data?.data.locationId;
+    values.lineItemsTotal = 0;
+    values.createdAt = new Date(values.createdAt);
+    values.roundedOff = Math.ceil(values.total) - values.total;
+    values.total = Math.ceil(values.total);
+
+    // tax lines
+    values.taxLines = values.taxAllocations.map((tax: string) => {
+      return {
+        title: tax,
+        amount: values.totalTax / values.taxAllocations.length,
+      };
+    });
+
+    // transactions
+    values.transactions = values.transactions?.filter(
+      (transaction: any) => parseFloat(transaction.amount) > 0
+    );
+
+    // payment status
+    if (values.totalDue <= 0) {
+      values.status = "paid";
+    } else if (values.totalDue > 0 && values.totalDue < values.total) {
+      values.status = "partialy_paid";
+    }
+    console.log(values);
+    return;
+    // call react query mutation
+    mutate(values, {
+      onSuccess: () => {
+        toast({
+          variant: "success",
+          title: "Sale created successfully!",
+        });
+        form.reset();
+        toggle();
+      },
+      onError: (error: any) => {
+        toast({
+          variant: "error",
+          title: error.response.data.message || "Something went wrong",
+        });
+      },
+    });
   };
 
   /**
    * handle next step disabled/enabled
    */
-  const isDisabled = () => {
-    if (active === tabs[0] && !form.watch("employeeId")) {
-      return true;
-    }
-    if (active === tabs[1] && !form.watch("customerId")) {
-      return true;
-    }
-    return false;
-  };
+  const isDisabled =
+    (active === tabs[0] && !form.watch("employeeId")) ||
+    (active === tabs[1] && !form.watch("customerId"));
+
+  /** button text */
+  const buttonText = isLoading ? (
+    <Loader2 className="h-4 w-4 animate-spin" />
+  ) : (
+    {
+      payment: "Create",
+      complete: "Done",
+    }[active] || "Next"
+  );
+
+  /** header icon */
+  const headerIcon = (
+    <span className="pr-3 cursor-pointer" onClick={handlePrev}>
+      <ArrowLeft className="w-5 h-5" />
+    </span>
+  );
 
   /**
    * update due amount
@@ -107,41 +177,6 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     updateDue();
   }, [transactions, form.watch("lineItems")]);
 
-  /**
-   * hanlde form submit
-   * @param values
-   */
-  const onSubmit = (values: any) => {
-    // tax lines
-    values.taxLines = values.taxAllocations.map((tax: string) => {
-      return {
-        title: tax,
-        amount: values.totalTax / values.taxAllocations.length,
-      };
-    });
-
-    // transactions
-    values.transactions = values.transactions
-      .filter((transaction: any) => parseFloat(transaction.amount) > 0)
-      .map((transaction: any) => {
-        return {
-          name: transaction.name,
-          kind: "sale",
-          amount: parseFloat(transaction.amount),
-          status: "success",
-        };
-      });
-
-    // payment status
-    values.status = "pending";
-    if (values.totalDue === values.total) {
-      values.status = "paid";
-    } else if (values.totalDue > 0 && values.totalDue < values.total) {
-      values.status = "partialy_paid";
-    }
-    // call react query mutation
-  };
-
   return (
     <Dialog open={open} onOpenChange={toggle}>
       <DialogTrigger asChild>
@@ -149,8 +184,9 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
           className="w-full"
           disabled={disabled}
           onClick={() => {
-            toggle();
+            setActive("employee");
             updateDue();
+            toggle();
           }}
         >
           Checkout
@@ -158,13 +194,21 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
       </DialogTrigger>
       <DialogContent className="max-w-[90%] sm:max-w-md md:top-[10%]">
         <Tabs value={active} onValueChange={setActive}>
-          <EmployeeTab />
+          <EmployeeTab headerIcon={headerIcon} />
 
-          <CustomerTab />
+          <CustomerTab headerIcon={headerIcon} />
 
+          {/* payment and create sale tab */}
           <TabsContent value="payment" className="mt-0">
+            {isLoading && (
+              <div className="absolute rounded-md inset-0 z-20"></div>
+            )}
             <DialogHeader className="text-left pb-6">
-              <DialogTitle className="mb-3">Collect Payment</DialogTitle>
+              <div className="flex item-center mb-3">
+                {headerIcon}
+                <DialogTitle>Collect Payment</DialogTitle>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-border p-3 space-y-1 rounded-md text-center">
                   <div className="font-medium text-xs uppercase">TOTAL</div>
@@ -210,11 +254,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                           </AccordionTrigger>
                           <FormControl>
                             <AccordionContent className="overflow-visible">
-                              <Input
-                                placeholder="shadcn"
-                                className="bg-accent"
-                                {...field}
-                              />
+                              <Input className="bg-accent" {...field} />
                             </AccordionContent>
                           </FormControl>
                           <FormMessage />
@@ -227,6 +267,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
             </SimpleBar>
           </TabsContent>
 
+          {/* sale created tab */}
           <TabsContent value="completed" className="mt-0">
             <DialogHeader className="text-left pb-6">
               <DialogTitle>Sale created successfully!</DialogTitle>
@@ -274,19 +315,13 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
 
             {/* handle step */}
             <div className="flex gap-4">
-              {!isFirst && !isLast && (
-                <Button className="flex-1" type="button" onClick={handlePrev}>
-                  Prev
-                </Button>
-              )}
-
               <Button
                 className="flex-1"
                 type="button"
                 onClick={handleNext}
-                disabled={isDisabled()}
+                disabled={isDisabled}
               >
-                {isLast ? "Done" : "Next"}
+                {buttonText}
               </Button>
             </div>
           </div>

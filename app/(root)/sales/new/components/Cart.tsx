@@ -98,15 +98,13 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
     discount,
   }: {
     index: number;
-    price: string;
-    discount: string;
+    price: number;
+    discount: number;
   }) => {
-    const total =
-      parseFloat(price) * parseFloat(fields[index].quantity) -
-      parseFloat(discount || "0");
+    const total = price * fields[index].quantity - discount;
 
     const taxAmount = calculateTax({
-      taxRate: parseFloat(fields[index].taxRate || 0),
+      taxRate: fields[index].taxRate,
       total: total,
     });
 
@@ -119,12 +117,10 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
    */
   React.useEffect(() => {
     fields.forEach((item: any, i: number) => {
-      const taxableAmount =
-        parseFloat(item.price || 0) * parseFloat(item.quantity || 0) -
-        parseFloat(item.totalDiscount || 0);
+      const taxableAmount = item.price * item.quantity - item.totalDiscount;
 
       const taxAmount = calculateTax({
-        taxRate: parseFloat(item.taxRate || 0),
+        taxRate: item.taxRate,
         total: taxableAmount,
       });
 
@@ -140,12 +136,10 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
     const taxType = form.getValues("taxType");
     const result = watch.reduce(
       (acc: any, curr: any) => {
-        const total =
-          parseFloat(curr.price) * parseFloat(curr.quantity) -
-          parseFloat(curr.totalDiscount || 0);
+        const total = curr.price * curr.quantity - curr.totalDiscount || 0;
 
-        acc.subtotal += total + parseFloat(curr.totalDiscount || 0);
-        acc.totalDiscount += parseFloat(curr.totalDiscount || 0);
+        acc.subtotal += total + curr.totalDiscount || 0;
+        acc.totalDiscount += curr.totalDiscount || 0;
         acc.totalTax += curr.totalTax;
         acc.total += taxType === "included" ? total : total + curr.totalTax;
         return acc;
@@ -228,12 +222,10 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                       </div>
                       <div className="col-span-3 flex flex-col justify-end pb-1 h-full font-medium text-right">
                         {watch[i]?.total <
-                          parseFloat(watch[i]?.total) +
-                            parseFloat(watch[i]?.totalDiscount) && (
+                          watch[i]?.total + watch[i]?.totalDiscount && (
                           <div className="line-through text-muted-foreground text-xs">
                             {Numeral(
-                              parseFloat(watch[i]?.total) +
-                                parseFloat(watch[i]?.totalDiscount)
+                              watch[i]?.total + watch[i]?.totalDiscount
                             ).format()}
                           </div>
                         )}
@@ -259,7 +251,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                                   onChange={(e) => {
                                     handleFieldChange({
                                       index: i,
-                                      price: e.target.value,
+                                      price: parseFloat(e.target.value),
                                       discount: watch[i].totalDiscount,
                                     });
 
@@ -288,7 +280,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                                     handleFieldChange({
                                       index: i,
                                       price: watch[i].price,
-                                      discount: e.target.value,
+                                      discount: parseFloat(e.target.value),
                                     });
 
                                     return field.onChange(e);

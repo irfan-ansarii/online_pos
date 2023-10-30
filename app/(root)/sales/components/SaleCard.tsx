@@ -13,14 +13,16 @@ const SaleCard = () => {
           <div className="text-muted-foreground text-xs">12-04-2024</div>
         </div>
 
-        <div className="col-span-3 md:col-span-1 space-y-0.5 flex gap-2">
+        <div className="col-span-3 md:col-span-1  flex gap-2">
           <Avatar className="w-8 h-8">
             <AvatarFallback className="">
               <User className="w-4 h-4" />
             </AvatarFallback>
           </Avatar>
-          <div>
-            <div className="truncate leading-tight">John Doe</div>
+          <div className="truncate">
+            <div className="truncate leading-tight">
+              John Doe Lorem, ipsum dolor.
+            </div>
             <div className="truncate leading-tight text-muted-foreground text-xs">
               9958367688
             </div>

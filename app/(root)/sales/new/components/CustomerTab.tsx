@@ -21,7 +21,7 @@ import { useCustomers } from "@/hooks/useCustomer";
 import AddCustomerSheet from "@/app/(root)/customers/components/AddCustomerSheet";
 import { Button } from "@/components/ui/button";
 
-const CustomerTab = () => {
+const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
   const form = useFormContext();
   const { isLoading, data } = useCustomers({});
   const users = React.useMemo(() => {
@@ -30,8 +30,11 @@ const CustomerTab = () => {
 
   return (
     <TabsContent value="customer" className="mt-0">
-      <DialogHeader className="text-left pb-6">
-        <DialogTitle>Select Customer</DialogTitle>
+      <DialogHeader className="pb-6">
+        <div className="flex item-center">
+          {headerIcon}
+          <DialogTitle>Select Customer</DialogTitle>
+        </div>
       </DialogHeader>
       <div className="pb-6">
         <Input placeholder="Search..." className="bg-border" />

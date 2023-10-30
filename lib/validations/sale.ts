@@ -1,11 +1,14 @@
 import * as z from "zod";
 
-const number = z.any().refine((val) => !isNaN(val), {
-  message: "Enter a valid number",
-});
+const number = z
+  .any()
+  .refine((val) => !isNaN(val), {
+    message: "Enter a valid number",
+  })
+  .transform(Number);
 
 export const saleValidation = z.object({
-  happenedAt: z.string(),
+  createdAt: z.string().datetime(),
   customerId: z.number(),
   employeeId: z.number(),
   lineItems: z
@@ -19,16 +22,17 @@ export const saleValidation = z.object({
       taxRate: z.number(),
       quantity: z.number(),
       totalDiscount: number,
-      total: z.number(),
+      total: number,
     })
     .array()
     .nonempty(),
   taxType: z.enum(["included", "excluded"]),
-  subtotal: z.number(),
-  totalTax: z.number(),
+  subtotal: number,
+  totalTax: number,
   totalDiscount: number,
-  total: z.number(),
-  totalDue: z.number(),
+  total: number,
+  roundedOff: number.default(0),
+  totalDue: number,
   taxLines: z.any(),
   taxAllocations: z.string().array(),
   discountLine: z
@@ -40,9 +44,12 @@ export const saleValidation = z.object({
   transactions: z
     .object({
       name: z.string(),
+      kind: z.string().default("sale"),
+      status: z.string().default("success"),
       label: z.string(),
       amount: number.optional(),
     })
     .array()
     .optional(),
+  status: z.string().default("pending"),
 });
