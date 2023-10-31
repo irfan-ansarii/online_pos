@@ -30,11 +30,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Options from "./Options";
 import Variants from "./Variants";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
+  const [preview, setPreview] = React.useState("");
   const { mutate, isLoading } = useCreateProduct();
   const { toast } = useToast();
   const [open, toggle] = useToggle();
@@ -42,20 +43,42 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const form = useForm<z.infer<typeof productValidation>>({
     resolver: zodResolver(productValidation),
     defaultValues: {
+      image: null,
       title: "",
       description: "",
       type: "simple",
       status: "active",
-      purchasePrice: undefined,
-      salePrice: undefined,
+      purchasePrice: 0,
+      salePrice: 0,
       sku: "",
-      taxRate: undefined,
-      options: [{ name: "", values: [] }],
-      variants: undefined,
+      taxRate: 0,
+      options: [{ name: "", values: [], value: "" }],
+      variants: [],
     },
   });
 
+  React.useEffect(() => {
+    const file = form.watch("image");
+    if (file && Array.isArray(file) && file.length > 0) {
+      const newUrl = URL.createObjectURL(file[0] as File);
+      setPreview(newUrl);
+    }
+  }, [form.watch("image")]);
+
   const onSubmit = (values: z.infer<typeof productValidation>) => {
+    if (values.type === "simple") {
+      values.variants = [
+        {
+          option: null,
+          title: "",
+          purchasePrice: Number(values.purchasePrice),
+          salePrice: Number(values.purchasePrice),
+          sku: values.sku,
+          taxRate: Number(values.taxRate),
+        },
+      ];
+    }
+
     mutate(values, {
       onSuccess: (res) => {
         toast({
@@ -86,33 +109,31 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               <SheetTitle>New product</SheetTitle>
             </SheetHeader>
 
-            <SimpleBar className="-mx-6 px-6 relative grow max-h-full">
+            <SimpleBar className="-mx-6 px-6 relative  max-h-full overflow-y-auto">
               {isLoading && (
                 <div className="absolute w-full h-full top-0 left-0 z-20"></div>
               )}
-              <div className="flex flex-col gap-6 grow">
-                <FormField
-                  control={form.control}
-                  name="image"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="relative rounded-md bg-muted/40">
-                        <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                          <ImagePlus className="w-10 h-10" />
-                        </span>
-                        <FormControl>
-                          <Input
-                            type="file"
-                            {...field}
-                            className="h-24 file:hidden opacity-0"
-                          />
-                        </FormControl>
-                      </div>
+              <div className="flex flex-col gap-6 grow pb-2 md:pb-4">
+                <div className="relative rounded-md bg-accent">
+                  <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                    <Avatar className="w-full h-full">
+                      <AvatarImage
+                        className="w-full h-full object-contain"
+                        src={preview}
+                      ></AvatarImage>
+                      <AvatarFallback className="bg-transparent">
+                        <ImagePlus className="w-10 h-10" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </span>
 
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    className="h-32 file:hidden opacity-0 cursor-pointer"
+                    {...form.register("image")}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="title"
@@ -253,7 +274,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               </div>
             </SimpleBar>
 
-            <SheetFooter className="pt-4 md:pt-6">
+            <SheetFooter className="pt-2">
               <Button className="w-full" type="submit">
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

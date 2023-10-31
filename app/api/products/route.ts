@@ -76,17 +76,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const {
-      image,
-      title,
-      description,
-      type,
-      purchasePrice,
-      salePrice,
-      variants,
-      options,
-      sku,
-    } = body;
+    const { image, title, description, type, status, variants, options } = body;
 
     // create product and variants
     const product = await prisma.product.create({
@@ -94,26 +84,10 @@ export async function POST(req: NextRequest) {
         title,
         description,
         type,
-        status: "active",
+        status,
         options,
         variants: {
-          create:
-            type === "variable"
-              ? variants.map((item: any) => {
-                  return {
-                    title: item.title,
-                    purchasePrice: parseFloat(item.purchasePrice),
-                    salePrice: parseFloat(item.salePrice),
-                    sku: item.sku,
-                    option: item.option,
-                  };
-                })
-              : {
-                  title: "default",
-                  purchasePrice: parseFloat(purchasePrice),
-                  salePrice: parseFloat(salePrice),
-                  sku,
-                },
+          create: [...variants],
         },
       },
     });

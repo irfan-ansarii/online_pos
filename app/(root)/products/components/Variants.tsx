@@ -32,9 +32,8 @@ const Variants = () => {
   function generateVariants(options: [{ name: string; values: string[] }]) {
     remove();
     function generate(current: string[], index: number) {
-      console.log(current);
       if (index === options.length) {
-        append({ title: current.join("/") });
+        append({ title: current.join("/") }, { shouldFocus: false });
         return;
       }
 
