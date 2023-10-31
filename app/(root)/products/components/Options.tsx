@@ -50,94 +50,92 @@ const Options = () => {
 
   return (
     <>
-      <li>
-        {fields.map((item, index) => (
-          <li key={item.id} className="flex flex-col gap-4">
+      {fields.map((item, index) => (
+        <li key={item.id} className="flex flex-col gap-4">
+          <div className="flex gap-2">
+            <div className="grow">
+              <FormField
+                control={form.control}
+                name={`options.${index}.name`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="Option name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Button
+              variant="secondary"
+              size="icon"
+              disabled={fields.length === 1}
+              onClick={() => remove(index)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <div className="w-full space-y-4">
             <div className="flex gap-2">
               <div className="grow">
                 <FormField
                   control={form.control}
-                  name={`options.${index}.name`}
+                  name={`options.${index}.value`}
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input placeholder="Option name" {...field} />
+                        <Input
+                          {...field}
+                          placeholder="Option value"
+                          onKeyDown={(e) => handleKeyDown(e, index)}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-
               <Button
                 variant="secondary"
                 size="icon"
-                disabled={fields.length === 1}
-                onClick={() => remove(index)}
+                disabled={!form.watch(`options.${index}.value`)}
+                className="shrink-0"
+                onClick={() => {
+                  const value = form.getValues(`options.${index}.value`);
+                  setValues(value, index);
+                }}
               >
-                <Trash2 className="w-4 h-4" />
+                <Plus className="w-5 h-5" />
               </Button>
             </div>
 
-            <div className="w-full space-y-4">
-              <div className="flex gap-2">
-                <div className="grow">
-                  <FormField
-                    control={form.control}
-                    name={`options.${index}.value`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Option value"
-                            onKeyDown={(e) => handleKeyDown(e, index)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  disabled={!form.watch(`options.${index}.value`)}
-                  className="shrink-0"
-                  onClick={() => {
-                    const value = form.getValues(`options.${index}.value`);
-                    setValues(value, index);
-                  }}
-                >
-                  <Plus className="w-5 h-5" />
-                </Button>
-              </div>
-
-              <div className="flex gap-2 flex-wrap">
-                {form
-                  .getValues(`options.${index}.values`)
-                  .map((item: string, i: number) => (
-                    <Badge
-                      className="pr-1 py-1 gap-2 overflow-hidden justify-between"
-                      variant="outline"
-                      key={`${item}${i}`}
+            <div className="flex gap-2 flex-wrap">
+              {form
+                .getValues(`options.${index}.values`)
+                .map((item: string, i: number) => (
+                  <Badge
+                    className="pr-1 py-1 gap-2 overflow-hidden justify-between"
+                    variant="outline"
+                    key={`${item}${i}`}
+                  >
+                    <span>{item}</span>
+                    <span
+                      onClick={() => {
+                        handleRemove(index, i);
+                      }}
+                      className="bg-secondary hover:bg-destructive w-4 flex items-center justify-center h-4 rounded-full cursor-pointer"
                     >
-                      <span>{item}</span>
-                      <span
-                        onClick={() => {
-                          handleRemove(index, i);
-                        }}
-                        className="bg-secondary hover:bg-destructive w-4 flex items-center justify-center h-4 rounded-full cursor-pointer"
-                      >
-                        <X className="w-3 h-3" />
-                      </span>
-                    </Badge>
-                  ))}
-              </div>
+                      <X className="w-3 h-3" />
+                    </span>
+                  </Badge>
+                ))}
             </div>
-          </li>
-        ))}
-      </li>
+          </div>
+        </li>
+      ))}
 
       <li>
         <Button

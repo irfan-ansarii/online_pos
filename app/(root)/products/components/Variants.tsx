@@ -20,23 +20,26 @@ const Variants = () => {
     control: form.control,
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: variants,
+    append,
+    remove,
+  } = useFieldArray({
     control: form.control,
     name: "variants",
   });
 
-  function generateVariants(
-    options: [{ name: string; values: [{ value: string }] }]
-  ) {
+  function generateVariants(options: [{ name: string; values: string[] }]) {
     remove();
     function generate(current: string[], index: number) {
+      console.log(current);
       if (index === options.length) {
         append({ title: current.join("/") });
         return;
       }
 
       for (const value of options[index].values) {
-        generate([...current, value.value], index + 1);
+        generate([...current, value], index + 1);
       }
     }
 
@@ -49,14 +52,11 @@ const Variants = () => {
 
   return (
     <div className="divide-y border-y">
-      {/* header */}
-
-      {/* row */}
-      {fields.map((field, index) => (
+      {variants.map((_, index) => (
         <div className="grid grid-cols-2 gap-4 py-4 last:pb-0">
           <div className="col-span-2 inline-flex items-center truncate font-medium">
             <Badge variant="secondary" className="w-full rounded-md py-2">
-              {field?.title}
+              {form.watch(`variants.${index}.title`)}
             </Badge>
           </div>
 

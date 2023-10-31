@@ -1,11 +1,14 @@
 "use client";
 import React from "react";
-import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { productValidation } from "@/lib/validations/product";
+import { useForm } from "react-hook-form";
 import { useToggle } from "@uidotdev/usehooks";
 import { useToast } from "@/components/ui/use-toast";
 import { useCreateProduct } from "@/hooks/useProduct";
 
-import { ImagePlus, Trash2, PlusCircle, Loader2 } from "lucide-react";
+import { ImagePlus, Loader2 } from "lucide-react";
 import SimpleBar from "simplebar-react";
 import {
   Sheet,
@@ -36,31 +39,23 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
   const [open, toggle] = useToggle();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof productValidation>>({
+    resolver: zodResolver(productValidation),
     defaultValues: {
-      image: "",
       title: "",
       description: "",
-      purchasePrice: "",
-      salePrice: "",
-      sku: "",
       type: "simple",
+      status: "active",
+      purchasePrice: undefined,
+      salePrice: undefined,
+      sku: "",
+      taxRate: undefined,
       options: [{ name: "", values: [] }],
+      variants: undefined,
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "options",
-  });
-
-  const type = useWatch({
-    name: "type",
-    control: form.control,
-    defaultValue: "simple",
-  });
-
-  const onSubmit = (values: any) => {
+  const onSubmit = (values: z.infer<typeof productValidation>) => {
     mutate(values, {
       onSuccess: (res) => {
         toast({
@@ -84,7 +79,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
             className="flex flex-col h-full"
           >
             <SheetHeader className="md:pb-2">
@@ -188,7 +183,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   )}
                 />
 
-                {type === "variable" ? (
+                {form.watch("type") === "variable" ? (
                   <>
                     <ul className="flex flex-col gap-4">
                       <Options />
