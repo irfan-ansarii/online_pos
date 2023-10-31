@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { ArrowLeft, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import SimpleBar from "simplebar-react";
 import { TabsContent } from "@/components/ui/tabs";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -18,11 +18,14 @@ import {
 import { useUsers } from "@/hooks/useUser";
 import { useFormContext } from "react-hook-form";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 const EmployeeTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
   const [search, setSearch] = React.useState("");
   const form = useFormContext();
-  const { isLoading, data } = useUsers({ search });
+  const { isLoading, data, isError, refetch, isRefetching } = useUsers({
+    search,
+  });
   const users = React.useMemo(() => {
     return data?.pages.flatMap((page) => page.data.data);
   }, [data]);
@@ -44,6 +47,18 @@ const EmployeeTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
         />
       </div>
       <SimpleBar className="h-80">
+        {isError && (
+          <div>
+            <div className="text-center">An error occurred!</div>
+            <div className="text-muted-foreground text-center mb-3">
+              click on the button bellow to refresh.
+            </div>
+            <Button className="w-full" onClick={() => refetch()}>
+              {isRefetching ? "Loading..." : "Refresh"}
+            </Button>
+          </div>
+        )}
+
         {isLoading && (
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (

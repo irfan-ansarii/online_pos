@@ -1,6 +1,10 @@
 "use client";
 import React from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import { useToggle } from "@uidotdev/usehooks";
+import { useToast } from "@/components/ui/use-toast";
+import { useCreateProduct } from "@/hooks/useProduct";
+
 import { ImagePlus, Trash2, PlusCircle, Loader2 } from "lucide-react";
 import SimpleBar from "simplebar-react";
 import {
@@ -24,15 +28,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 
-import PerfectScrollbar from "react-perfect-scrollbar";
-
-import OptionValues from "./OptionValues";
+import Options from "./Options";
 import Variants from "./Variants";
-
-import { useToggle } from "@uidotdev/usehooks";
-
-import { useToast } from "@/components/ui/use-toast";
-import { useCreateProduct } from "@/hooks/useProduct";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const { mutate, isLoading } = useCreateProduct();
@@ -94,7 +91,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               <SheetTitle>New product</SheetTitle>
             </SheetHeader>
 
-            <SimpleBar className="-mx-6 px-6 relative">
+            <SimpleBar className="-mx-6 px-6 relative grow max-h-full">
               {isLoading && (
                 <div className="absolute w-full h-full top-0 left-0 z-20"></div>
               )}
@@ -194,54 +191,9 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                 {type === "variable" ? (
                   <>
                     <ul className="flex flex-col gap-4">
-                      {fields.map((item, index) => (
-                        <li key={item.id} className="flex flex-col gap-4">
-                          <div className="flex gap-2">
-                            <div className="grow">
-                              <FormField
-                                control={form.control}
-                                name={`options.${index}.name`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Option name"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <Button
-                              variant="secondary"
-                              size="icon"
-                              onClick={() => remove(index)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-
-                          <OptionValues control={form.control} index={index} />
-                        </li>
-                      ))}
-
-                      <li>
-                        <Button
-                          className="w-full"
-                          variant="secondary"
-                          onClick={() => {
-                            append({ name: "", values: [] });
-                          }}
-                        >
-                          <PlusCircle className="w-4 h-4 mr-2" />
-                          Add Variant
-                        </Button>
-                      </li>
+                      <Options />
                     </ul>
-                    <Variants form={form} />
+                    <Variants />
                   </>
                 ) : (
                   <div className="grid grid-cols-1 gap-4">
@@ -287,15 +239,29 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      rules={{ required: "Required" }}
+                      name="taxRate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tax Rate</FormLabel>
+                          <FormControl>
+                            <Input placeholder="0" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 )}
               </div>
             </SimpleBar>
 
-            <SheetFooter className="md:justify-between pt-4 md:pt-6">
+            <SheetFooter className="pt-4 md:pt-6">
               <Button className="w-full" type="submit">
                 {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   "Save"
                 )}

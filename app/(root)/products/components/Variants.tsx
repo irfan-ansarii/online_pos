@@ -1,18 +1,20 @@
 "use client";
 
 import React from "react";
-import PropTypes from "prop-types";
-import { useFieldArray, useWatch } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 import {
   FormControl,
   FormField,
   FormItem,
   FormMessage,
+  FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
-const Variants = ({ form }: { form: any }) => {
+const Variants = () => {
+  const form = useFormContext();
   const options = useWatch({
     name: "options",
     control: form.control,
@@ -48,63 +50,71 @@ const Variants = ({ form }: { form: any }) => {
   return (
     <div className="divide-y border-y">
       {/* header */}
-      {fields && fields.length > 0 && (
-        <div className="grid grid-cols-4 gap-2 font-medium text-muted-foreground">
-          <div className="py-3 truncate">Variant</div>
-          <div className="py-3 truncate">Purchase Price</div>
-          <div className="py-3 truncate">Sale Price</div>
-          <div className="py-3 truncate">SKU</div>
-        </div>
-      )}
 
       {/* row */}
       {fields.map((field, index) => (
-        <div className="grid grid-cols-4 gap-2">
-          <div className="py-2 inline-flex items-center truncate font-medium">
-            {field?.title}
+        <div className="grid grid-cols-2 gap-4 py-4 last:pb-0">
+          <div className="col-span-2 inline-flex items-center truncate font-medium">
+            <Badge variant="secondary" className="w-full rounded-md py-2">
+              {field?.title}
+            </Badge>
           </div>
-          <div className="py-2">
-            <FormField
-              control={form.control}
-              name={`variants.${index}.purchasePrice`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input placeholder="0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="py-2">
-            <FormField
-              control={form.control}
-              name={`variants.${index}.salePrice`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input placeholder="0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="py-2">
-            <FormField
-              control={form.control}
-              name={`variants.${index}.sku`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input placeholder="ABC1234" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+
+          <FormField
+            control={form.control}
+            name={`variants.${index}.purchasePrice`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Purchase Price</FormLabel>
+                <FormControl>
+                  <Input placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name={`variants.${index}.salePrice`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sale Price</FormLabel>
+                <FormControl>
+                  <Input placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            rules={{ required: "Required" }}
+            name={`variants.${index}.taxRate`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tax Rate</FormLabel>
+                <FormControl>
+                  <Input placeholder="0" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name={`variants.${index}.sku`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>SKU</FormLabel>
+                <FormControl>
+                  <Input placeholder="ABC1234" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       ))}
     </div>

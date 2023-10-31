@@ -21,35 +21,31 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
-    // find active products
-    const products = await prisma.product.findMany({
+    // find active sales
+    const sales = await prisma.sale.findMany({
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
         createdAt: "desc",
       },
-      where: {
-        status: { equals: "active" },
-      },
       include: {
-        variants: true,
+        employee: true,
+        customer: true,
+        lineItems: true,
       },
     });
 
     // get pagination
-    const total = await prisma.product.count({
+    const total = await prisma.sale.count({
       orderBy: {
         createdAt: "desc",
-      },
-      where: {
-        status: { equals: "active" },
       },
     });
 
     // return response
     return NextResponse.json(
       {
-        data: products,
+        data: sales,
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,
@@ -69,7 +65,7 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * create product
+ * create sale
  * @param req
  * @returns
  */
@@ -96,13 +92,14 @@ export async function POST(req: NextRequest) {
       lineItems,
       transactions,
     } = body;
-    const session = decodeJwt(req) as JwtPayload | undefined;
 
     // sale, line items and transactions
-    const product = await prisma.sale.create({
+    const sale = await prisma.sale.create({
       data: {
         title,
         locationId,
+        billingAddress,
+        shippingAddress,
         customerId,
         employeeId,
         lineItemsTotal,
@@ -114,6 +111,7 @@ export async function POST(req: NextRequest) {
         taxLines,
         status,
         taxType,
+        createdAt,
         lineItems: {
           create: [...lineItems],
         },
@@ -124,9 +122,8 @@ export async function POST(req: NextRequest) {
     });
 
     // return response
-    return NextResponse.json({ data: product }, { status: 201 });
+    return NextResponse.json({ data: sale }, { status: 201 });
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

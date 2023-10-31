@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 
 const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
   const form = useFormContext();
-  const { isLoading, data } = useCustomers({});
+  const { isLoading, data, isError, isRefetching, refetch } = useCustomers({});
   const users = React.useMemo(() => {
     return data?.pages.flatMap((page) => page.data.data);
   }, [data]);
@@ -41,6 +41,17 @@ const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
       </div>
 
       <SimpleBar className="h-80">
+        {isError && (
+          <div>
+            <div className="text-center">An error occurred!</div>
+            <div className="text-muted-foreground text-center mb-3">
+              click on the button bellow to refresh.
+            </div>
+            <Button className="w-full" onClick={() => refetch()}>
+              {isRefetching ? "Loading..." : "Refresh"}
+            </Button>
+          </div>
+        )}
         {isLoading && (
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (
