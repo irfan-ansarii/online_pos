@@ -31,8 +31,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import Options from "./Options";
 import Variants from "./Variants";
+import MediaLibrary from "@/components/shared/media-library";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const [preview, setPreview] = React.useState("");
@@ -113,7 +116,9 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               {isLoading && (
                 <div className="absolute w-full h-full top-0 left-0 z-20"></div>
               )}
+
               <div className="flex flex-col gap-6 grow pb-2 md:pb-4">
+                <MediaLibrary />
                 <div className="relative rounded-md bg-accent">
                   <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                     <Avatar className="w-full h-full">

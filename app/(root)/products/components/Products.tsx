@@ -12,7 +12,7 @@ const Products = () => {
     <>
       {/* loading */}
 
-      {isLoading && [...Array(6)].map((_, i) => <Loading key={i} />)}
+      {!isLoading && [...Array(6)].map((_, i) => <Loading key={i} />)}
 
       {/* pages */}
 

@@ -101,6 +101,20 @@ model Variant {
   @@map("variants")
 }
 
+model File {
+  id        Int      @id @default(autoincrement())
+  title     String
+  caption   String
+  width     Int?
+  height    Int?
+  ext       String
+  mime      String
+  size      Float
+  src       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Inventory {
   id         Int      @id @default(autoincrement())
   locationId Int
