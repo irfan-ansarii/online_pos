@@ -48,7 +48,7 @@ const Page = () => {
         </StickyHeader>
 
         <div className="md:p-6">
-          <div className="grid grid-cols-1 md:gap-2">
+          <div className="grid grid-cols-1 md:gap-2 items-center">
             <Products />
           </div>
         </div>

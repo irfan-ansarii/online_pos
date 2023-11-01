@@ -23,11 +23,9 @@ const Products = () => {
             title="No Users Found"
           />
         ) : (
-          <div className="rounded-md border divide-y">
-            {page.data.data.map((product: any) => (
-              <ProductCard product={product} key={product.id} />
-            ))}
-          </div>
+          page.data.data.map((product: any) => (
+            <ProductCard product={product} key={product.id} />
+          ))
         )
       )}
 
