@@ -14,6 +14,27 @@ interface Props {
   pageParam: number;
 }
 
+const getFiles = async ({ queryKey, pageParam = 1 }) => {
+  const [_, params] = queryKey;
+
+  return await api.get("/files", {
+    params: {
+      ...params,
+      page: pageParam,
+    },
+  });
+};
+export const useFiles = (query: any) => {
+  return useInfiniteQuery(["files", query], getFiles, {
+    getNextPageParam: (pages) => {
+      if (pages.data.pagination.page < pages.data.pagination.pageCount) {
+        return pages.data.pagination.page + 1;
+      }
+      return undefined;
+    },
+    retry: 0,
+  });
+};
 /**
  * create file
  * @param email

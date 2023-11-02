@@ -35,7 +35,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Options from "./Options";
 import Variants from "./Variants";
-import MediaLibrary from "@/components/shared/media-library";
+import MediaLibrary from "@/components/media-library/media-library";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const [preview, setPreview] = React.useState("");
@@ -99,6 +99,9 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
+  const onSelect = (file: any) => {
+    form.setValue("image", file.src);
+  };
   return (
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
@@ -118,27 +121,19 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               )}
 
               <div className="flex flex-col gap-6 grow pb-2 md:pb-4">
-                <MediaLibrary />
-                <div className="relative rounded-md bg-accent">
-                  <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                <MediaLibrary onSelect={onSelect}>
+                  <div className="relative rounded-md bg-accent h-24 flex items-center justify-center text-muted-foreground">
                     <Avatar className="w-full h-full">
                       <AvatarImage
                         className="w-full h-full object-contain"
-                        src={preview}
+                        src={`${form.watch("image")}`}
                       ></AvatarImage>
                       <AvatarFallback className="bg-transparent">
                         <ImagePlus className="w-10 h-10" />
                       </AvatarFallback>
                     </Avatar>
-                  </span>
-
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    className="h-32 file:hidden opacity-0 cursor-pointer"
-                    {...form.register("image")}
-                  />
-                </div>
+                  </div>
+                </MediaLibrary>
                 <FormField
                   control={form.control}
                   name="title"
