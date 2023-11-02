@@ -4,7 +4,8 @@ import { decodeJwt, JwtPayload } from "@/lib/decode-jwt";
 import { PAGE_SIZE } from "@/config/app";
 import { writeFile } from "fs/promises";
 import { join } from "path";
-
+import bcryptjs from "bcryptjs";
+import { createHash } from "crypto";
 /**
  * GET
  * @param req
@@ -19,23 +20,43 @@ export async function GET(req: NextRequest) {}
  */
 export async function POST(req: NextRequest) {
   const form = await req.formData();
-  console.log("form:", form);
-  for (var pair of form.entries()) {
-    console.log(pair[1].length);
-  }
-  const files: File | null = form.get("files") as unknown | File;
-  console.log("files", files);
-  if (!files) {
+
+  const files = [];
+
+  if (!form) {
     return NextResponse.json({ success: false });
   }
 
-  const bytes = await files.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+  for (const [_, file] of form.entries()) {
+    const { size, type, name } = file;
+    const salt = await bcryptjs.genSalt(10);
+    const hash = salt.replace(/[/\\?%*:|"<>]/g, "_");
 
-  const path = join("public", "/", "uploads", files.name);
+    const [title, extension] = name.split(name[name.lastIndexOf(".")]);
 
-  await writeFile(path, buffer);
+    const bytes = await file.arrayBuffer();
 
+    const buffer = Buffer.from(bytes);
+    const fileName = `${title}_${hash}.${extension}`;
+    const src = `uploads/${fileName}`;
+    const path = `public/${src}`;
+
+    await writeFile(path, buffer);
+
+    const uploadedFiles = {
+      title: name,
+      caption: name,
+      width: 0,
+      height: 0,
+      ext: "",
+      mime: type,
+      size: size,
+      src: src,
+    };
+
+    files.push(uploadedFiles);
+  }
+  console.log(files);
   return NextResponse.json({ success: false });
 }
 

@@ -53,7 +53,10 @@ const MediaLibrary: React.FC<Props> = ({
 
     const files = e.target.files;
     const form = new FormData();
-    form.append("files", files);
+    for (const file of files) {
+      console.log(file);
+      form.append("files", file);
+    }
 
     mutate(form, {
       onSuccess: (r) => console.log("success;", r),
@@ -89,34 +92,34 @@ const MediaLibrary: React.FC<Props> = ({
               {!isLoading && (
                 <Input
                   type="file"
-                  accept="image/*"
                   multiple
                   className="h-full file:hidden opacity-0 cursor-pointer"
                   onChange={onChange}
                 />
               )}
             </div>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {[...Array(40)].map((_, i) => (
-                <Avatar
-                  onClick={handleSelect}
-                  className={`w-full h-full relative rounded-md aspect-square cursor-pointer border justify-center items-center ${
-                    selected === i ? "border-2 p-0.5 border-primary" : ""
-                  }`}
-                >
-                  <AvatarImage
-                    src={ext[Math.floor(Math.random() * ext.length)]}
-                    className="w-10 h-10"
-                  ></AvatarImage>
-                  <AvatarFallback className="w-full h-full rounded">
-                    g
-                  </AvatarFallback>
-                  <div className="absolute w-full p-1 bg-black/50 bottom-0 left-0">
-                    <div className="text-xs truncate">
-                      Lorem ipsum dolor sit amet.
+                <div className="border rounded-md overflow-hidden">
+                  <Avatar
+                    onClick={handleSelect}
+                    className="w-auto h-auto relative rounded-none aspect-square"
+                  >
+                    <div className="flex items-center justify-center flex-1">
+                      <AvatarImage
+                        src={ext[Math.floor(Math.random() * ext.length)]}
+                        className="w-10 h-10"
+                      ></AvatarImage>
                     </div>
+                    <AvatarFallback className="w-full h-full rounded-none">
+                      g
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="text-xs truncate p-1.5">
+                    Lorem ipsum dolor sit amet.
                   </div>
-                </Avatar>
+                </div>
               ))}
             </div>
           </SimpleBar>
