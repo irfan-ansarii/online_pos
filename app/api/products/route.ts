@@ -76,7 +76,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { image, title, description, type, status, variants, options } = body;
+    const { imageId, title, description, type, status, variants, options } =
+      body;
 
     // create product and variants
     const product = await prisma.product.create({
@@ -86,15 +87,18 @@ export async function POST(req: NextRequest) {
         type,
         status,
         options,
+
         variants: {
           create: [...variants],
         },
+        image: { connect: { id: imageId } },
       },
     });
 
     // return response
     return NextResponse.json({ data: product }, { status: 201 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

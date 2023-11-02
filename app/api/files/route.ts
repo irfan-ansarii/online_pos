@@ -26,6 +26,19 @@ export async function GET(req: NextRequest) {
 
     // find files
     const files = await prisma.file.findMany({
+      where: {
+        OR: [
+          {
+            title: { contains: search, mode: "insensitive" },
+          },
+          {
+            caption: { contains: search, mode: "insensitive" },
+          },
+          {
+            ext: { contains: search, mode: "insensitive" },
+          },
+        ],
+      },
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
@@ -77,7 +90,6 @@ export async function POST(req: NextRequest) {
   }
 
   for (const [_, file] of form.entries()) {
-    // if (!(file instanceof File)) return;
     const { size, type, name } = file;
     const salt = await bcryptjs.genSalt(10);
     const hash = salt.replace(/[/\\?%*:|"<>]/g, "_");

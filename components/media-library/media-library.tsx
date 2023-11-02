@@ -14,21 +14,30 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Upload from "./upload";
 import MediaFile from "./media-file";
+import ErrorBox from "../shared/error-box";
 
 interface Props {
   children?: React.ReactNode;
   onSelect?: React.MouseEventHandler<HTMLElement>;
   selected?: number;
+  filter?: number;
 }
+
 const MediaLibrary: React.FC<Props> = ({
   children,
   onSelect,
   selected = 5,
+  filter,
 }) => {
   const [query, setQuery] = useState("");
   const [open, toggle] = useToggle(false);
 
-  const { data: files, isLoading } = useFiles({ search: query });
+  const {
+    data: files,
+    isLoading,
+    isError,
+    error,
+  } = useFiles({ search: query });
 
   const handleSelect = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
@@ -59,9 +68,10 @@ const MediaLibrary: React.FC<Props> = ({
           </div>
 
           <SimpleBar className="h-full grow overflow-y-auto -mx-6 px-6">
-            <Upload />
-
             <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-3">
+                <Upload />
+              </div>
               {isLoading
                 ? [...Array(6)].map((_, i) => (
                     <Skeleton className="aspect-square" key={i} />
@@ -75,6 +85,13 @@ const MediaLibrary: React.FC<Props> = ({
                       />
                     ))
                   )}
+
+              {isError && (
+                <ErrorBox
+                  className="col-span-3"
+                  title={error?.response?.data?.message}
+                />
+              )}
             </div>
           </SimpleBar>
         </div>

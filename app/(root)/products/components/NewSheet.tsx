@@ -31,7 +31,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Options from "./Options";
 import Variants from "./Variants";
@@ -46,7 +45,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const form = useForm<z.infer<typeof productValidation>>({
     resolver: zodResolver(productValidation),
     defaultValues: {
-      image: null,
       title: "",
       description: "",
       type: "simple",
@@ -59,14 +57,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       variants: [],
     },
   });
-
-  React.useEffect(() => {
-    const file = form.watch("image");
-    if (file && Array.isArray(file) && file.length > 0) {
-      const newUrl = URL.createObjectURL(file[0] as File);
-      setPreview(newUrl);
-    }
-  }, [form.watch("image")]);
 
   const onSubmit = (values: z.infer<typeof productValidation>) => {
     if (values.type === "simple") {
@@ -100,7 +90,8 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onSelect = (file: any) => {
-    form.setValue("image", file.src);
+    setPreview(file.src);
+    form.setValue("imageId", file.id);
   };
   return (
     <Sheet open={open} onOpenChange={toggle}>
@@ -121,12 +112,15 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               )}
 
               <div className="flex flex-col gap-6 grow pb-2 md:pb-4">
-                <MediaLibrary onSelect={onSelect}>
+                <MediaLibrary
+                  onSelect={onSelect}
+                  selected={form.getValues("imageId")}
+                >
                   <div className="relative rounded-md bg-accent h-24 flex items-center justify-center text-muted-foreground">
                     <Avatar className="w-full h-full">
                       <AvatarImage
                         className="w-full h-full object-contain"
-                        src={`${form.watch("image")}`}
+                        src={preview}
                       ></AvatarImage>
                       <AvatarFallback className="bg-transparent">
                         <ImagePlus className="w-10 h-10" />

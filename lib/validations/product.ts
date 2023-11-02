@@ -9,11 +9,9 @@ const number = z
 
 export const productValidation = z
   .object({
-    image: z
-      .custom<FileList>()
-      .refine((file) => file, { message: "Enter" })
-      .transform((file) => file.length > 0 && file.item(0)),
-
+    imageId: z.number().refine((id) => id, {
+      message: "Image is required",
+    }),
     title: z.string().nonempty({ message: "Title is required" }),
     description: z.string().nonempty({ message: "Description is required" }),
     type: z.enum(["simple", "variable"]),
