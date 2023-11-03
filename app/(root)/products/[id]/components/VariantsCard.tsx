@@ -1,10 +1,20 @@
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const VariantsCard = () => {
   return (
     <Card className="overflow-hidden rounded-none md:rounded-md">
+      <CardHeader>
+        <CardTitle>Variants</CardTitle>
+      </CardHeader>
       <CardContent className="p-0 space-y-4">
         {[...Array(6)].map(() => (
           <div className="flex flex-col overflow-hidden border-t first:border-none">

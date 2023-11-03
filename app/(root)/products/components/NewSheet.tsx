@@ -78,6 +78,8 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
           variant: "success",
           title: "Product created successfully!",
         });
+        form.reset();
+        setPreview("");
         toggle();
       },
       onError: (error: any) => {

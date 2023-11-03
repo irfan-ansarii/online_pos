@@ -13,29 +13,33 @@ interface Props {
   };
   pageParam: number;
 }
-const getProducts = async ({ query, pageParam = 1 }: Props) => {
+
+interface InfiniteQueryProps {
+  queryKey: string | any[];
+  pageParam?: number;
+}
+
+const getProducts = async ({ queryKey, pageParam = 1 }: InfiniteQueryProps) => {
+  const [_, params] = queryKey;
+  console.log(queryKey);
   return await api.get("/products", {
     params: {
-      ...query,
+      ...params,
       page: pageParam,
     },
   });
 };
 
 export const useProducts = (query: { search?: string }) => {
-  return useInfiniteQuery(
-    ["products"],
-    ({ pageParam }) => getProducts({ query, pageParam }),
-    {
-      getNextPageParam: (pages) => {
-        if (pages.data.pagination.page < pages.data.pagination.pageCount) {
-          return pages.data.pagination.page + 1;
-        }
-        return undefined;
-      },
-      retry: 0,
-    }
-  );
+  return useInfiniteQuery(["products", query], getProducts, {
+    getNextPageParam: (pages) => {
+      if (pages.data.pagination.page < pages.data.pagination.pageCount) {
+        return pages.data.pagination.page + 1;
+      }
+      return undefined;
+    },
+    retry: 0,
+  });
 };
 
 /**

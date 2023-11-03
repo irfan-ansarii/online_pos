@@ -6,7 +6,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 const SearchInput = () => {
   const { queryParams, setQueryParams } = useQueryParams();
-  const search = queryParams?.get("search");
+  const { search } = queryParams;
   const [searchTerm, setSearchTerm] = React.useState(search);
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 

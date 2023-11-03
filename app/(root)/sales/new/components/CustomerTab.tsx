@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
   const form = useFormContext();
   const { isLoading, data, isError, isRefetching, refetch } = useCustomers({});
+
   const users = React.useMemo(() => {
     return data?.pages.flatMap((page) => page.data.data);
   }, [data]);

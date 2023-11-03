@@ -14,7 +14,12 @@ interface Props {
   pageParam: number;
 }
 
-const getFiles = async ({ queryKey, pageParam = 1 }) => {
+interface InfiniteQueryProps {
+  queryKey: string | any[];
+  pageParam?: number;
+}
+
+const getFiles = async ({ queryKey, pageParam = 1 }: InfiniteQueryProps) => {
   const [_, params] = queryKey;
 
   return await api.get("/files", {
@@ -24,6 +29,7 @@ const getFiles = async ({ queryKey, pageParam = 1 }) => {
     },
   });
 };
+
 export const useFiles = (query: any) => {
   return useInfiniteQuery(["files", query], getFiles, {
     getNextPageParam: (pages) => {
@@ -35,6 +41,7 @@ export const useFiles = (query: any) => {
     retry: 0,
   });
 };
+
 /**
  * create file
  * @param email

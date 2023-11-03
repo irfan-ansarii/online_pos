@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const params = Object.fromEntries([...searchParams.entries()]);
 
     // destructure params
-    const { page, search } = params;
+    const { page, search, status } = params;
 
     // pagination
     const currentPage = parseInt(page, 10) || 1;
@@ -30,9 +30,12 @@ export async function GET(req: NextRequest) {
       },
       where: {
         status: { equals: "active" },
+        title: { contains: search, mode: "insensitive" },
+        description: { contains: search, mode: "insensitive" },
       },
       include: {
         variants: true,
+        image: true,
       },
     });
 
@@ -87,18 +90,16 @@ export async function POST(req: NextRequest) {
         type,
         status,
         options,
-
+        image: { connect: { id: imageId } },
         variants: {
           create: [...variants],
         },
-        image: { connect: { id: imageId } },
       },
     });
 
     // return response
     return NextResponse.json({ data: product }, { status: 201 });
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

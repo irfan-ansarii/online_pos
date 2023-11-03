@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Numeral from "numeral";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -8,17 +9,35 @@ import { Badge } from "@/components/ui/badge";
 import { Activity } from "lucide-react";
 
 const ProductCard = ({ product }: { product: any }) => {
+  function prices(variants: any) {
+    const min = Math.min(...variants);
+    const max = Math.max(...variants);
+    if (min === max) {
+      return [min];
+    }
+    return [min, max];
+  }
+
   return (
     <Card className="relative hover:bg-accent">
       <Link href={`/products/${product.id}`} className="block">
         <CardContent className="grid grid-cols-7 items-center gap-2">
           <div className="flex items-center gap-3 col-span-4 md:col-span-3 items-center">
-            <Avatar className="w-12 h-12">
+            <Avatar className="w-12 h-12 border-2">
               <AvatarImage
-                src="https://cdn.shopify.com/s/files/1/0652/3541/9353/files/aria3_200x.jpg?v=1685017009"
-                alt="@shadcn"
-              />
-              <AvatarFallback className="rounded-none  md:rounded-l-md ">
+                src={product.image.src}
+                alt={product.image.title}
+                className="object-cover"
+                asChild
+              >
+                <Image
+                  src={`/${product.image.src}`}
+                  alt={product.image.title}
+                  width={60}
+                  height={60}
+                ></Image>
+              </AvatarImage>
+              <AvatarFallback className="rounded-none  md:rounded-l-md object-cover">
                 CN
               </AvatarFallback>
             </Avatar>
@@ -30,10 +49,12 @@ const ProductCard = ({ product }: { product: any }) => {
             </div>
           </div>
           <div className="font-medium  text-right ">
-            {Numeral(product.variants[0].salePrice).format()}
+            {prices(product.variants).map((price) => (
+              <span>{Numeral(price).format()}</span>
+            ))}
           </div>
           <div className="text-right col-span-2 md:col-span-1">
-            <Badge className="uppercase gap-3 py-1 px-3" variant="secondary">
+            <Badge className="uppercase gap-1 py-1 px-3" variant="secondary">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>

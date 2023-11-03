@@ -23,7 +23,7 @@ const Upload = () => {
   };
 
   return (
-    <div className="relative rounded-md bg-accent border-2 border-dashed h-20 mb-3">
+    <div className="relative rounded-md bg-background transition duration-300 border-2 border-dashed h-20 mb-3 hover:bg-accent">
       <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
         {isLoading ? (
           <Loader2 className="w-8 h-8 animate-spin text-primary" />

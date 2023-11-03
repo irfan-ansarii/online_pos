@@ -1,5 +1,5 @@
 "use client";
-
+import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export function useQueryParams<T>() {
@@ -23,5 +23,9 @@ export function useQueryParams<T>() {
     router.replace(`${pathname}${query}`);
   }
 
-  return { queryParams: searchParams, setQueryParams };
+  const queryParams = useMemo(() => {
+    return Object.fromEntries([...searchParams.entries()]);
+  }, [searchParams]);
+
+  return { queryParams, setQueryParams };
 }
