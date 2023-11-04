@@ -1,36 +1,35 @@
 import React from "react";
+import { MapPin, Settings2 } from "lucide-react";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-const Timeline = () => {
+  DrawerRoot,
+  DrawerTrigger,
+  DrawerContent,
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+const StockCard = () => {
   return (
-    <Card className="rounded-none md:rounded-md">
-      <CardHeader>
-        <CardTitle>Timeline</CardTitle>
-        <CardDescription>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ol className="relative border-l">
-          {[...Array(4)].map(() => (
-            <li className="mb-10 ml-6">
-              <span className="absolute w-4 h-4 bg-primary rounded-full -left-2 ring-white ring-primary/40 bg-primary"></span>
-              <h3 className="font-medium">Flowbite Application UI v2.0.0</h3>
-              <time className="block mb-2 font-normal text-muted-foreground">
-                Released on January 13th, 2022
-              </time>
-              <p className="mb-4">Get access to over 20+</p>
-            </li>
-          ))}
-        </ol>
-      </CardContent>
-    </Card>
+    <DrawerRoot>
+      <div className="divide-y px-4">
+        {[...Array(3)].map((_, i) => (
+          <div className="flex py-3 items-center" key={i}>
+            <div className="text-muted-foreground mr-2">
+              <MapPin className="w-4 h-4" />
+            </div>
+            <div className="flex-1"> Lorem ipsum dolor sit.</div>
+            <div className="ml-auto flex gap-2">
+              <div>10</div>
+              <DrawerTrigger asChild>
+                <Button variant="secondary" size="sm">
+                  <Settings2 className="w-5 h-5" />
+                </Button>
+              </DrawerTrigger>
+            </div>
+          </div>
+        ))}
+      </div>
+      <DrawerContent>Adjust Stock</DrawerContent>
+    </DrawerRoot>
   );
 };
 
-export default Timeline;
+export default StockCard;

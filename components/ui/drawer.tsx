@@ -16,7 +16,7 @@ const DrawerContent = forwardRef<
     <Drawer.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 h-96 max-h-[96%] rounded-t-xl bg-accent",
+        "fixed left-[50%] w-full top-[10%] z-50 max-w-xl transform !data-[state=open]:translate-x-[-50%] mt-24 h-96 max-h-[96%] rounded-t-xl bg-accent p-4 pt-6",
         className
       )}
       {...props}

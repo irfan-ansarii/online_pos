@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-import { PAGE_SIZE } from "@/config/app";
 /**
  * get products
  * @param req
  * @returns
  */
-export async function GET(req: NextRequest, { params }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: number } }
+) {
   try {
     // destructure params
     const { id } = params;
-
+    console.log(id);
     // find product
     const product = await prisma.product.findUnique({
       where: {
@@ -23,6 +25,9 @@ export async function GET(req: NextRequest, { params }) {
       },
     });
 
+    // TODO
+    // find and append inventory of the product
+
     // return response
     return NextResponse.json(
       {
@@ -32,7 +37,6 @@ export async function GET(req: NextRequest, { params }) {
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
