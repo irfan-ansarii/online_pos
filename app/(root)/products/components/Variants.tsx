@@ -33,12 +33,17 @@ const Variants = () => {
     remove();
     function generate(current: string[], index: number) {
       if (index === options.length) {
-        append({ title: current.join("/") }, { shouldFocus: false });
+        const option = current.map((value, i) => ({
+          name: options[i].name,
+          value,
+        }));
+        append({ title: current.join("/"), option }, { shouldFocus: false });
         return;
       }
-
-      for (const value of options[index].values) {
-        generate([...current, value], index + 1);
+      if (options[index].name) {
+        for (const value of options[index].values) {
+          generate([...current, value], index + 1);
+        }
       }
     }
 
@@ -52,7 +57,10 @@ const Variants = () => {
   return (
     <div className="divide-y border-y">
       {variants.map((_, index) => (
-        <div className="grid grid-cols-2 gap-4 py-4 last:pb-0">
+        <div
+          className="grid grid-cols-2 gap-4 py-4 last:pb-0"
+          key={`variant-${index}`}
+        >
           <div className="col-span-2 inline-flex items-center truncate font-medium">
             <Badge variant="secondary" className="w-full rounded-md py-2">
               {form.watch(`variants.${index}.title`)}

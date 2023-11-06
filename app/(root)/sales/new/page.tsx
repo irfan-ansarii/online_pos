@@ -6,11 +6,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { saleValidation } from "@/lib/validations/sale";
-import {
-  DrawerContent,
-  DrawerTrigger,
-  DrawerRoot,
-} from "@/components/ui/drawer";
+
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import Cart from "./components/Cart";
@@ -68,19 +65,19 @@ const Page = () => {
       <Form {...form}>
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 lg:col-span-6 xl:col-span-7 2xl:col-span-8 bg-background">
-            <DrawerRoot>
-              <DrawerTrigger asChild>
+            <Dialog>
+              <DialogTrigger asChild>
                 <Button
                   size="icon"
                   className="rounded-full fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
                 >
                   <ShoppingBag className="w-5 h-5" />
                 </Button>
-              </DrawerTrigger>
-              <DrawerContent className="h-[90%] p-4 pt-10 bg-accent">
+              </DialogTrigger>
+              <DialogContent className="h-[90%] p-4">
                 <Cart lineItems={lineItems} />
-              </DrawerContent>
-            </DrawerRoot>
+              </DialogContent>
+            </Dialog>
 
             <Products lineItems={lineItems} />
           </div>

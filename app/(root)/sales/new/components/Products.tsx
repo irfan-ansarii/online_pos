@@ -23,7 +23,7 @@ const Products = ({ lineItems }: { lineItems: any }) => {
   const [open, toggle] = useToggle(false);
 
   const { queryParams, setQueryParams } = useQueryParams();
-  const search = queryParams?.get("search");
+  const search = queryParams.search;
   const [searchTerm, setSearchTerm] = React.useState(search);
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 

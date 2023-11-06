@@ -225,7 +225,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
           Checkout
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[90%] sm:max-w-md md:top-[10%]">
+      <DialogContent>
         <Tabs value={active} onValueChange={setActive}>
           <EmployeeTab headerIcon={headerIcon} />
 

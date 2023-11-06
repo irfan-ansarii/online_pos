@@ -1,11 +1,6 @@
 import * as z from "zod";
 
-const number = z
-  .any()
-  .refine((val) => val && !isNaN(val), {
-    message: "Enter a valid number",
-  })
-  .transform(Number);
+const number = z.any().refine((v) => (v ? !isNaN(v) : undefined));
 
 export const productValidation = z
   .object({

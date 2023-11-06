@@ -1,6 +1,9 @@
 "use client";
 
 import React from "react";
+
+import NextTopLoader from "nextjs-toploader";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
@@ -15,6 +18,7 @@ export function Provider({ children, ...props }: ThemeProviderProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <NextTopLoader color="#da2576" />
       <NextThemesProvider {...props}>
         <Toaster />
         <TooltipProvider>{children}</TooltipProvider>

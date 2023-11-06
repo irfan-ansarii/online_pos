@@ -45,10 +45,10 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const form = useForm<z.infer<typeof productValidation>>({
     resolver: zodResolver(productValidation),
     defaultValues: {
+      status: "active",
       title: "",
       description: "",
       type: "simple",
-      status: "active",
       purchasePrice: 0,
       salePrice: 0,
       sku: "",

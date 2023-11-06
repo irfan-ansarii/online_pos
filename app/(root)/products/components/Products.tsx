@@ -6,6 +6,7 @@ import { useProducts } from "@/hooks/useProduct";
 import EmptyBox from "@/components/shared/empty-box";
 import ErrorBox from "@/components/shared/error-box";
 import { useQueryParams } from "@/hooks/useQueryParams";
+
 const Products = () => {
   const { queryParams } = useQueryParams();
 

@@ -38,10 +38,19 @@ const VariantsCard = ({ product }: { product: ProductType }) => {
   return (
     <Card className="overflow-hidden rounded-none md:rounded-md">
       <CardHeader>
-        <CardTitle>Variants</CardTitle>
+        <CardTitle className="text-lg font-semibold leading-none tracking-tight">
+          Variants
+        </CardTitle>
         <CardDescription>View and manage inventory</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
+        <div className="grid grid-cols-6 gap-3 bg-accent py-3 px-4 border-t items-center font-medium text-muted-foreground">
+          <div className="col-span-3 flex gap-2">Variant</div>
+          <div className="text-right">Purchase Price</div>
+          <div className="text-right">Sale Price</div>
+          <div className="text-right">Tax Rate</div>
+        </div>
+
         {product?.variants?.map((variant, i) => (
           <div key={i} className="p">
             <div className="grid grid-cols-6 gap-3 bg-accent py-3 px-4 border-y items-center">

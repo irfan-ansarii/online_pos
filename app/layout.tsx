@@ -7,6 +7,8 @@ import { Inter } from "next/font/google";
 import { Provider } from "@/components/providers";
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 
+import NextTopLoader from "nextjs-toploader";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -32,13 +34,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      style={{ overflow: "visible !important", height: "100%" }}
+    >
       <body
         className={cn(
-          "min-h-screen bg-background antialiased text-sm",
+          "min-h-screen bg-background antialiased text-sm !overflow-auto",
           inter.className
         )}
       >
+        <NextTopLoader />
         <Provider
           attribute="class"
           defaultTheme="system"

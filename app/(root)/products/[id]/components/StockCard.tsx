@@ -1,14 +1,22 @@
 import React from "react";
 import { MapPin, Settings2 } from "lucide-react";
+
 import {
-  DrawerRoot,
-  DrawerTrigger,
-  DrawerContent,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 const StockCard = () => {
   return (
-    <DrawerRoot>
+    <Dialog>
       <div className="divide-y px-4">
         {[...Array(3)].map((_, i) => (
           <div className="flex py-3 items-center" key={i}>
@@ -16,19 +24,37 @@ const StockCard = () => {
               <MapPin className="w-4 h-4" />
             </div>
             <div className="flex-1"> Lorem ipsum dolor sit.</div>
-            <div className="ml-auto flex gap-2">
+            <div className="ml-auto flex gap-2 items-center">
               <div>10</div>
-              <DrawerTrigger asChild>
+              <DialogTrigger asChild>
                 <Button variant="secondary" size="sm">
-                  <Settings2 className="w-5 h-5" />
+                  <Settings2 className="w-4 h-4" />
                 </Button>
-              </DrawerTrigger>
+              </DialogTrigger>
             </div>
           </div>
         ))}
       </div>
-      <DrawerContent>Adjust Stock</DrawerContent>
-    </DrawerRoot>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Adjust Stock</DialogTitle>
+          <DialogDescription>
+            Lorem ipsum dolor sit amet consectetur
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-4">
+          <div className="space-y-2">
+            <Label>Quantity</Label>
+            <Input placeholder="0"></Input>
+          </div>
+          <div className="space-y-2">
+            <Label>Reason</Label>
+            <Input placeholder="0"></Input>
+          </div>
+          <Button>Save</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
