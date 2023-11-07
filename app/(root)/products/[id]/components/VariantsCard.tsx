@@ -33,6 +33,7 @@ type ProductType = {
     src: string;
   };
   variants: VariantType[];
+  inventory: [];
 };
 const VariantsCard = ({ product }: { product: ProductType }) => {
   return (
@@ -89,7 +90,7 @@ const VariantsCard = ({ product }: { product: ProductType }) => {
                 {Numeral(variant.taxRate / 100).format("0,0.00%")}
               </div>
             </div>
-            <StockCard />
+            <StockCard variant={variant} />
           </div>
         ))}
       </CardContent>

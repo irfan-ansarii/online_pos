@@ -30,11 +30,17 @@ export async function GET(req: NextRequest) {
       },
       where: {
         status: { equals: "active" },
-        title: { contains: search, mode: "insensitive" },
-        description: { contains: search, mode: "insensitive" },
+        OR: [
+          { title: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+        ],
       },
       include: {
-        variants: true,
+        variants: {
+          include: {
+            inventory: true,
+          },
+        },
         image: true,
       },
     });
@@ -92,7 +98,14 @@ export async function POST(req: NextRequest) {
         options,
         image: { connect: { id: imageId } },
         variants: {
-          create: [...variants],
+          create: variants.map((variant: any) => {
+            return {
+              ...variant,
+              purchasePrice: Number(variant.purchasePrice),
+              salePrice: Number(variant.salePrice),
+              taxRate: Number(variant.taxRate),
+            };
+          }),
         },
       },
     });
@@ -100,6 +113,7 @@ export async function POST(req: NextRequest) {
     // return response
     return NextResponse.json({ data: product }, { status: 201 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

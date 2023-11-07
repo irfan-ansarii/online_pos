@@ -13,20 +13,23 @@ export async function GET(
   try {
     // destructure params
     const { id } = params;
-    console.log(id);
+
     // find product
     const product = await prisma.product.findUnique({
       where: {
         id: Number(id),
       },
       include: {
-        variants: true,
+        variants: {
+          include: {
+            inventory: {
+              include: { location: true },
+            },
+          },
+        },
         image: true,
       },
     });
-
-    // TODO
-    // find and append inventory of the product
 
     // return response
     return NextResponse.json(

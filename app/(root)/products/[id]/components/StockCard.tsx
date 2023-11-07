@@ -8,17 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const StockCard = () => {
+const StockCard = ({ variant }) => {
+  console.log(variant);
   return (
     <Dialog>
       <div className="divide-y px-4">
-        {[...Array(3)].map((_, i) => (
+        {variant?.inventory?.map((_, i) => (
           <div className="flex py-3 items-center" key={i}>
             <div className="text-muted-foreground mr-2">
               <MapPin className="w-4 h-4" />
