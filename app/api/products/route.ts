@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-
+import { ProductStatus, Prisma } from "@prisma/client";
 import { PAGE_SIZE } from "@/config/app";
+import { sanitizeOutput } from "@/lib/utils";
+
 /**
  * get products
  * @param req
@@ -21,6 +23,18 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
+    const filters: Prisma.ProductWhereInput = {
+      AND: [
+        { status: { equals: (status as ProductStatus) || "active" } },
+        {
+          OR: [
+            { title: { contains: search, mode: "insensitive" } },
+            { description: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      ],
+    };
+
     // find active products
     const products = await prisma.product.findMany({
       skip: offset,
@@ -28,19 +42,9 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      where: {
-        status: { equals: "active" },
-        OR: [
-          { title: { contains: search, mode: "insensitive" } },
-          { description: { contains: search, mode: "insensitive" } },
-        ],
-      },
+      where: { ...filters },
       include: {
-        variants: {
-          include: {
-            inventory: true,
-          },
-        },
+        variants: true,
         image: true,
       },
     });
@@ -50,15 +54,14 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      where: {
-        status: { equals: "active" },
-      },
+      where: { ...filters },
     });
+    const sanitizedProducts = sanitizeOutput(products, ["imageId"]);
 
     // return response
     return NextResponse.json(
       {
-        data: products,
+        data: sanitizedProducts,
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,
@@ -98,7 +101,7 @@ export async function POST(req: NextRequest) {
         options,
         image: { connect: { id: imageId } },
         variants: {
-          create: variants.map((variant: any) => {
+          create: variants.map((variant: Prisma.VariantCreateInput) => {
             return {
               ...variant,
               purchasePrice: Number(variant.purchasePrice),
@@ -113,7 +116,6 @@ export async function POST(req: NextRequest) {
     // return response
     return NextResponse.json({ data: product }, { status: 201 });
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

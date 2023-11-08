@@ -23,3 +23,24 @@ export function getCookie(name: string) {
 export const api = axios.create({
   baseURL: "/api/",
 });
+
+type DataItem = Record<string, any>;
+
+export const sanitizeOutput = (
+  data: DataItem | DataItem[],
+  keys: string[]
+): DataItem | DataItem[] => {
+  const sanitizeItem = (item: DataItem) => {
+    const { ...copy } = item;
+    keys.forEach((key) => {
+      delete copy[key];
+    });
+    return copy;
+  };
+
+  if (Array.isArray(data)) {
+    return data.map(sanitizeItem);
+  }
+
+  return sanitizeItem(data);
+};
