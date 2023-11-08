@@ -11,7 +11,6 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: number } }
 ) {
-  console.log(params);
   try {
     // destructure params
     const { id } = params;
@@ -27,10 +26,12 @@ export async function GET(
       },
     });
 
+    // if product not found
     if (!product) {
       return NextResponse.json({ message: "Not found" }, { status: 404 });
     }
 
+    // remove imageId key from response
     const sanitizedProduct = sanitizeOutput(product, ["imageId"]);
 
     // return response
@@ -66,15 +67,29 @@ export async function DELETE(
 ) {
   const { id } = params;
 
-  // delete variants
-  await prisma.variant.deleteMany({
+  const variants = await prisma.variant.findMany({
     where: { productId: Number(id) },
   });
 
-  // delete product
-  await prisma.product.delete({
+  const recordsToDelete = variants.map((variant) => variant.id);
+
+  const deleteInventory = prisma.inventory.deleteMany({
+    where: { variantId: { in: recordsToDelete } },
+  });
+
+  const deleteVariants = prisma.variant.deleteMany({
+    where: { productId: Number(id) },
+  });
+
+  const deleteProduct = prisma.product.delete({
     where: { id: Number(id) },
   });
+
+  const transaction = await prisma.$transaction([
+    deleteInventory,
+    deleteVariants,
+    deleteProduct,
+  ]);
 
   return NextResponse.json({ message: "deleted", status: 204 });
 }

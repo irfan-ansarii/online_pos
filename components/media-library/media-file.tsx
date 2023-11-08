@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   JpgIcon,
@@ -54,7 +55,15 @@ const MediaFile = ({ file, handleSelect }: Props) => {
             <AvatarImage
               className="w-auto h-auto object-cover"
               src={file.src}
-            ></AvatarImage>
+              asChild
+            >
+              <Image
+                src={`/${file.src}`}
+                alt="123"
+                width={100}
+                height={100}
+              ></Image>
+            </AvatarImage>
           </div>
         )}
 

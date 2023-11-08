@@ -91,6 +91,26 @@ export async function POST(req: NextRequest) {
     const { imageId, title, description, type, status, variants, options } =
       body;
 
+    // get all locations
+    const locations = await prisma.location.findMany();
+
+    const inventoryToCreate = locations.map((location) => ({
+      locationId: location.id,
+      stock: 0,
+    }));
+
+    const variantsToCreate = variants.map(
+      (variant: Prisma.VariantCreateInput) => ({
+        ...variant,
+        purchasePrice: Number(variant.purchasePrice),
+        salePrice: Number(variant.salePrice),
+        taxRate: Number(variant.taxRate),
+        inventory: {
+          create: inventoryToCreate,
+        },
+      })
+    );
+
     // create product and variants
     const product = await prisma.product.create({
       data: {
@@ -101,14 +121,7 @@ export async function POST(req: NextRequest) {
         options,
         image: { connect: { id: imageId } },
         variants: {
-          create: variants.map((variant: Prisma.VariantCreateInput) => {
-            return {
-              ...variant,
-              purchasePrice: Number(variant.purchasePrice),
-              salePrice: Number(variant.salePrice),
-              taxRate: Number(variant.taxRate),
-            };
-          }),
+          create: variantsToCreate,
         },
       },
     });
