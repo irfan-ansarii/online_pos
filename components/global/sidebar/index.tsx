@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeCustomizer } from "@/components/theme/theme-customizer";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { MENU_ITEMS } from "@/config/app";
 import { Separator } from "@/components/ui/separator";
 import Customizer from "@/components/global/sidebar/customizer";
@@ -13,13 +13,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 function Sidebar() {
   const pathname = usePathname();
-  const [loaded, setLoaded] = React.useState<boolean>(false);
+  const [loaded, setLoaded] = React.useState(false);
+
   const isActive = (current: any) => {
+    const splitted = pathname.split("/").find((p) => p);
     const active =
       current === pathname ||
-      (pathname.length > 1 && current.startsWith(pathname));
+      (pathname.length > 1 && current.startsWith(`/${splitted}`));
     return active ? true : false;
   };
+
   React.useEffect(() => {
     setLoaded(true);
   }, []);

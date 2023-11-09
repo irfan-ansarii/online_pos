@@ -10,16 +10,11 @@ const Page = () => {
     <>
       <MobileHeader title="Products" />
       <main className="grow">
-        <Header
-          action={<Button className="ml-auto">New</Button>}
-          filters={<div>Filters</div>}
-        />
-
+        <Header action={<Button className="ml-auto">New</Button>} />
         {/* mobile navigation */}
         <div className="h-[60px] px-4 overflow-x-auto">
           <Navigation />
         </div>
-
         <div className="md:p-6">
           <div className="grid grid-cols-1 md:gap-2 items-center">
             {/* <Products /> */}

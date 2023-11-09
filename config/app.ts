@@ -61,4 +61,31 @@ export const MENU_ITEMS = [
   },
 ];
 
+export const PRODUCT_PATHS = [
+  {
+    id: 1,
+    label: "Products",
+    path: "/products",
+  },
+  {
+    id: 2,
+    label: "Inventory",
+    path: "/products/inventory",
+  },
+  {
+    id: 3,
+    label: "Transfers",
+    path: "/products/transfers",
+  },
+  {
+    id: 4,
+    label: "Adjustments",
+    path: "/products/adjustments",
+  },
+  {
+    id: 5,
+    label: "Barcodes",
+    path: "/products/barcodes",
+  },
+];
 export const PAGE_SIZE = 12;

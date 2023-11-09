@@ -7,9 +7,10 @@ function Bottombar() {
   const pathname = usePathname();
 
   const isActive = (current: any) => {
+    const splitted = pathname.split("/").find((p) => p);
     const active =
       current === pathname ||
-      (pathname.length > 1 && current.startsWith(pathname));
+      (pathname.length > 1 && current.startsWith(`/${splitted}`));
     return active ? true : false;
   };
 
