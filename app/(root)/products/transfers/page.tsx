@@ -16,7 +16,7 @@ const Page = () => {
         />
 
         {/* mobile navigation */}
-        <div className="h-[60px] px-4 overflow-x-auto">
+        <div className="h-[60px] px-4 overflow-x-auto md:hidden">
           <Navigation />
         </div>
 

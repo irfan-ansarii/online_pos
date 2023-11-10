@@ -4,6 +4,10 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { useQueryParams } from "@/hooks/useQueryParams";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+
+interface QueryParams {
+  [key: string]: null;
+}
 const SearchInput = () => {
   const { queryParams, setQueryParams } = useQueryParams();
   const { search } = queryParams;
@@ -11,7 +15,11 @@ const SearchInput = () => {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   React.useEffect(() => {
-    setQueryParams({ search: debouncedSearchTerm || null });
+    const nullParams: QueryParams = Object.fromEntries(
+      Object.keys(queryParams).map((key) => [key, null])
+    );
+
+    setQueryParams({ ...nullParams, search: debouncedSearchTerm || null });
   }, [debouncedSearchTerm]);
 
   return (

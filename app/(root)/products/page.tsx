@@ -1,12 +1,20 @@
 "use client";
-import { Plus, PlusCircle } from "lucide-react";
+import { Plus, PlusCircle, X } from "lucide-react";
 import { useQueryParams } from "@/hooks/useQueryParams";
 import { useProducts } from "@/hooks/useProduct";
 import { useIntersectionObserver } from "@uidotdev/usehooks";
 
-import MobileHeader from "@/components/shared/mobile-header";
-
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import MobileHeader from "@/components/shared/mobile-header";
 
 import EmptyBox from "@/components/shared/empty-box";
 import ErrorBox from "@/components/shared/error-box";
@@ -16,12 +24,11 @@ import Loading from "./components/Loading";
 
 import Header from "./components/Header";
 import NewSheet from "./components/NewSheet";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+
 import Navigation from "./components/Navigation";
 
 const Page = () => {
-  const { queryParams } = useQueryParams();
+  const { queryParams, setQueryParams } = useQueryParams();
 
   const {
     data: products,
@@ -37,6 +44,7 @@ const Page = () => {
     root: null,
     rootMargin: "0px",
   });
+
   return (
     <>
       <MobileHeader title="Products" />
@@ -51,19 +59,47 @@ const Page = () => {
             </NewSheet>
           }
           filters={
-            <Button className="ml-auto border-dashed text-sm" variant="outline">
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Status
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge variant="secondary" className="rounded-sm">
-                Active
-              </Badge>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  className="ml-auto border-dashed text-sm"
+                  variant="outline"
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  <span>Status</span>
+                  {queryParams.status && (
+                    <>
+                      <Separator orientation="vertical" className="mx-2 h-4" />
+                      <Badge
+                        variant="secondary"
+                        className="rounded-md py-1 pr-1 capitalize"
+                        onClick={() => setQueryParams({ status: null })}
+                      >
+                        {queryParams.status}
+                        <X className="w-4 h-4 ml-2" />
+                      </Badge>
+                    </>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                {["Active", "Archived", "Trash"].map((item) => (
+                  <DropdownMenuCheckboxItem
+                    checked={queryParams.status === item.toLowerCase()}
+                    onCheckedChange={() =>
+                      setQueryParams({ status: item.toLowerCase() })
+                    }
+                  >
+                    {item}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           }
         />
 
         {/* mobile navigation */}
-        <div className="h-[60px] px-4 overflow-x-auto">
+        <div className="h-[60px] px-4 overflow-x-auto md:hidden bg-secondary">
           <Navigation />
         </div>
         {/* page content */}

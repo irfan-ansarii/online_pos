@@ -69,7 +69,7 @@ export const useCreateProduct = () => {
   const query = useQueryClient();
   return useMutation(create, {
     onSuccess: () => {
-      query.invalidateQueries(["files"]);
+      query.invalidateQueries(["products"]);
     },
   });
 };

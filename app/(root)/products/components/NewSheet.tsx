@@ -95,6 +95,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     setPreview(file.src);
     form.setValue("imageId", file.id);
   };
+
   return (
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
@@ -118,18 +119,32 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   onSelect={onSelect}
                   selected={form.getValues("imageId")}
                 >
-                  <div className="relative rounded-md bg-accent h-24 flex items-center justify-center text-muted-foreground">
-                    <Avatar className="w-full h-full">
-                      <AvatarImage
-                        className="w-full h-full object-contain"
-                        src={preview}
-                      ></AvatarImage>
-                      <AvatarFallback className="bg-transparent">
-                        <ImagePlus className="w-10 h-10" />
-                      </AvatarFallback>
-                    </Avatar>
+                  <div>
+                    <div
+                      className={`relative rounded-md bg-accent h-24 flex items-center justify-center text-muted-foreground border ${
+                        form.formState.errors.imageId
+                          ? "border-destructive"
+                          : ""
+                      }`}
+                    >
+                      <Avatar className="w-full h-full">
+                        <AvatarImage
+                          className="w-full h-full object-contain"
+                          src={preview}
+                        ></AvatarImage>
+                        <AvatarFallback className="bg-transparent">
+                          <ImagePlus className="w-10 h-10" />
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    {form.formState.errors.imageId?.message && (
+                      <p className="text-sm font-medium text-destructive mt-2">
+                        Image is required
+                      </p>
+                    )}
                   </div>
                 </MediaLibrary>
+
                 <FormField
                   control={form.control}
                   name="title"

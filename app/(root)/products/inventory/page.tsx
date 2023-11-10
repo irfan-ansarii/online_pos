@@ -12,7 +12,7 @@ const Page = () => {
       <main className="grow">
         <Header action={<Button className="ml-auto">New</Button>} />
         {/* mobile navigation */}
-        <div className="h-[60px] px-4 overflow-x-auto">
+        <div className="h-[60px] px-4 overflow-x-auto md:hidden">
           <Navigation />
         </div>
         <div className="md:p-6">
