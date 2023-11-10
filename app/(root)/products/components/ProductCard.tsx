@@ -73,7 +73,7 @@ const ProductCard = ({ product }: { product: any }) => {
         </SheetTrigger>
       </Card>
       {/* content here */}
-      <ProductSheet title={product.title} />
+      <ProductSheet product={product} />
     </Sheet>
   );
 };

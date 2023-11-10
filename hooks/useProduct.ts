@@ -73,3 +73,12 @@ export const useCreateProduct = () => {
     },
   });
 };
+
+const getInventory = async ({ queryKey }: { queryKey: [string, number] }) => {
+  const [_, id] = queryKey;
+  return await api.get(`/products/${id}`);
+};
+
+export const useInventory = (id: number) => {
+  return useQuery(["product", id], getInventory);
+};
