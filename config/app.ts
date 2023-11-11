@@ -69,21 +69,16 @@ export const PRODUCT_PATHS = [
   },
   {
     id: 2,
-    label: "Inventory",
-    path: "/products/inventory",
-  },
-  {
-    id: 3,
     label: "Transfers",
     path: "/products/transfers",
   },
   {
-    id: 4,
+    id: 3,
     label: "Adjustments",
     path: "/products/adjustments",
   },
   {
-    id: 5,
+    id: 4,
     label: "Barcodes",
     path: "/products/barcodes",
   },

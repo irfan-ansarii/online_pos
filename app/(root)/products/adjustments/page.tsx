@@ -1,9 +1,12 @@
 import React from "react";
-import MobileHeader from "@/components/shared/mobile-header";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import MobileHeader from "@/components/shared/mobile-header";
 
 import Header from "../components/Header";
 import Navigation from "../components/Navigation";
+import ItemCard from "./components/ItemCard";
+import NewSheet from "./components/NewSheet";
 
 const Page = () => {
   return (
@@ -11,7 +14,14 @@ const Page = () => {
       <MobileHeader title="Products" />
       <main className="grow">
         <Header
-          action={<Button className="ml-auto">New</Button>}
+          action={
+            <NewSheet>
+              <Button className="ml-auto">
+                <Plus className="w-5 h-5 mr-2" />
+                New
+              </Button>
+            </NewSheet>
+          }
           filters={<div>Filters</div>}
         />
 
@@ -21,7 +31,9 @@ const Page = () => {
         </div>
         <div className="md:p-6">
           <div className="grid grid-cols-1 md:gap-2 items-center">
-            {/* <Products /> */}
+            {[...Array(10)].map((item) => (
+              <ItemCard />
+            ))}
           </div>
         </div>
       </main>

@@ -132,3 +132,12 @@ export const productValidation = z
       });
     }
   });
+
+export const transferValidation = z.object({
+  fromId: z.number(),
+  toId: z.number(),
+  items: z.object({}).array().min(1),
+  status: z.enum(["pending", "completed"]),
+  totalItems: z.number(),
+  totalAmount: z.number(),
+});

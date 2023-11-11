@@ -11,6 +11,11 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,6 +36,12 @@ const ProductCard = ({ product }: { product: any }) => {
     const maxPrice = Numeral(Math.max(...salePrices)).format();
 
     return `${minPrice} - ${maxPrice}`;
+  }, [product]);
+
+  const stock = React.useMemo(() => {
+    return product.variants.reduce((acc, curr) => {
+      return acc + Number(curr.stock);
+    }, 0);
   }, [product]);
 
   return (
@@ -75,17 +86,35 @@ const ProductCard = ({ product }: { product: any }) => {
                 {price}
               </div>
             </div>
-            <div className="hidden md:block text-right">427</div>
+            <div className="hidden md:block text-right">{stock}</div>
           </CardContent>
         </SheetTrigger>
         <ProductSheet product={product} />
       </Sheet>
 
-      <div className="absolute inset-y-0 right-4 transition transform translate-x-[120%] group-hover:translate-x-0 bg-accent flex items-center gap-2">
+      <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
         <EditSheet />
-        <Button variant="secondary" size="icon" className="">
-          <Trash2 className="w-5 h-5" />
-        </Button>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="secondary" size="icon" className="">
+              <Trash2 className="w-5 h-5" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your
+                account and remove your data from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </Card>
   );
