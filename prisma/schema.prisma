@@ -92,10 +92,13 @@ model Variant {
   title         String
   purchasePrice Float
   salePrice     Float
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
   option        Json?
   taxRate       Int
+  stock         Int?        @default(0)
+  sold          Int?        @default(0)
+  return        Int?        @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   inventory     Inventory[]
   label         Label[]
   product       Product     @relation(fields: [productId], references: [id])

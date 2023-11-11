@@ -2,15 +2,22 @@
 import React from "react";
 import Image from "next/image";
 import Numeral from "numeral";
-import { useToggle } from "@uidotdev/usehooks";
+import { Image as ImageIcon, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import ProductSheet from "./ProductSheet";
+import EditSheet from "./EditSheet";
 
 const ProductCard = ({ product }: { product: any }) => {
-  const [open, toggle] = useToggle(false);
   const price = React.useMemo(() => {
     const { variants } = product;
 
@@ -27,8 +34,8 @@ const ProductCard = ({ product }: { product: any }) => {
   }, [product]);
 
   return (
-    <Sheet open={open} onOpenChange={toggle}>
-      <Card className="relative hover:bg-accent">
+    <Card className="relative group hover:bg-accent overflow-hidden">
+      <Sheet>
         <SheetTrigger asChild>
           <CardContent className="grid grid-cols-7 items-center gap-2">
             <div className="flex items-center gap-3 col-span-4 md:col-span-3 items-center">
@@ -46,8 +53,8 @@ const ProductCard = ({ product }: { product: any }) => {
                     height={60}
                   ></Image>
                 </AvatarImage>
-                <AvatarFallback className="rounded-none  md:rounded-l-md object-cover">
-                  CN
+                <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
+                  <ImageIcon className="w-5 h-5" />
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-0.5 truncate">
@@ -71,10 +78,16 @@ const ProductCard = ({ product }: { product: any }) => {
             <div className="hidden md:block text-right">427</div>
           </CardContent>
         </SheetTrigger>
-      </Card>
-      {/* content here */}
-      <ProductSheet product={product} />
-    </Sheet>
+        <ProductSheet product={product} />
+      </Sheet>
+
+      <div className="absolute inset-y-0 right-4 transition transform translate-x-[120%] group-hover:translate-x-0 bg-accent flex items-center gap-2">
+        <EditSheet />
+        <Button variant="secondary" size="icon" className="">
+          <Trash2 className="w-5 h-5" />
+        </Button>
+      </div>
+    </Card>
   );
 };
 

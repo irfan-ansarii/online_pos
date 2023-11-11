@@ -63,7 +63,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       values.variants = [
         {
           option: null,
-          title: "",
+          title: "Default",
           purchasePrice: Number(values.purchasePrice),
           salePrice: Number(values.purchasePrice),
           sku: values.sku,

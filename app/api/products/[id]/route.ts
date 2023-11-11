@@ -21,7 +21,7 @@ export async function GET(
         id: Number(id),
       },
       include: {
-        variants: true,
+        variants: { include: { inventory: { include: { location: true } } } },
         image: true,
       },
     });
