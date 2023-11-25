@@ -102,7 +102,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col h-full"
           >
             <SheetHeader className="md:pb-2">
@@ -148,7 +148,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                 <FormField
                   control={form.control}
                   name="title"
-                  rules={{ required: "Required" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Title</FormLabel>
@@ -162,7 +161,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                 <FormField
                   control={form.control}
                   name="description"
-                  rules={{ required: "Required" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
@@ -226,7 +224,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   <div className="grid grid-cols-1 gap-4">
                     <FormField
                       control={form.control}
-                      rules={{ required: "Required" }}
                       name="purchasePrice"
                       render={({ field }) => (
                         <FormItem>
@@ -240,7 +237,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                     />
                     <FormField
                       control={form.control}
-                      rules={{ required: "Required" }}
                       name="salePrice"
                       render={({ field }) => (
                         <FormItem>
@@ -255,7 +251,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                     <FormField
                       control={form.control}
                       name="sku"
-                      rules={{ required: "Required" }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>SKU</FormLabel>
@@ -268,7 +263,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                     />
                     <FormField
                       control={form.control}
-                      rules={{ required: "Required" }}
                       name="taxRate"
                       render={({ field }) => (
                         <FormItem>

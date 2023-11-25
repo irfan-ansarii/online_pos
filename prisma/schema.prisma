@@ -162,15 +162,15 @@ model Adjustment {
 }
 
 model Transfer {
-  id               Int                @id @default(autoincrement())
-  fromId           Int
-  toId             Int
-  status           String
-  totalItems       Int
-  totalAmount      Float
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  TransferLineItem TransferLineItem[]
+  id          Int                @id @default(autoincrement())
+  fromId      Int
+  toId        Int
+  status      String
+  totalItems  Int
+  totalAmount Float
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  lineItem    TransferLineItem[]
 
   @@map("transfers")
 }

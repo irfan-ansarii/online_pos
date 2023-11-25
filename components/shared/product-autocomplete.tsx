@@ -1,26 +1,31 @@
 "use client";
 import React from "react";
+import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
+import { Command as CommandPrimitive } from "cmdk";
+import { Image as ImageIcon, Search } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
 import { useProducts } from "@/hooks/useProduct";
+
 import {
   CommandGroup,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-
-import { Command as CommandPrimitive } from "cmdk";
-import { useState, useRef, useCallback } from "react";
-
-import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Image as ImageIcon } from "lucide-react";
-import { Button } from "../ui/button";
+
+import Loading from "@/app/(root)/products/components/Loading";
 
 export type Option = Record<"value" | "label", string> & Record<string, string>;
 
-export const AutoComplete = ({ onSelect }) => {
+const AutoComplete = ({
+  onSelect,
+  error,
+}: {
+  onSelect: (value: Option) => void;
+  error: any;
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [open, toggle] = useToggle(false);
@@ -28,8 +33,8 @@ export const AutoComplete = ({ onSelect }) => {
   const { data, isLoading } = useProducts({ search: inputValue });
 
   const handleSelectOption = useCallback(
-    (selectedOption: Option) => {
-      onSelect(selectedOption.id);
+    (selected: Option) => {
+      onSelect(selected);
       setInputValue("");
       inputRef.current?.blur();
     },
@@ -37,12 +42,26 @@ export const AutoComplete = ({ onSelect }) => {
   );
 
   const products = React.useMemo(() => {
-    return data?.pages.flatMap((page) => page.data.data);
+    return data?.pages.flatMap((page) =>
+      page.data.data.flatMap((item: any) =>
+        item.variants.map((variant: any) => ({
+          ...variant,
+          ...item,
+          variantTitle:
+            variant.title?.toLowerCase() !== "default" ? variant.title : null,
+          variantId: variant.id,
+          image: item.image.src,
+        }))
+      )
+    );
   }, [data]);
 
   return (
     <CommandPrimitive>
-      <div>
+      <div className="relative">
+        <span className="absolute inset-y-0 left-3 text-muted-foreground inline-flex items-center justify-center">
+          <Search className="w-4 h-4" />
+        </span>
         <Input
           ref={inputRef}
           value={inputValue}
@@ -50,44 +69,56 @@ export const AutoComplete = ({ onSelect }) => {
           onBlur={() => toggle(false)}
           onFocus={() => toggle(true)}
           placeholder="Search..."
+          className={`pl-10 ${
+            error ? "border-destructive !ring-destructive/50" : ""
+          }`}
         />
       </div>
+      {error && (
+        <p className="text-sm font-medium text-destructive mt-2">
+          Select atleat 1 product
+        </p>
+      )}
       <div className="mt-1.5 relative">
         {open ? (
           <div className="absolute top-0 z-10 w-full bg-background border rounded-md outline-none animate-in fade-in-0 zoom-in-95">
-            <CommandList className="rounded-md p-0">
+            <CommandList className="rounded-md">
+              {/* loading */}
               {isLoading ? (
                 <CommandPrimitive.Loading>
-                  <div className="p-1">
-                    <Skeleton className="h-8 w-full" />
-                  </div>
+                  <Loading />
                 </CommandPrimitive.Loading>
-              ) : null}
+              ) : (
+                <CommandPrimitive.Empty className="select-none rounded-sm px-2 py-3 text-sm text-center">
+                  No Result
+                </CommandPrimitive.Empty>
+              )}
 
-              {products?.length > 0 && !isLoading ? (
+              {/* data */}
+              {products && products?.length > 0 && !isLoading ? (
                 <CommandGroup>
-                  {products?.map((option) => {
+                  {products.map((product) => {
                     return (
                       <CommandItem
-                        key={option.id}
-                        value={option.id}
+                        key={product.variantId}
+                        value={product.variantId}
                         onMouseDown={(event) => {
                           event.preventDefault();
                           event.stopPropagation();
                         }}
-                        onSelect={() => handleSelectOption(option)}
+                        onSelect={() => handleSelectOption(product)}
                         className="flex items-center gap-2 w-full"
                       >
                         <div className="flex gap-3 items-center col-span-2">
                           <Avatar className="w-10 h-10 border-2">
                             <AvatarImage
-                              src={`/${option.image.src}`}
+                              src={`/${product.image}`}
                               asChild
                               className="object-cover"
                             >
                               <Image
-                                src={`/${option.image.src}`}
-                                alt={`/${option.image.src}`}
+                                src={`/${product.image}`}
+                                alt={`/${product.image}`}
                                 width={40}
                                 height={40}
                               ></Image>
@@ -96,26 +127,26 @@ export const AutoComplete = ({ onSelect }) => {
                               <ImageIcon className="w-4 h-4" />
                             </AvatarFallback>
                           </Avatar>
-                          <div className="space-y-0.5 truncate">
+
+                          <div className="space-y-0 5">
                             <div className="font-semibold truncate">
-                              {option.title}
+                              <span>{product.title}</span>
+
+                              {product.variantTitle && (
+                                <span> - {product.variantTitle}</span>
+                              )}
                             </div>
-                            <div className="text-muted-foreground text-xs">
-                              lorem5
+                            <div className="text-xs uppercase text-muted-foreground">
+                              {product.sku}
                             </div>
                           </div>
                         </div>
 
-                        <div className="ml-auto">10</div>
+                        <div className="ml-auto">{Number(product.stock)}</div>
                       </CommandItem>
                     );
                   })}
                 </CommandGroup>
-              ) : null}
-              {!isLoading && products?.length === 0 ? (
-                <CommandPrimitive.Empty className="select-none rounded-sm px-2 py-3 text-sm text-center">
-                  Empty
-                </CommandPrimitive.Empty>
               ) : null}
             </CommandList>
           </div>
@@ -124,3 +155,4 @@ export const AutoComplete = ({ onSelect }) => {
     </CommandPrimitive>
   );
 };
+export default AutoComplete;

@@ -14,31 +14,36 @@ const ItemCard = () => {
     <Card className="relative group hover:bg-accent overflow-hidden">
       <Sheet>
         <SheetTrigger asChild>
-          <CardContent className="grid grid-cols-6 items-center gap-2">
-            <div className="space-y-0.5 col-span-2 md:col-span-1">
-              <div>12-04-2023</div>
-              <div className="text-xs text-muted-foreground">12:04 AM</div>
+          <CardContent className="grid grid-cols-5 items-center gap-2">
+            <div className="flex col-span-3 items-center gap-4">
+              <div className="border-r pr-4 text-center w-20">
+                <div className="text-2xl leading-tight font-semibold">12</div>
+                <div className="text-lg leading-tight font-medium text-muted-foreground">
+                  Aug
+                </div>
+              </div>
+              <div className="flex">
+                <Avatar className="w-10 h-10 border-2">
+                  <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
+                    <ImageIcon className="w-4 h-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <Avatar className="w-10 h-10 border-2 -ml-2">
+                  <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
+                    <ImageIcon className="w-4 h-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <Avatar className="w-10 h-10 border-2 -ml-2">
+                  <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
+                    <ImageIcon className="w-4 h-4" />
+                  </AvatarFallback>
+                </Avatar>
+              </div>
             </div>
-            <div className="col-span-3 hidden md:flex">
-              <Avatar className="w-10 h-10 border-2">
-                <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                  <ImageIcon className="w-4 h-4" />
-                </AvatarFallback>
-              </Avatar>
-              <Avatar className="w-10 h-10 border-2 -ml-2">
-                <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                  <ImageIcon className="w-4 h-4" />
-                </AvatarFallback>
-              </Avatar>
-              <Avatar className="w-10 h-10 border-2 -ml-2">
-                <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                  <ImageIcon className="w-4 h-4" />
-                </AvatarFallback>
-              </Avatar>
-            </div>
-
-            <div className="text-right space-y-0.5 col-span-2 md:col-span-1">
+            <div className="text-right">
               <div>12,9045.00</div>
+            </div>
+            <div className="text-right space-y-0.5 ml-auto">
               <Badge className="uppercase rounded-md mb-1" variant="secondary">
                 Sent
               </Badge>
