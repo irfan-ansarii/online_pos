@@ -1,9 +1,10 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-const Loading = () => {
+
+const Loading = ({ className }: { className?: string }) => {
   return (
-    <Card>
+    <Card className={className}>
       <CardContent className="grid grid-cols-5 items-center">
         <div className="flex gap-3 items-center col-span-3 md:col-span-2">
           <Skeleton className="w-10 h-10 rounded-full" />

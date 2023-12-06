@@ -58,7 +58,7 @@ export const useProduct = (id: number) => {
 
 /**
  * create product
- * @param email
+ * @param object {Object}
  * @returns
  */
 const create = async (values: any) => {
@@ -74,6 +74,26 @@ export const useCreateProduct = () => {
   });
 };
 
+/**
+ * update product
+ * @param {number} values
+ * @returns
+ */
+const updateProduct = async (values: any) => {
+  const { id } = values;
+  return await api.put(`/products/${id}`, values);
+};
+
+export const useUpdateProduct = () => {
+  return useMutation(updateProduct);
+};
+
+/**
+ * get inventory
+ * maybe delete later
+ * @param param0
+ * @returns
+ */
 const getInventory = async ({ queryKey }: { queryKey: [string, number] }) => {
   const [_, id] = queryKey;
   return await api.get(`/products/${id}`);
@@ -81,4 +101,53 @@ const getInventory = async ({ queryKey }: { queryKey: [string, number] }) => {
 
 export const useInventory = (id: number) => {
   return useQuery(["product", id], getInventory);
+};
+
+/**
+ * create stock transfer
+ * @param values
+ * @returns
+ */
+const createTransfer = async (values: any) => {
+  return await api.post("/products/transfers", values);
+};
+
+export const useCreateTransfer = () => {
+  const query = useQueryClient();
+  return useMutation(createTransfer, {
+    onSuccess: () => {
+      query.invalidateQueries(["transfers"]);
+    },
+  });
+};
+
+/**
+ *
+ * @param param
+ * @returns
+ */
+const getTransfers = async ({
+  queryKey,
+  pageParam = 1,
+}: InfiniteQueryProps) => {
+  const [_, params] = queryKey;
+
+  return await api.get("/products/transfers", {
+    params: {
+      ...params,
+      page: pageParam,
+    },
+  });
+};
+
+export const useTransfers = (query: { search?: string }) => {
+  return useInfiniteQuery(["transfers", query], getTransfers, {
+    getNextPageParam: (pages) => {
+      if (pages.data.pagination.page < pages.data.pagination.pageCount) {
+        return pages.data.pagination.page + 1;
+      }
+      return undefined;
+    },
+    retry: 0,
+  });
 };

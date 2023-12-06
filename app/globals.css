@@ -170,3 +170,16 @@
   --primary-foreground: 210 20% 98%;
   --ring: 263.4 70% 50.4%;
 }
+
+/* custom styles */
+
+.scrollbox {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrollbox::-webkit-scrollbar {
+  width: 0 !important;
+  display: none !important;
+}

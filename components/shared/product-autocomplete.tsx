@@ -3,7 +3,7 @@ import React from "react";
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Command as CommandPrimitive } from "cmdk";
-import { Image as ImageIcon, Search } from "lucide-react";
+import { Image as ImageIcon, Loader, Loader2, Search } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
 import { useProducts } from "@/hooks/useProduct";
 
@@ -11,6 +11,7 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
+  CommandEmpty,
 } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -62,6 +63,7 @@ const AutoComplete = ({
         <span className="absolute inset-y-0 left-3 text-muted-foreground inline-flex items-center justify-center">
           <Search className="w-4 h-4" />
         </span>
+
         <Input
           ref={inputRef}
           value={inputValue}
@@ -76,26 +78,23 @@ const AutoComplete = ({
       </div>
       {error && (
         <p className="text-sm font-medium text-destructive mt-2">
-          Select atleat 1 product
+          Product is required
         </p>
       )}
       <div className="mt-1.5 relative">
-        {open ? (
+        {open && (
           <div className="absolute top-0 z-10 w-full bg-background border rounded-md outline-none animate-in fade-in-0 zoom-in-95">
             <CommandList className="rounded-md">
               {/* loading */}
-              {isLoading ? (
+
+              {isLoading && (
                 <CommandPrimitive.Loading>
-                  <Loading />
+                  <Loading className="border-none" />
                 </CommandPrimitive.Loading>
-              ) : (
-                <CommandPrimitive.Empty className="select-none rounded-sm px-2 py-3 text-sm text-center">
-                  No Result
-                </CommandPrimitive.Empty>
               )}
 
               {/* data */}
-              {products && products?.length > 0 && !isLoading ? (
+              {products && products?.length > 0 && !isLoading && (
                 <CommandGroup>
                   {products.map((product) => {
                     return (
@@ -147,10 +146,10 @@ const AutoComplete = ({
                     );
                   })}
                 </CommandGroup>
-              ) : null}
+              )}
             </CommandList>
           </div>
-        ) : null}
+        )}
       </div>
     </CommandPrimitive>
   );

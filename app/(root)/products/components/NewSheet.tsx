@@ -9,7 +9,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useCreateProduct } from "@/hooks/useProduct";
 
 import { ImagePlus, Loader2 } from "lucide-react";
-import SimpleBar from "simplebar-react";
 import {
   Sheet,
   SheetHeader,
@@ -109,7 +108,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               <SheetTitle>New product</SheetTitle>
             </SheetHeader>
 
-            <SimpleBar className="-mx-6 px-6 relative  max-h-full overflow-y-auto">
+            <div className="relative  max-h-full overflow-y-auto scrollbox">
               {isLoading && (
                 <div className="absolute w-full h-full top-0 left-0 z-20"></div>
               )}
@@ -277,7 +276,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   </div>
                 )}
               </div>
-            </SimpleBar>
+            </div>
 
             <SheetFooter className="pt-2">
               <Button className="w-full" type="submit">

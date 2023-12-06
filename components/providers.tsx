@@ -23,7 +23,7 @@ export function Provider({ children, ...props }: ThemeProviderProps) {
         <Toaster />
         <TooltipProvider>{children}</TooltipProvider>
       </NextThemesProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }
