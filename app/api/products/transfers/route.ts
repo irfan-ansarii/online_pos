@@ -44,12 +44,12 @@ export async function GET(req: NextRequest) {
       },
       where: { ...filters },
       include: {
-        lineItem: true,
+        lineItems: true,
       },
     });
 
     // get pagination
-    const total = await prisma.product.count({
+    const total = await prisma.transfer.count({
       orderBy: {
         createdAt: "desc",
       },

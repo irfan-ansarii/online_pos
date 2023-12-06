@@ -1,69 +1,73 @@
 import React from "react";
-import { MapPin, Settings2 } from "lucide-react";
+import Image from "next/image";
+import { Check, Image as ImageIcon, X } from "lucide-react";
 import Numeral from "numeral";
-import { useProduct } from "@/hooks/useProduct";
+
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import ErrorBox from "@/components/shared/error-box";
-import Loading from "../../components/Loading";
 
-const ProductSheet = ({ product }: any) => {
-  const { id, title } = product;
-  const { data, isLoading, isError, error } = useProduct(20);
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
+const ProductSheet = ({ transfer }: any) => {
   return (
     <SheetContent className="md:max-w-lg">
       <SheetHeader className="md:pb-2">
-        <SheetTitle>{title}</SheetTitle>
+        <SheetTitle>Transfer</SheetTitle>
       </SheetHeader>
 
       <div className="space-y-4">
-        {isLoading && [...Array(4)].map((_, i) => <Loading key={i} />)}
-
-        {isError && (
-          <ErrorBox
-            className="col-span-1 md:col-span-2 xl:col-span-3"
-            title={error?.response?.data?.message}
-          />
-        )}
-        {data?.data.data.variants.map((variant: any) => (
-          <div className="rounded-md border overflow-hidden" key={variant.id}>
-            <div className="grid grid-cols-4 gap-2 px-4 py-2 items-center bg-accent">
-              <div className="space-y-1 font-medium">
-                <div>{variant.title}</div>
-                <div className="text-muted-foreground text-xs">
-                  {variant.sku}
-                </div>
-              </div>
-              <div className="text-right">
-                {Numeral(variant.purchasePrice).format()}
-              </div>
-              <div className="text-right">
-                {Numeral(variant.salePrice).format()}
-              </div>
-              <div className="text-right">
-                {Numeral(variant.taxRate / 100).format("0%")}
-              </div>
-            </div>
-
-            <div className="divide-y px-2">
-              {variant.inventory.map((inventory: any) => (
-                <div className="flex py-2 items-center">
-                  <div className="text-muted-foreground mr-2">
-                    <MapPin className="w-3.5 h-3.5" />
-                  </div>
-                  <div>{inventory.location.name}</div>
-                  <div className="ml-auto flex items-center gap-2">
-                    <div>{inventory.stock}</div>
-                    <Button size="sm" variant="secondary">
-                      <Settings2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <Badge
+          variant="secondary"
+          className="block rounded-md p-3 capitalize text-sm"
+        >
+          werehouse
+        </Badge>
+        <div>
+          <div className="mb-3">
+            <Input placeholder="Search..." />
           </div>
-        ))}
+
+          <div className="relative grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
+            {transfer.lineItems.map((item, i) => (
+              <div
+                className="flex rounded-md border p-2 items-center snap-start"
+                key={i}
+              >
+                <div className="flex gap-3 items-center col-span-2">
+                  <Avatar className="w-10 h-10 border-2">
+                    <AvatarImage
+                      asChild
+                      src={`/${item?.image}`}
+                      className="object-cover"
+                    >
+                      <Image
+                        src={`/${item?.image}`}
+                        alt={`/${item?.image}`}
+                        width={40}
+                        height={40}
+                      />
+                    </AvatarImage>
+                    <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
+                      <ImageIcon className="w-4 h-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-0.5 truncate">
+                    <div className="font-semibold truncate">{item?.title}</div>
+                    {item?.variantTitle && (
+                      <Badge className="py-.5" variant="secondary">
+                        {item?.variantTitle}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                <div className="ml-auto ">{item?.quantity}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </SheetContent>
   );

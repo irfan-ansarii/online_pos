@@ -170,7 +170,7 @@ model Transfer {
   totalAmount Float
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
-  lineItem    TransferLineItem[]
+  lineItems   TransferLineItem[]
 
   @@map("transfers")
 }

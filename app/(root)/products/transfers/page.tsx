@@ -30,10 +30,9 @@ const Page = () => {
     rootMargin: "0px",
   });
 
-  console.log(transfers);
   return (
     <>
-      <MobileHeader title="Products" />
+      <MobileHeader title="Transfers" />
       <main className="grow">
         <Header
           action={
@@ -70,7 +69,7 @@ const Page = () => {
             {/* error */}
             {isError && (
               <ErrorBox
-                className="col-span-1 md:col-span-2 xl:col-span-3"
+                className="col-span-1"
                 title={error?.response?.data?.message}
               />
             )}
