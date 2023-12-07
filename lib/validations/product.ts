@@ -134,7 +134,6 @@ export const productValidation = z
   });
 
 export const transferValidation = z.object({
-  fromId: z.string().nonempty(),
   toId: z.string().nonempty(),
   lineItems: z
     .object({
@@ -145,11 +144,11 @@ export const transferValidation = z.object({
       quantity: z.any().optional(),
       total: z.any().optional(),
       variantId: z.any().optional(),
-      image: z.string().optional(),
+      imageId: z.number(),
+      imageSrc: z.any(),
     })
     .array()
     .min(1),
-  status: z.enum(["pending", "completed"]),
   totalItems: z.number(),
   totalAmount: z.number(),
 });

@@ -51,10 +51,8 @@ const AutoComplete = ({
           variantTitle:
             variant.title?.toLowerCase() !== "default" ? variant.title : null,
           variantId: variant.id,
-          image: {
-            id: item.image.id,
-            src: item.image.src,
-          },
+          imageId: item.image.id,
+          imageSrc: item.image.src,
         }))
       )
     );

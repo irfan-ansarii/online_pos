@@ -1,14 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+
 import { PAGE_SIZE } from "@/config/app";
+import { getSession } from "@/lib/utils";
 
 /**
  * get transfers
  * @param req
  * @returns
  */
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, res: NextResponse) {
   try {
+    const user = await getSession(req, res);
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "Missing or invalid credentials" },
+        { status: 401 }
+      );
+    }
+
     // get params
     const { searchParams } = req.nextUrl;
     const params = Object.fromEntries([...searchParams.entries()]);
@@ -21,17 +32,17 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
-    // const filters: Prisma.TransferWhereInput = {
-    //   AND: [
-    //     { status: { equals: status } },
-    //     {
-    //       OR: [
-    //         { fromId: { contains: search.toString(), mode: "insensitive" } } ,
-    //         { toId: { contains: search, mode: "insensitive" } },
-    //       ],
-    //     },
-    //   ],
-    // };
+    const filters: any = {
+      AND: [
+        { status: { equals: status } },
+        {
+          OR: [
+            { fromId: { equals: user?.locationId } },
+            { toId: { equals: user?.locationId } },
+          ],
+        },
+      ],
+    };
 
     // find locations
     const locations = await prisma.location.findMany();
@@ -43,7 +54,7 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-
+      where: { ...filters },
       include: {
         lineItems: { include: { image: true } },
       },
@@ -95,12 +106,28 @@ export async function GET(req: NextRequest) {
  * @param req
  * @returns
  */
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const body = await req.json();
-    const { fromId, toId, status, lineItems, totalItems, totalAmount } = body;
+    const { toId, lineItems, totalItems, totalAmount } = body;
 
-    if (!fromId || !toId || !lineItems || lineItems.length <= 0) {
+    const user = await getSession(req, res);
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "Missing or invalid credentials" },
+        { status: 401 }
+      );
+    }
+
+    if (Number(user.locationId) === Number(toId)) {
+      return NextResponse.json(
+        { message: "Source and destination cannot be same" },
+        { status: 401 }
+      );
+    }
+
+    if (!toId || !lineItems || lineItems.length <= 0) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -115,16 +142,17 @@ export async function POST(req: NextRequest) {
       price: item.price,
       quantity: item.quantity,
       total: item.total,
-      variantId: item.variantId,
-      imageId: item.imageId,
+      status: "pending",
+      variantId: Number(item.variantId),
+      imageId: Number(item.imageId),
     }));
 
     // create transfer and transfer line items
-    const product = await prisma.transfer.create({
+    const transfer = await prisma.transfer.create({
       data: {
-        toId: parseInt(toId),
-        fromId: parseInt(fromId),
-        status,
+        toId: Number(toId),
+        fromId: Number(user.locationId),
+        status: "pending",
         totalItems,
         totalAmount,
         lineItems: {
@@ -133,10 +161,23 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // subtruct line items quantity from the source location
+    // reduce stock from the source
+    for (const item of lineItems) {
+      await prisma.inventory.updateMany({
+        data: {
+          stock: { decrement: item.quantity },
+        },
+        where: {
+          AND: [
+            { locationId: Number(user.locationId) },
+            { variantId: Number(item.variantId) },
+          ],
+        },
+      });
+    }
 
     // return response
-    return NextResponse.json({ data: product }, { status: 201 });
+    return NextResponse.json({ data: transfer }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { message: "Internal server error" },

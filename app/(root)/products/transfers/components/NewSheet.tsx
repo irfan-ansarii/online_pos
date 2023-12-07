@@ -11,8 +11,8 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useToggle } from "@uidotdev/usehooks";
 import { useToast } from "@/components/ui/use-toast";
 import { useCreateTransfer } from "@/hooks/useProduct";
-
 import { useLocations } from "@/hooks/useUser";
+
 import {
   Sheet,
   SheetHeader,
@@ -41,11 +41,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import AutoComplete from "@/components/shared/product-autocomplete";
+import { useSession } from "@/hooks/useAuth";
 
 type Option = Record<string, string>;
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const { mutate, isLoading } = useCreateTransfer();
+  const { data: session } = useSession();
   const { data: locations, isLoading: loading } = useLocations();
   const { toast } = useToast();
   const [open, toggle] = useToggle();
@@ -53,14 +55,16 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const form = useForm<z.infer<typeof transferValidation>>({
     resolver: zodResolver(transferValidation),
     defaultValues: {
-      fromId: undefined,
       toId: undefined,
       lineItems: [],
-      status: "pending",
       totalItems: undefined,
       totalAmount: undefined,
     },
   });
+  const locationId = React.useMemo(
+    () => session?.data?.data?.locationId,
+    [session]
+  );
 
   const lineItems = useFieldArray({
     control: form.control,
@@ -87,7 +91,8 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       quantity: 1,
       total: value.salePrice,
       variantId: value.variantId,
-      image: value.image,
+      imageSrc: value.imageSrc,
+      imageId: Number(value.imageId),
     });
   };
 
@@ -147,72 +152,40 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
             ) : (
               <>
                 <div className="pb-4 space-y-4">
-                  <div className="flex gap-4">
-                    <FormField
-                      control={form.control}
-                      name="fromId"
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormLabel>Source</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select Source" />
-                              </SelectTrigger>
-                            </FormControl>
+                  <FormField
+                    control={form.control}
+                    name="toId"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormLabel>Destination</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Destination" />
+                            </SelectTrigger>
+                          </FormControl>
 
-                            <SelectContent>
-                              {locations?.data.data.map((location: Option) => (
-                                <SelectItem
-                                  value={`${location.id}`}
-                                  key={location.id}
-                                >
-                                  {location.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                          <SelectContent>
+                            {locations?.data.data.map((location: Option) => (
+                              <SelectItem
+                                value={`${location.id}`}
+                                key={location.id}
+                                disabled={locationId === location.id}
+                              >
+                                {location.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="toId"
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormLabel>Destination</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select Destination" />
-                              </SelectTrigger>
-                            </FormControl>
-
-                            <SelectContent>
-                              {locations?.data.data.map((location: Option) => (
-                                <SelectItem
-                                  value={`${location.id}`}
-                                  key={location.id}
-                                >
-                                  {location.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <Separator className="h-0.5" />
+                  {/* <Separator className="h-0.5" /> */}
                 </div>
                 <div className="flex flex-col gap-2 mb-1">
                   <FormLabel>Products</FormLabel>
@@ -232,12 +205,12 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                         <Avatar className="w-10 h-10 border-2">
                           <AvatarImage
                             asChild
-                            src={`/${field.image?.src}`}
+                            src={`/${field.imageSrc}`}
                             className="object-cover"
                           >
                             <Image
-                              src={`/${field.image?.src}`}
-                              alt={`/${field.image?.src}`}
+                              src={`/${field.imageSrc}`}
+                              alt={`/${field.imageSrc}`}
                               width={40}
                               height={40}
                             />

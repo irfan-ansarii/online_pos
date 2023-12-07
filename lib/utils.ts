@@ -1,7 +1,11 @@
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import axios from "axios";
 import Numeral from "numeral";
+import { decodeJwt } from "./decode-jwt";
+import { JwtPayload } from "jsonwebtoken";
 
 Numeral.defaultFormat("0,0.00");
 
@@ -43,4 +47,15 @@ export const sanitizeOutput = (
   }
 
   return sanitizeItem(data);
+};
+
+export const getSession = async (req: NextRequest, res: NextResponse) => {
+  const session = decodeJwt(req) as JwtPayload | undefined;
+
+  if (!session) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: session.id } });
+  return user;
 };

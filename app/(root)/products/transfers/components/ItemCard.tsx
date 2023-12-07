@@ -3,8 +3,8 @@ import React from "react";
 import Image from "next/image";
 import { format } from "date-fns";
 import Numeral from "numeral";
-
-import { Image as ImageIcon, Upload } from "lucide-react";
+import { useSession } from "@/hooks/useAuth";
+import { Download, Image as ImageIcon, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
@@ -12,19 +12,29 @@ import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 
 import ItemSheet from "./ItemSheet";
+import EditSheet from "./EditSheet";
 
 interface TransferStatus {
   pending: string;
   completed: string;
-  dispute: string;
+  partial: string;
+  rejected: string;
   [key: string]: string;
 }
 
 const ItemCard = ({ transfer }: { transfer: any }) => {
+  const { data: session } = useSession();
+
+  const locationId = React.useMemo(
+    () => session?.data?.data?.locationId,
+    [session]
+  );
+
   const badge: TransferStatus = {
-    pending: "bg-warning hover:bg-warning",
+    pending: "bg-info hover:bg-info",
     completed: "bg-success hover:bg-success",
-    dispute: "bg-destructive hover:bg-destructive",
+    partial: "bg-warning hover:bg-warning",
+    rejected: "bg-destructive hover:bg-destructive",
   };
 
   return (
@@ -43,7 +53,10 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
               </div>
               <div className="flex truncate">
                 {transfer.lineItems?.map((lineItem: any) => (
-                  <Avatar className="w-10 h-10 border-2 -ml-2 first:ml-0">
+                  <Avatar
+                    className="w-10 h-10 border-2 -ml-2 first:ml-0"
+                    key={lineItem.id}
+                  >
                     <AvatarImage
                       asChild
                       src={`/${lineItem?.image?.src}`}
@@ -64,11 +77,23 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
                 ))}
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-right hidden md:block">
               <div>{Numeral(transfer.totalAmount).format()}</div>
             </div>
-            <div className="flex justify-end">
-              <Upload className="w-5 h-5 rotate-90 text-warning" />
+            <div className="flex items-center gap-2 justify-end col-span-2 md:col-span-1">
+              {transfer.source.id === locationId ? (
+                <>
+                  <Upload className="w-5 h-5 text-warning" />
+                  <span className="capitalize">
+                    {transfer.destination.name}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-5 h-5 text-success" />
+                  <span className="capitalize">{transfer.source.name}</span>
+                </>
+              )}
             </div>
             <div className="text-right space-y-0.5 ml-auto">
               <Badge
@@ -82,7 +107,12 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
             </div>
           </CardContent>
         </SheetTrigger>
-        <ItemSheet transfer={transfer} />
+
+        {transfer.toId === locationId ? (
+          <ItemSheet transfer={transfer} />
+        ) : (
+          <EditSheet transfer={transfer} />
+        )}
       </Sheet>
     </Card>
   );

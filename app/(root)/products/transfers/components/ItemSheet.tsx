@@ -7,13 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { useAcceptTransfer, useRejectTransfer } from "@/hooks/useProduct";
+import { useToast } from "@/components/ui/use-toast";
 interface LineItem {
   id: number;
   title: string;
   variantTitle?: string;
   image?: ImageType;
   quantity: number;
+  status: string;
 }
 interface ImageType {
   id: number;
@@ -25,6 +29,7 @@ interface Transfer {
   id: number;
   lineItems: LineItem[];
   source: Source;
+  status: string;
 }
 
 interface Source {
@@ -39,7 +44,9 @@ interface ProductSheetProps {
 const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [accepted, setAccepted] = useState<number[]>([]);
-
+  const { toast } = useToast();
+  const { mutate, isLoading } = useAcceptTransfer();
+  const { mutate: reject, isLoading: rejecting } = useRejectTransfer();
   // filtered list items
   const filteredList = useMemo<LineItem[]>(() => {
     if (!searchTerm) {
@@ -62,7 +69,7 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
   };
 
   // handle item click
-  const handleClick = (itemId: number) => {
+  const handleClick = (state: boolean, itemId: number) => {
     const index = accepted.indexOf(itemId);
     if (index === -1) {
       setAccepted([...accepted, itemId]);
@@ -73,10 +80,50 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
     setAccepted([...accepted]);
   };
 
+  const handleSubmit = () => {
+    mutate(
+      { id: transfer.id, lineItems: accepted },
+      {
+        onSuccess: (res) => {
+          toast({
+            variant: "success",
+            title: "Transfer created successfully!",
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            variant: "error",
+            title: error.response.data.message || "Something went wrong",
+          });
+        },
+      }
+    );
+  };
+
+  const handleReject = () => {
+    reject(
+      { id: transfer.id },
+      {
+        onSuccess: (res) => {
+          toast({
+            variant: "success",
+            title: "Transfer created successfully!",
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            variant: "error",
+            title: error.response.data.message || "Something went wrong",
+          });
+        },
+      }
+    );
+  };
+
   return (
     <SheetContent className="md:max-w-lg">
       <div className="flex flex-col h-full gap-4">
-        <SheetHeader className="md:pb-2">
+        <SheetHeader className="mb-0">
           <SheetTitle>Transfer</SheetTitle>
         </SheetHeader>
 
@@ -101,10 +148,10 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
             <div className="text-center">No result found.</div>
           )}
           {filteredList?.map((item, i) => (
-            <div
-              className={`flex relative rounded-md border p-2 pr-0 items-center snap-stat cursor-pointer `}
+            <Label
+              htmlFor={`${item.id}`}
+              className={`flex relative rounded-md border p-2 pr-4 items-center snap-stat cursor-pointer `}
               key={i}
-              onClick={() => handleClick(item.id)}
             >
               <div className="flex gap-3 items-center col-span-2">
                 <Avatar className="w-10 h-10 border-2">
@@ -137,19 +184,17 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
               <div className="ml-auto flex gap-4 items-center">
                 {item?.quantity}
 
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="hover:bg-background transition"
-                >
-                  {accepted.indexOf(item.id) !== -1 ? (
-                    <X className="w-4 h-4 text-destructive" />
-                  ) : (
-                    <Check className="w-4 h-4 opacity-50" />
-                  )}
-                </Button>
+                <Checkbox
+                  id={`${item.id}`}
+                  disabled={
+                    item.status === "completed" ||
+                    transfer.status === "rejected"
+                  }
+                  defaultChecked={item.status === "completed"}
+                  onCheckedChange={(e: boolean) => handleClick(e, item.id)}
+                />
               </div>
-            </div>
+            </Label>
           ))}
         </div>
 
@@ -158,13 +203,14 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
             disabled={accepted.length > 0}
             className="flex-1"
             variant="secondary"
+            onClick={handleReject}
           >
             Reject
           </Button>
           <Button
             disabled={!accepted.length || accepted.length < 1}
             className="flex-1"
-            onClick={() => console.log("first")}
+            onClick={handleSubmit}
           >
             Accept{" "}
             {accepted?.length > 0 &&

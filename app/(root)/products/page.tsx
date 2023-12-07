@@ -85,6 +85,7 @@ const Page = () => {
               <DropdownMenuContent className="w-56">
                 {["Active", "Archived", "Trash"].map((item) => (
                   <DropdownMenuCheckboxItem
+                    key={item}
                     checked={queryParams.status === item.toLowerCase()}
                     onCheckedChange={() =>
                       setQueryParams({ status: item.toLowerCase() })

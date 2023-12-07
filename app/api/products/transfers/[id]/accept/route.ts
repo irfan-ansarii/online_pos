@@ -9,7 +9,8 @@ import prisma from "@/lib/prisma";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { lineItems, destination } = body;
+
+    const { id, lineItems } = body;
 
     if (!lineItems || lineItems.length <= 0) {
       return NextResponse.json(
@@ -17,18 +18,58 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    const transfer = await prisma.transfer.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        lineItems: true,
+      },
+    });
 
-    // get session location
+    for (const item of lineItems) {
+      // increase stock from the source
 
-    // create or update inventory for the destination
+      await prisma.inventory.updateMany({
+        data: {
+          stock: { increment: Number(item.quantity) },
+        },
+        where: {
+          AND: [
+            { locationId: Number(transfer?.toId) },
+            { variantId: Number(item.variantId) },
+          ],
+        },
+      });
 
-    // update transfer line items
+      // completed line items
+      await prisma.transferLineItem.updateMany({
+        data: {
+          status: "completed",
+        },
+        where: {
+          AND: [
+            { transferId: Number(transfer?.id) },
+            { variantId: Number(item.variantId) },
+          ],
+        },
+      });
+    }
 
     // update transfers
+    await prisma.transfer.update({
+      data: {
+        status: "completed",
+      },
+      where: {
+        id: transfer?.id,
+      },
+    });
 
     // return response
     return NextResponse.json({ data: "" }, { status: 201 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

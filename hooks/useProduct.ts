@@ -21,7 +21,7 @@ interface InfiniteQueryProps {
 
 const getProducts = async ({ queryKey, pageParam = 1 }: InfiniteQueryProps) => {
   const [_, params] = queryKey;
-  console.log(queryKey);
+
   return await api.get("/products", {
     params: {
       ...params,
@@ -90,7 +90,7 @@ export const useUpdateProduct = () => {
 
 /**
  * get inventory
- * maybe delete later
+ *  maybe delete later
  * @param param0
  * @returns
  */
@@ -149,5 +149,63 @@ export const useTransfers = (query: { search?: string }) => {
       return undefined;
     },
     retry: 0,
+  });
+};
+
+/**
+ * update stock transfer
+ * @param values
+ * @returns
+ */
+const updateTransfer = async (values: any) => {
+  const { id } = values;
+  return await api.put(`/products/transfers/${id}`, values);
+};
+
+export const useUpdateTransfer = () => {
+  const query = useQueryClient();
+  return useMutation(updateTransfer, {
+    onSuccess: () => {
+      query.invalidateQueries(["transfers"]);
+    },
+  });
+};
+
+/**
+ * accept stock transfer
+ * @param values
+ * @returns
+ */
+const acceptTransfer = async (values: any) => {
+  const { id } = values;
+  console.log(values);
+  return await api.post(`/products/transfers/${id}/accept`, values);
+};
+
+export const useAcceptTransfer = () => {
+  const query = useQueryClient();
+  return useMutation(acceptTransfer, {
+    onSuccess: () => {
+      query.invalidateQueries(["transfers"]);
+    },
+  });
+};
+
+/**
+ * reject stock transfer
+ * @param values
+ * @returns
+ */
+const rejectTransfer = async (values: any) => {
+  const { id } = values;
+  return await api.delete(`/products/transfers/${id}`, values);
+};
+
+export const useRejectTransfer = () => {
+  const query = useQueryClient();
+  return useMutation(rejectTransfer, {
+    onSuccess: () => {
+      query.invalidateQueries(["transfers"]);
+    },
   });
 };
