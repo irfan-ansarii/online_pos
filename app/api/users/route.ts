@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
     // destructure params
     const { page, search } = params;
-    console.log("api route:", search, params);
+
     // pagination
     const currentPage = parseInt(page, 10) || 1;
 

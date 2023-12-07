@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import { format } from "date-fns";
 import Numeral from "numeral";
 
-import { Prisma } from "@prisma/client";
 import { Image as ImageIcon, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -44,6 +44,19 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
               <div className="flex truncate">
                 {transfer.lineItems?.map((lineItem: any) => (
                   <Avatar className="w-10 h-10 border-2 -ml-2 first:ml-0">
+                    <AvatarImage
+                      asChild
+                      src={`/${lineItem?.image?.src}`}
+                      className="object-cover"
+                    >
+                      <Image
+                        src={`/${lineItem?.image?.src}`}
+                        alt={`/${lineItem?.image?.title}`}
+                        width={40}
+                        height={40}
+                      />
+                    </AvatarImage>
+
                     <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
                       <ImageIcon className="w-4 h-4" />
                     </AvatarFallback>

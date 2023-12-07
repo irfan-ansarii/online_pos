@@ -109,18 +109,19 @@ model Variant {
 }
 
 model File {
-  id        Int       @id @default(autoincrement())
-  title     String
-  caption   String
-  width     Int?
-  height    Int?
-  ext       String
-  mime      String
-  size      Float
-  src       String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  product   Product[]
+  id               Int                @id @default(autoincrement())
+  title            String
+  caption          String
+  width            Int?
+  height           Int?
+  ext              String
+  mime             String
+  size             Float
+  src              String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  product          Product[]
+  TransferLineItem TransferLineItem[]
 }
 
 model Inventory {
@@ -166,12 +167,14 @@ model Transfer {
   fromId      Int
   toId        Int
   status      String
+  notes       String?
   totalItems  Int
   totalAmount Float
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
   lineItems   TransferLineItem[]
 
+  // status: pending, completed, partial, rejected, 
   @@map("transfers")
 }
 
@@ -185,11 +188,15 @@ model TransferLineItem {
   quantity     Int
   total        Float
   variantId    Int
+  imageId      Int?
+  status       String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   variant      Variant  @relation(fields: [variantId], references: [id])
   transfer     Transfer @relation(fields: [transferId], references: [id])
+  image        File?    @relation(fields: [imageId], references: [id])
 
+  // status: pending, completed
   @@map("transfer_line_items")
 }
 

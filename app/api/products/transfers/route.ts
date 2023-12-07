@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { Transfer, Prisma } from "@prisma/client";
 import { PAGE_SIZE } from "@/config/app";
-import { sanitizeOutput } from "@/lib/utils";
 
 /**
- * get products
+ * get transfers
  * @param req
  * @returns
  */
@@ -23,17 +21,20 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
-    const filters: Prisma.TransferWhereInput = {
-      AND: [
-        { status: { equals: status } },
-        {
-          // OR: [
-          //   { fromId: { contains: search.toString(), mode: "insensitive" } } ,
-          //   { toId: { contains: search, mode: "insensitive" } },
-          // ],
-        },
-      ],
-    };
+    // const filters: Prisma.TransferWhereInput = {
+    //   AND: [
+    //     { status: { equals: status } },
+    //     {
+    //       OR: [
+    //         { fromId: { contains: search.toString(), mode: "insensitive" } } ,
+    //         { toId: { contains: search, mode: "insensitive" } },
+    //       ],
+    //     },
+    //   ],
+    // };
+
+    // find locations
+    const locations = await prisma.location.findMany();
 
     // find all transfers
     const transfers = await prisma.transfer.findMany({
@@ -42,10 +43,22 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      where: { ...filters },
+
       include: {
-        lineItems: true,
+        lineItems: { include: { image: true } },
       },
+    });
+
+    // add source and destination to response
+    const transfersWithLocation = transfers.map((item) => {
+      const fromIndex = locations.findIndex((loc) => loc.id === item.fromId);
+      const toIndex = locations.findIndex((loc) => loc.id === item.toId);
+
+      return {
+        ...item,
+        source: locations[fromIndex],
+        destination: locations[toIndex],
+      };
     });
 
     // get pagination
@@ -53,13 +66,12 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      //  where: { ...filters },
     });
 
     // return response
     return NextResponse.json(
       {
-        data: transfers,
+        data: transfersWithLocation,
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,
@@ -79,7 +91,7 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * create product
+ * create transfer
  * @param req
  * @returns
  */
@@ -88,24 +100,24 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { fromId, toId, status, lineItems, totalItems, totalAmount } = body;
 
-    if (!fromId || !toId) {
-      return "error";
-    }
-    if (!lineItems || lineItems.length <= 0) {
-      return "line items error";
+    if (!fromId || !toId || !lineItems || lineItems.length <= 0) {
+      return NextResponse.json(
+        { message: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
-    const lineItemsToCreate = lineItems.map(
-      (item: Prisma.TransferLineItemCreateInput) => ({
-        title: item.title,
-        variantTitle: item.variantTitle,
-        sku: item.sku,
-        price: item.price,
-        quantity: item.quantity,
-        total: item.total,
-        variantId: item.variantId,
-      })
-    );
+    // oranize line items data
+    const lineItemsToCreate = lineItems.map((item: any) => ({
+      title: item.title,
+      variantTitle: item.variantTitle,
+      sku: item.sku,
+      price: item.price,
+      quantity: item.quantity,
+      total: item.total,
+      variantId: item.variantId,
+      imageId: item.imageId,
+    }));
 
     // create transfer and transfer line items
     const product = await prisma.transfer.create({
@@ -115,11 +127,13 @@ export async function POST(req: NextRequest) {
         status,
         totalItems,
         totalAmount,
-        lineItem: {
+        lineItems: {
           create: lineItemsToCreate,
         },
       },
     });
+
+    // subtruct line items quantity from the source location
 
     // return response
     return NextResponse.json({ data: product }, { status: 201 });
@@ -130,3 +144,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function PUT() {}
+
+export async function DELETE() {}

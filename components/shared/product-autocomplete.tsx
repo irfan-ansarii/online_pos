@@ -51,7 +51,10 @@ const AutoComplete = ({
           variantTitle:
             variant.title?.toLowerCase() !== "default" ? variant.title : null,
           variantId: variant.id,
-          image: item.image.src,
+          image: {
+            id: item.image.id,
+            src: item.image.src,
+          },
         }))
       )
     );
@@ -111,13 +114,13 @@ const AutoComplete = ({
                         <div className="flex gap-3 items-center col-span-2">
                           <Avatar className="w-10 h-10 border-2">
                             <AvatarImage
-                              src={`/${product.image}`}
+                              src={`/${product.image.src}`}
                               asChild
                               className="object-cover"
                             >
                               <Image
-                                src={`/${product.image}`}
-                                alt={`/${product.image}`}
+                                src={`/${product.image.src}`}
+                                alt={`/${product.image.src}`}
                                 width={40}
                                 height={40}
                               ></Image>

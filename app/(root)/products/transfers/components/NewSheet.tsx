@@ -232,12 +232,12 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                         <Avatar className="w-10 h-10 border-2">
                           <AvatarImage
                             asChild
-                            src={`/${field.image}`}
+                            src={`/${field.image?.src}`}
                             className="object-cover"
                           >
                             <Image
-                              src={`/${field.image}`}
-                              alt={`/${field.image}`}
+                              src={`/${field.image?.src}`}
+                              alt={`/${field.image?.src}`}
                               width={40}
                               height={40}
                             />
