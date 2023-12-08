@@ -7,19 +7,19 @@ import { getSession } from "@/lib/utils";
  * @param req
  * @returns
  */
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: number } }
+) {
   try {
     const body = await req.json();
-
-    const { id, lineItems } = body;
+    const { id } = params;
+    const { lineItems } = body;
 
     const user = await getSession(req);
 
     if (!user) {
-      return NextResponse.json(
-        { message: "Missing or invalid credentials" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     if (!lineItems || lineItems.length < 1 || !id) {

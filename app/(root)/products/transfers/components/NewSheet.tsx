@@ -5,7 +5,7 @@ import * as z from "zod";
 import Numeral from "numeral";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Image as ImageIcon, Loader2, X } from "lucide-react";
+import { Image as ImageIcon, Loader2, Minus, Plus, X } from "lucide-react";
 import { transferValidation } from "@/lib/validations/product";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useToggle } from "@uidotdev/usehooks";
@@ -93,6 +93,23 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       variantId: value.variantId,
       imageSrc: value.imageSrc,
       imageId: Number(value.imageId),
+    });
+  };
+
+  const handlePlus = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+
+    lineItems.update(index, {
+      ...lineItems.fields[index],
+      quantity: Number(lineItems.fields[index].quantity) + 1,
+    });
+  };
+
+  const handleMinus = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    lineItems.update(index, {
+      ...lineItems.fields[index],
+      quantity: Number(lineItems.fields[index].quantity) - 1,
     });
   };
 
@@ -237,7 +254,27 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                       </div>
 
                       <div className="ml-auto flex items-center gap-6">
-                        <div>{field.quantity}</div>
+                        <div className="flex items-center w-20 justify-between">
+                          <Button
+                            onClick={(e) => handleMinus(e, i)}
+                            size="icon"
+                            variant="secondary"
+                            className="rounded-full w-6 h-6"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                          <span className="flex-1 truncate text-center block">
+                            {field.quantity}
+                          </span>
+                          <Button
+                            size="icon"
+                            onClick={(e) => handlePlus(e, i)}
+                            variant="secondary"
+                            className="rounded-full w-6 h-6"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
                         <Button
                           size="icon"
                           variant="ghost"

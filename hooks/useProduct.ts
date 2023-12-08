@@ -207,3 +207,52 @@ export const useRejectTransfer = () => {
     },
   });
 };
+
+/**
+ * create adjustments
+ * @param values
+ * @returns
+ */
+const createAdjustment = async (values: any) => {
+  return await api.post("/products/adjustments", values);
+};
+
+export const useCreateAdjustment = () => {
+  const query = useQueryClient();
+  return useMutation(createAdjustment, {
+    onSuccess: () => {
+      query.invalidateQueries({ queryKey: ["adjustments"] });
+    },
+  });
+};
+
+/**
+ * get Adjustment
+ * @param param
+ * @returns
+ */
+const getAdjustments = async ({
+  queryKey,
+  pageParam = 1,
+}: InfiniteQueryProps) => {
+  const [_, params] = queryKey;
+
+  return await api.get("/products/adjustments", {
+    params: {
+      ...params,
+      page: pageParam,
+    },
+  });
+};
+
+export const useAdjustments = (query: { search?: string }) => {
+  return useInfiniteQuery(["adjustment", query], getAdjustments, {
+    getNextPageParam: (pages) => {
+      if (pages.data.pagination.page < pages.data.pagination.pageCount) {
+        return pages.data.pagination.page + 1;
+      }
+      return undefined;
+    },
+    retry: 0,
+  });
+};

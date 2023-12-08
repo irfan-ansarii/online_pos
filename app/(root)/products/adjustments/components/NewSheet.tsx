@@ -2,14 +2,16 @@
 import React from "react";
 import * as z from "zod";
 import Image from "next/image";
+
+import { Loader2, X, Image as ImageIcon, Minus, Plus } from "lucide-react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { productValidation } from "@/lib/validations/product";
-import { useForm } from "react-hook-form";
+import { adjustmentValidation } from "@/lib/validations/product";
+
+import { useFieldArray, useForm } from "react-hook-form";
 import { useToggle } from "@uidotdev/usehooks";
 import { useToast } from "@/components/ui/use-toast";
-import { useCreateProduct } from "@/hooks/useProduct";
-
-import { Loader2, X, Image as ImageIcon } from "lucide-react";
+import { useCreateAdjustment } from "@/hooks/useProduct";
 
 import {
   Sheet,
@@ -28,48 +30,76 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 import AutoComplete from "@/components/shared/product-autocomplete";
-import { Badge } from "@/components/ui/badge";
+
+type Option = Record<string, string>;
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
-  const [preview, setPreview] = React.useState("");
-  const { mutate, isLoading } = useCreateProduct();
+  const { mutate, isLoading } = useCreateAdjustment();
+
   const { toast } = useToast();
   const [open, toggle] = useToggle();
 
-  const form = useForm<z.infer<typeof productValidation>>({
-    resolver: zodResolver(productValidation),
+  const form = useForm<z.infer<typeof adjustmentValidation>>({
+    resolver: zodResolver(adjustmentValidation),
     defaultValues: {
-      status: "active",
-      title: "",
-      description: "",
-      type: "simple",
-      purchasePrice: 0,
-      salePrice: 0,
-      sku: "",
-      taxRate: 0,
-      options: [{ name: "", values: [], value: "" }],
-      variants: [],
+      lineItems: [],
+      reason: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof productValidation>) => {
-    if (values.type === "simple") {
-      values.variants = [
-        {
-          option: null,
-          title: "Default",
-          purchasePrice: Number(values.purchasePrice),
-          salePrice: Number(values.purchasePrice),
-          sku: values.sku,
-          taxRate: Number(values.taxRate),
-        },
-      ];
+  const lineItems = useFieldArray({
+    control: form.control,
+    name: "lineItems",
+  });
+
+  const onSelect = (value: Option) => {
+    const items = form.getValues("lineItems");
+    const index = items.findIndex(
+      (item) => item.variantId === Number(value.variantId)
+    );
+
+    if (index !== -1) {
+      lineItems.update(index, {
+        ...items[index],
+        quantity: items[index].quantity + 1,
+      });
+      return;
     }
 
+    lineItems.append({
+      title: value.title,
+      variantTitle: value.variantTitle,
+      sku: value.sku,
+      quantity: 1,
+      variantId: Number(value.variantId),
+      imageSrc: value.imageSrc,
+      imageId: Number(value.imageId),
+    });
+  };
+
+  const handlePlus = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+
+    lineItems.update(index, {
+      ...lineItems.fields[index],
+      quantity: Number(lineItems.fields[index].quantity) + 1,
+    });
+  };
+
+  const handleMinus = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    lineItems.update(index, {
+      ...lineItems.fields[index],
+      quantity: Number(lineItems.fields[index].quantity) - 1,
+    });
+  };
+
+  const onSubmit = (values: z.infer<typeof adjustmentValidation>) => {
     mutate(values, {
       onSuccess: (res) => {
         toast({
@@ -77,7 +107,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
           title: "Product created successfully!",
         });
         form.reset();
-        setPreview("");
         toggle();
       },
       onError: (error: any) => {
@@ -87,11 +116,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
         });
       },
     });
-  };
-
-  const onSelect = (file: any) => {
-    setPreview(file.src);
-    form.setValue("imageId", file.id);
   };
 
   return (
@@ -114,7 +138,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
             <FormField
               control={form.control}
               name="reason"
-              rules={{ required: "Required" }}
               render={({ field }) => (
                 <FormItem className="mb-6">
                   <FormLabel>Reason</FormLabel>
@@ -128,10 +151,13 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
 
             <div className="flex flex-col gap-2 mb-2">
               <FormLabel>Products</FormLabel>
-              <AutoComplete onSelect={onSelect} error={""} />
+              <AutoComplete
+                onSelect={onSelect}
+                error={form.formState.errors.lineItems}
+              />
             </div>
             <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
-              {[...Array(0)].map((field, i) => (
+              {lineItems.fields.map((field, i) => (
                 <div
                   className="flex rounded-md border p-2 pr-0 items-center snap-start"
                   key={field.id}
@@ -167,12 +193,32 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   </div>
 
                   <div className="ml-auto flex items-center gap-6">
-                    <div>{field.quantity}</div>
+                    <div className="flex items-center w-20 justify-between">
+                      <Button
+                        onClick={(e) => handleMinus(e, i)}
+                        size="icon"
+                        variant="secondary"
+                        className="rounded-full w-6 h-6"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                      <span className="flex-1 truncate text-center block">
+                        {field.quantity}
+                      </span>
+                      <Button
+                        size="icon"
+                        onClick={(e) => handlePlus(e, i)}
+                        variant="secondary"
+                        className="rounded-full w-6 h-6"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
                     <Button
                       size="icon"
                       variant="ghost"
                       className="opacity-50 hover:opacity-100 hover:bg-background transition"
-                      // onClick={() => lineItems.remove(i)}
+                      onClick={() => lineItems.remove(i)}
                     >
                       <X className="w-4 h-4" />
                     </Button>

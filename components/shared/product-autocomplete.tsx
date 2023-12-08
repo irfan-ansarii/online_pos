@@ -3,7 +3,7 @@ import React from "react";
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Command as CommandPrimitive } from "cmdk";
-import { Image as ImageIcon, Loader, Loader2, Search } from "lucide-react";
+import { Image as ImageIcon, Search } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
 import { useProducts } from "@/hooks/useProduct";
 
@@ -11,12 +11,12 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
-  CommandEmpty,
 } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 import Loading from "@/app/(root)/products/components/Loading";
+import { useSession } from "@/hooks/useAuth";
 
 export type Option = Record<"value" | "label", string> & Record<string, string>;
 
@@ -32,7 +32,7 @@ const AutoComplete = ({
   const [open, toggle] = useToggle(false);
   const [inputValue, setInputValue] = useState("");
   const { data, isLoading } = useProducts({ search: inputValue });
-
+  const { data: session } = useSession();
   const handleSelectOption = useCallback(
     (selected: Option) => {
       onSelect(selected);
@@ -45,15 +45,25 @@ const AutoComplete = ({
   const products = React.useMemo(() => {
     return data?.pages.flatMap((page) =>
       page.data.data.flatMap((item: any) =>
-        item.variants.map((variant: any) => ({
-          ...variant,
-          ...item,
-          variantTitle:
-            variant.title?.toLowerCase() !== "default" ? variant.title : null,
-          variantId: variant.id,
-          imageId: item.image.id,
-          imageSrc: item.image.src,
-        }))
+        item.variants.map((variant: any) => {
+          const locationId = session?.data?.data?.locationId;
+          const stock = variant.inventory.reduce((acc: any, cur: any) => {
+            if (locationId === cur.locationId) {
+              acc += Number(cur.stock || 0);
+            }
+            return acc;
+          }, 0);
+          return {
+            ...variant,
+            ...item,
+            variantTitle:
+              variant.title?.toLowerCase() !== "default" ? variant.title : null,
+            variantId: variant.id,
+            imageId: item.image.id,
+            imageSrc: item.image.src,
+            stock,
+          };
+        })
       )
     );
   }, [data]);

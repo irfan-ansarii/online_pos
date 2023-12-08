@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getSession } from "@/lib/utils";
 
 /**
  * Edit transfer
@@ -10,7 +11,20 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: number } }
 ) {
-  console.log(params);
+  try {
+    const { id } = params;
+
+    const user = await getSession(req);
+
+    if (!user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Internal server error", data: error },
+      { status: 500 }
+    );
+  }
 }
 
 /**
@@ -24,6 +38,12 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
+
+    const user = await getSession(req);
+
+    if (!user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     const transfer = await prisma.transfer.findUnique({
       where: { id: Number(id) },

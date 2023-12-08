@@ -28,45 +28,28 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
-    const filters: Prisma.ProductWhereInput = {
-      AND: [
-        { status: { equals: (status as ProductStatus) || "active" } },
-        {
-          OR: [
-            { title: { contains: search, mode: "insensitive" } },
-            { description: { contains: search, mode: "insensitive" } },
-          ],
-        },
-      ],
-    };
-
-    // find active products
-    const products = await prisma.product.findMany({
+    // find adjustments
+    const response = await prisma.adjustment.findMany({
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
         createdAt: "desc",
       },
-      where: { ...filters },
-      include: {
-        variants: { include: { inventory: { include: { location: true } } } },
-        image: true,
-      },
+      where: { locationId: Number(user?.locationId) },
     });
 
     // get pagination
-    const total = await prisma.product.count({
+    const total = await prisma.adjustment.count({
       orderBy: {
         createdAt: "desc",
       },
-      where: { ...filters },
+      where: { locationId: Number(user?.locationId) },
     });
-    const sanitizedProducts = sanitizeOutput(products, ["imageId"]);
 
     // return response
     return NextResponse.json(
       {
-        data: sanitizedProducts,
+        data: response,
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,
@@ -86,59 +69,63 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * create product
+ * create adjustments
  * @param req
  * @returns
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { imageId, title, description, type, status, variants, options } =
-      body;
+    const { lineItems, reason } = body;
 
     const user = await getSession(req);
+
     if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // get all locations
-    const locations = await prisma.location.findMany();
-
-    const inventoryToCreate = locations.map((location) => ({
-      locationId: location.id,
-      stock: 0,
-    }));
-
-    const variantsToCreate = variants.map(
-      (variant: Prisma.VariantCreateInput) => ({
-        ...variant,
-        purchasePrice: Number(variant.purchasePrice),
-        salePrice: Number(variant.salePrice),
-        taxRate: Number(variant.taxRate),
-        inventory: {
-          create: inventoryToCreate,
-        },
-      })
-    );
-
-    // create product and variants
-    const product = await prisma.product.create({
-      data: {
-        title,
-        description,
-        type,
-        status,
-        options,
-        image: { connect: { id: imageId } },
-        variants: {
-          create: variantsToCreate,
-        },
-      },
+    // create adjustment
+    const response = await prisma.adjustment.createMany({
+      data: lineItems.map((item: Prisma.AdjustmentCreateInput) => ({
+        locationId: user.locationId,
+        variantId: item.variantId,
+        title: item.title,
+        sku: item.sku,
+        variantTitle: item.variantTitle,
+        quantity: item.quantity,
+        reason,
+        imageId: item.imageId,
+      })),
     });
 
+    for (const item of lineItems) {
+      const inventory = await prisma.inventory.updateMany({
+        where: {
+          AND: [
+            { locationId: Number(user.locationId) },
+            { variantId: Number(item.variantId) },
+          ],
+        },
+        data: { stock: { increment: Number(item.quantity) } },
+      });
+      if (!inventory) {
+        await prisma.inventory.create({
+          data: {
+            locationId: Number(user.locationId),
+            variantId: Number(item.variantId),
+            stock: Number(item.quantity),
+          },
+        });
+      }
+    }
+
     // return response
-    return NextResponse.json({ data: product }, { status: 201 });
+    return NextResponse.json(
+      { data: response, message: "Created" },
+      { status: 201 }
+    );
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

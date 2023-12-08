@@ -11,7 +11,7 @@ import Navigation from "../components/Navigation";
 import NewSheet from "./components/NewSheet";
 import ItemCard from "./components/ItemCard";
 import ErrorBox from "@/components/shared/error-box";
-import Loading from "../components/Loading";
+import Loading from "@/components/shared/Loading";
 import EmptyBox from "@/components/shared/empty-box";
 
 const Page = () => {

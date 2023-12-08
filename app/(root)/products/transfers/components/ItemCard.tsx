@@ -51,12 +51,9 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
                   {format(new Date(transfer.createdAt), "MMM")}
                 </div>
               </div>
-              <div className="flex truncate">
+              <div className="flex truncate -space-x-2">
                 {transfer.lineItems?.map((lineItem: any) => (
-                  <Avatar
-                    className="w-10 h-10 border-2 -ml-2 first:ml-0"
-                    key={lineItem.id}
-                  >
+                  <Avatar className="w-10 h-10 border-2" key={lineItem.id}>
                     <AvatarImage
                       asChild
                       src={`/${lineItem?.image?.src}`}

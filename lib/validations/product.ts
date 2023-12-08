@@ -152,3 +152,19 @@ export const transferValidation = z.object({
   totalItems: z.number(),
   totalAmount: z.number(),
 });
+
+export const adjustmentValidation = z.object({
+  lineItems: z
+    .object({
+      title: z.string(),
+      variantTitle: z.string(),
+      sku: z.string(),
+      variantId: z.number(),
+      quantity: z.number(),
+      imageId: z.number(),
+      imageSrc: z.any().optional(),
+    })
+    .array()
+    .min(1),
+  reason: z.string().min(1, { message: "Required" }),
+});

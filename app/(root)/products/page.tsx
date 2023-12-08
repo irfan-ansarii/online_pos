@@ -20,7 +20,7 @@ import EmptyBox from "@/components/shared/empty-box";
 import ErrorBox from "@/components/shared/error-box";
 
 import ProductCard from "./components/ProductCard";
-import Loading from "./components/Loading";
+import Loading from "@/components/shared/Loading";
 
 import Header from "./components/Header";
 import NewSheet from "./components/NewSheet";

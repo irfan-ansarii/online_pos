@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import SaleCard from "./components/SaleCard";
-import Loading from "./components/Loading";
+import Loading from "@/components/shared/Loading";
 import Filters from "./components/Filters";
 import MobileHeader from "@/components/shared/mobile-header";
 const Page = () => {

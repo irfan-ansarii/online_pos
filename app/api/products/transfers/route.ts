@@ -14,10 +14,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     const user = await getSession(req);
 
     if (!user) {
-      return NextResponse.json(
-        { message: "Missing or invalid credentials" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // get params
@@ -114,10 +111,7 @@ export async function POST(req: NextRequest) {
     const user = await getSession(req);
 
     if (!user) {
-      return NextResponse.json(
-        { message: "Missing or invalid credentials" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     if (Number(user.locationId) === Number(toId)) {
