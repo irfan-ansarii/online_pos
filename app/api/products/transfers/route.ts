@@ -11,7 +11,7 @@ import { getSession } from "@/lib/utils";
  */
 export async function GET(req: NextRequest, res: NextResponse) {
   try {
-    const user = await getSession(req, res);
+    const user = await getSession(req);
 
     if (!user) {
       return NextResponse.json(
@@ -106,12 +106,12 @@ export async function GET(req: NextRequest, res: NextResponse) {
  * @param req
  * @returns
  */
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { toId, lineItems, totalItems, totalAmount } = body;
 
-    const user = await getSession(req, res);
+    const user = await getSession(req);
 
     if (!user) {
       return NextResponse.json(
@@ -185,7 +185,3 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 }
-
-export async function PUT() {}
-
-export async function DELETE() {}

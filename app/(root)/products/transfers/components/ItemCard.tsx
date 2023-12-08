@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import ItemSheet from "./ItemSheet";
 import EditSheet from "./EditSheet";
 
-interface TransferStatus {
+export interface TransferStatus {
   pending: string;
   completed: string;
   partial: string;
@@ -95,9 +95,9 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
                 </>
               )}
             </div>
-            <div className="text-right space-y-0.5 ml-auto">
+            <div className="text-right space-y-0.5 ml-auto truncate">
               <Badge
-                className={`uppercase rounded-md mb-1 text-primary-foreground ${
+                className={`uppercase rounded-md mb-1 text-white truncate ${
                   badge[transfer.status?.toLowerCase()]
                 }`}
                 variant="secondary"

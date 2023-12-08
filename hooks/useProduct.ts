@@ -1,4 +1,3 @@
-import * as z from "zod";
 import {
   useMutation,
   useQuery,
@@ -116,7 +115,7 @@ export const useCreateTransfer = () => {
   const query = useQueryClient();
   return useMutation(createTransfer, {
     onSuccess: () => {
-      query.invalidateQueries(["transfers"]);
+      query.invalidateQueries({ queryKey: ["transfers"] });
     },
   });
 };
@@ -178,7 +177,6 @@ export const useUpdateTransfer = () => {
  */
 const acceptTransfer = async (values: any) => {
   const { id } = values;
-  console.log(values);
   return await api.post(`/products/transfers/${id}/accept`, values);
 };
 
@@ -186,7 +184,7 @@ export const useAcceptTransfer = () => {
   const query = useQueryClient();
   return useMutation(acceptTransfer, {
     onSuccess: () => {
-      query.invalidateQueries(["transfers"]);
+      query.invalidateQueries({ queryKey: ["transfers"] });
     },
   });
 };
@@ -205,7 +203,7 @@ export const useRejectTransfer = () => {
   const query = useQueryClient();
   return useMutation(rejectTransfer, {
     onSuccess: () => {
-      query.invalidateQueries(["transfers"]);
+      query.invalidateQueries({ queryKey: ["transfers"] });
     },
   });
 };

@@ -49,7 +49,7 @@ export const sanitizeOutput = (
   return sanitizeItem(data);
 };
 
-export const getSession = async (req: NextRequest, res: NextResponse) => {
+export const getSession = async (req: NextRequest) => {
   const session = decodeJwt(req) as JwtPayload | undefined;
 
   if (!session) {

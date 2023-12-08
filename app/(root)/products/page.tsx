@@ -110,10 +110,7 @@ const Page = () => {
 
             {products?.pages.map((page) =>
               page.data.data.length === 0 ? (
-                <EmptyBox
-                  className="col-span-1 md:col-span-2 xl:col-span-3"
-                  title="No Products Found"
-                />
+                <EmptyBox className="col-span-1" title="No Products Found" />
               ) : (
                 page.data.data.map((product: any) => (
                   <ProductCard product={product} key={product.id} />
@@ -124,7 +121,7 @@ const Page = () => {
             {/* error */}
             {isError && (
               <ErrorBox
-                className="col-span-1 md:col-span-2 xl:col-span-3"
+                className="col-span-1"
                 title={error?.response?.data?.message}
               />
             )}

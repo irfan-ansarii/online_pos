@@ -137,13 +137,17 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="md:max-w-lg">
+        {isLoading && (
+          <div className="absolute w-full h-full top-0 left-0 z-20"></div>
+        )}
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit, (e, v) => console.log(e, v))}
             className="flex flex-col h-full"
           >
-            <SheetHeader className="md:pb-2">
-              <SheetTitle>Stock Transfer</SheetTitle>
+            <SheetHeader>
+              <SheetTitle>New Transfer</SheetTitle>
             </SheetHeader>
             {loading ? (
               <div className="flex flex-col h-full items-center justify-center">
@@ -169,15 +173,16 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                           </FormControl>
 
                           <SelectContent>
-                            {locations?.data.data.map((location: Option) => (
-                              <SelectItem
-                                value={`${location.id}`}
-                                key={location.id}
-                                disabled={locationId === location.id}
-                              >
-                                {location.name}
-                              </SelectItem>
-                            ))}
+                            {locations?.data.data.map((location: Option) =>
+                              locationId === location.id ? null : (
+                                <SelectItem
+                                  value={`${location.id}`}
+                                  key={location.id}
+                                >
+                                  {location.name}
+                                </SelectItem>
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                         <FormMessage />

@@ -1,5 +1,10 @@
 import { api } from "@/lib/utils";
-import { useMutation, useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { locationValidation } from "@/lib/validations/locations";
 import {
   userInviteValidation,
@@ -133,5 +138,10 @@ const switchLocation = async (data: any) => {
 };
 
 export const useSwitchLocation = () => {
-  return useMutation(switchLocation);
+  const query = useQueryClient();
+  return useMutation(switchLocation, {
+    onSuccess: () => {
+      query.invalidateQueries();
+    },
+  });
 };

@@ -135,6 +135,9 @@ const EditSheet = ({ transfer }: { transfer: any }) => {
 
   return (
     <SheetContent className="md:max-w-lg">
+      {isLoading && (
+        <div className="absolute w-full h-full top-0 left-0 z-20"></div>
+      )}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit, (e, v) => console.log(e, v))}

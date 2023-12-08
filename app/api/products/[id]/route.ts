@@ -65,31 +65,35 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: number } }
 ) {
-  const { id } = params;
+  try {
+    const { id } = params;
 
-  const variants = await prisma.variant.findMany({
-    where: { productId: Number(id) },
-  });
+    const variants = await prisma.variant.findMany({
+      where: { productId: Number(id) },
+    });
 
-  const recordsToDelete = variants.map((variant) => variant.id);
+    const recordsToDelete = variants.map((variant) => variant.id);
 
-  const deleteInventory = prisma.inventory.deleteMany({
-    where: { variantId: { in: recordsToDelete } },
-  });
+    // bellow 3 queries can be done in one go
+    // this needs to be optimized
+    const deleteInventory = prisma.inventory.deleteMany({
+      where: { variantId: { in: recordsToDelete } },
+    });
 
-  const deleteVariants = prisma.variant.deleteMany({
-    where: { productId: Number(id) },
-  });
+    const deleteVariants = prisma.variant.deleteMany({
+      where: { productId: Number(id) },
+    });
 
-  const deleteProduct = prisma.product.delete({
-    where: { id: Number(id) },
-  });
+    const deleteProduct = prisma.product.delete({
+      where: { id: Number(id) },
+    });
 
-  const transaction = await prisma.$transaction([
-    deleteInventory,
-    deleteVariants,
-    deleteProduct,
-  ]);
+    const transaction = await prisma.$transaction([
+      deleteInventory,
+      deleteVariants,
+      deleteProduct,
+    ]);
 
-  return NextResponse.json({ message: "deleted", status: 204 });
+    return NextResponse.json({ message: deleteProduct, status: 204 });
+  } catch (error) {}
 }

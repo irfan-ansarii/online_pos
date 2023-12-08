@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import * as z from "zod";
+import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productValidation } from "@/lib/validations/product";
 import { useForm } from "react-hook-form";
@@ -8,8 +9,8 @@ import { useToggle } from "@uidotdev/usehooks";
 import { useToast } from "@/components/ui/use-toast";
 import { useCreateProduct } from "@/hooks/useProduct";
 
-import { ArrowUpDown, ImagePlus, Loader2 } from "lucide-react";
-import SimpleBar from "simplebar-react";
+import { Loader2, X, Image as ImageIcon } from "lucide-react";
+
 import {
   Sheet,
   SheetHeader,
@@ -27,10 +28,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import AutoComplete from "@/components/shared/product-autocomplete";
+import { Badge } from "@/components/ui/badge";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const [preview, setPreview] = React.useState("");
@@ -96,72 +98,90 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="md:max-w-lg">
+        {isLoading && (
+          <div className="absolute w-full h-full top-0 left-0 z-20"></div>
+        )}
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
             className="flex flex-col h-full"
           >
-            <SheetHeader className="md:pb-2">
-              <SheetTitle>New Transfer</SheetTitle>
+            <SheetHeader>
+              <SheetTitle>New Adjustment</SheetTitle>
             </SheetHeader>
 
-            <SimpleBar className="-mx-6 px-6 relative grow max-h-full overflow-y-auto">
-              {isLoading && (
-                <div className="absolute w-full h-full top-0 left-0 z-20"></div>
+            <FormField
+              control={form.control}
+              name="reason"
+              rules={{ required: "Required" }}
+              render={({ field }) => (
+                <FormItem className="mb-6">
+                  <FormLabel>Reason</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Reason..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
+            />
 
-              <div className="flex flex-col gap-6 grow pb-2 md:pb-4">
-                <div>
-                  <FormField
-                    control={form.control}
-                    name="fromId"
-                    rules={{ required: "Required" }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>From</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Title" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="text-center mt-3">
-                    <Button size="icon" variant="secondary" className="mx-auto">
-                      <ArrowUpDown className="w-5 h-5" />
-                    </Button>
+            <div className="flex flex-col gap-2 mb-2">
+              <FormLabel>Products</FormLabel>
+              <AutoComplete onSelect={onSelect} error={""} />
+            </div>
+            <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
+              {[...Array(0)].map((field, i) => (
+                <div
+                  className="flex rounded-md border p-2 pr-0 items-center snap-start"
+                  key={field.id}
+                >
+                  <div className="flex gap-3 items-center col-span-2">
+                    <Avatar className="w-10 h-10 border-2">
+                      <AvatarImage
+                        asChild
+                        src={`/${field.imageSrc}`}
+                        className="object-cover"
+                      >
+                        <Image
+                          src={`/${field.imageSrc}`}
+                          alt={`/${field.imageSrc}`}
+                          width={40}
+                          height={40}
+                        />
+                      </AvatarImage>
+                      <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
+                        <ImageIcon className="w-4 h-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-0.5 truncate">
+                      <div className="font-semibold truncate">
+                        {field.title}
+                      </div>
+                      {field.variantTitle && (
+                        <Badge className="py-.5" variant="secondary">
+                          {field.variantTitle}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="toId"
-                    rules={{ required: "Required" }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>To</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Title" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="ml-auto flex items-center gap-6">
+                    <div>{field.quantity}</div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="opacity-50 hover:opacity-100 hover:bg-background transition"
+                      // onClick={() => lineItems.remove(i)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </SimpleBar>
+              ))}
+            </div>
 
             <SheetFooter className="pt-2 flex-col">
-              <div>
-                <div className="flex">
-                  <div>Items</div>
-                  <div className="ml-auto">4</div>
-                </div>
-                <div className="flex">
-                  <div>Items</div>
-                  <div className="ml-auto">4</div>
-                </div>
-              </div>
               <Button className="w-full" type="submit">
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

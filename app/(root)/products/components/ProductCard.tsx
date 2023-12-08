@@ -23,7 +23,7 @@ import ProductSheet from "./ProductSheet";
 import EditSheet from "./EditSheet";
 
 const ProductCard = ({ product }: { product: any }) => {
-  const price = React.useMemo(() => {
+  const priceRange = React.useMemo(() => {
     const { variants } = product;
 
     const salePrices = variants.map((variant: any) => variant.salePrice);
@@ -39,10 +39,16 @@ const ProductCard = ({ product }: { product: any }) => {
   }, [product]);
 
   const stock = React.useMemo(() => {
-    return product.variants.reduce((acc, curr) => {
+    return product.variants.reduce((acc: any, curr: any) => {
       return acc + Number(curr.stock);
     }, 0);
   }, [product]);
+
+  const badgeClassName = {
+    active: "bg-success hover:bg-successs",
+    archived: "bg-warning hover:bg-warning",
+    trash: "bg-destructive hover:bg-destructive",
+  };
 
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
@@ -76,14 +82,19 @@ const ProductCard = ({ product }: { product: any }) => {
               </div>
             </div>
             <div className="font-medium text-right truncate col-span-2 hidden md:block">
-              {price}
+              {priceRange}
             </div>
             <div className="text-right col-span-3 md:col-span-1">
-              <Badge className="uppercase rounded-md mb-1" variant="secondary">
+              <Badge
+                className={`uppercase rounded-md text-white mb-1 ${
+                  badgeClassName[product.status]
+                }`}
+                variant="secondary"
+              >
                 {product.status}
               </Badge>
-              <div className="font-medium text-right truncate md:hidden">
-                {price}
+              <div className={`font-medium text-right truncate md:hidden`}>
+                {priceRange}
               </div>
             </div>
             <div className="hidden md:block text-right">{stock}</div>
@@ -98,15 +109,15 @@ const ProductCard = ({ product }: { product: any }) => {
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="secondary" size="icon" className="">
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="w-4 h-4" />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your
-                account and remove your data from our servers.
+                This action will permanently remove the selected product from
+                the system and cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

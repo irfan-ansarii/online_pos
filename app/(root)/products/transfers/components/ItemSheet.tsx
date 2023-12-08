@@ -1,6 +1,6 @@
 import React, { useState, useMemo, ChangeEvent } from "react";
 import Image from "next/image";
-import { Image as ImageIcon, Check, X } from "lucide-react";
+import { Image as ImageIcon, Loader2 } from "lucide-react";
 
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useAcceptTransfer, useRejectTransfer } from "@/hooks/useProduct";
 import { useToast } from "@/components/ui/use-toast";
+
 interface LineItem {
   id: number;
   title: string;
+  variantId: number;
   variantTitle?: string;
   image?: ImageType;
   quantity: number;
@@ -27,6 +29,7 @@ interface ImageType {
 
 interface Transfer {
   id: number;
+  toId: number;
   lineItems: LineItem[];
   source: Source;
   status: string;
@@ -43,10 +46,12 @@ interface ProductSheetProps {
 
 const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [accepted, setAccepted] = useState<number[]>([]);
+  const [accepted, setAccepted] = useState<LineItem[]>([]);
+
   const { toast } = useToast();
   const { mutate, isLoading } = useAcceptTransfer();
   const { mutate: reject, isLoading: rejecting } = useRejectTransfer();
+
   // filtered list items
   const filteredList = useMemo<LineItem[]>(() => {
     if (!searchTerm) {
@@ -69,10 +74,11 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
   };
 
   // handle item click
-  const handleClick = (state: boolean, itemId: number) => {
-    const index = accepted.indexOf(itemId);
-    if (index === -1) {
-      setAccepted([...accepted, itemId]);
+  const handleClick = (checked: boolean, item: LineItem) => {
+    const index = accepted.findIndex((acc) => acc.id === item.id);
+
+    if (index === -1 && checked) {
+      setAccepted([...accepted, item]);
       return;
     }
 
@@ -80,15 +86,24 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
     setAccepted([...accepted]);
   };
 
+  // handle accept
   const handleSubmit = () => {
+    const data = accepted.map((i) => ({
+      id: i.id,
+      quantity: i.quantity,
+      variantId: i.variantId,
+      toId: transfer.toId,
+    }));
+
     mutate(
-      { id: transfer.id, lineItems: accepted },
+      { id: transfer.id, lineItems: data },
       {
         onSuccess: (res) => {
           toast({
             variant: "success",
             title: "Transfer created successfully!",
           });
+          setAccepted([]);
         },
         onError: (error: any) => {
           toast({
@@ -100,14 +115,19 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
     );
   };
 
+  // handle reject
   const handleReject = () => {
+    if (transfer.status !== "pending") {
+      return;
+    }
+
     reject(
       { id: transfer.id },
       {
         onSuccess: (res) => {
           toast({
             variant: "success",
-            title: "Transfer created successfully!",
+            title: "Transfer rejected successfully.",
           });
         },
         onError: (error: any) => {
@@ -121,7 +141,14 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
   };
 
   return (
-    <SheetContent className="md:max-w-lg">
+    <SheetContent
+      className="md:max-w-lg"
+      onOpenAutoFocus={() => setAccepted([])}
+    >
+      {(isLoading || rejecting) && (
+        <div className="absolute w-full h-full top-0 left-0 z-20"></div>
+      )}
+
       <div className="flex flex-col h-full gap-4">
         <SheetHeader className="mb-0">
           <SheetTitle>Transfer</SheetTitle>
@@ -143,7 +170,7 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
             onChange={handleSearchChange}
           />
         </div>
-        <div className="relative -mx-6 px-6 -my-3 py-3 grow max-h-full overflow-auto snap-y snap-mandatory space-y-3 scrollbox mb-4">
+        <div className="relative -mx-6 px-6 -my-3 py-3 grow max-h-full overflow-auto snap-y snap-mandatory space-y-1 scrollbox mb-4">
           {filteredList.length == 0 && (
             <div className="text-center">No result found.</div>
           )}
@@ -191,7 +218,9 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
                     transfer.status === "rejected"
                   }
                   defaultChecked={item.status === "completed"}
-                  onCheckedChange={(e: boolean) => handleClick(e, item.id)}
+                  onCheckedChange={(checked: boolean) =>
+                    handleClick(checked, item)
+                  }
                 />
               </div>
             </Label>
@@ -199,22 +228,33 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
         </div>
 
         <div className="flex gap-4">
+          {/* render reject button conditionally */}
+          {transfer.status === "pending" && (
+            <Button
+              disabled={accepted.length > 0 || rejecting}
+              className="flex-1"
+              variant="secondary"
+              onClick={handleReject}
+            >
+              {rejecting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Reject"
+              )}
+            </Button>
+          )}
+
+          {/* submit button */}
           <Button
-            disabled={accepted.length > 0}
-            className="flex-1"
-            variant="secondary"
-            onClick={handleReject}
-          >
-            Reject
-          </Button>
-          <Button
-            disabled={!accepted.length || accepted.length < 1}
+            disabled={!accepted.length || accepted.length < 1 || isLoading}
             className="flex-1"
             onClick={handleSubmit}
           >
-            Accept{" "}
-            {accepted?.length > 0 &&
-              `${accepted.length} Item${accepted.length > 1 ? "s" : ""}`}
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              "Accept"
+            )}
           </Button>
         </div>
       </div>
