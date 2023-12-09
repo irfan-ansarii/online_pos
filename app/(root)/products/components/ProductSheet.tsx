@@ -2,10 +2,13 @@ import React from "react";
 import { MapPin, Settings2 } from "lucide-react";
 import Numeral from "numeral";
 import { useProduct } from "@/hooks/useProduct";
+
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+
 import { Button } from "@/components/ui/button";
 import ErrorBox from "@/components/shared/error-box";
 import Loading from "./Loading";
+import AdjustmentDialog from "./AdjustmentDialog";
 
 const ProductSheet = ({ product }: any) => {
   const { id, title } = product;
@@ -26,12 +29,14 @@ const ProductSheet = ({ product }: any) => {
             title={error?.response?.data?.message}
           />
         )}
+
         {data?.data.data.variants.map((variant: any) => (
           <div className="rounded-md border overflow-hidden" key={variant.id}>
             <div className="grid grid-cols-4 gap-2 px-4 py-2 items-center bg-accent">
-              <div className="space-y-1 font-medium">
+              <div className="font-medium">
                 <div>{variant.title}</div>
-                <div className="text-muted-foreground text-xs">
+
+                <div className="text-xs uppercase text-muted-foreground">
                   {variant.sku}
                 </div>
               </div>
@@ -55,9 +60,22 @@ const ProductSheet = ({ product }: any) => {
                   <div>{inventory.location.name}</div>
                   <div className="ml-auto flex items-center gap-2">
                     <div>{inventory.stock}</div>
-                    <Button size="sm" variant="secondary">
-                      <Settings2 className="w-4 h-4" />
-                    </Button>
+
+                    <AdjustmentDialog
+                      data={{
+                        title: product.title,
+                        variantTitle: variant.variantTitle,
+                        sku: variant.sku,
+                        quantity: 1,
+                        variantId: Number(variant.id),
+                        imageId: Number(product.image.id),
+                        locationId: inventory.locationId,
+                      }}
+                    >
+                      <Button size="sm" variant="secondary">
+                        <Settings2 className="w-4 h-4" />
+                      </Button>
+                    </AdjustmentDialog>
                   </div>
                 </div>
               ))}

@@ -26,11 +26,13 @@ const Page = () => {
     isFetchingNextPage,
     fetchNextPage,
   } = useAdjustments(queryParams);
+
   const [ref, entry] = useIntersectionObserver({
     threshold: 0,
     root: null,
     rootMargin: "0px",
   });
+
   return (
     <>
       <MobileHeader title="Adjustments" />
@@ -44,7 +46,6 @@ const Page = () => {
               </Button>
             </NewSheet>
           }
-          filters={<div>Filters</div>}
         />
 
         {/* mobile navigation */}
@@ -55,10 +56,7 @@ const Page = () => {
           <div className="grid grid-cols-1 md:gap-2 items-center">
             {transfers?.pages.map((page) =>
               page.data.data.length === 0 ? (
-                <EmptyBox
-                  className="col-span-1 md:col-span-2 xl:col-span-3"
-                  title="No Products Found"
-                />
+                <EmptyBox className="col-span-1" title="No Products Found" />
               ) : (
                 page.data.data.map((adjustment: any) => (
                   <ItemCard adjustment={adjustment} key={adjustment.id} />

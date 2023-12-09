@@ -154,13 +154,16 @@ export const transferValidation = z.object({
 });
 
 export const adjustmentValidation = z.object({
+  locationId: z.number().optional(),
   lineItems: z
     .object({
       title: z.string(),
-      variantTitle: z.string(),
+      variantTitle: z.any().optional(),
       sku: z.string(),
       variantId: z.number(),
-      quantity: z.number(),
+      quantity: z
+        .union([z.string(), z.number()])
+        .refine((n: any) => !isNaN(n), { message: "Enter valid number" }),
       imageId: z.number(),
       imageSrc: z.any().optional(),
     })

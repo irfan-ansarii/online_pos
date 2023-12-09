@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
-
+import Image from "next/image";
 import Numeral from "numeral";
 import { useFormContext, useWatch } from "react-hook-form";
-import { Plus, Minus, ShoppingBag, Image } from "lucide-react";
+import { Plus, Minus, ShoppingBag, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -138,7 +138,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
       (acc: any, curr: any) => {
         const total = curr.price * curr.quantity - curr.totalDiscount || 0;
 
-        acc.subtotal += total + curr.totalDiscount || 0;
+        acc.subtotal += Number(total) + Number(curr.totalDiscount || 0);
         acc.totalDiscount += curr.totalDiscount || 0;
         acc.totalTax += curr.totalTax;
         acc.total += taxType === "included" ? total : total + curr.totalTax;
@@ -164,25 +164,37 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
         </div>
       )}
       {fields && fields.length > 0 && (
-        <ScrollArea className="grow h-full -mx-4">
+        <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox -mx-4">
           <Accordion type="single" collapsible className="h-full divide-y px-4">
             {fields.map((field: any, i: number) => (
               <AccordionItem
                 key={field.id}
                 value={field.id}
-                className="border-b-0 py-1 first:pt-0 last:pb-0 relative"
+                className="border-b-0 py-1.5 first:pt-0 last:pb-0 relative snap-start"
               >
                 <AccordionTrigger asChild>
-                  <div className="!py-0 hover:no-underline flex cursor-pointer">
-                    <Avatar className="w-14 h-full rounded-md shrink-0 bg-border dark:bg-secondary">
-                      <AvatarImage alt="@shadcn" />
+                  <div className="!py-0 hover:no-underline flex gap-2 cursor-pointer">
+                    <Avatar className="w-14 h-14 rounded-md flex-0 bg-border dark:bg-secondary">
+                      <AvatarImage
+                        alt="@shadcn"
+                        src={`/${field?.imageSrc}`}
+                        className="object-cover object-cover rounded-t-md"
+                        asChild
+                      >
+                        <Image
+                          src={`/${field?.imageSrc}`}
+                          width={50}
+                          height={60}
+                          alt=""
+                        ></Image>
+                      </AvatarImage>
                       <AvatarFallback className="bg-transparent text-muted-foreground rounded-md">
-                        <Image className="w-5 h-5" />
+                        <ImageIcon className="w-5 h-5" />
                       </AvatarFallback>
                     </Avatar>
 
-                    <div className="grid grid-cols-12 p-2 grow">
-                      <div className="text-left col-span-9 space-y-1 text-sm font-normal truncate">
+                    <div className="grid grid-cols-4 flex-1 h-14">
+                      <div className="text-left col-span-3 space-y-1 text-sm font-normal truncate">
                         <div className="truncate">{field.title}</div>
                         <div className="flex justify-between">
                           {field.variantTitle && (
@@ -220,7 +232,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                           </Badge>
                         </div>
                       </div>
-                      <div className="col-span-3 flex flex-col justify-end pb-1 h-full font-medium text-right">
+                      <div className="flex flex-col justify-end pb-1 h-full font-medium text-right">
                         {watch[i]?.total <
                           watch[i]?.total + watch[i]?.totalDiscount && (
                           <div className="line-through text-muted-foreground text-xs">
@@ -236,8 +248,8 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                 </AccordionTrigger>
 
                 <AccordionContent className="[&>div]:pb-0">
-                  <div className="py-1">
-                    <div className="grid grid-cols-2 gap-4 border-t pt-2">
+                  <div className="py-1.5">
+                    <div className="grid grid-cols-2 gap-4 border-t pt-1.5">
                       <div className="space-y-1.5">
                         <FormField
                           control={form.control}
@@ -299,7 +311,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
               </AccordionItem>
             ))}
           </Accordion>
-        </ScrollArea>
+        </div>
       )}
       <div className="border-t-2 pt-2 border-dashed">
         <div className="flex flex-col text-sm">

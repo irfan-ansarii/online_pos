@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { decodeJwt, JwtPayload } from "@/lib/decode-jwt";
 import { PAGE_SIZE } from "@/config/app";
+import { Prisma } from "@prisma/client";
 
 /**
  * GET
@@ -24,21 +25,23 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
+    const filters: Prisma.FileWhereInput = {
+      OR: [
+        {
+          title: { contains: search, mode: "insensitive" },
+        },
+        {
+          caption: { contains: search, mode: "insensitive" },
+        },
+        {
+          ext: { contains: search, mode: "insensitive" },
+        },
+      ],
+    };
+
     // find files
     const files = await prisma.file.findMany({
-      where: {
-        OR: [
-          {
-            title: { contains: search, mode: "insensitive" },
-          },
-          {
-            caption: { contains: search, mode: "insensitive" },
-          },
-          {
-            ext: { contains: search, mode: "insensitive" },
-          },
-        ],
-      },
+      where: filters,
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
@@ -51,6 +54,7 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
+      where: filters,
     });
 
     // return response
@@ -81,49 +85,49 @@ export async function GET(req: NextRequest) {
  * @returns
  */
 export async function POST(req: NextRequest) {
-  const form = await req.formData();
-
-  const files = [];
-
-  if (!form) {
-    return NextResponse.json({ success: false });
-  }
-
-  for (const [_, file] of form.entries()) {
-    const { size, type, name } = file;
-    const salt = await bcryptjs.genSalt(10);
-    const hash = salt.replace(/[/\\?%*:|"<>]/g, "_");
-
-    const [title, extension] = name.split(name[name.lastIndexOf(".")]);
-
-    const bytes = await file.arrayBuffer();
-
-    const buffer = Buffer.from(bytes);
-    const fileName = `${title}_${hash}.${extension}`;
-    const src = `uploads/${fileName}`;
-    const path = `public/${src}`;
-
-    await writeFile(path, buffer);
-
-    const uploadedFiles = {
-      title: title,
-      caption: title,
-      width: 0,
-      height: 0,
-      ext: extension,
-      mime: type,
-      size: size,
-      src: src,
-    };
-
-    files.push(uploadedFiles);
-  }
-
-  if (files.length === 0) {
-    return NextResponse.json({ success: false });
-  }
-
   try {
+    const form = await req.formData();
+
+    const files = [];
+
+    if (!form) {
+      return NextResponse.json({ success: false });
+    }
+
+    for (const [_, file] of form.entries()) {
+      const { size, type, name } = file;
+      const salt = await bcryptjs.genSalt(10);
+      const hash = salt.replace(/[/\\?%*:|"<>]/g, "_");
+
+      const [title, extension] = name.split(name[name.lastIndexOf(".")]);
+
+      const bytes = await file.arrayBuffer();
+
+      const buffer = Buffer.from(bytes);
+      const fileName = `${title}_${hash}.${extension}`;
+      const src = `uploads/${fileName}`;
+      const path = `public/${src}`;
+
+      await writeFile(path, buffer);
+
+      const uploadedFiles = {
+        title: title,
+        caption: title,
+        width: 0,
+        height: 0,
+        ext: extension,
+        mime: type,
+        size: size,
+        src: src,
+      };
+
+      files.push(uploadedFiles);
+    }
+
+    if (files.length === 0) {
+      return NextResponse.json({ success: false });
+    }
+
     const response = await prisma.file.createMany({
       data: files,
     });

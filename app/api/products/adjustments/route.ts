@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { ProductStatus, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { PAGE_SIZE } from "@/config/app";
-import { getSession, sanitizeOutput } from "@/lib/utils";
+import { getSession } from "@/lib/utils";
 
 /**
  * get products
@@ -21,12 +21,25 @@ export async function GET(req: NextRequest) {
     const params = Object.fromEntries([...searchParams.entries()]);
 
     // destructure params
-    const { page, search, status } = params;
+    const { page, search } = params;
 
     // pagination
     const currentPage = parseInt(page, 10) || 1;
 
     const offset = (currentPage - 1) * PAGE_SIZE;
+
+    const filters: Prisma.AdjustmentWhereInput = {
+      AND: [
+        { locationId: Number(user?.locationId) },
+        {
+          OR: [
+            { title: { contains: search, mode: "insensitive" } },
+            { variantTitle: { contains: search, mode: "insensitive" } },
+            { sku: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      ],
+    };
 
     // find adjustments
     const response = await prisma.adjustment.findMany({
@@ -35,7 +48,8 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      where: { locationId: Number(user?.locationId) },
+      where: { ...filters },
+      include: { image: true },
     });
 
     // get pagination
@@ -43,7 +57,7 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      where: { locationId: Number(user?.locationId) },
+      where: { ...filters },
     });
 
     // return response
@@ -57,7 +71,6 @@ export async function GET(req: NextRequest) {
           total,
         },
       },
-
       { status: 200 }
     );
   } catch (error) {
@@ -69,14 +82,14 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * create adjustments
+ * create adjustment
  * @param req
  * @returns
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { lineItems, reason } = body;
+    const { lineItems, reason, locationId } = body;
 
     const user = await getSession(req);
 
@@ -84,15 +97,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const location = !isNaN(locationId) ? Number(locationId) : user.locationId;
+
     // create adjustment
     const response = await prisma.adjustment.createMany({
-      data: lineItems.map((item: Prisma.AdjustmentCreateInput) => ({
-        locationId: user.locationId,
+      data: lineItems.map((item: any) => ({
+        locationId: location,
         variantId: item.variantId,
         title: item.title,
         sku: item.sku,
         variantTitle: item.variantTitle,
-        quantity: item.quantity,
+        quantity: Number(item.quantity),
         reason,
         imageId: item.imageId,
       })),
@@ -102,16 +117,17 @@ export async function POST(req: NextRequest) {
       const inventory = await prisma.inventory.updateMany({
         where: {
           AND: [
-            { locationId: Number(user.locationId) },
+            { locationId: location! },
             { variantId: Number(item.variantId) },
           ],
         },
         data: { stock: { increment: Number(item.quantity) } },
       });
+
       if (!inventory) {
         await prisma.inventory.create({
           data: {
-            locationId: Number(user.locationId),
+            locationId: location!,
             variantId: Number(item.variantId),
             stock: Number(item.quantity),
           },
@@ -125,7 +141,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

@@ -160,7 +160,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
 
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit, (e, v) => console.log(e, v))}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col h-full"
           >
             <SheetHeader>

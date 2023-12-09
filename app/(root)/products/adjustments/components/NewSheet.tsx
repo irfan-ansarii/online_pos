@@ -66,7 +66,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     if (index !== -1) {
       lineItems.update(index, {
         ...items[index],
-        quantity: items[index].quantity + 1,
+        quantity: Number(items[index].quantity) + 1,
       });
       return;
     }
@@ -104,7 +104,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       onSuccess: (res) => {
         toast({
           variant: "success",
-          title: "Product created successfully!",
+          description: "Stock adjusted successfully.",
         });
         form.reset();
         toggle();
@@ -128,7 +128,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
 
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col h-full"
           >
             <SheetHeader>
@@ -185,7 +185,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                         {field.title}
                       </div>
                       {field.variantTitle && (
-                        <Badge className="py-.5" variant="secondary">
+                        <Badge className="py-0" variant="secondary">
                           {field.variantTitle}
                         </Badge>
                       )}

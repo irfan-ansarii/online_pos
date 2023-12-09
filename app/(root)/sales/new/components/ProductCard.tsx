@@ -1,9 +1,10 @@
 import React from "react";
+import Image from "next/image";
 import Numeral from "numeral";
 
 import { useFormContext, useWatch } from "react-hook-form";
 
-import { Image } from "lucide-react";
+import { Image as ImageIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -31,6 +32,8 @@ interface VariantType {
   taxRate: number;
   productId: number;
   variantId: number;
+  imageId: number;
+  imageSrc: string;
 }
 
 interface ProductType {
@@ -40,6 +43,11 @@ interface ProductType {
   type: string;
   options: [];
   variants: VariantType[];
+  image: ImageType;
+}
+interface ImageType {
+  id: number;
+  src: string;
 }
 
 const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
@@ -100,6 +108,8 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
               salePrice: product?.variants?.[0].salePrice,
               taxRate: product?.variants?.[0].taxRate,
               productId: product.id,
+              imageId: product.image.id,
+              imageSrc: product.image.src,
               variantId: product?.variants?.[0].id!,
             },
             product.type !== "simple" ? "skip" : null
@@ -108,13 +118,22 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
       >
         <Card className="cursor-pointer rounded-md">
           <CardHeader className="p-0">
-            <Avatar className="w-full h-full rounded-none">
+            <Avatar className="w-full h-full rounded-none overflow-hidden">
               <AvatarImage
                 alt="@shadcn"
-                className="object-cover object-cover"
-              />
+                src={`/${product?.image?.src}`}
+                className="object-cover object-cover rounded-t-md"
+                asChild
+              >
+                <Image
+                  src={`/${product?.image?.src}`}
+                  width={200}
+                  height={200}
+                  alt=""
+                ></Image>
+              </AvatarImage>
               <AvatarFallback className="object-cover text-muted-foreground object-cover aspect-square rounded-t rounded-b-none">
-                <Image className="w-10 h-10" />
+                <ImageIcon className="w-10 h-10" />
               </AvatarFallback>
             </Avatar>
           </CardHeader>
@@ -143,6 +162,8 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
                     sku: variant.sku,
                     salePrice: variant.salePrice,
                     taxRate: variant.taxRate,
+                    imageId: product.image.id,
+                    imageSrc: product.image.src,
                     productId: product.id,
                     variantId: variant.id,
                   },
@@ -152,10 +173,22 @@ const ProductCard: React.FC<{ product: ProductType; lineItems: any }> = ({
             >
               <Button
                 key={variant.id}
-                variant="outline"
-                className="border-2 flex-col p-4 truncate space-y-2 w-full h-full hover:bg-background hover:border-primary"
+                className="flex-col !bg-secondary/20 border px-0 py-2 truncate space-y-2 w-full h-full"
               >
-                <Avatar className="shrink-0 w-12 h-12">
+                <Avatar className="w-12 h-12 border-2">
+                  <AvatarImage
+                    alt="@shadcn"
+                    src={`/${product?.image?.src}`}
+                    className="object-cover object-cover rounded-t-md"
+                    asChild
+                  >
+                    <Image
+                      src={`/${product?.image?.src}`}
+                      width={50}
+                      height={60}
+                      alt=""
+                    ></Image>
+                  </AvatarImage>
                   <AvatarFallback>P</AvatarFallback>
                 </Avatar>
                 <div className="space-y-0.5">
