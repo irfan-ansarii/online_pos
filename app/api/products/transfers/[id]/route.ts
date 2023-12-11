@@ -14,11 +14,24 @@ export async function PUT(
   try {
     const { id } = params;
 
+    const { lineItems, totalItems, totalAmount } = await req.json();
+
     const user = await getSession(req);
 
     if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
+
+    const transfer = await prisma.transfer.findUnique({
+      where: { id: Number(id) },
+      include: { lineItems: true },
+    });
+
+    if (!transfer) {
+      return NextResponse.json({ message: "Not found" }, { status: 404 });
+    }
+
+    //
   } catch (error) {
     return NextResponse.json(
       { message: "Internal server error", data: error },
@@ -38,7 +51,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
-
+    const { action } = await req.json();
     const user = await getSession(req);
 
     if (!user) {
@@ -50,20 +63,28 @@ export async function DELETE(
       include: { lineItems: true },
     });
 
-    if (!transfer || transfer.status !== "pending") {
+    if (!transfer) {
       return NextResponse.json({ message: "Not found" }, { status: 404 });
     }
 
+    if (transfer.status !== "pending") {
+      return NextResponse.json(
+        { message: "The entry cannot be edited" },
+        { status: 400 }
+      );
+    }
+    const status = action === "remove" ? "cancelled" : "rejected";
+
     const rejected = await prisma.transfer.update({
       data: {
-        status: "rejected",
+        status,
         lineItems: {
           updateMany: {
             where: {
               transferId: Number(id),
             },
             data: {
-              status: "completed",
+              status,
             },
           },
         },

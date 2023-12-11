@@ -46,7 +46,7 @@ export async function POST(
       // completed line items
       await prisma.transferLineItem.updateMany({
         data: {
-          status: "completed",
+          status: "accepted",
         },
         where: {
           AND: [
@@ -60,7 +60,7 @@ export async function POST(
     // find one transfer
     const transfer = await prisma.transfer.findUnique({
       where: {
-        id: id,
+        id: Number(id),
       },
       include: {
         lineItems: true,
@@ -69,13 +69,13 @@ export async function POST(
 
     // check if all the items are accepted
     const isCompleted = transfer?.lineItems.every(
-      (item) => item.status == "completed"
+      (item) => item.status == "accepted"
     );
 
     // update transfer
-    const updatedTransfer = await prisma.transfer.update({
+    const updatedTransfer = prisma.transfer.update({
       data: {
-        status: isCompleted ? "completed" : "partial",
+        status: isCompleted ? "accepted" : "partial",
       },
       where: {
         id: id,

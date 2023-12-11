@@ -137,6 +137,7 @@ export const transferValidation = z.object({
   toId: z.string().nonempty(),
   lineItems: z
     .object({
+      id: z.number().optional(),
       title: z.string().optional(),
       variantTitle: z.string().nullable(),
       sku: z.any().optional(),
@@ -146,6 +147,7 @@ export const transferValidation = z.object({
       variantId: z.any().optional(),
       imageId: z.number(),
       imageSrc: z.any(),
+      status: z.string().optional(),
     })
     .array()
     .min(1),

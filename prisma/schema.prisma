@@ -171,7 +171,7 @@ model Transfer {
   id          Int                @id @default(autoincrement())
   fromId      Int
   toId        Int
-  status      String
+  status      String             @default("pending")
   notes       String?
   totalItems  Int
   totalAmount Float
@@ -179,7 +179,7 @@ model Transfer {
   updatedAt   DateTime           @updatedAt
   lineItems   TransferLineItem[]
 
-  // status: pending, completed, partial, rejected, 
+  // status: pending, accepted, rejected, partial, cancelled, 
   @@map("transfers")
 }
 
@@ -194,14 +194,14 @@ model TransferLineItem {
   quantity     Int
   total        Float
   imageId      Int?
-  status       String
+  status       String   @default("pending")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   variant      Variant  @relation(fields: [variantId], references: [id])
   transfer     Transfer @relation(fields: [transferId], references: [id])
   image        File?    @relation(fields: [imageId], references: [id])
 
-  // status: pending, completed
+  // status: pending, accepted, rejected, cancelled,
   @@map("transfer_line_items")
 }
 

@@ -127,6 +127,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    const sourceId = Number(user.locationId);
 
     // oranize line items data
     const lineItemsToCreate = lineItems.map((item: any) => ({
@@ -145,7 +146,7 @@ export async function POST(req: NextRequest) {
     const transfer = await prisma.transfer.create({
       data: {
         toId: Number(toId),
-        fromId: Number(user.locationId),
+        fromId: sourceId,
         status: "pending",
         totalItems,
         totalAmount,
@@ -157,19 +158,28 @@ export async function POST(req: NextRequest) {
 
     // reduce stock from the source
     for (const item of lineItems) {
-      await prisma.inventory.updateMany({
+      const variantId = Number(item.variantId);
+      const quantity = Number(item.quantity);
+
+      const updateResponse = await prisma.inventory.updateMany({
         data: {
           stock: { decrement: item.quantity },
         },
         where: {
-          AND: [
-            { locationId: Number(user.locationId) },
-            { variantId: Number(item.variantId) },
-          ],
+          AND: [{ locationId: sourceId }, { variantId: variantId }],
         },
       });
-    }
 
+      if (!updateResponse) {
+        await prisma.inventory.create({
+          data: {
+            locationId: sourceId,
+            variantId: variantId,
+            stock: 0 - quantity,
+          },
+        });
+      }
+    }
     // return response
     return NextResponse.json({ data: transfer }, { status: 201 });
   } catch (error) {
