@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { useAcceptTransfer, useRejectTransfer } from "@/hooks/useProduct";
+import { useAcceptTransfer, useUpdateTransfer } from "@/hooks/useProduct";
 import { useToast } from "@/components/ui/use-toast";
 
 interface LineItem {
@@ -50,7 +50,7 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
 
   const { toast } = useToast();
   const { mutate, isLoading } = useAcceptTransfer();
-  const { mutate: reject, isLoading: rejecting } = useRejectTransfer();
+  const { mutate: update, isLoading: isUpdating } = useUpdateTransfer();
 
   // filtered list items
   const filteredList = useMemo<LineItem[]>(() => {
@@ -101,7 +101,7 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
         onSuccess: (res) => {
           toast({
             variant: "success",
-            title: "Transfer created successfully!",
+            title: "Stock updated successfully!",
           });
           setAccepted([]);
         },
@@ -121,8 +121,8 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
       return;
     }
 
-    reject(
-      { id: transfer.id },
+    update(
+      { id: transfer.id, status: "rejected" },
       {
         onSuccess: (res) => {
           toast({
@@ -145,7 +145,7 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
       className="md:max-w-lg"
       onOpenAutoFocus={() => setAccepted([])}
     >
-      {(isLoading || rejecting) && (
+      {(isLoading || isUpdating) && (
         <div className="absolute w-full h-full top-0 left-0 z-20"></div>
       )}
 
@@ -177,7 +177,7 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
           {filteredList?.map((item, i) => (
             <Label
               htmlFor={`${item.id}`}
-              className={`flex relative rounded-md border p-2 pr-4 items-center snap-stat cursor-pointer `}
+              className={`flex relative rounded-md border p-2 items-center snap-stat cursor-pointer `}
               key={i}
             >
               <div className="flex gap-3 items-center col-span-2">
@@ -208,16 +208,13 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
                 </div>
               </div>
 
-              <div className="ml-auto flex gap-4 items-center">
-                {item?.quantity}
+              <div className="ml-auto flex items-center">
+                <div className="pr-4">{item?.quantity}</div>
 
                 <Checkbox
                   id={`${item.id}`}
-                  disabled={
-                    item.status === "completed" ||
-                    transfer.status === "rejected"
-                  }
-                  defaultChecked={item.status === "completed"}
+                  disabled={item.status !== "pending"}
+                  defaultChecked={item.status !== "pending"}
                   onCheckedChange={(checked: boolean) =>
                     handleClick(checked, item)
                   }
@@ -231,12 +228,12 @@ const ProductSheet: React.FC<ProductSheetProps> = ({ transfer }) => {
           {/* render reject button conditionally */}
           {transfer.status === "pending" && (
             <Button
-              disabled={accepted.length > 0 || rejecting}
+              disabled={accepted.length > 0 || isUpdating}
               className="flex-1"
-              variant="secondary"
+              variant="destructive"
               onClick={handleReject}
             >
-              {rejecting ? (
+              {isUpdating ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 "Reject"

@@ -88,21 +88,6 @@ export const useUpdateProduct = () => {
 };
 
 /**
- * get inventory
- *  maybe delete later
- * @param param0
- * @returns
- */
-const getInventory = async ({ queryKey }: { queryKey: [string, number] }) => {
-  const [_, id] = queryKey;
-  return await api.get(`/products/${id}`);
-};
-
-export const useInventory = (id: number) => {
-  return useQuery(["product", id], getInventory);
-};
-
-/**
  * create stock transfer
  * @param values
  * @returns
@@ -190,25 +175,6 @@ export const useAcceptTransfer = () => {
 };
 
 /**
- * reject stock transfer
- * @param values
- * @returns
- */
-const rejectTransfer = async (values: any) => {
-  const { id } = values;
-  return await api.delete(`/products/transfers/${id}`, values);
-};
-
-export const useRejectTransfer = () => {
-  const query = useQueryClient();
-  return useMutation(rejectTransfer, {
-    onSuccess: () => {
-      query.invalidateQueries({ queryKey: ["transfers"] });
-    },
-  });
-};
-
-/**
  * create adjustments
  * @param values
  * @returns
@@ -221,13 +187,13 @@ export const useCreateAdjustment = () => {
   const query = useQueryClient();
   return useMutation(createAdjustment, {
     onSuccess: () => {
-      query.invalidateQueries({ queryKey: ["adjustments"] });
+      query.invalidateQueries({ queryKey: ["adjustments", "product"] });
     },
   });
 };
 
 /**
- * get Adjustment
+ * get Adjustments
  * @param param
  * @returns
  */
@@ -247,6 +213,52 @@ const getAdjustments = async ({
 
 export const useAdjustments = (query: { search?: string }) => {
   return useInfiniteQuery(["adjustment", query], getAdjustments, {
+    getNextPageParam: (pages) => {
+      if (pages.data.pagination.page < pages.data.pagination.pageCount) {
+        return pages.data.pagination.page + 1;
+      }
+      return undefined;
+    },
+    retry: 0,
+  });
+};
+
+/**
+ * create barcodes entry
+ * @param values
+ * @returns
+ */
+const createBarcode = async (values: any) => {
+  return await api.post("/products/barcodes", values);
+};
+
+export const useCreateBarcode = () => {
+  const query = useQueryClient();
+  return useMutation(createBarcode, {
+    onSuccess: () => {
+      query.invalidateQueries({ queryKey: ["barcodes", "product"] });
+    },
+  });
+};
+
+/**
+ * get barcodes
+ * @param param
+ * @returns
+ */
+const getBarcodes = async ({ queryKey, pageParam = 1 }: InfiniteQueryProps) => {
+  const [_, params] = queryKey;
+
+  return await api.get("/products/barcodes", {
+    params: {
+      ...params,
+      page: pageParam,
+    },
+  });
+};
+
+export const useBarcodes = (query: { search?: string }) => {
+  return useInfiniteQuery(["barcodes", query], getBarcodes, {
     getNextPageParam: (pages) => {
       if (pages.data.pagination.page < pages.data.pagination.pageCount) {
         return pages.data.pagination.page + 1;

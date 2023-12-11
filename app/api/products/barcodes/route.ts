@@ -5,7 +5,7 @@ import { PAGE_SIZE } from "@/config/app";
 import { getSession } from "@/lib/utils";
 
 /**
- * get adjustments
+ * get barcodes print list
  * @param req
  * @returns
  */
@@ -28,32 +28,43 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
-    const filters: Prisma.AdjustmentWhereInput = {
+    const filters: Prisma.LabelWhereInput = {
       AND: [
         { locationId: Number(user?.locationId) },
         {
           OR: [
-            { title: { contains: search, mode: "insensitive" } },
-            { variantTitle: { contains: search, mode: "insensitive" } },
-            { sku: { contains: search, mode: "insensitive" } },
+            {
+              variant: {
+                product: { title: { contains: search, mode: "insensitive" } },
+              },
+            },
+            { variant: { title: { contains: search, mode: "insensitive" } } },
+            { variant: { sku: { contains: search, mode: "insensitive" } } },
+            {
+              variant: { barcode: { contains: search, mode: "insensitive" } },
+            },
           ],
         },
       ],
     };
 
-    // find adjustments
-    const response = await prisma.adjustment.findMany({
+    // find barcode list
+    const response = await prisma.label.findMany({
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
         createdAt: "desc",
       },
-      where: { ...filters },
-      include: { image: true },
+      where: {
+        ...filters,
+      },
+      include: {
+        variant: { include: { product: { include: { image: true } } } },
+      },
     });
 
     // get pagination
-    const total = await prisma.adjustment.count({
+    const total = await prisma.label.count({
       orderBy: {
         createdAt: "desc",
       },
@@ -82,14 +93,14 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * create adjustment
+ * create product list
  * @param req
  * @returns
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { lineItems, reason, locationId } = body;
+    const { lineItems } = body;
 
     const user = await getSession(req);
 
@@ -97,50 +108,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const location = !isNaN(locationId) ? Number(locationId) : user.locationId;
-
     // create adjustment
-    const response = await prisma.adjustment.createMany({
+    const response = await prisma.label.createMany({
       data: lineItems.map((item: any) => ({
-        locationId: location,
+        locationId: user.locationId,
         variantId: item.variantId,
-        title: item.title,
-        sku: item.sku,
-        variantTitle: item.variantTitle,
         quantity: Number(item.quantity),
-        reason,
-        imageId: item.imageId,
       })),
     });
 
-    for (const item of lineItems) {
-      const inventory = await prisma.inventory.updateMany({
-        where: {
-          AND: [
-            { locationId: location! },
-            { variantId: Number(item.variantId) },
-          ],
-        },
-        data: { stock: { increment: Number(item.quantity) } },
-      });
-
-      if (!inventory) {
-        await prisma.inventory.create({
-          data: {
-            locationId: location!,
-            variantId: Number(item.variantId),
-            stock: Number(item.quantity),
-          },
-        });
-      }
-    }
-
     // return response
     return NextResponse.json(
-      { data: response, message: "Created" },
+      { data: response, message: "created" },
       { status: 201 }
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

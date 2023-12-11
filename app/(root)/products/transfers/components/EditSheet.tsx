@@ -5,7 +5,9 @@ import Image from "next/image";
 import Numeral from "numeral";
 
 import { useLocations } from "@/hooks/useUser";
-import { Image as ImageIcon } from "lucide-react";
+import { useUpdateTransfer } from "@/hooks/useProduct";
+import { useToast } from "@/components/ui/use-toast";
+import { Image as ImageIcon, Loader2 } from "lucide-react";
 
 import {
   SheetHeader,
@@ -26,19 +28,43 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-type Option = Record<string, string>;
-
 const EditSheet = ({ transfer }: { transfer: any }) => {
+  const { toast } = useToast();
   const { data: locations, isLoading } = useLocations();
+
+  const { mutate, isLoading: isUpdating } = useUpdateTransfer();
+
+  const onCancel = () => {
+    mutate(
+      { id: transfer.id, status: "cancelled" },
+      {
+        onSuccess: (res) => {
+          toast({
+            variant: "success",
+            title: "Transfer cancelled successfully.",
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            variant: "error",
+            title: error.response.data.message || "Something went wrong",
+          });
+        },
+      }
+    );
+  };
 
   const destination = React.useMemo(() => {
     if (isLoading) return {};
     return locations?.data?.data?.find((loc: any) => loc.id === transfer.toId);
   }, [locations]);
-  console.log(destination);
+
   return (
     <SheetContent className="md:max-w-lg">
       <div className="flex flex-col h-full">
+        {(isLoading || isUpdating) && (
+          <div className="absolute w-full h-full top-0 left-0 z-20"></div>
+        )}
         <SheetHeader className="md:pb-2">
           <SheetTitle>Edit Transfer</SheetTitle>
         </SheetHeader>
@@ -113,8 +139,13 @@ const EditSheet = ({ transfer }: { transfer: any }) => {
             className="w-full"
             variant="destructive"
             disabled={transfer.status !== "pending"}
+            onClick={onCancel}
           >
-            Cancel
+            {isUpdating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              "Cancel"
+            )}
           </Button>
         </SheetFooter>
       </div>

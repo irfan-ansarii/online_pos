@@ -137,7 +137,6 @@ export const transferValidation = z.object({
   toId: z.string().nonempty(),
   lineItems: z
     .object({
-      id: z.number().optional(),
       title: z.string().optional(),
       variantTitle: z.string().nullable(),
       sku: z.any().optional(),
@@ -172,4 +171,21 @@ export const adjustmentValidation = z.object({
     .array()
     .min(1),
   reason: z.string().min(1, { message: "Required" }),
+});
+
+export const barcodeValidation = z.object({
+  lineItems: z
+    .object({
+      title: z.string().optional(),
+      variantTitle: z.any().optional(),
+      sku: z.string().optional(),
+      barcode: z.string().optional(),
+      variantId: z.number(),
+      quantity: z
+        .union([z.string(), z.number()])
+        .refine((n: any) => !isNaN(n), { message: "Enter valid number" }),
+      imageSrc: z.any().optional(),
+    })
+    .array()
+    .min(1),
 });

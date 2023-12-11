@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/utils";
 
 /**
- * Edit transfer
+ * reject or cancel
  * @param req
  * @param param1
  */
@@ -13,45 +13,7 @@ export async function PUT(
 ) {
   try {
     const { id } = params;
-
-    const { lineItems, totalItems, totalAmount } = await req.json();
-
-    const user = await getSession(req);
-
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const transfer = await prisma.transfer.findUnique({
-      where: { id: Number(id) },
-      include: { lineItems: true },
-    });
-
-    if (!transfer) {
-      return NextResponse.json({ message: "Not found" }, { status: 404 });
-    }
-
-    //
-  } catch (error) {
-    return NextResponse.json(
-      { message: "Internal server error", data: error },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * reject transfer
- * @param req
- * @param param1
- */
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: number } }
-) {
-  try {
-    const { id } = params;
-    const { action } = await req.json();
+    const { status } = await req.json();
     const user = await getSession(req);
 
     if (!user) {
@@ -73,9 +35,9 @@ export async function DELETE(
         { status: 400 }
       );
     }
-    const status = action === "remove" ? "cancelled" : "rejected";
 
-    const rejected = await prisma.transfer.update({
+    const queries = [];
+    const transferQuery = prisma.transfer.update({
       data: {
         status,
         lineItems: {
@@ -92,9 +54,11 @@ export async function DELETE(
       where: { id: Number(id) },
     });
 
+    queries.push(transferQuery);
+
     //  restock items
     for (const item of transfer.lineItems) {
-      await prisma.inventory.updateMany({
+      const inventoryQuery = prisma.inventory.updateMany({
         data: {
           stock: { increment: item.quantity },
         },
@@ -102,10 +66,15 @@ export async function DELETE(
           AND: [{ locationId: transfer.fromId }, { variantId: item.variantId }],
         },
       });
+      queries.push(inventoryQuery);
     }
 
-    return NextResponse.json({ data: rejected, status: 204 });
+    const response = prisma.$transaction(queries);
+    console.log(response);
+
+    return NextResponse.json({ data: response, status: 204 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error", data: error },
       { status: 500 }

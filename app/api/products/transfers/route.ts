@@ -114,10 +114,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    if (Number(user.locationId) === Number(toId)) {
+    if (user.locationId === toId) {
       return NextResponse.json(
         { message: "Source and destination cannot be same" },
-        { status: 401 }
+        { status: 400 }
       );
     }
 
