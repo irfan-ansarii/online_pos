@@ -1,27 +1,28 @@
 import React from "react";
-import Link from "next/link";
+import { format } from "date-fns";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, BadgeCheck } from "lucide-react";
+import UserSheet from "./UserSheet";
 
 const UserCard = ({ user }: { user: any }) => {
   return (
-    <Card>
-      <Link href={`/users/${user.id}`}>
-        <CardContent className="grid grid-cols-6 gap-3 items-center relative">
-          <div className="flex gap-3 items-center col-span-3 md:col-span-2">
-            <Avatar>
+    <Card className="hover:bg-accent">
+      <UserSheet user={user}>
+        <CardContent className="grid grid-cols-8 gap-3 items-center relative">
+          <div className="flex gap-3 items-center col-span-4 md:col-span-3">
+            <Avatar className="border-2">
               <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div className="space-y-0.5">
-              <div>{`${user.firstName} ${user.lastName}`}</div>
-              <Badge>{user.role}</Badge>
+              <div className="font-medium">{`${user.firstName} ${user.lastName}`}</div>
+              <Badge className="py-0 uppercase">{user.role}</Badge>
             </div>
           </div>
-          <div className="font-medium space-y-0.5 col-span-3 md:col-span-1">
+          <div className="space-y-0.5 col-span-2">
             <div className="text-muted-foreground flex gap-2 items-center">
               <div className="truncate">{user.phone}</div>
               {user.phoneConfirmedAt && (
@@ -35,31 +36,38 @@ const UserCard = ({ user }: { user: any }) => {
               )}
             </div>
           </div>
-
-          <div className="absolute right-4 md:relative top-4 md:top-auto text-center">
-            <Badge className="uppercase">{user.status}</Badge>
+          <div className="hidden md:block col-span-2">
+            <div className="inline-flex flex-col gap-0.5 uppercase">
+              <Badge
+                className="py-0 truncate text-muted-foreground font-normal"
+                variant="secondary"
+              >
+                <span>Joined</span>
+                <span className="mx-1 opacity-40">|</span>
+                <span className="ml-auto">
+                  {format(new Date(user.createdAt), "dd MM, yyyy")}
+                </span>
+              </Badge>
+              <Badge
+                className="py-0 truncate text-muted-foreground font-normal"
+                variant="secondary"
+              >
+                <span>Last login</span>
+                <span className="mx-1 opacity-40">|</span>
+                <span className="ml-auto">
+                  {format(new Date(user.createdAt), "dd MM, yyyy")}
+                </span>
+              </Badge>
+            </div>
           </div>
 
-          <Badge
-            className="grid grid-cols-9 py-1 text-muted-foreground font-medium col-span-6 md:col-span-2"
-            variant="secondary"
-          >
-            <div className="flex justify-between col-span-4">
-              <span>Joined</span>
-              <span className="mx-2">∙</span>
-              <span className="truncate">{user.createdAt}</span>
-            </div>
-
-            <Separator orientation="vertical" className="mx-auto w-0.5" />
-
-            <div className="flex justify-between col-span-4">
-              <span>Login</span>
-              <span className="mx-2">∙</span>
-              <span className="truncate">{user.lastSignInAt || "Never"}</span>
-            </div>
-          </Badge>
+          <div className="col-span-2 md:col-span-1 text-right">
+            <Badge className="uppercase" variant="secondary">
+              {user.status}
+            </Badge>
+          </div>
         </CardContent>
-      </Link>
+      </UserSheet>
     </Card>
   );
 };

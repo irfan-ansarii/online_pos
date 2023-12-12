@@ -242,6 +242,43 @@ export const useCreateBarcode = () => {
 };
 
 /**
+ * update barcode
+ * @param values
+ * @returns
+ */
+const updateBarcode = async (values: any) => {
+  const { id } = values;
+  return await api.put(`/products/barcodes/${id}`, values);
+};
+
+export const useUpdateBarcode = () => {
+  const query = useQueryClient();
+  return useMutation(updateBarcode, {
+    onSuccess: () => {
+      query.invalidateQueries(["barcodes", {}]);
+    },
+  });
+};
+
+/**
+ * print barcodes entry
+ * @param values
+ * @returns
+ */
+const printBarcode = async (values: any) => {
+  return await api.post("/products/barcodes/print", values);
+};
+
+export const usePrintBarcode = () => {
+  const query = useQueryClient();
+  return useMutation(printBarcode, {
+    onSuccess: () => {
+      query.invalidateQueries({ queryKey: ["barcodes", "product"] });
+    },
+  });
+};
+
+/**
  * get barcodes
  * @param param
  * @returns

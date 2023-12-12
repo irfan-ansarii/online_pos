@@ -3,37 +3,26 @@ import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/utils";
 
 /**
- * update list item
+ * print
  * @param req
  * @returns
  */
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: number } }
-) {
+export async function POST(req: NextRequest) {
   try {
-    const { id } = params;
-    const body = await req.json();
-    const { quantity, status } = body;
-
     const user = await getSession(req);
 
     if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // create adjustment
-    const response = await prisma.label.update({
-      where: { id: Number(id) },
-      data: {
-        status,
-        quantity,
-      },
+    // find adjustment
+    const response = await prisma.label.findMany({
+      where: { status: "pending" },
     });
 
     // return response
     return NextResponse.json(
-      { data: response, message: "updated" },
+      { data: response, message: "entry" },
       { status: 201 }
     );
   } catch (error) {

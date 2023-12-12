@@ -29,6 +29,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function AdjustmentDialog({
   children,
@@ -107,11 +114,36 @@ function AdjustmentDialog({
               control={form.control}
               name="reason"
               render={({ field }) => (
-                <FormItem className="mb-6">
+                <FormItem>
                   <FormLabel>Reason</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Reason..." {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Correction">Correction</SelectItem>
+                      <SelectItem value="Damaged">Damaged</SelectItem>
+                      <SelectItem value="Received">Received</SelectItem>
+                      <SelectItem value="Return restock">
+                        Return restock
+                      </SelectItem>
+                      <SelectItem value="Internal transfer">
+                        Internal transfer
+                      </SelectItem>
+                      <SelectItem value="Theft or loss">
+                        Theft or loss
+                      </SelectItem>
+                      <SelectItem value="Promotion or gift">
+                        Promotion or gift
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   <FormMessage />
                 </FormItem>
               )}

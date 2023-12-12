@@ -27,7 +27,7 @@ export async function PUT(
       where: { id: Number(id) },
       data: {
         status,
-        quantity,
+        quantity: Number(quantity),
       },
     });
 
@@ -37,6 +37,7 @@ export async function PUT(
       { status: 201 }
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

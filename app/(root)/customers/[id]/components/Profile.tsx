@@ -6,25 +6,24 @@ import { MapPin, User } from "lucide-react";
 const Profile = () => {
   return (
     <Card className="border-0 md:border">
-      <CardHeader>
-        <div className="flex gap-2 items-center">
-          <Avatar className="w-12 h-12">
-            <AvatarImage></AvatarImage>
-            <AvatarFallback>
-              <User className="w-5 h-5" />
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col space-y-0.5">
-            <CardTitle className="text-sm font-medium">John Doe</CardTitle>
-            <div className="flex gap-1 text-muted-foreground items-center">
-              <MapPin className="w-3 h-3" />
-              <span>Delhi</span>
+      <CardContent>
+        <CardHeader className="p-0 pb-4">
+          <div className="flex gap-2 items-center">
+            <Avatar className="border-2">
+              <AvatarImage></AvatarImage>
+              <AvatarFallback>
+                <User className="w-5 h-5" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <CardTitle className="text-sm font-medium">John Doe</CardTitle>
+              <div className="flex gap-1 text-muted-foreground items-center">
+                <MapPin className="w-3 h-3" />
+                <span>Delhi</span>
+              </div>
             </div>
           </div>
-        </div>
-      </CardHeader>
-
-      <CardContent>
+        </CardHeader>
         <Separator className="mb-6" />
         <div className="text-muted-foreground mb-6 font-medium">
           Contact Information

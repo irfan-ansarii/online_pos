@@ -6,8 +6,16 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 import ItemDialog from "./ItemDialog";
-
+type BadgeClass = {
+  [key: string]: string;
+};
 const ItemCard = ({ item }: { item: any }) => {
+  const badgeClass: BadgeClass = {
+    pending: "text-warning",
+    printed: "text-success",
+    cancelled: "text-destructive",
+  };
+
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
       <ItemDialog item={item}>
@@ -46,16 +54,15 @@ const ItemCard = ({ item }: { item: any }) => {
           </div>
 
           <div className="flex justify-end items-center">
-            <div
-              className={`pr-6  ${
-                item.status === "pending"
-                  ? "text-success"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <Printer className="w-4 h-4" />
+            <div className="w-20 flex justify-between items-center">
+              <span
+                className={`flex items-center gap-1 ${badgeClass[item.status]}`}
+              >
+                <Printer className="w-4 h-4" />
+              </span>
+
+              <div>{item.quantity}</div>
             </div>
-            <div>10</div>
           </div>
         </CardContent>
       </ItemDialog>

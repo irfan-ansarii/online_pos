@@ -35,6 +35,13 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 import AutoComplete from "@/components/shared/product-autocomplete";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Option = Record<string, string>;
 
@@ -48,7 +55,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     resolver: zodResolver(adjustmentValidation),
     defaultValues: {
       lineItems: [],
-      reason: "",
+      reason: "Correction",
     },
   });
 
@@ -141,9 +148,34 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               render={({ field }) => (
                 <FormItem className="mb-6">
                   <FormLabel>Reason</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Reason..." {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Correction">Correction</SelectItem>
+                      <SelectItem value="Damaged">Damaged</SelectItem>
+                      <SelectItem value="Received">Received</SelectItem>
+                      <SelectItem value="Return restock">
+                        Return restock
+                      </SelectItem>
+                      <SelectItem value="Internal transfer">
+                        Internal transfer
+                      </SelectItem>
+                      <SelectItem value="Theft or loss">
+                        Theft or loss
+                      </SelectItem>
+                      <SelectItem value="Promotion or gift">
+                        Promotion or gift
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   <FormMessage />
                 </FormItem>
               )}

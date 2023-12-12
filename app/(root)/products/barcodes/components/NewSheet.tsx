@@ -82,9 +82,11 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
 
   const handleMinus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
+    const count = Number(lineItems.fields[index].quantity);
+    if (count === 1) return;
     lineItems.update(index, {
       ...lineItems.fields[index],
-      quantity: Number(lineItems.fields[index].quantity) - 1,
+      quantity: count - 1,
     });
   };
 
@@ -120,7 +122,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
             className="flex flex-col h-full"
           >
             <SheetHeader>
-              <SheetTitle>Add Product to Print List</SheetTitle>
+              <SheetTitle>Add to print list</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-2 mb-2">
               <FormLabel>Products</FormLabel>

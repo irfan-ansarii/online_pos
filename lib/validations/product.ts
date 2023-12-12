@@ -189,3 +189,10 @@ export const barcodeValidation = z.object({
     .array()
     .min(1),
 });
+export const editBarcodeValidation = z.object({
+  id: z.number(),
+  quantity: z
+    .union([z.string(), z.number()])
+    .refine((n: any) => !isNaN(n), { message: "Enter valid number" }),
+  status: z.string(),
+});

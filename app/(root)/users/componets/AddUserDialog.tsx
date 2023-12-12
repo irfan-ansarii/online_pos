@@ -81,7 +81,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
           <CardHeader className="p-0 mb-6 space-y-0">
             <CardTitle className="text-lg">Invite User</CardTitle>
             <CardDescription>
-              Please enter the user's email you would like to invite.
+              Enter the user's email you would like to invite.
             </CardDescription>
           </CardHeader>
           {/*  loading */}
