@@ -32,13 +32,7 @@ import { locationValidation } from "@/lib/validations/locations";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCreateLocation } from "@/hooks/useUser";
 
-const CreateWorkspace = ({
-  trigger,
-  refetch,
-}: {
-  trigger?: React.ReactNode;
-  refetch: () => void;
-}) => {
+const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const { toast } = useToast();
   const { mutate, isLoading } = useCreateLocation();
@@ -57,7 +51,6 @@ const CreateWorkspace = ({
         });
 
         setOpen(false);
-        refetch();
       },
       onError: (err: any) => {
         toast({

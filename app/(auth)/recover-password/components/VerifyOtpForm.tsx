@@ -82,17 +82,9 @@ export function VerifyOtpForm() {
             control={form.control}
             name="otp"
             render={({ field }) => (
-              <FormItem className="flex w-full flex-col">
+              <FormItem>
                 <FormLabel>OTP</FormLabel>
-
-                <FormControl
-                  placeholder="name@example.com"
-                  className={
-                    form.formState.errors?.otp
-                      ? "!ring-destructive/50 border-destructive"
-                      : ""
-                  }
-                >
+                <FormControl>
                   <Input type="text" {...field} />
                 </FormControl>
 

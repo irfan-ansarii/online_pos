@@ -228,8 +228,8 @@ model Sale {
   status          SaleFinancialStatus @default(pending)
   taxType         String              @default("included")
   lineItems       LineItem[]
-  customer        User?               @relation("customer", fields: [customerId], references: [id])
-  employee        User?               @relation("employee", fields: [employeeId], references: [id])
+  customer        User                @relation("customer", fields: [customerId], references: [id])
+  employee        User                @relation("employee", fields: [employeeId], references: [id])
   transactions    Transaction[]
 
   @@map("sales")

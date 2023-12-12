@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sanitize } from "@/lib/sanitize-user";
+import { Prisma } from "@prisma/client";
 import { PAGE_SIZE } from "@/config/app";
 /**
  * get customers
@@ -21,6 +21,20 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
+    const filters: Prisma.UserWhereInput = {
+      AND: [
+        { role: { equals: "customer" } },
+        {
+          OR: [
+            { firstName: { contains: search, mode: "insensitive" } },
+            { lastName: { contains: search, mode: "insensitive" } },
+            { phone: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      ],
+    };
+
     // find users with customer role
     const users = await prisma.user.findMany({
       skip: offset,
@@ -29,8 +43,9 @@ export async function GET(req: NextRequest) {
         createdAt: "desc",
       },
       where: {
-        role: { equals: "customer" },
+        ...filters,
       },
+      include: { customer: true },
     });
 
     // get pagination
@@ -39,14 +54,29 @@ export async function GET(req: NextRequest) {
         createdAt: "desc",
       },
       where: {
-        role: { equals: "customer" },
+        ...filters,
       },
     });
 
+    const sanitized = users.map((user) => ({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      email: user.email,
+      emailConfirmedAt: user.emailConfirmedAt,
+      phoneConfirmedAt: user.phoneConfirmedAt,
+      updatedaAt: user.updatedaAt,
+      createdAt: user.createdAt,
+      orders: user.customer.length,
+      totalSpent: user.customer.reduce((acc, curr) => {
+        return (acc += Number(curr.total));
+      }, 0),
+    }));
     // return response
     return NextResponse.json(
       {
-        data: users.map((user) => sanitize(user)),
+        data: sanitized,
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,

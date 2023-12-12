@@ -13,7 +13,7 @@ const Header = () => {
     <div className="hidden md:block sticky top-0 z-50 shadow w-full border-b bg-background/95 backdrop-blur">
       <header className="h-[60px] px-4">
         <div className="flex h-full w-full items-center justify-between">
-          {data?.data?.data.role === "admin" ? (
+          {data?.data?.data?.role === "admin" ? (
             <LocationDialog />
           ) : (
             <span></span>

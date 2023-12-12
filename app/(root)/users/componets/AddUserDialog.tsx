@@ -27,7 +27,8 @@ import { userInviteValidation } from "@/lib/validations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
 import { useInviteUser } from "@/hooks/useUser";
-import { useLocations } from "@/hooks/useUser";
+
+import { useAuthContext } from "@/hooks/useAuthContext";
 
 const AddUserDialog = ({ className }: { className?: string }) => {
   const [open, setOpen] = React.useState(false);
@@ -40,7 +41,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
   });
   const { toast } = useToast();
   const { mutate, isLoading } = useInviteUser();
-  const { data: locations } = useLocations();
+  const { locations } = useAuthContext();
 
   const onSubmit = (values: z.infer<typeof userInviteValidation>) => {
     mutate(values, {
@@ -99,13 +100,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
-                    <FormControl
-                      className={
-                        form.formState.errors?.email
-                          ? "!ring-destructive/50 border-destructive"
-                          : ""
-                      }
-                    >
+                    <FormControl>
                       <Input placeholder="email@domain.com" {...field} />
                     </FormControl>
                     <FormMessage />
@@ -162,7 +157,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {locations?.data?.data?.map((location: any) => (
+                        {locations?.map((location: any) => (
                           <SelectItem value={`${location.id}`}>
                             {location.name}
                           </SelectItem>

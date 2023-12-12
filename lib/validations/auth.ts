@@ -10,7 +10,11 @@ export const recoverValidation = z.object({
 });
 
 export const otpValidation = z.object({
-  otp: z.string().nonempty({ message: "OTP is required" }).min(6).max(6),
+  otp: z
+    .string()
+    .nonempty({ message: "OTP is required" })
+    .min(6, { message: "Incorrect OTP" })
+    .max(6, { message: "Incorrect OTP" }),
 });
 
 export const resetValidation = z
@@ -21,7 +25,7 @@ export const resetValidation = z
       .min(8, { message: "Password must be atleast 8 characters" }),
     confirmNewPassword: z
       .string()
-      .nonempty({ message: "Confirm new password is required" }),
+      .nonempty({ message: "Confirm password is required" }),
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
     message: "Passwords do not match",

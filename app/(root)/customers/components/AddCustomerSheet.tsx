@@ -83,7 +83,7 @@ const AddUserDialog = ({
           </div>
         </SheetTrigger>
       )}
-      <SheetContent className="flex flex-col h-full ">
+      <SheetContent className="flex flex-col h-full md:max-w-lg">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

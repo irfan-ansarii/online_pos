@@ -18,36 +18,36 @@ interface UsersQueryKey {
   };
   pageParam: number;
 }
+interface InfiniteQueryProps {
+  queryKey: string | any[];
+  pageParam?: number;
+}
 
 /**
  * get users
  * @param query
  * @returns
  */
-const getUsers = async ({ query, pageParam = 1 }: UsersQueryKey) => {
-  console.log("fetcher:", query, pageParam);
+const getUsers = async ({ queryKey, pageParam = 1 }: InfiniteQueryProps) => {
+  const [_, params] = queryKey;
   return await api.get("/users", {
     params: {
-      ...query,
+      ...params,
       page: pageParam,
     },
   });
 };
 
 export const useUsers = (query: { search?: string }) => {
-  return useInfiniteQuery(
-    ["users"],
-    ({ pageParam }) => getUsers({ query, pageParam }),
-    {
-      getNextPageParam: (pages) => {
-        if (pages.data.pagination.page < pages.data.pagination.pageCount) {
-          return pages.data.pagination.page + 1;
-        }
-        return undefined;
-      },
-      retry: 0,
-    }
-  );
+  return useInfiniteQuery(["users", query], getUsers, {
+    getNextPageParam: (pages) => {
+      if (pages.data.pagination.page < pages.data.pagination.pageCount) {
+        return pages.data.pagination.page + 1;
+      }
+      return undefined;
+    },
+    retry: 0,
+  });
 };
 
 /**
@@ -111,6 +111,7 @@ export const useDeleteUser = () => {
 const locations = async () => {
   return api.get("/locations");
 };
+
 export const useLocations = () => {
   return useQuery(["locations"], locations);
 };

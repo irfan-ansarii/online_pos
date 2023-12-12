@@ -73,21 +73,14 @@ export function ResetPasswordForm() {
             control={form.control}
             name="newPassword"
             render={({ field }) => (
-              <FormItem className="flex w-full flex-col">
+              <FormItem>
                 <FormLabel>New Password</FormLabel>
                 <div className="relative">
                   <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
                     <Lock className="w-4 h-4" />
                   </span>
 
-                  <FormControl
-                    placeholder="••••••••"
-                    className={
-                      form.formState.errors.newPassword
-                        ? "!ring-destructive/50 border-destructive"
-                        : ""
-                    }
-                  >
+                  <FormControl placeholder="••••••••">
                     <Input {...field} className="pl-10" />
                   </FormControl>
                 </div>
@@ -100,21 +93,14 @@ export function ResetPasswordForm() {
             control={form.control}
             name="confirmNewPassword"
             render={({ field }) => (
-              <FormItem className="flex w-full flex-col">
+              <FormItem>
                 <FormLabel>Confirm New Password</FormLabel>
                 <div className="relative">
                   <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
                     <Lock className="w-4 h-4" />
                   </span>
 
-                  <FormControl
-                    placeholder="••••••••"
-                    className={
-                      form.formState.errors.confirmNewPassword
-                        ? "!ring-destructive/50 border-destructive"
-                        : ""
-                    }
-                  >
+                  <FormControl placeholder="••••••••">
                     <Input {...field} className="px-10" />
                   </FormControl>
                 </div>

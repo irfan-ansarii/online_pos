@@ -74,20 +74,13 @@ export function RecoverPasswordForm() {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem className="flex w-full flex-col">
+              <FormItem>
                 <FormLabel>Email</FormLabel>
                 <div className="relative">
                   <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
                     <Mail className="w-4 h-4" />
                   </span>
-                  <FormControl
-                    placeholder="email@domain.com"
-                    className={
-                      form.formState.errors?.email
-                        ? "!ring-destructive/50 border-destructive"
-                        : ""
-                    }
-                  >
+                  <FormControl placeholder="email@domain.com">
                     <Input type="text" {...field} className="pl-10" />
                   </FormControl>
                 </div>

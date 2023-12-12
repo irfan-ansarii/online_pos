@@ -1,15 +1,23 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
-
-  //const supabase = createMiddlewareClient({ req, res });
   const path = req.nextUrl.pathname;
+  const token = req.cookies.get("_auth_token")?.value || "";
 
-  return res;
+  const isPublicPath =
+    path === "/login" || path === "/signup" || path === "/recover-password";
+
+  if (isPublicPath && token) {
+    return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
+  }
+
+  if (!isPublicPath && !token) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
+  // return res;
 }
 
 export const config = {
-  matcher: ["/", "/login", "/signup"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

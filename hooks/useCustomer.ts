@@ -15,33 +15,39 @@ interface Props {
   };
   pageParam?: number | undefined;
 }
-const getCustomers = async ({ query, pageParam = 1 }: Props) => {
+interface InfiniteQueryProps {
+  queryKey: string | any[];
+  pageParam?: number;
+}
+
+const getCustomers = async ({
+  queryKey,
+  pageParam = 1,
+}: InfiniteQueryProps) => {
+  const [_, params] = queryKey;
+
   return await api.get("/customers", {
     params: {
-      ...query,
+      ...params,
       page: pageParam,
     },
   });
 };
 
 export const useCustomers = (query: { search?: string }) => {
-  return useInfiniteQuery(
-    ["customers"],
-    ({ pageParam }) => getCustomers({ query, pageParam }),
-    {
-      getNextPageParam: (pages) => {
-        if (pages.data.pagination.page < pages.data.pagination.pageCount) {
-          return pages.data.pagination.page + 1;
-        }
-        return undefined;
-      },
-      retry: 0,
-    }
-  );
+  return useInfiniteQuery(["customers", query], getCustomers, {
+    getNextPageParam: (pages) => {
+      if (pages.data.pagination.page < pages.data.pagination.pageCount) {
+        return pages.data.pagination.page + 1;
+      }
+      return undefined;
+    },
+    retry: 0,
+  });
 };
 
 export const useSearchCustomer = (query: { search?: string | undefined }) => {
-  return useQuery(["search-customer"], () => getCustomers({ query }));
+  return useQuery(["search-customer", query], getCustomers);
 };
 
 /**

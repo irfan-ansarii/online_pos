@@ -3,7 +3,10 @@ import React from "react";
 import Image from "next/image";
 import { format } from "date-fns";
 import Numeral from "numeral";
-import { useSession } from "@/hooks/useAuth";
+
+import { useToggle } from "@uidotdev/usehooks";
+import { useAuthContext } from "@/hooks/useAuthContext";
+
 import { Download, Image as ImageIcon, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -23,12 +26,10 @@ export interface TransferStatus {
 }
 
 const ItemCard = ({ transfer }: { transfer: any }) => {
-  const { data: session } = useSession();
+  const { session } = useAuthContext();
+  const [open, toggle] = useToggle();
 
-  const locationId = React.useMemo(
-    () => session?.data?.data?.locationId,
-    [session]
-  );
+  const locationId = React.useMemo(() => session?.locationId, [session]);
 
   const badge: TransferStatus = {
     pending: "bg-info hover:bg-info",
@@ -39,7 +40,7 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
 
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
-      <Sheet>
+      <Sheet open={open} onOpenChange={toggle}>
         <SheetTrigger asChild>
           <CardContent className="grid grid-cols-6 items-center gap-2">
             <div className="flex col-span-3 items-center gap-4">
@@ -105,11 +106,12 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
           </CardContent>
         </SheetTrigger>
 
-        {transfer.toId === locationId ? (
-          <ItemSheet transfer={transfer} />
-        ) : (
-          <EditSheet transfer={transfer} />
-        )}
+        {open &&
+          (transfer.toId === locationId ? (
+            <ItemSheet transfer={transfer} />
+          ) : (
+            <EditSheet transfer={transfer} />
+          ))}
       </Sheet>
     </Card>
   );

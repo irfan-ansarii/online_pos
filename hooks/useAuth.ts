@@ -36,7 +36,7 @@ export const useLogin = () => {
  * logout
  * @returns
  */
-const logout = async () => {
+const logout = async (data: any) => {
   return await api.post("/auth/logout");
 };
 

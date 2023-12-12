@@ -1,5 +1,10 @@
 "use client";
 import React from "react";
+
+import { useSwitchLocation } from "@/hooks/useUser";
+import { useSession } from "@/hooks/useAuth";
+import { useAuthContext } from "@/hooks/useAuthContext";
+
 import {
   Dialog,
   DialogContent,
@@ -8,25 +13,20 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useLocations, useSwitchLocation } from "@/hooks/useUser";
-import { useSession } from "@/hooks/useAuth";
+
 import CreateLocation from "./location-create";
-import { Home, Plus } from "lucide-react";
+import { Home, Loader2, Plus } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
-const LocationDialog: React.FC = ({
-  children,
-}: {
-  children?: React.ReactNode;
-}) => {
+const LocationDialog = ({ children }: { children?: React.ReactNode }) => {
   const [open, setOpen] = React.useState(false);
-  const { data: locations, refetch, isLoading } = useLocations();
-  const { mutate, isLoading: switching } = useSwitchLocation();
 
+  const { mutate, isLoading } = useSwitchLocation();
+  const { locations } = useAuthContext();
   const { data: session, refetch: refreshSession } = useSession();
 
   const onChange = (value: string) => {
@@ -41,7 +41,6 @@ const LocationDialog: React.FC = ({
             title: `Location changed to ${res.data.data.location.name}`,
           });
           refreshSession();
-          refetch();
         },
         onError: (err: any) => {
           toast({
@@ -56,21 +55,17 @@ const LocationDialog: React.FC = ({
     );
   };
 
-  const Trigger = isLoading ? (
-    <Skeleton className="w-44 h-4" />
-  ) : (
-    children || (
-      <Button variant="secondary">
-        <Home className="w-5 h-5 mr-2" />
-        {session?.data?.data?.location?.name || "Select Location"}
-      </Button>
-    )
-  );
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild className="flex items-center">
-        {Trigger}
+        {children ? (
+          children
+        ) : (
+          <Button variant="secondary">
+            <Home className="w-5 h-5 mr-2" />
+            {session?.data?.data?.location?.name || "Select Location"}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-[90%] sm:max-w-md">
         <DialogHeader className="text-left pb-4">
@@ -84,7 +79,7 @@ const LocationDialog: React.FC = ({
           className="space-y-2 mb-4"
           onValueChange={onChange}
         >
-          {locations?.data?.data?.map((item: any) => (
+          {locations?.map((item: any) => (
             <Label
               key={item.id}
               htmlFor={`${item.id}`}
@@ -104,19 +99,28 @@ const LocationDialog: React.FC = ({
             </Label>
           ))}
 
-          {(!locations || locations?.data?.data?.length == 0) && (
+          {(!locations || locations?.length == 0) && (
             <div>No Location Found</div>
           )}
         </RadioGroup>
         <CreateLocation
           trigger={
             <DialogTrigger asChild>
-              <Button variant="secondary" className="w-full">
-                <Plus className="w-5 h-5 mr-2" /> New
+              <Button
+                variant="secondary"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <Plus className="w-5 h-5 mr-2" /> New
+                  </>
+                )}
               </Button>
             </DialogTrigger>
           }
-          refetch={refetch}
         ></CreateLocation>
       </DialogContent>
     </Dialog>

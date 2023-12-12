@@ -22,7 +22,13 @@ import { Button } from "@/components/ui/button";
 import ProductSheet from "./ProductSheet";
 import EditSheet from "./EditSheet";
 
+import { useToggle } from "@uidotdev/usehooks";
+
+interface BadgeProps {
+  [key: string]: string;
+}
 const ProductCard = ({ product }: { product: any }) => {
+  const [open, toggle] = useToggle();
   const priceRange = React.useMemo(() => {
     const { variants } = product;
 
@@ -44,7 +50,7 @@ const ProductCard = ({ product }: { product: any }) => {
     }, 0);
   }, [product]);
 
-  const badgeClassName = {
+  const badgeClassName: BadgeProps = {
     active: "bg-success hover:bg-successs",
     archived: "bg-warning hover:bg-warning",
     trash: "bg-destructive hover:bg-destructive",
@@ -52,7 +58,7 @@ const ProductCard = ({ product }: { product: any }) => {
 
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
-      <Sheet>
+      <Sheet open={open} onOpenChange={toggle}>
         <SheetTrigger asChild>
           <CardContent className="grid grid-cols-7 items-center gap-2">
             <div className="flex items-center gap-3 col-span-4 md:col-span-3 items-center">
@@ -100,7 +106,7 @@ const ProductCard = ({ product }: { product: any }) => {
             <div className="hidden md:block text-right">{stock}</div>
           </CardContent>
         </SheetTrigger>
-        <ProductSheet product={product} />
+        {open && <ProductSheet product={product} />}
       </Sheet>
 
       <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
