@@ -47,17 +47,52 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
     const body = await req.json();
 
-    const user = await prisma.user.update({
+    const { firstName, lastName, phone, email, addresses } = body;
+    const user = await prisma.user.findUnique({
       where: { id: Number(id) },
-      data: {
-        ...body,
-      },
     });
+
     if (!user) {
       return NextResponse.json({ message: "Not found" }, { status: 404 });
     }
+
+    const res = await prisma.user.update({
+      where: { id: Number(id) },
+      data: {
+        firstName,
+        lastName,
+        phone,
+        email,
+        addresses: {
+          upsert: addresses.map((add: any) => ({
+            where: {
+              id: add.id,
+            },
+            update: {
+              company: add.company,
+              address: add.address,
+              address2: add.address2,
+              city: add.city,
+              state: add.state,
+              zip: add.zip,
+              country: add.country,
+            },
+            create: {
+              company: add.company,
+              address2: add.address2,
+              city: add.city,
+              state: add.state,
+              zip: add.zip,
+              country: add.country,
+            },
+          })),
+        },
+      },
+    });
+    console.log(res);
     return NextResponse.json({ data: user }, { status: 200 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       where: {
         ...filters,
       },
-      include: { customer: true },
+      include: { customer: true, addresses: true },
     });
 
     // get pagination
@@ -66,6 +66,7 @@ export async function GET(req: NextRequest) {
       email: user.email,
       emailConfirmedAt: user.emailConfirmedAt,
       phoneConfirmedAt: user.phoneConfirmedAt,
+      addresses: user.addresses,
       updatedaAt: user.updatedaAt,
       createdAt: user.createdAt,
       orders: user.customer.length,
@@ -103,18 +104,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const {
-      firstName,
-      lastName,
-      phone,
-      email,
-      address,
-      address2,
-      city,
-      state,
-      zip,
-      country,
-    } = body;
+    const { firstName, lastName, phone, email, addresses } = body;
 
     // check if user already exists
     const user = await prisma.user.findFirst({
@@ -122,7 +112,7 @@ export async function POST(req: NextRequest) {
         OR: [{ email: { equals: email } }, { phone: { equals: phone } }],
       },
     });
-    console.log(user);
+
     if (user) {
       return NextResponse.json(
         { message: "Email or phone already registered" },
@@ -139,16 +129,15 @@ export async function POST(req: NextRequest) {
         email,
         role: "customer",
         status: "active",
-        addresses: {
-          create: {
-            address,
-            address2,
-            city,
-            state,
-            zip,
-            country,
-          },
-        },
+        addresses: addresses.map((add: any) => ({
+          company: add.company,
+          address: add.address,
+          address2: add.address2,
+          city: add.city,
+          state: add.state,
+          zip: add.zip,
+          country: add.country,
+        })),
       },
     });
 

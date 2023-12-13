@@ -66,7 +66,7 @@ export const useCustomer = (id: number) => {
 
 /**
  * create customer
- * @param email
+ * @param
  * @returns
  */
 const create = async (values: z.infer<typeof customerValidation>) => {
@@ -76,6 +76,25 @@ const create = async (values: z.infer<typeof customerValidation>) => {
 export const useCreateCustomer = () => {
   const query = useQueryClient();
   return useMutation(create, {
+    onSuccess: () => {
+      query.invalidateQueries(["customers"]);
+    },
+  });
+};
+
+/**
+ * create customer
+ * @param
+ * @returns
+ */
+const update = async (values: z.infer<typeof customerValidation>) => {
+  const { id } = values;
+  return await api.put(`/customers/${id}`, values);
+};
+
+export const useUpdateCustomer = () => {
+  const query = useQueryClient();
+  return useMutation(update, {
     onSuccess: () => {
       query.invalidateQueries(["customers"]);
     },
