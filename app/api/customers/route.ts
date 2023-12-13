@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { PAGE_SIZE } from "@/config/app";
+import { getSession } from "@/lib/utils";
+import { sanitize } from "@/lib/sanitize-user";
 /**
  * get customers
  * @param req
@@ -9,6 +11,10 @@ import { PAGE_SIZE } from "@/config/app";
  */
 export async function GET(req: NextRequest) {
   try {
+    const session = await getSession(req);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     // get params
     const { searchParams } = req.nextUrl;
     const params = Object.fromEntries([...searchParams.entries()]);
@@ -36,7 +42,7 @@ export async function GET(req: NextRequest) {
     };
 
     // find users with customer role
-    const users = await prisma.user.findMany({
+    const usersTransaction = prisma.user.findMany({
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
@@ -45,11 +51,19 @@ export async function GET(req: NextRequest) {
       where: {
         ...filters,
       },
-      include: { customer: true, addresses: true },
+      include: {
+        customer: {
+          select: {
+            _count: true,
+            total: true,
+          },
+        },
+        addresses: true,
+      },
     });
 
     // get pagination
-    const total = await prisma.user.count({
+    const paginationTransaction = prisma.user.count({
       orderBy: {
         createdAt: "desc",
       },
@@ -58,37 +72,35 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const sanitized = users.map((user) => ({
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
-      email: user.email,
-      emailConfirmedAt: user.emailConfirmedAt,
-      phoneConfirmedAt: user.phoneConfirmedAt,
-      addresses: user.addresses,
-      updatedaAt: user.updatedaAt,
-      createdAt: user.createdAt,
-      orders: user.customer.length,
-      totalSpent: user.customer.reduce((acc, curr) => {
-        return (acc += Number(curr.total));
-      }, 0),
-    }));
-    // return response
+    const response = await prisma.$transaction([
+      usersTransaction,
+      paginationTransaction,
+    ]);
+
+    const transformed = response[0].map((user) => {
+      const sanitized = sanitize(user);
+      return {
+        ...sanitized,
+        customer: null,
+        orders: user.customer,
+        addresses: user.addresses,
+      };
+    });
+
     return NextResponse.json(
       {
-        data: sanitized,
+        data: transformed,
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,
-          pageCount: Math.ceil(total / PAGE_SIZE),
-          total,
+          pageCount: Math.ceil(response[1] / PAGE_SIZE),
+          total: response[1],
         },
       },
-
       { status: 200 }
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -103,6 +115,11 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession(req);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const { firstName, lastName, phone, email, addresses } = body;
 
@@ -142,7 +159,10 @@ export async function POST(req: NextRequest) {
     });
 
     // return response
-    return NextResponse.json({ data: customer }, { status: 201 });
+    return NextResponse.json(
+      { data: customer, message: "created" },
+      { status: 201 }
+    );
   } catch (error) {
     return NextResponse.json(
       { message: "Internal server error" },

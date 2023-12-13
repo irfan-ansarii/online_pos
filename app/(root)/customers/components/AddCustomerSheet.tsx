@@ -5,7 +5,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerValidation } from "@/lib/validations/customer";
 
-import { Plus, Loader2, PlusCircle } from "lucide-react";
+import { Plus, Loader2, PlusCircle, Loader } from "lucide-react";
 
 import { useFieldArray, useForm } from "react-hook-form";
 import { useCreateCustomer } from "@/hooks/useCustomer";
@@ -55,6 +55,7 @@ const AddUserDialog = ({
   });
 
   const { mutate, isLoading } = useCreateCustomer();
+
   const onSubmit = (values: z.infer<typeof customerValidation>) => {
     mutate(values, {
       onSuccess: () => {
@@ -308,7 +309,11 @@ const AddUserDialog = ({
 
             <SheetFooter className="md:justify-between pt-4">
               <Button className="w-full" type="submit">
-                Save
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-apin" />
+                ) : (
+                  "Save"
+                )}
               </Button>
             </SheetFooter>
           </form>

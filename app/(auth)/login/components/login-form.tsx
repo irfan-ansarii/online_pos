@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useQueryParams } from "@/hooks/useQueryParams";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import {
@@ -23,6 +24,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { useLogin } from "@/hooks/useAuth";
 
 export function LoginForm() {
+  const { queryParams } = useQueryParams();
+
   const { mutate, isLoading } = useLogin();
   const router = useRouter();
   const { toast } = useToast();
@@ -43,7 +46,9 @@ export function LoginForm() {
           variant: "success",
           title: "Logged in successfully!",
         });
-        router.replace("/dashboard");
+        router.replace(
+          queryParams.redirect ? queryParams.redirect : "/dashboard"
+        );
       },
       onError: (error: any) => {
         toast({

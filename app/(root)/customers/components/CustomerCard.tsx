@@ -21,18 +21,22 @@ const CustomerCard = ({ customer }: any) => {
     <Card className="hover:bg-accent group relative">
       <Link href={`customers/${customer.id}`}>
         <CardContent className="grid grid-cols-8 gap-3 items-center relative">
-          <div className="flex gap-3 items-center col-span-4 md:col-span-3">
-            <Avatar className="border-2">
+          <div className="flex gap-2 items-center col-span-4 md:col-span-3">
+            <Avatar className="border-2 shrink-0">
               <AvatarFallback className="">
                 <User className="w-5 h-5" />
               </AvatarFallback>
             </Avatar>
-            <div>
+            <div className="space-y-0.5">
               <div className="truncate font-medium">{customer.firstName}</div>
-              <div className="text-muted-foreground text-xs inline-flex gap-1 items-center">
-                <MapPin className="w-3 h-3" />
-                <span>Delhi</span>
-              </div>
+              {customer.addresses?.length > 0 ? (
+                <div className="text-muted-foreground text-xs inline-flex gap-1 items-center">
+                  <MapPin className="w-3 h-3" />
+                  <span className="capitalize">
+                    {customer.addresses?.[0]?.state}
+                  </span>
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -44,7 +48,7 @@ const CustomerCard = ({ customer }: any) => {
           <div className="hidden md:block col-span-2">
             <div className="inline-flex flex-col gap-0.5 uppercase">
               <Badge
-                className="py-0 truncate text-muted-foreground font-normal"
+                className="py-0 truncate text-muted-foreground w-40"
                 variant="secondary"
               >
                 <span>Orders</span>
@@ -52,7 +56,7 @@ const CustomerCard = ({ customer }: any) => {
                 <span className="ml-auto">{customer.orders}</span>
               </Badge>
               <Badge
-                className={`py-0 truncate text-white font-normal ${getBadgeClass(
+                className={`py-0 truncate text-white w-40 ${getBadgeClass(
                   customer.totalSpent
                 )}`}
                 variant="secondary"
@@ -67,7 +71,7 @@ const CustomerCard = ({ customer }: any) => {
           </div>
           <div className="col-span-2 md:col-span-1 text-right">
             <Badge className="uppercase" variant="secondary">
-              status
+              Group
             </Badge>
           </div>
         </CardContent>

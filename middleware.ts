@@ -13,9 +13,10 @@ export async function middleware(req: NextRequest) {
   }
 
   if (!isPublicPath && !token) {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
+    return NextResponse.redirect(
+      new URL(`/login?redirect=${path}`, req.nextUrl)
+    );
   }
-  // return res;
 }
 
 export const config = {

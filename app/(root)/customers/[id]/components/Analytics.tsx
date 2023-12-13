@@ -1,48 +1,32 @@
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardTitle } from "@/components/ui/card";
+import { Inbox, IndianRupee, MapPin, Percent } from "lucide-react";
 
-const Analytics = () => {
+interface Props {
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
+  iconClassName?: string;
+}
+const Analytics = ({ title, value, icon, iconClassName }: Props) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
-      <Card className="rounded-none md:rounded-md">
-        <CardHeader className="flex p-4 flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <div className="text-2xl font-bold">+573</div>
-          <p className="text-xs text-muted-foreground">+201 since last hour</p>
-        </CardContent>
-      </Card>
-      <Card className="rounded-none md:rounded-md">
-        <CardHeader className="flex p-4 flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <div className="text-2xl font-bold">+573</div>
-          <p className="text-xs text-muted-foreground">+201 since last hour</p>
-        </CardContent>
-      </Card>
-      <Card className="rounded-none md:rounded-md">
-        <CardHeader className="flex p-4 flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Average Order Value
+    <Card className="rounded-none md:rounded-md p-4 flex">
+      <div className="flex-1">
+        <div className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {title}
           </CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <div className="text-2xl font-bold">+573</div>
-          <p className="text-xs text-muted-foreground">+201 since last hour</p>
-        </CardContent>
-      </Card>
-      <Card className="rounded-none md:rounded-md">
-        <CardHeader className="flex p-4 flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Last Visit</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <div className="text-2xl font-bold">+573</div>
-          <p className="text-xs text-muted-foreground">+201 since last hour</p>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold">{value}</div>
+        </div>
+      </div>
+      <div className="flex items-center justify-center">
+        <span className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-600 inline-flex items-center justify-center">
+          {icon}
+        </span>
+      </div>
+    </Card>
   );
 };
 

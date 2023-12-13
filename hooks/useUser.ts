@@ -12,12 +12,6 @@ import {
 } from "@/lib/validations/user";
 import * as z from "zod";
 
-interface UsersQueryKey {
-  query: {
-    search?: string;
-  };
-  pageParam: number;
-}
 interface InfiniteQueryProps {
   queryKey: string | any[];
   pageParam?: number;
@@ -82,14 +76,17 @@ export const useInviteUser = () => {
  * @param {object}
  * @returns
  */
-const update = async ({
-  id,
-  ...rest
-}: z.infer<typeof updateUserValidation>) => {
-  return await api.put(`/users/${id}`, { ...rest });
+const update = async (values: any) => {
+  const { id } = values;
+  return await api.put(`/users/${id}`, values);
 };
 export const useUpdateUser = () => {
-  return useMutation(update);
+  const queryClient = useQueryClient();
+  return useMutation(update, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+    },
+  });
 };
 
 /**

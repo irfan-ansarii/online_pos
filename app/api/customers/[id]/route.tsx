@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sanitize } from "@/lib/sanitize-user";
-import { decodeJwt, JwtPayload } from "@/lib/decode-jwt";
+import { getSession } from "@/lib/utils";
+
 interface Params {
   params: {
-    id: number;
+    id: number | string;
   };
 }
 
@@ -16,23 +17,59 @@ interface Params {
  */
 
 export async function GET(req: NextRequest, { params }: Params) {
-  const { id } = params;
+  try {
+    const { id } = params;
 
-  // const session = decodeJwt(req) as JwtPayload | undefined;
+    const session = await getSession(req);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
-  // if (!session)
-  //   return NextResponse.json(
-  //     { message: "Missing or invalid credentials" },
-  //     { status: 401 }
-  //   );
+    const userTransaction = prisma.user.findUnique({
+      where: { id: Number(id) },
+      include: {
+        customer: {
+          orderBy: { createdAt: "desc" },
+        },
+        addresses: true,
+      },
+    });
 
-  const user = await prisma.user.findUnique({ where: { id: Number(id) } });
+    const totalTransaction = prisma.sale.aggregate({
+      where: {
+        customerId: Number(id),
+      },
+      _sum: {
+        total: true,
+      },
+      _avg: {
+        total: true,
+      },
+      _count: {
+        total: true,
+      },
+    });
+    const response = await prisma.$transaction([
+      userTransaction,
+      totalTransaction,
+    ]);
 
-  if (!user) {
-    return NextResponse.json({ message: "Not found" }, { status: 404 });
+    if (!response) {
+      return NextResponse.json({ message: "Not found" }, { status: 404 });
+    }
+
+    const sanitized = sanitize(response[0]);
+    const transformed = {
+      ...sanitized,
+      customer: id,
+      orders: response[0]?.customer,
+      ...response[1],
+    };
+
+    return NextResponse.json({ data: transformed }, { status: 200 });
+  } catch (error) {
+    console.log(error);
   }
-
-  return NextResponse.json({ data: sanitize(user) }, { status: 200 });
 }
 
 /**
@@ -43,6 +80,11 @@ export async function GET(req: NextRequest, { params }: Params) {
  */
 export async function PUT(req: NextRequest, { params }: Params) {
   try {
+    const session = await getSession(req);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = params;
 
     const body = await req.json();
@@ -89,35 +131,10 @@ export async function PUT(req: NextRequest, { params }: Params) {
         },
       },
     });
-    console.log(res);
+
     return NextResponse.json({ data: user }, { status: 200 });
   } catch (error) {
     console.log(error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * delete customer
- * @param req
- * @param param1
- * @returns
- */
-export async function DELETE({ params }: Params) {
-  try {
-    const { id } = params;
-
-    const deleted = await prisma.user.delete({ where: { id } });
-
-    if (!deleted) {
-      return NextResponse.json({ message: "Not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ data: deleted }, { status: 200 });
-  } catch (error) {
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

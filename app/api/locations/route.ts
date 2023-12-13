@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { PAGE_SIZE } from "@/lib/CONSTANTS";
+import { getSession } from "@/lib/utils";
 /**
  * get locations
  * @param req
@@ -8,6 +9,11 @@ import { PAGE_SIZE } from "@/lib/CONSTANTS";
  */
 export async function GET(req: NextRequest) {
   try {
+    const session = await getSession(req);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     // get params
     const { searchParams } = req.nextUrl;
     const params = Object.fromEntries([...searchParams.entries()]);
@@ -65,6 +71,11 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession(req);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const {
       type,
@@ -78,6 +89,7 @@ export async function POST(req: NextRequest) {
       zip,
       country,
     } = body;
+
     // create location
     const location = await prisma.address.create({
       data: {
@@ -99,9 +111,11 @@ export async function POST(req: NextRequest) {
     });
 
     // return response
-    return NextResponse.json({ data: location }, { status: 201 });
+    return NextResponse.json(
+      { data: location, message: "created" },
+      { status: 201 }
+    );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

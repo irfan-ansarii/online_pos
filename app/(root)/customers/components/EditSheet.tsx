@@ -295,7 +295,11 @@ const UserSheet = ({
 
             <SheetFooter className="md:justify-between pt-4">
               <Button className="w-full" type="submit">
-                {isLoading ? <Loader2 className="w-5 h-5" /> : "Save"}
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Save"
+                )}
               </Button>
             </SheetFooter>
           </form>

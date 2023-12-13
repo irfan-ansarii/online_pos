@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sanitize } from "@/lib/sanitize-user";
 import { PAGE_SIZE } from "@/config/app";
+import { getSession } from "@/lib/utils";
+import { Prisma } from "@prisma/client";
 /**
  * get users
  * @param req
@@ -9,6 +11,10 @@ import { PAGE_SIZE } from "@/config/app";
  */
 export async function GET(req: NextRequest) {
   try {
+    const session = await getSession(req);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     // get params
     const { searchParams } = req.nextUrl;
     const params = Object.fromEntries([...searchParams.entries()]);
@@ -21,6 +27,21 @@ export async function GET(req: NextRequest) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
+    const filters: Prisma.UserWhereInput = {
+      AND: [
+        { role: { in: ["admin", "user"] } },
+        { status: { not: "invited" } },
+        {
+          OR: [
+            { firstName: { contains: search, mode: "insensitive" } },
+            { lastName: { contains: search, mode: "insensitive" } },
+            { phone: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      ],
+    };
+
     // find users
     const users = await prisma.user.findMany({
       skip: offset,
@@ -29,9 +50,9 @@ export async function GET(req: NextRequest) {
         createdAt: "desc",
       },
       where: {
-        role: { in: ["user", "admin"] },
-        status: { not: "invited" },
+        ...filters,
       },
+      include: { location: true },
     });
 
     // get pagination
@@ -40,8 +61,7 @@ export async function GET(req: NextRequest) {
         createdAt: "desc",
       },
       where: {
-        role: { in: ["user", "admin"] },
-        status: { not: "invited" },
+        ...filters,
       },
     });
 
@@ -74,6 +94,11 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession(req);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const { email, role, location } = body;
     // if email or password is missing
@@ -114,7 +139,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "Internal server error", details: error },
       { status: 500 }
     );
   }
