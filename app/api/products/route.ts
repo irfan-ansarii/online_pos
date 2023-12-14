@@ -35,6 +35,27 @@ export async function GET(req: NextRequest) {
           OR: [
             { title: { contains: search, mode: "insensitive" } },
             { description: { contains: search, mode: "insensitive" } },
+            {
+              OR: [
+                {
+                  variants: {
+                    some: { title: { contains: search, mode: "insensitive" } },
+                  },
+                },
+                {
+                  variants: {
+                    some: { sku: { contains: search, mode: "insensitive" } },
+                  },
+                },
+                {
+                  variants: {
+                    some: {
+                      barcode: { contains: search, mode: "insensitive" },
+                    },
+                  },
+                },
+              ],
+            },
           ],
         },
       ],
@@ -49,7 +70,7 @@ export async function GET(req: NextRequest) {
       },
       where: { ...filters },
       include: {
-        variants: { include: { inventory: { include: { location: true } } } },
+        variants: true,
         image: true,
       },
     });
@@ -61,6 +82,7 @@ export async function GET(req: NextRequest) {
       },
       where: { ...filters },
     });
+
     const sanitizedProducts = sanitizeOutput(products, ["imageId"]);
 
     // return response

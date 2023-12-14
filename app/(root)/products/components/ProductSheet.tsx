@@ -20,7 +20,7 @@ const ProductSheet = ({ product }: any) => {
         <SheetTitle>{title}</SheetTitle>
       </SheetHeader>
 
-      <div className="space-y-4">
+      <div className="space-y-2">
         {isLoading && [...Array(4)].map((_, i) => <Loading key={i} />)}
 
         {isError && (

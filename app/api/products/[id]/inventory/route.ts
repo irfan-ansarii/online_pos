@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { getSession, sanitizeOutput } from "@/lib/utils";
 
 /**
- * get product
+ * get inventory
  * @param req
  * @returns
  */
@@ -26,7 +26,7 @@ export async function GET(
         id: Number(id),
       },
       include: {
-        variants: true,
+        variants: { include: { inventory: { include: { location: true } } } },
         image: true,
       },
     });
@@ -73,11 +73,6 @@ export async function DELETE(
   try {
     const { id } = params;
 
-    const user = await getSession(req);
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     const variants = await prisma.variant.findMany({
       where: { productId: Number(id) },
     });
@@ -104,6 +99,6 @@ export async function DELETE(
       deleteProduct,
     ]);
 
-    return NextResponse.json({ data: deleteProduct, status: 204 });
+    return NextResponse.json({ message: deleteProduct, status: 204 });
   } catch (error) {}
 }
