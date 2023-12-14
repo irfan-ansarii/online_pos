@@ -1,6 +1,5 @@
 import React from "react";
 import { Card, CardTitle } from "@/components/ui/card";
-import { Inbox, IndianRupee, MapPin, Percent } from "lucide-react";
 
 interface Props {
   title: string;
@@ -8,21 +7,17 @@ interface Props {
   icon: React.ReactNode;
   iconClassName?: string;
 }
-const Analytics = ({ title, value, icon, iconClassName }: Props) => {
+const Analytics = ({ title, value, icon }: Props) => {
   return (
-    <Card className="rounded-none md:rounded-md p-4 flex">
-      <div className="flex-1">
-        <div className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-        </div>
-        <div>
-          <div className="text-2xl font-bold">{value}</div>
-        </div>
+    <Card className="rounded-none md:rounded-md p-6 flex">
+      <div className="flex-1 space-y-4">
+        <CardTitle className="font-bold">{value}</CardTitle>
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
       </div>
-      <div className="flex items-center justify-center">
-        <span className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-600 inline-flex items-center justify-center">
+      <div className="flex items-start justify-center text-muted-foreground">
+        <span className="w-12 h-12 border-2 bg-secondary/50 rounded-full inline-flex items-center justify-center">
           {icon}
         </span>
       </div>

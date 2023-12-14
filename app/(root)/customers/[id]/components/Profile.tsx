@@ -2,10 +2,10 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, User } from "lucide-react";
-const Profile = () => {
+import { User } from "lucide-react";
+const Profile = ({ customer }: { customer: any }) => {
   return (
-    <Card className="border-0 md:border">
+    <Card className="rounded-none md:rounded-md">
       <CardContent>
         <CardHeader className="p-0 pb-4">
           <div className="flex gap-2 items-center">
@@ -16,62 +16,49 @@ const Profile = () => {
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <CardTitle className="text-base font-semibold">
-                John Doe
+              <CardTitle className="text-base">
+                {customer?.firstName}
+                {customer?.lastName}
               </CardTitle>
             </div>
           </div>
         </CardHeader>
         <Separator className="mb-6" />
-        <div className="text-muted-foreground mb-6 font-medium">
+        <CardTitle className="text-base mb-6 text-muted-foreground">
           Contact Information
-        </div>
+        </CardTitle>
+
         <div className="space-y-2 mb-6">
           <div className="flex">
             <div className="w-1/3 font-semibold">Phone:</div>
-            <div className="w-2/3">+91 987654321</div>
+            <div className="w-2/3">{customer?.phone}</div>
           </div>
           <div className="flex">
             <div className="w-1/3 font-semibold">Email:</div>
-            <div className="w-2/3">+91 987654321</div>
+            <div className="w-2/3">{customer?.email}</div>
           </div>
         </div>
         <Separator className="mb-6" />
-        <div className="text-muted-foreground mb-6 font-medium">Addresses</div>
+        <CardTitle className="text-base mb-6 text-muted-foreground">
+          Addresses
+        </CardTitle>
         <div className="space-y-6">
-          <div className="space-y-2">
-            <div className="flex">
-              <div className="w-1/3 font-semibold">Company:</div>
-              <div className="w-2/3">example@email.com</div>
-            </div>
-            <div className="flex">
-              <div className="w-1/3 font-semibold">Address:</div>
-              <div className="w-2/3">+91 987654321</div>
-            </div>
-            <div className="flex">
-              <div className="w-1/3 font-semibold">Address2:</div>
-              <div className="w-2/3">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Corporis, similique.
+          {customer?.addresses?.map((address: any) => (
+            <div key={address.id}>
+              <div>
+                {address.company}
+                <br />
+                {address.address}
+                <br />
+                {address.address2}
+                {address.city}
+                {address.city}
+                {address.zip}
+                <br />
+                {address.country}
               </div>
             </div>
-            <div className="flex">
-              <div className="w-1/3 font-semibold">City:</div>
-              <div className="w-2/3">example@email.com</div>
-            </div>
-            <div className="flex">
-              <div className="w-1/3 font-semibold">State:</div>
-              <div className="w-2/3">+91 987654321</div>
-            </div>
-            <div className="flex">
-              <div className="w-1/3 font-semibold">Zip:</div>
-              <div className="w-2/3">Male</div>
-            </div>
-            <div className="flex">
-              <div className="w-1/3 font-semibold">Country:</div>
-              <div className="w-2/3">example@email.com</div>
-            </div>
-          </div>
+          ))}
         </div>
       </CardContent>
     </Card>

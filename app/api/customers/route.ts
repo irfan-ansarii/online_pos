@@ -52,11 +52,11 @@ export async function GET(req: NextRequest) {
         ...filters,
       },
       include: {
+        _count: {
+          select: { customer: true },
+        },
         customer: {
-          select: {
-            _count: true,
-            total: true,
-          },
+          select: { total: true },
         },
         addresses: true,
       },
@@ -79,10 +79,20 @@ export async function GET(req: NextRequest) {
 
     const transformed = response[0].map((user) => {
       const sanitized = sanitize(user);
+
+      const orderTotal = user.customer.reduce((acc, cur) => {
+        return acc + cur.total;
+      }, 0);
+
       return {
         ...sanitized,
         customer: null,
-        orders: user.customer,
+        orders: {
+          _count: { total: user._count.customer },
+          _sum: {
+            total: orderTotal,
+          },
+        },
         addresses: user.addresses,
       };
     });
@@ -100,7 +110,6 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

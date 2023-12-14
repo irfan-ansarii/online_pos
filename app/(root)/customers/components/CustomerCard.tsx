@@ -19,63 +19,64 @@ const CustomerCard = ({ customer }: any) => {
   };
   return (
     <Card className="hover:bg-accent group relative">
-      <Link href={`customers/${customer.id}`}>
-        <CardContent className="grid grid-cols-8 gap-3 items-center relative">
-          <div className="flex gap-2 items-center col-span-4 md:col-span-3">
-            <Avatar className="border-2 shrink-0">
-              <AvatarFallback className="">
-                <User className="w-5 h-5" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-0.5">
-              <div className="truncate font-medium">{customer.firstName}</div>
-              {customer.addresses?.length > 0 ? (
-                <div className="text-muted-foreground text-xs inline-flex gap-1 items-center">
-                  <MapPin className="w-3 h-3" />
-                  <span className="capitalize">
-                    {customer.addresses?.[0]?.state}
-                  </span>
-                </div>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="col-span-2">
-            <div className="text-muted-foreground">{customer.phone}</div>
-            <div className="text-muted-foreground">{customer.email}</div>
-          </div>
-
-          <div className="hidden md:block col-span-2">
-            <div className="inline-flex flex-col gap-0.5 uppercase">
-              <Badge
-                className="py-0 truncate text-muted-foreground w-40"
-                variant="secondary"
-              >
-                <span>Orders</span>
-                <span className="mx-1 opacity-40">|</span>
-                <span className="ml-auto">{customer.orders}</span>
-              </Badge>
-              <Badge
-                className={`py-0 truncate text-white w-40 ${getBadgeClass(
-                  customer.totalSpent
-                )}`}
-                variant="secondary"
-              >
-                <span>spent</span>
-                <span className="mx-1 opacity-40">|</span>
-                <span className="ml-auto">
-                  {Numeral(customer.totalSpent).format()}
+      <CardContent className="grid grid-cols-8 gap-3 items-center relative">
+        <Link
+          className="flex gap-2 items-center col-span-4 md:col-span-3"
+          href={`/customers/${customer.id}`}
+        >
+          <Avatar className="border-2 shrink-0">
+            <AvatarFallback className="">
+              <User className="w-5 h-5" />
+            </AvatarFallback>
+          </Avatar>
+          <div className="space-y-0.5">
+            <div className="truncate font-medium">{customer.firstName}</div>
+            {customer.addresses?.length > 0 ? (
+              <div className="text-muted-foreground text-xs inline-flex gap-1 items-center">
+                <MapPin className="w-3 h-3" />
+                <span className="capitalize">
+                  {customer.addresses?.[0]?.state}
                 </span>
-              </Badge>
-            </div>
+              </div>
+            ) : null}
           </div>
-          <div className="col-span-2 md:col-span-1 text-right">
-            <Badge className="uppercase" variant="secondary">
-              Group
+        </Link>
+
+        <div className="col-span-2">
+          <div className="text-muted-foreground">{customer.phone}</div>
+          <div className="text-muted-foreground">{customer.email}</div>
+        </div>
+
+        <div className="hidden md:block col-span-2">
+          <div className="inline-flex flex-col gap-0.5 uppercase">
+            <Badge
+              className="py-0 truncate text-muted-foreground w-40"
+              variant="secondary"
+            >
+              <span>Orders</span>
+              <span className="mx-1 opacity-40">|</span>
+              <span className="ml-auto">{customer.orders._count.total}</span>
+            </Badge>
+            <Badge
+              className={`py-0 truncate text-white w-40 ${getBadgeClass(
+                customer.orders._sum.total
+              )}`}
+              variant="secondary"
+            >
+              <span>spent</span>
+              <span className="mx-1 opacity-40">|</span>
+              <span className="ml-auto">
+                {Numeral(customer.orders._sum.total).format()}
+              </span>
             </Badge>
           </div>
-        </CardContent>
-      </Link>
+        </div>
+        <div className="col-span-2 md:col-span-1 text-right">
+          <Badge className="uppercase" variant="secondary">
+            Group
+          </Badge>
+        </div>
+      </CardContent>
 
       <EditSheet customer={customer}>
         <div className="w-28 absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex justify-end items-center gap-2">

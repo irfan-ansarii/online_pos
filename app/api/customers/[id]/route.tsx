@@ -30,7 +30,14 @@ export async function GET(req: NextRequest, { params }: Params) {
       include: {
         customer: {
           orderBy: { createdAt: "desc" },
+          include: {
+            _count: {
+              select: { lineItems: true },
+            },
+          },
+          take: 5,
         },
+
         addresses: true,
       },
     });
@@ -68,7 +75,10 @@ export async function GET(req: NextRequest, { params }: Params) {
 
     return NextResponse.json({ data: transformed }, { status: 200 });
   } catch (error) {
-    console.log(error);
+    return NextResponse.json(
+      { details: error, message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
