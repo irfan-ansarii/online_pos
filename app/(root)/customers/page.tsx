@@ -44,7 +44,7 @@ const Page = () => {
 
             {customers?.pages.map((page) =>
               page.data.data.length === 0 ? (
-                <EmptyBox className="col-span-1" title="No Users Found" />
+                <EmptyBox className="col-span-1" title="No Customer Found" />
               ) : (
                 page.data.data.map((customer: any) => (
                   <CustomerCard customer={customer} key={customer.id} />

@@ -71,6 +71,7 @@ const Options = () => {
 
             <Button
               variant="secondary"
+              type="button"
               size="icon"
               disabled={fields.length === 1}
               onClick={() => remove(index)}
@@ -102,6 +103,7 @@ const Options = () => {
               <Button
                 variant="secondary"
                 size="icon"
+                type="button"
                 disabled={!form.watch(`options.${index}.value`)}
                 className="shrink-0"
                 onClick={() => {
@@ -142,6 +144,7 @@ const Options = () => {
         <Button
           className="w-full"
           variant="secondary"
+          type="button"
           onClick={() => {
             append({ name: "", values: [], value: "" });
           }}

@@ -102,17 +102,16 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col h-full"
+            className="flex flex-col h-full relativ"
           >
+            {isLoading && (
+              <div className="absolute w-full h-full top-0 left-0 z-20"></div>
+            )}
             <SheetHeader className="md:pb-2">
               <SheetTitle>New product</SheetTitle>
             </SheetHeader>
 
-            <div className="relative  max-h-full overflow-y-auto scrollbox">
-              {isLoading && (
-                <div className="absolute w-full h-full top-0 left-0 z-20"></div>
-              )}
-
+            <div className="relative  max-h-full overflow-y-auto scrollbox -mx-6 px-6">
               <div className="flex flex-col gap-6 grow pb-2 md:pb-4">
                 <MediaLibrary
                   onSelect={onSelect}

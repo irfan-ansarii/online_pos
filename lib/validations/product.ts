@@ -36,7 +36,7 @@ export const productValidation = z
       .optional(),
     purchasePrice: z.any(),
     salePrice: z.any(),
-    sku: z.string(),
+    sku: z.any(),
     taxRate: z.any(),
   })
   .superRefine((data, ctx) => {
@@ -63,14 +63,6 @@ export const productValidation = z
           code: z.ZodIssueCode.custom,
           message: "Enter valid number",
           path: ["taxRate"],
-        });
-      }
-
-      if (!sku) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "SKU is required",
-          path: ["sku"],
         });
       }
     } else if (type === "variable") {
@@ -100,7 +92,7 @@ export const productValidation = z
       }
 
       variants?.forEach((variant, i) => {
-        const { purchasePrice, salePrice, taxRate, sku } = variant;
+        const { purchasePrice, salePrice, taxRate } = variant;
         if (!purchasePrice || isNaN(Number(purchasePrice))) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -120,13 +112,6 @@ export const productValidation = z
             code: z.ZodIssueCode.custom,
             message: "Enter valid tax rate",
             path: [`variants.${i}.taxRate`],
-          });
-        }
-        if (!sku || sku.length === 0) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "SKU is required",
-            path: [`variants.${i}.sku`],
           });
         }
       });

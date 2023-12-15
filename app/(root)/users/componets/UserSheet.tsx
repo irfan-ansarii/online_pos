@@ -78,6 +78,10 @@ const UserSheet = ({
     });
   };
 
+  if (user?.role === "user") {
+    return children;
+  }
+
   return (
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>

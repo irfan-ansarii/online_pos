@@ -110,7 +110,7 @@ const locations = async () => {
 };
 
 export const useLocations = () => {
-  return useQuery(["locations"], locations);
+  return useQuery(["locations"], locations, { retry: 0 });
 };
 
 /**

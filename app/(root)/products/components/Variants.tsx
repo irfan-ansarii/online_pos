@@ -55,7 +55,7 @@ const Variants = () => {
   }, [options]);
 
   return (
-    <div className="divide-y border-y">
+    <div>
       {variants.map((_, index) => (
         <div
           className="grid grid-cols-2 gap-4 py-4 last:pb-0"

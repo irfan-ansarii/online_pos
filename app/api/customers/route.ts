@@ -53,9 +53,9 @@ export async function GET(req: NextRequest) {
       },
       include: {
         _count: {
-          select: { customer: true },
+          select: { customerSale: true },
         },
-        customer: {
+        customerSale: {
           select: { total: true },
         },
         addresses: true,
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
     const transformed = response[0].map((user) => {
       const sanitized = sanitize(user);
 
-      const orderTotal = user.customer.reduce((acc, cur) => {
+      const orderTotal = user.customerSale.reduce((acc, cur) => {
         return acc + cur.total;
       }, 0);
 
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
         ...sanitized,
         customer: null,
         orders: {
-          _count: { total: user._count.customer },
+          _count: { total: user._count.customerSale },
           _sum: {
             total: orderTotal,
           },

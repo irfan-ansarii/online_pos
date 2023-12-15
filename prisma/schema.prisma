@@ -28,8 +28,6 @@ model User {
   addresses        Address[]
   customerSale     Sale[]     @relation("customerSale")
   employeeSale     Sale[]     @relation("employeeSale")
-  invitedBy        User?      @relation("InvitedBy", fields: [invitedById], references: [id])
-  invitedByUser    User?      @relation("InvitedBy")
   location         Location?  @relation(fields: [locationId], references: [id])
 
   @@map("users")
@@ -81,10 +79,9 @@ model Product {
   options          Json?
   variants         Variant[]
   image            File               @relation(fields: [imageId], references: [id])
-  Inventory        Inventory[]
-  Label            Label[]
-  Adjustment       Adjustment[]
-  TransferLineItem TransferLineItem[]
+  label            Label[]
+  adjustment       Adjustment[]
+  transferLineItem TransferLineItem[]
 
   @@map("products")
 }
@@ -92,8 +89,8 @@ model Product {
 model Variant {
   id               Int                @id @default(autoincrement())
   productId        Int
-  sku              String
-  barcode          String?            @unique()
+  sku              String?
+  barcode          Int                @unique @default(autoincrement())
   title            String
   purchasePrice    Float
   salePrice        Float
@@ -104,8 +101,8 @@ model Variant {
   inventory        Inventory[]
   label            Label[]
   product          Product            @relation(fields: [productId], references: [id])
-  TransferLineItem TransferLineItem[]
-  Adjustment       Adjustment[]
+  transferLineItem TransferLineItem[]
+  adjustment       Adjustment[]
 
   @@map("variants")
 }
@@ -129,12 +126,10 @@ model Inventory {
   id         Int      @id @default(autoincrement())
   locationId Int
   variantId  Int
-  productId  Int
   stock      Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   location   Location @relation(fields: [locationId], references: [id])
-  product    Product  @relation(fields: [productId], references: [id])
   variant    Variant  @relation(fields: [variantId], references: [id])
 
   @@map("inventory")
@@ -156,17 +151,22 @@ model Label {
 }
 
 model Adjustment {
-  id         Int      @id @default(autoincrement())
-  locationId Int
-  productId  Int
-  variantId  Int
-  quantity   Int      @default(0)
-  reason     String
-  notes      String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  product    Product  @relation(fields: [productId], references: [id])
-  variant    Variant  @relation(fields: [variantId], references: [id])
+  id           Int      @id @default(autoincrement())
+  locationId   Int
+  productId    Int
+  variantId    Int
+  title        String
+  variantTitle String?
+  sku          String
+  barcode      String
+  price        Float
+  quantity     Int
+  reason       String
+  notes        String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  product      Product  @relation(fields: [productId], references: [id])
+  variant      Variant  @relation(fields: [variantId], references: [id])
 
   @@map("adjustments")
 }
@@ -194,6 +194,7 @@ model TransferLineItem {
   title        String
   variantTitle String?
   sku          String
+  barcode      String
   price        Float
   quantity     Int
   total        Float
@@ -242,6 +243,7 @@ model LineItem {
   title         String
   variantTitle  String?
   sku           String
+  barcode       String
   price         Float
   taxRate       Int
   quantity      Int

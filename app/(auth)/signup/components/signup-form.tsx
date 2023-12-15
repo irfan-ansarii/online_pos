@@ -1,6 +1,7 @@
 "use client";
 import * as z from "zod";
 import React from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -17,12 +18,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginValidation } from "@/lib/validations/auth";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { useSignup } from "@/hooks/useAuth";
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function SignupForm({ ...props }: UserAuthFormProps) {
-  const { toast } = useToast();
+  const router = useRouter();
+
   const { mutate, isLoading } = useSignup();
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const form = useForm<z.infer<typeof loginValidation>>({
@@ -40,6 +42,7 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
           variant: "success",
           title: res.data.message,
         });
+        router.replace("/login");
       },
       onError: (error: any) => {
         toast({

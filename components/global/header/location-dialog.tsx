@@ -22,13 +22,14 @@ import CreateLocation from "./location-create";
 import { Home, Loader2, Plus } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
-const LocationDialog = ({ children }: { children?: React.ReactNode }) => {
+const LocationDialog = () => {
   const [open, setOpen] = React.useState(false);
 
   const { mutate, isLoading } = useSwitchLocation();
-  const { locations } = useAuthContext();
-  const { data: session, refetch: refreshSession } = useSession();
+  const { locations, session } = useAuthContext();
+  const { refetch: refreshSession } = useSession();
 
+  console.log(locations);
   const onChange = (value: string) => {
     const locationId = Number(value);
 
@@ -57,16 +58,19 @@ const LocationDialog = ({ children }: { children?: React.ReactNode }) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild className="flex items-center">
-        {children ? (
-          children
-        ) : (
+      {session?.role === "admin" ? (
+        <DialogTrigger asChild className="flex items-center">
           <Button variant="secondary">
             <Home className="w-5 h-5 mr-2" />
-            {session?.data?.data?.location?.name || "Select Location"}
+            {session?.location?.name || "Select Location"}
           </Button>
-        )}
-      </DialogTrigger>
+        </DialogTrigger>
+      ) : (
+        <Button variant="secondary">
+          <Home className="w-5 h-5 mr-2" />
+          {session?.location?.name || "Select Location"}
+        </Button>
+      )}
       <DialogContent className="max-w-[90%] sm:max-w-md">
         <DialogHeader className="text-left pb-4">
           <DialogTitle className="text-xl">Change Location</DialogTitle>
@@ -75,7 +79,7 @@ const LocationDialog = ({ children }: { children?: React.ReactNode }) => {
           </DialogDescription>
         </DialogHeader>
         <RadioGroup
-          defaultValue={session?.data.data.locationId}
+          defaultValue={session?.location?.id}
           className="space-y-2 mb-4"
           onValueChange={onChange}
         >

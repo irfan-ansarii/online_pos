@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
                 {
                   variants: {
                     some: {
-                      barcode: { contains: search, mode: "insensitive" },
+                      barcode: { equals: Number(search) || undefined },
                     },
                   },
                 },
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
     const locations = await prisma.location.findMany();
 
     const inventoryToCreate = locations.map((location) => ({
-      locationId: location.id,
+      location: { connect: { id: location.id } },
       stock: 0,
     }));
 
@@ -161,8 +161,9 @@ export async function POST(req: NextRequest) {
     // return response
     return NextResponse.json({ data: product }, { status: 201 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "Internal server error", details: error },
       { status: 500 }
     );
   }

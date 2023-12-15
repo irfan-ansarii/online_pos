@@ -16,19 +16,18 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
-
-    // if user exists and active
-    if (user?.email && user?.status !== "invited") {
+    console.log(user);
+    if (!user || user.role === "customer" || user.role === "supplier") {
       return NextResponse.json(
-        { message: "Email already registered" },
+        { message: "Signup not allowed" },
         { status: 400 }
       );
     }
 
-    // if user is not invited or it is not user or admin
-    if (!user?.email || (user?.role !== "admin" && user?.role !== "user")) {
+    // if user exists and active
+    if (user.email && user.status !== "invited") {
       return NextResponse.json(
-        { message: "Account creation not allowed" },
+        { message: "Email already registered" },
         { status: 400 }
       );
     }
@@ -53,9 +52,9 @@ export async function POST(request: NextRequest) {
       status: 201,
       data: sanitize(response),
     });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "Internal server error", details: error },
       { status: 500 }
     );
   }

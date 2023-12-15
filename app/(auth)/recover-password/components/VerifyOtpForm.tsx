@@ -23,6 +23,7 @@ import { getCookie } from "@/lib/utils";
 
 export function VerifyOtpForm() {
   const { mutate, isLoading } = useVerifyOTP();
+  const [resent, setResent] = React.useState(false);
   const { mutate: sendOTP, isLoading: otpSending } = useSendOTP();
   const router = useRouter();
   const { toast } = useToast();
@@ -64,7 +65,8 @@ export function VerifyOtpForm() {
       <CardHeader className="p-0 pb-8">
         <CardTitle className="mb-2">Verify OTP</CardTitle>
         <CardDescription>
-          OTP has been sent to {getCookie("_recovery_email")}
+          OTP has been {resent ? "resent" : "sent"} to{" "}
+          {getCookie("_recovery_email")}
         </CardDescription>
       </CardHeader>
 
@@ -100,8 +102,16 @@ export function VerifyOtpForm() {
               </span>
               <Button
                 variant="link"
+                type="button"
                 onClick={() => {
-                  sendOTP({ email: getCookie("_recovery_email") || "" });
+                  sendOTP(
+                    { email: getCookie("_recovery_email") || "" },
+                    {
+                      onSuccess: () => {
+                        setResent(true);
+                      },
+                    }
+                  );
                 }}
               >
                 {otpSending ? "Sending..." : "Resend"}
