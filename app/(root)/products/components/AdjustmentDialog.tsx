@@ -94,13 +94,13 @@ function AdjustmentDialog({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col h-full"
+            className="flex flex-col h-full gap-6"
           >
             <FormField
               control={form.control}
               name="lineItems.0.quantity"
               render={({ field }) => (
-                <FormItem className="mb-6">
+                <FormItem>
                   <FormLabel>Quantity</FormLabel>
                   <FormControl>
                     <Input {...field} />

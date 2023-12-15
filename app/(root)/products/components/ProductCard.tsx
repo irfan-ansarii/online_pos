@@ -29,6 +29,7 @@ interface BadgeProps {
 }
 const ProductCard = ({ product }: { product: any }) => {
   const [open, toggle] = useToggle();
+
   const priceRange = React.useMemo(() => {
     const { variants } = product;
 
@@ -44,11 +45,7 @@ const ProductCard = ({ product }: { product: any }) => {
     return `${minPrice} - ${maxPrice}`;
   }, [product]);
 
-  const stock = React.useMemo(() => {
-    return product.variants.reduce((acc: any, curr: any) => {
-      return acc + Number(curr.stock);
-    }, 0);
-  }, [product]);
+  const stock = 0;
 
   const badgeClassName: BadgeProps = {
     active: "bg-success hover:bg-successs",
@@ -91,6 +88,12 @@ const ProductCard = ({ product }: { product: any }) => {
               {priceRange}
             </div>
             <div className="text-right col-span-3 md:col-span-1">
+              <div className={`font-medium text-right truncate md:hidden`}>
+                {priceRange}
+              </div>
+              <div>{stock}</div>
+            </div>
+            <div className="hidden md:block text-right">
               <Badge
                 className={`uppercase rounded-md text-white mb-1 ${
                   badgeClassName[product.status]
@@ -99,11 +102,7 @@ const ProductCard = ({ product }: { product: any }) => {
               >
                 {product.status}
               </Badge>
-              <div className={`font-medium text-right truncate md:hidden`}>
-                {priceRange}
-              </div>
             </div>
-            <div className="hidden md:block text-right">{stock}</div>
           </CardContent>
         </SheetTrigger>
         {open && <ProductSheet product={product} />}

@@ -36,6 +36,7 @@ const Page = () => {
     isError,
     error,
     isFetchingNextPage,
+    hasNextPage,
     fetchNextPage,
   } = useProducts(queryParams);
 
@@ -125,6 +126,8 @@ const Page = () => {
                 title={error?.response?.data?.message}
               />
             )}
+
+            {hasNextPage && <div ref={ref}></div>}
 
             {/* loading */}
             {(isLoading || isFetchingNextPage) &&

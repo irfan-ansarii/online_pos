@@ -26,7 +26,9 @@ export async function GET(
         id: Number(id),
       },
       include: {
-        variants: true,
+        variants: {
+          include: { inventory: { include: { location: true } } },
+        },
         image: true,
       },
     });
@@ -36,11 +38,8 @@ export async function GET(
       return NextResponse.json({ message: "Not found" }, { status: 404 });
     }
 
-    // remove imageId key from response
-    const sanitizedProduct = sanitizeOutput(product, ["imageId"]);
-
     // return response
-    return NextResponse.json({ data: sanitizedProduct }, { status: 200 });
+    return NextResponse.json({ data: product }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { message: "Internal server error" },
@@ -84,8 +83,6 @@ export async function DELETE(
 
     const recordsToDelete = variants.map((variant) => variant.id);
 
-    // bellow 3 queries can be done in one go
-    // this needs to be optimized
     const deleteInventory = prisma.inventory.deleteMany({
       where: { variantId: { in: recordsToDelete } },
     });
@@ -95,7 +92,9 @@ export async function DELETE(
     });
 
     const deleteProduct = prisma.product.delete({
-      where: { id: Number(id) },
+      where: {
+        id: Number(id),
+      },
     });
 
     const transaction = await prisma.$transaction([
@@ -104,6 +103,6 @@ export async function DELETE(
       deleteProduct,
     ]);
 
-    return NextResponse.json({ data: deleteProduct, status: 204 });
+    return NextResponse.json({ data: transaction[2], status: 204 });
   } catch (error) {}
 }

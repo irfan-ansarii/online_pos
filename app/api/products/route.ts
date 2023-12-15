@@ -161,7 +161,6 @@ export async function POST(req: NextRequest) {
     // return response
     return NextResponse.json({ data: product }, { status: 201 });
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error", details: error },
       { status: 500 }

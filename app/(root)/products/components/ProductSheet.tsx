@@ -30,7 +30,7 @@ const ProductSheet = ({ product }: any) => {
           />
         )}
 
-        {data?.data.data.variants.map((variant: any) => (
+        {data?.data?.data?.variants?.map((variant: any) => (
           <div className="rounded-md border overflow-hidden" key={variant.id}>
             <div className="grid grid-cols-4 gap-2 px-4 py-2 items-center bg-accent">
               <div className="font-medium">
@@ -52,7 +52,7 @@ const ProductSheet = ({ product }: any) => {
             </div>
 
             <div className="divide-y px-2">
-              {variant.inventory.map((inventory: any) => (
+              {variant?.inventory?.map((inventory: any) => (
                 <div className="flex py-2 items-center">
                   <div className="text-muted-foreground mr-2">
                     <MapPin className="w-3.5 h-3.5" />
