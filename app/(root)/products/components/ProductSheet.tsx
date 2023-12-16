@@ -1,18 +1,15 @@
 import React from "react";
 import { MapPin, Settings2 } from "lucide-react";
 import Numeral from "numeral";
-import { useProduct } from "@/hooks/useProduct";
 
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-
 import { Button } from "@/components/ui/button";
-import ErrorBox from "@/components/shared/error-box";
-import Loading from "./Loading";
+import { Badge } from "@/components/ui/badge";
+
 import AdjustmentDialog from "./AdjustmentDialog";
 
 const ProductSheet = ({ product }: any) => {
-  const { id, title } = product;
-  const { data, isLoading, isError, error } = useProduct(id);
+  const { title, variants } = product;
 
   return (
     <SheetContent className="md:max-w-lg">
@@ -21,24 +18,19 @@ const ProductSheet = ({ product }: any) => {
       </SheetHeader>
 
       <div className="space-y-2 flex flex-col h-full">
-        {isLoading && [...Array(4)].map((_, i) => <Loading key={i} />)}
-
-        {isError && (
-          <ErrorBox
-            className="col-span-1 md:col-span-2 xl:col-span-3"
-            title={error?.response?.data?.message}
-          />
-        )}
-        <div className="relative  max-h-full overflow-y-auto scrollbox -mx-6">
-          {data?.data?.data?.variants?.map((variant: any) => (
-            <div className="border-y overflow-hidden" key={variant.id}>
+        <div className="relative max-h-full overflow-y-auto scrollbox -mx-6">
+          {variants?.map((variant: any) => (
+            <div className="overflow-hidden border-b" key={variant.id}>
               <div className="grid grid-cols-4 gap-2 px-6 py-2 items-center bg-accent">
                 <div className="font-medium">
                   <div>{variant.title}</div>
+                  <Badge className="py-0" variant="secondary">
+                    643576
+                  </Badge>
 
-                  <div className="text-xs uppercase text-muted-foreground">
+                  {/* <div className="text-xs uppercase text-muted-foreground">
                     {variant.sku}
-                  </div>
+                  </div> */}
                 </div>
                 <div className="text-right">
                   {Numeral(variant.purchasePrice).format()}
@@ -63,13 +55,16 @@ const ProductSheet = ({ product }: any) => {
 
                       <AdjustmentDialog
                         data={{
-                          title: product.title,
-                          variantTitle: variant.variantTitle,
-                          sku: variant.sku,
-                          quantity: 1,
-                          variantId: Number(variant.id),
-                          imageId: Number(product.image.id),
+                          productId: product.id,
+                          variantId: variant.id,
                           locationId: inventory.locationId,
+                          quantity: 1,
+
+                          // optional fields
+                          title: product.title,
+                          variantTitle: variant.title,
+                          barcode: variant.barcode,
+                          imageSrc: product.image.src,
                         }}
                       >
                         <Button size="sm" variant="secondary">

@@ -40,11 +40,10 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import AutoComplete from "@/components/shared/product-autocomplete";
+import AutoComplete from "@/components/shared/search-product";
 import { useSession } from "@/hooks/useAuth";
 
-type Option = Record<string, string>;
-
+type Option = Record<"value" | "label", string> & Record<string, string>;
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const { mutate, isLoading } = useCreateTransfer();
   const { data: session } = useSession();
@@ -73,7 +72,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
 
   const onSelect = (value: Option) => {
     const items = form.getValues("lineItems");
-    const index = items.findIndex((item) => item.variantId === value.variantId);
+    const index = items.findIndex((item) => item.id === value.id);
 
     if (index !== -1) {
       lineItems.update(index, {
@@ -84,15 +83,16 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     }
 
     lineItems.append({
-      title: value.title,
-      variantTitle: value.variantTitle,
-      sku: value.sku,
+      productId: value.product.id,
+      variantId: value.variant.id,
+      title: value.product.title,
+      variantTitle: value.variant.title,
+      sku: value.variant.sku,
+      barcode: value.variant.barcode,
       price: value.salePrice,
       quantity: 1,
-      total: value.salePrice,
-      variantId: value.variantId,
-      imageSrc: value.imageSrc,
-      imageId: Number(value.imageId),
+      total: value.variant.salePrice,
+      imageSrc: value.product.image.src,
     });
   };
 
@@ -154,18 +154,19 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="md:max-w-lg">
-        {isLoading && (
-          <div className="absolute w-full h-full top-0 left-0 z-20"></div>
-        )}
-
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col h-full"
+            className="flex flex-col h-full relative"
           >
             <SheetHeader>
               <SheetTitle>New Transfer</SheetTitle>
             </SheetHeader>
+
+            {isLoading && (
+              <div className="absolute w-full h-full top-0 left-0 z-20"></div>
+            )}
+
             {loading ? (
               <div className="flex flex-col h-full items-center justify-center">
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -206,8 +207,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                       </FormItem>
                     )}
                   />
-
-                  {/* <Separator className="h-0.5" /> */}
                 </div>
                 <div className="flex flex-col gap-2 mb-1">
                   <FormLabel>Products</FormLabel>
@@ -220,7 +219,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                 <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
                   {lineItems.fields.map((field, i) => (
                     <div
-                      className="flex rounded-md border p-2 pr-0 items-center snap-start"
+                      className="flex  rounded-md border p-2 pr-0 items-center snap-start"
                       key={field.id}
                     >
                       <div className="flex gap-3 items-center col-span-2">

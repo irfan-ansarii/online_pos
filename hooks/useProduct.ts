@@ -87,6 +87,7 @@ export const useUpdateProduct = () => {
  */
 const deleteProduct = async (values: any) => {
   const { id } = values;
+
   return await api.delete(`/products/${id}`, values);
 };
 
@@ -96,6 +97,21 @@ export const useDeleteProduct = () => {
   return useMutation(deleteProduct, {
     onSuccess: () => query.invalidateQueries(["products", {}]),
   });
+};
+
+/**
+ * get inventory
+ * @param object {Object}
+ * @returns
+ */
+const getInventory = async ({ queryKey }: InfiniteQueryProps) => {
+  const [_, params] = queryKey;
+
+  return await api.get("/products/inventory", { params: { ...params } });
+};
+
+export const useInventory = (query: any) => {
+  return useQuery(["inventory", query], getInventory);
 };
 
 /**

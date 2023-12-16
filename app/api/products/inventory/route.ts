@@ -32,15 +32,22 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
     const filters: Prisma.InventoryWhereInput = {
       AND: [
-        { location: { id: Number(user.locationId) } },
+        { locationId: { equals: Number(user.locationId) } },
         {
           OR: [
-            { variant: { title: { contains: search, mode: "insensitive" } } },
-            { variant: { sku: { contains: search, mode: "insensitive" } } },
-            { variant: { barcode: { contains: search, mode: "insensitive" } } },
             {
               variant: {
                 product: { title: { contains: search, mode: "insensitive" } },
+              },
+            },
+            {
+              variant: { sku: { contains: search, mode: "insensitive" } },
+            },
+            {
+              variant: {
+                barcode: {
+                  equals: !isNaN(Number(search)) ? Number(search) : -1,
+                },
               },
             },
           ],
@@ -58,12 +65,11 @@ export async function GET(req: NextRequest, res: NextResponse) {
       where: { ...filters },
       include: {
         variant: { include: { product: { include: { image: true } } } },
-        location: true,
       },
     });
 
     // get pagination
-    const total = prisma.transfer.count({
+    const total = prisma.inventory.count({
       orderBy: {
         createdAt: "desc",
       },
@@ -72,35 +78,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
     const [inventory, pageTotal] = await prisma.$transaction([response, total]);
 
     const transformed = inventory.map((item) => ({
-      id: item.id,
-      stock: item.stock,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-      location: item.location,
-      variant: {
-        id: item.variant.id,
-        title: item.variant.title,
-        sku: item.variant.sku,
-        barcode: item.variant.barcode,
-        purchasePrice: item.variant.purchasePrice,
-        salePrice: item.variant.salePrice,
-        option: item.variant.option,
-        taxRate: item.variant.taxRate,
-        createdAt: item.variant.createdAt,
-        updatedAt: item.variant.updatedAt,
-      },
-      product: {
-        id: item.variant.product.id,
-        title: item.variant.product.title,
-        description: item.variant.product.description,
-        type: item.variant.product.type,
-        status: item.variant.product.status,
-        options: item.variant.product.options,
-        image: item.variant.product.image,
-        createdAt: item.variant.product.createdAt,
-        updatedAt: item.variant.product.updatedAt,
-      },
+      ...item,
+      product: item.variant.product,
     }));
+
     // return response
     return NextResponse.json(
       {
@@ -117,7 +98,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     );
   } catch (error) {
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "Internal server error", details: error },
       { status: 500 }
     );
   }

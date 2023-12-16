@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
       },
       where: { ...filters },
       include: {
-        variants: { include: { inventory: true } },
+        variants: { include: { inventory: { include: { location: true } } } },
         image: true,
       },
     });

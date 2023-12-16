@@ -53,21 +53,21 @@ export async function GET(req: NextRequest, res: NextResponse) {
       },
       where: { ...filters },
       include: {
-        lineItems: { include: { image: true } },
+        lineItems: true,
       },
     });
 
     // add source and destination to response
-    const transfersWithLocation = transfers.map((item) => {
-      const fromIndex = locations.findIndex((loc) => loc.id === item.fromId);
-      const toIndex = locations.findIndex((loc) => loc.id === item.toId);
+    // const transfersWithLocation = transfers.map((item) => {
+    //   const fromIndex = locations.findIndex((loc) => loc.id === item.fromId);
+    //   const toIndex = locations.findIndex((loc) => loc.id === item.toId);
 
-      return {
-        ...item,
-        source: locations[fromIndex],
-        destination: locations[toIndex],
-      };
-    });
+    //   return {
+    //     ...item,
+    //     source: locations[fromIndex],
+    //     destination: locations[toIndex],
+    //   };
+    // });
 
     // get pagination
     const total = await prisma.transfer.count({
@@ -79,7 +79,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     // return response
     return NextResponse.json(
       {
-        data: transfersWithLocation,
+        data: transfers,
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,

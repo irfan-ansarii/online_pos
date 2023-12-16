@@ -34,7 +34,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-import AutoComplete from "@/components/shared/product-autocomplete";
+import AutoComplete from "@/components/shared/search-product";
 import {
   Select,
   SelectContent,

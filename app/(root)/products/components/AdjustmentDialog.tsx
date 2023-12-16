@@ -76,7 +76,7 @@ function AdjustmentDialog({
       },
     });
   };
-
+  console.log(data);
   return (
     <Dialog open={open} onOpenChange={toggle}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -131,9 +131,6 @@ function AdjustmentDialog({
                       <SelectItem value="Received">Received</SelectItem>
                       <SelectItem value="Return restock">
                         Return restock
-                      </SelectItem>
-                      <SelectItem value="Internal transfer">
-                        Internal transfer
                       </SelectItem>
                       <SelectItem value="Theft or loss">
                         Theft or loss

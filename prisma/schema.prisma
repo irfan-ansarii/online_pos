@@ -151,22 +151,17 @@ model Label {
 }
 
 model Adjustment {
-  id           Int      @id @default(autoincrement())
-  locationId   Int
-  productId    Int
-  variantId    Int
-  title        String
-  variantTitle String?
-  sku          String
-  barcode      String
-  price        Float
-  quantity     Int
-  reason       String
-  notes        String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  product      Product  @relation(fields: [productId], references: [id])
-  variant      Variant  @relation(fields: [variantId], references: [id])
+  id         Int      @id @default(autoincrement())
+  locationId Int
+  productId  Int
+  variantId  Int
+  quantity   Int
+  reason     String
+  notes      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  product    Product  @relation(fields: [productId], references: [id])
+  variant    Variant  @relation(fields: [variantId], references: [id])
 
   @@map("adjustments")
 }
@@ -187,7 +182,7 @@ model Transfer {
 }
 
 model TransferLineItem {
-  id           Int                    @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   transferId   Int
   variantId    Int
   productId    Int
@@ -198,12 +193,11 @@ model TransferLineItem {
   price        Float
   quantity     Int
   total        Float
-  status       TransferLineItemStatus @default(pending)
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
-  product      Product                @relation(fields: [productId], references: [id])
-  variant      Variant                @relation(fields: [variantId], references: [id])
-  transfer     Transfer               @relation(fields: [transferId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  product      Product  @relation(fields: [productId], references: [id])
+  variant      Variant  @relation(fields: [variantId], references: [id])
+  transfer     Transfer @relation(fields: [transferId], references: [id])
 
   @@map("transfer_line_items")
 }
@@ -336,12 +330,5 @@ enum TransferStatus {
   accepted
   rejected
   partial
-  cancelled
-}
-
-enum TransferLineItemStatus {
-  pending
-  accepted
-  rejected
   cancelled
 }

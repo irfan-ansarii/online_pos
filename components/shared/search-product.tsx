@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Command as CommandPrimitive } from "cmdk";
 import { Image as ImageIcon, Search } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
-import { useProducts } from "@/hooks/useProduct";
+import { useInventory } from "@/hooks/useProduct";
 
 import {
   CommandGroup,
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 import Loading from "@/app/(root)/products/components/Loading";
-import { useSession } from "@/hooks/useAuth";
+import { Badge } from "../ui/badge";
 
 export type Option = Record<"value" | "label", string> & Record<string, string>;
 
@@ -31,8 +31,8 @@ const AutoComplete = ({
 
   const [open, toggle] = useToggle(false);
   const [inputValue, setInputValue] = useState("");
-  const { data, isLoading } = useProducts({ search: inputValue });
-  const { data: session } = useSession();
+  const { data: inventory, isLoading } = useInventory({ search: inputValue });
+
   const handleSelectOption = useCallback(
     (selected: Option) => {
       onSelect(selected);
@@ -41,32 +41,6 @@ const AutoComplete = ({
     },
     [onSelect]
   );
-
-  const products = React.useMemo(() => {
-    return data?.pages.flatMap((page) =>
-      page.data.data.flatMap((item: any) =>
-        item.variants.map((variant: any) => {
-          const locationId = session?.data?.data?.locationId;
-          const stock = variant.inventory.reduce((acc: any, cur: any) => {
-            if (locationId === cur.locationId) {
-              acc += Number(cur.stock || 0);
-            }
-            return acc;
-          }, 0);
-          return {
-            ...variant,
-            ...item,
-            variantTitle:
-              variant.title?.toLowerCase() !== "default" ? variant.title : null,
-            variantId: variant.id,
-            imageId: item.image.id,
-            imageSrc: item.image.src,
-            stock,
-          };
-        })
-      )
-    );
-  }, [data]);
 
   return (
     <CommandPrimitive>
@@ -79,7 +53,10 @@ const AutoComplete = ({
           ref={inputRef}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onBlur={() => toggle(false)}
+          onBlur={() => {
+            toggle(false);
+            setInputValue("");
+          }}
           onFocus={() => toggle(true)}
           placeholder="Search..."
           className={`pl-10 ${
@@ -87,17 +64,16 @@ const AutoComplete = ({
           }`}
         />
       </div>
+      {/* error */}
       {error && (
-        <p className="text-sm font-medium text-destructive mt-2">
-          Product is required
-        </p>
+        <p className="text-sm font-medium text-destructive mt-2">{error}</p>
       )}
+
       <div className="mt-1.5 relative">
         {open && (
           <div className="absolute top-0 z-10 w-full bg-background border rounded-md outline-none animate-in fade-in-0 zoom-in-95">
             <CommandList className="rounded-md">
               {/* loading */}
-
               {isLoading && (
                 <CommandPrimitive.Loading>
                   <Loading className="border-none" />
@@ -105,30 +81,30 @@ const AutoComplete = ({
               )}
 
               {/* data */}
-              {products && products?.length > 0 && !isLoading && (
+              {inventory?.data?.data?.length > 0 && !isLoading && (
                 <CommandGroup>
-                  {products.map((product) => {
+                  {inventory?.data?.data?.map((inv: any) => {
                     return (
                       <CommandItem
-                        key={product.variantId}
-                        value={product.variantId}
+                        key={inv.id}
+                        value={inv.id}
                         onMouseDown={(event) => {
                           event.preventDefault();
                           event.stopPropagation();
                         }}
-                        onSelect={() => handleSelectOption(product)}
+                        onSelect={() => handleSelectOption(inv)}
                         className="flex items-center gap-2 w-full"
                       >
                         <div className="flex gap-3 items-center col-span-2">
                           <Avatar className="w-10 h-10 border-2">
                             <AvatarImage
-                              src={`/${product.image.src}`}
+                              src={`/${inv.product.image.src}`}
                               asChild
                               className="object-cover"
                             >
                               <Image
-                                src={`/${product.image.src}`}
-                                alt={`/${product.image.src}`}
+                                src={`/${inv.product.image.src}`}
+                                alt={`/${inv.product.image.src}`}
                                 width={40}
                                 height={40}
                               ></Image>
@@ -140,19 +116,25 @@ const AutoComplete = ({
 
                           <div className="space-y-0 5">
                             <div className="font-semibold truncate">
-                              <span>{product.title}</span>
+                              {inv.product.title}
+                            </div>
 
-                              {product.variantTitle && (
-                                <span> - {product.variantTitle}</span>
+                            <Badge
+                              className="py-0 text-muted-foreground"
+                              variant="secondary"
+                            >
+                              {inv.variant.title !== "Default" && (
+                                <>
+                                  <span>{inv.variant.title}</span>
+                                  <span className="px-1">|</span>
+                                </>
                               )}
-                            </div>
-                            <div className="text-xs uppercase text-muted-foreground">
-                              {product.sku}
-                            </div>
+                              <span> {inv.variant.barcode}</span>
+                            </Badge>
                           </div>
                         </div>
 
-                        <div className="ml-auto">{Number(product.stock)}</div>
+                        <div className="ml-auto">{inv.stock}</div>
                       </CommandItem>
                     );
                   })}
