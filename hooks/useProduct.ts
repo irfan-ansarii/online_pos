@@ -6,13 +6,6 @@ import {
 } from "@tanstack/react-query";
 import { api } from "@/lib/utils";
 
-interface Props {
-  query: {
-    search?: string;
-  };
-  pageParam: number;
-}
-
 interface InfiniteQueryProps {
   queryKey: string | any[];
   pageParam?: number;
@@ -68,7 +61,7 @@ export const useCreateProduct = () => {
   const query = useQueryClient();
   return useMutation(create, {
     onSuccess: () => {
-      query.invalidateQueries(["products"]);
+      query.invalidateQueries(["products", {}]);
     },
   });
 };
@@ -85,6 +78,24 @@ const updateProduct = async (values: any) => {
 
 export const useUpdateProduct = () => {
   return useMutation(updateProduct);
+};
+
+/**
+ * delete product
+ * @param {number} values
+ * @returns
+ */
+const deleteProduct = async (values: any) => {
+  const { id } = values;
+  return await api.delete(`/products/${id}`, values);
+};
+
+export const useDeleteProduct = () => {
+  const query = useQueryClient();
+
+  return useMutation(deleteProduct, {
+    onSuccess: () => query.invalidateQueries(["products", {}]),
+  });
 };
 
 /**

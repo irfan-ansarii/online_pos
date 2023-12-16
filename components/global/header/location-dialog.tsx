@@ -29,7 +29,6 @@ const LocationDialog = () => {
   const { locations, session } = useAuthContext();
   const { refetch: refreshSession } = useSession();
 
-  console.log(locations);
   const onChange = (value: string) => {
     const locationId = Number(value);
 

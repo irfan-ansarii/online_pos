@@ -102,7 +102,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col h-full relativ"
+            className="flex flex-col h-full relative"
           >
             {isLoading && (
               <div className="absolute w-full h-full top-0 left-0 z-20"></div>

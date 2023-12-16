@@ -1,8 +1,8 @@
 "use client";
-import React from "react";
+import React, { HtmlHTMLAttributes } from "react";
 import Image from "next/image";
 import Numeral from "numeral";
-import { Image as ImageIcon, Trash2 } from "lucide-react";
+import { Image as ImageIcon, Loader2, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
@@ -23,13 +23,16 @@ import ProductSheet from "./ProductSheet";
 import EditSheet from "./EditSheet";
 
 import { useToggle } from "@uidotdev/usehooks";
+import { useDeleteProduct } from "@/hooks/useProduct";
+import { toast } from "@/components/ui/use-toast";
 
 interface BadgeProps {
   [key: string]: string;
 }
 const ProductCard = ({ product }: { product: any }) => {
   const [open, toggle] = useToggle();
-
+  const [openDelete, toggleDelete] = useToggle();
+  const { mutate, isLoading } = useDeleteProduct();
   const priceRange = React.useMemo(() => {
     const { variants } = product;
 
@@ -45,7 +48,21 @@ const ProductCard = ({ product }: { product: any }) => {
     return `${minPrice} - ${maxPrice}`;
   }, [product]);
 
-  const stock = 0;
+  const stock = React.useMemo(() => {
+    let totalStock = 0;
+
+    for (const variant of product.variants) {
+      const variantInventory = variant?.inventory;
+
+      if (variantInventory && Array.isArray(variantInventory)) {
+        for (const item of variantInventory) {
+          totalStock += Number(item.stock) || 0;
+        }
+      }
+    }
+
+    return totalStock;
+  }, [product]);
 
   const badgeClassName: BadgeProps = {
     active: "bg-success hover:bg-successs",
@@ -53,6 +70,28 @@ const ProductCard = ({ product }: { product: any }) => {
     trash: "bg-destructive hover:bg-destructive",
   };
 
+  const onDelete = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    mutate(
+      { id: product.id },
+      {
+        onSuccess: (res) => {
+          toast({
+            variant: "success",
+            title: "Product deleted successfully!",
+          });
+
+          toggleDelete();
+        },
+        onError: (error: any) => {
+          toast({
+            variant: "error",
+            title: error.response.data.message || "Something went wrong",
+          });
+        },
+      }
+    );
+  };
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
       <Sheet open={open} onOpenChange={toggle}>
@@ -111,7 +150,7 @@ const ProductCard = ({ product }: { product: any }) => {
       <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
         <EditSheet />
 
-        <AlertDialog>
+        <AlertDialog open={openDelete} onOpenChange={toggleDelete}>
           <AlertDialogTrigger asChild>
             <Button variant="secondary" size="icon" className="">
               <Trash2 className="w-4 h-4" />
@@ -127,7 +166,13 @@ const ProductCard = ({ product }: { product: any }) => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction>Continue</AlertDialogAction>
+              <AlertDialogAction onClick={onDelete} className="w-28">
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Delete"
+                )}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

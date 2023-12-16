@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
       },
       where: { ...filters },
       include: {
-        variants: true,
+        variants: { include: { inventory: true } },
         image: true,
       },
     });
@@ -83,12 +83,10 @@ export async function GET(req: NextRequest) {
       where: { ...filters },
     });
 
-    const sanitizedProducts = sanitizeOutput(products, ["imageId"]);
-
     // return response
     return NextResponse.json(
       {
-        data: sanitizedProducts,
+        data: products,
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,
@@ -101,7 +99,7 @@ export async function GET(req: NextRequest) {
     );
   } catch (error) {
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "Internal server error", details: error },
       { status: 500 }
     );
   }

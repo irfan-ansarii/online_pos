@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
+
   const path = req.nextUrl.pathname;
   const token = req.cookies.get("_auth_token")?.value || "";
 
@@ -17,6 +18,7 @@ export async function middleware(req: NextRequest) {
       new URL(`/login?redirect=${path}`, req.nextUrl)
     );
   }
+  return res;
 }
 
 export const config = {
