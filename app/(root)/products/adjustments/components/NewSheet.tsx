@@ -42,8 +42,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AvatarItem } from "@/components/shared/avatar";
 
-type Option = Record<string, string>;
+type Option = Record<string, any>;
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const { mutate, isLoading } = useCreateAdjustment();
@@ -67,9 +68,9 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const onSelect = (value: Option) => {
     const items = form.getValues("lineItems");
     const index = items.findIndex(
-      (item) => item.variantId === Number(value.variantId)
+      (item) => item.itemId === Number(value.itemId)
     );
-
+    console.log(value);
     if (index !== -1) {
       lineItems.update(index, {
         ...items[index],
@@ -79,13 +80,14 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     }
 
     lineItems.append({
-      title: value.title,
-      variantTitle: value.variantTitle,
-      sku: value.sku,
+      itemId: Number(value.id),
+      productId: Number(value.variant.id),
+      variantId: Number(value.product.id),
+      title: value.product.title,
+      variantTitle: value.variant.title,
+      barcode: value.variant.barcode,
       quantity: 1,
-      variantId: Number(value.variantId),
-      imageSrc: value.imageSrc,
-      imageId: Number(value.imageId),
+      imageSrc: value.product.image.src,
     });
   };
 
@@ -107,6 +109,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onSubmit = (values: z.infer<typeof adjustmentValidation>) => {
+    console.log(values);
     mutate(values, {
       onSuccess: (res) => {
         toast({
@@ -129,15 +132,15 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="md:max-w-lg">
-        {isLoading && (
-          <div className="absolute w-full h-full top-0 left-0 z-20"></div>
-        )}
-
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col h-full"
+            className="flex flex-col h-full relative"
           >
+            {isLoading && (
+              <div className="absolute w-full h-full top-0 left-0 z-20"></div>
+            )}
+
             <SheetHeader>
               <SheetTitle>New Adjustment</SheetTitle>
             </SheetHeader>
@@ -164,9 +167,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                       <SelectItem value="Return restock">
                         Return restock
                       </SelectItem>
-                      <SelectItem value="Internal transfer">
-                        Internal transfer
-                      </SelectItem>
                       <SelectItem value="Theft or loss">
                         Theft or loss
                       </SelectItem>
@@ -175,7 +175,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -185,7 +184,9 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               <FormLabel>Products</FormLabel>
               <AutoComplete
                 onSelect={onSelect}
-                error={form.formState.errors.lineItems}
+                error={
+                  form.formState.errors.lineItems ? "Product required" : ""
+                }
               />
             </div>
             <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
@@ -195,23 +196,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   key={field.id}
                 >
                   <div className="flex gap-3 items-center col-span-2">
-                    <Avatar className="w-10 h-10 border-2">
-                      <AvatarImage
-                        asChild
-                        src={`/${field.imageSrc}`}
-                        className="object-cover"
-                      >
-                        <Image
-                          src={`/${field.imageSrc}`}
-                          alt={`/${field.imageSrc}`}
-                          width={40}
-                          height={40}
-                        />
-                      </AvatarImage>
-                      <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                        <ImageIcon className="w-4 h-4" />
-                      </AvatarFallback>
-                    </Avatar>
+                    <AvatarItem src={`/${field.imageSrc}`} />
                     <div className="space-y-0.5 truncate">
                       <div className="font-semibold truncate">
                         {field.title}

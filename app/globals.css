@@ -38,10 +38,19 @@
     --secondary-foreground: 0 0% 9%;
     --accent: 0 0% 98%;
     --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 65% 51%;
     --destructive-foreground: 0 0% 98%;
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
+
+    /* --alert-background: 0 79% 85%;
+    --alert-foreground: 1 50% 25%;
+    --alert-icon-foreground: 0 65% 51%; */
+
+    --alert: 0 41% 7%;
+    --alert-text: 0 67% 87%;
+    --alert-foreground: 0 65% 51%;
+
     --success: 160 84% 39%;
     --warning: 38 92% 50%;
     --info: 199 89% 48%;
@@ -68,6 +77,11 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --ring: 0 0% 83.1%;
+
+    --alert: 0 41% 7%;
+    --alert-text: 0 67% 87%;
+    --alert-foreground: 0 65% 51%;
+
     --success: 161 94% 30%;
     --warning: 32 95% 44%;
     --info: 200 98% 39%;

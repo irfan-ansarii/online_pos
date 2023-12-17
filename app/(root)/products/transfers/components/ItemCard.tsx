@@ -1,42 +1,44 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import { format } from "date-fns";
 import Numeral from "numeral";
+import { Download, Upload } from "lucide-react";
 
 import { useToggle } from "@uidotdev/usehooks";
 import { useAuthContext } from "@/hooks/useAuthContext";
+import { useLocations } from "@/hooks/useUser";
 
-import { Download, Image as ImageIcon, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 
 import { Badge } from "@/components/ui/badge";
 
 import ItemSheet from "./ItemSheet";
-import EditSheet from "./EditSheet";
+import { AvatarGroup } from "@/components/shared/avatar";
+import { AvatarItem } from "@/components/shared/avatar";
 
 export interface TransferStatus {
-  pending: string;
-  completed: string;
-  partial: string;
-  rejected: string;
   [key: string]: string;
 }
 
 const ItemCard = ({ transfer }: { transfer: any }) => {
   const { session } = useAuthContext();
   const [open, toggle] = useToggle();
-
-  const locationId = React.useMemo(() => session?.locationId, [session]);
+  const { data: locations, isLoading } = useLocations();
 
   const badge: TransferStatus = {
     pending: "bg-info hover:bg-info",
     completed: "bg-success hover:bg-success",
-    partial: "bg-warning hover:bg-warning",
-    rejected: "bg-destructive hover:bg-destructive",
+    cancelled: "bg-destructive hover:bg-destructive",
   };
+
+  const destination = React.useMemo(() => {
+    if (isLoading) return {};
+    return locations?.data?.data?.find(
+      (loc: any) => loc.id === transfer.fromId
+    );
+  }, [locations]);
 
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
@@ -52,46 +54,27 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
                   {format(new Date(transfer.createdAt), "MMM")}
                 </div>
               </div>
-              <div className="flex truncate -space-x-2">
-                {transfer.lineItems?.map((lineItem: any) => (
-                  <Avatar className="w-10 h-10 border-2" key={lineItem.id}>
-                    <AvatarImage
-                      asChild
-                      src={`/${lineItem?.image?.src}`}
-                      className="object-cover"
-                    >
-                      <Image
-                        src={`/${lineItem?.image?.src}`}
-                        alt={`/${lineItem?.image?.title}`}
-                        width={40}
-                        height={40}
-                      />
-                    </AvatarImage>
-
-                    <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                      <ImageIcon className="w-4 h-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                ))}
+              <div className="flex truncate">
+                <AvatarGroup maxCount={2}>
+                  {transfer.lineItems?.map((lineItem: any) => (
+                    <AvatarItem
+                      src={`/${lineItem?.product?.image?.src}`}
+                      key={lineItem.id}
+                    />
+                  ))}
+                </AvatarGroup>
               </div>
             </div>
             <div className="text-right hidden md:block">
               <div>{Numeral(transfer.totalAmount).format()}</div>
             </div>
             <div className="flex items-center gap-2 justify-end col-span-2 md:col-span-1">
-              {transfer.source.id === locationId ? (
-                <>
-                  <Upload className="w-5 h-5 text-warning" />
-                  <span className="capitalize">
-                    {transfer.destination.name}
-                  </span>
-                </>
+              {transfer.toId === session?.locationId ? (
+                <Download className="w-5 h-5 text-success" />
               ) : (
-                <>
-                  <Download className="w-5 h-5 text-success" />
-                  <span className="capitalize">{transfer.source.name}</span>
-                </>
+                <Upload className="w-5 h-5 text-warning" />
               )}
+              <span>{destination?.name}</span>
             </div>
             <div className="text-right space-y-0.5 ml-auto truncate">
               <Badge
@@ -106,12 +89,7 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
           </CardContent>
         </SheetTrigger>
 
-        {open &&
-          (transfer.toId === locationId ? (
-            <ItemSheet transfer={transfer} />
-          ) : (
-            <EditSheet transfer={transfer} />
-          ))}
+        {open && <ItemSheet transfer={transfer} />}
       </Sheet>
     </Card>
   );

@@ -33,7 +33,7 @@ const toastVariants = cva(
         loading: "border bg-background border text-foreground",
         info: "group info bg-background border-info  text-info",
         warning: "group warning bg-background border-warning text-warning",
-        error: "group error border-error bg-background text-error",
+        error: "group error border-alert-foreground bg-alert text-alert-text",
         success: "group success bg-background border-success text-success",
       },
     },

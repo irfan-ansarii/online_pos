@@ -189,7 +189,7 @@ model TransferLineItem {
   title        String
   variantTitle String?
   sku          String
-  barcode      String
+  barcode      Int
   price        Float
   quantity     Int
   total        Float

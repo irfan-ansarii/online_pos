@@ -1,15 +1,15 @@
 "use client";
 import React from "react";
-import Image from "next/image";
+
 import * as z from "zod";
 import Numeral from "numeral";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Image as ImageIcon, Loader2, Minus, Plus, X } from "lucide-react";
+import { Loader2, Minus, Plus, X } from "lucide-react";
 import { transferValidation } from "@/lib/validations/product";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useToggle } from "@uidotdev/usehooks";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { useCreateTransfer } from "@/hooks/useProduct";
 import { useLocations } from "@/hooks/useUser";
 
@@ -37,18 +37,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import AutoComplete from "@/components/shared/search-product";
 import { useSession } from "@/hooks/useAuth";
 
-type Option = Record<"value" | "label", string> & Record<string, string>;
+import { Badge } from "@/components/ui/badge";
+import { AvatarItem } from "@/components/shared/avatar";
+
+type Option = Record<string, any>;
+interface ClickProps {
+  e: React.MouseEvent<HTMLElement>;
+  index: number;
+}
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const { mutate, isLoading } = useCreateTransfer();
   const { data: session } = useSession();
   const { data: locations, isLoading: loading } = useLocations();
-  const { toast } = useToast();
+
   const [open, toggle] = useToggle();
 
   const form = useForm<z.infer<typeof transferValidation>>({
@@ -78,25 +83,28 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       lineItems.update(index, {
         ...items[index],
         quantity: items[index].quantity + 1,
+        total: items[index].price * items[index].quantity,
       });
+
       return;
     }
 
     lineItems.append({
+      id: value.id,
       productId: value.product.id,
       variantId: value.variant.id,
       title: value.product.title,
       variantTitle: value.variant.title,
       sku: value.variant.sku,
       barcode: value.variant.barcode,
-      price: value.salePrice,
+      price: value.variant.salePrice,
       quantity: 1,
       total: value.variant.salePrice,
       imageSrc: value.product.image.src,
     });
   };
 
-  const handlePlus = (e: React.MouseEvent, index: number) => {
+  const handlePlus = ({ e, index }: ClickProps) => {
     e.preventDefault();
 
     lineItems.update(index, {
@@ -105,8 +113,9 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const handleMinus = (e: React.MouseEvent, index: number) => {
+  const handleMinus = ({ e, index }: ClickProps) => {
     e.preventDefault();
+
     lineItems.update(index, {
       ...lineItems.fields[index],
       quantity: Number(lineItems.fields[index].quantity) - 1,
@@ -136,15 +145,15 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       onSuccess: (res) => {
         toast({
           variant: "success",
-          title: "Transfer created successfully!",
+          title: "Transfered successfully",
         });
         form.reset();
         toggle();
       },
-      onError: (error: any) => {
+      onError: (res) => {
         toast({
           variant: "error",
-          title: error.response.data.message || "Something went wrong",
+          title: "Error",
         });
       },
     });
@@ -156,7 +165,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
             className="flex flex-col h-full relative"
           >
             <SheetHeader>
@@ -212,79 +221,69 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   <FormLabel>Products</FormLabel>
                   <AutoComplete
                     onSelect={onSelect}
-                    error={form.formState.errors.lineItems}
+                    error={
+                      form.formState.errors.lineItems
+                        ? "Product required"
+                        : null
+                    }
                   />
                 </div>
 
                 <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
-                  {lineItems.fields.map((field, i) => (
-                    <div
-                      className="flex  rounded-md border p-2 pr-0 items-center snap-start"
-                      key={field.id}
-                    >
-                      <div className="flex gap-3 items-center col-span-2">
-                        <Avatar className="w-10 h-10 border-2">
-                          <AvatarImage
-                            asChild
-                            src={`/${field.imageSrc}`}
-                            className="object-cover"
-                          >
-                            <Image
-                              src={`/${field.imageSrc}`}
-                              alt={`/${field.imageSrc}`}
-                              width={40}
-                              height={40}
-                            />
-                          </AvatarImage>
-                          <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                            <ImageIcon className="w-4 h-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-0.5 truncate">
-                          <div className="font-semibold truncate">
-                            {field.title}
+                  {lineItems.fields.map(
+                    ({ title, variantTitle, imageSrc, quantity }, i) => (
+                      <div className="flex rounded-md border p-2 pr-0 items-center snap-start">
+                        <div className="flex gap-3 items-center col-span-2">
+                          <AvatarItem src={`/${imageSrc}`} />
+                          <div className="space-y-0.5 truncate">
+                            <div className="font-semibold truncate">
+                              {title}
+                            </div>
+                            {variantTitle && (
+                              <Badge className="py-.5" variant="secondary">
+                                {variantTitle}
+                              </Badge>
+                            )}
                           </div>
-                          {field.variantTitle && (
-                            <Badge className="py-.5" variant="secondary">
-                              {field.variantTitle}
-                            </Badge>
-                          )}
                         </div>
-                      </div>
 
-                      <div className="ml-auto flex items-center gap-6">
-                        <div className="flex items-center w-20 justify-between">
+                        <div className="ml-auto flex items-center gap-6">
+                          <div className="flex items-center w-20 justify-between">
+                            <Button
+                              onClick={(e) => handleMinus({ e, index: i })}
+                              size="icon"
+                              variant="secondary"
+                              className="rounded-full w-6 h-6"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </Button>
+                            <span className="flex-1 truncate text-center block">
+                              {quantity}
+                            </span>
+                            <Button
+                              size="icon"
+                              onClick={(e) => handlePlus({ e, index: i })}
+                              variant="secondary"
+                              className="rounded-full w-6 h-6"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
                           <Button
-                            onClick={(e) => handleMinus(e, i)}
                             size="icon"
-                            variant="secondary"
-                            className="rounded-full w-6 h-6"
+                            variant="ghost"
+                            className="opacity-50 hover:opacity-100 hover:bg-background transition"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              lineItems.remove(i);
+                            }}
                           >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          <span className="flex-1 truncate text-center block">
-                            {field.quantity}
-                          </span>
-                          <Button
-                            size="icon"
-                            onClick={(e) => handlePlus(e, i)}
-                            variant="secondary"
-                            className="rounded-full w-6 h-6"
-                          >
-                            <Plus className="w-4 h-4" />
+                            <X className="w-4 h-4" />
                           </Button>
                         </div>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="opacity-50 hover:opacity-100 hover:bg-background transition"
-                          onClick={() => lineItems.remove(i)}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
                 <Separator className="h-0.5" />
                 <SheetFooter className="pt-2 flex-col">

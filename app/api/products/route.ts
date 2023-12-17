@@ -50,7 +50,9 @@ export async function GET(req: NextRequest) {
                 {
                   variants: {
                     some: {
-                      barcode: { equals: Number(search) || undefined },
+                      barcode: {
+                        equals: !isNaN(Number(search)) ? Number(search) : -1,
+                      },
                     },
                   },
                 },

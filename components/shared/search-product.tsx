@@ -1,9 +1,8 @@
 "use client";
 import React from "react";
 import { useState, useRef, useCallback } from "react";
-import Image from "next/image";
 import { Command as CommandPrimitive } from "cmdk";
-import { Image as ImageIcon, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
 import { useInventory } from "@/hooks/useProduct";
 
@@ -13,10 +12,10 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 import Loading from "@/app/(root)/products/components/Loading";
 import { Badge } from "../ui/badge";
+import { AvatarItem } from "@/components/shared/avatar";
 
 export type Option = Record<"value" | "label", string> & Record<string, string>;
 
@@ -96,25 +95,9 @@ const AutoComplete = ({
                         className="flex items-center gap-2 w-full"
                       >
                         <div className="flex gap-3 items-center col-span-2">
-                          <Avatar className="w-10 h-10 border-2">
-                            <AvatarImage
-                              src={`/${inv.product.image.src}`}
-                              asChild
-                              className="object-cover"
-                            >
-                              <Image
-                                src={`/${inv.product.image.src}`}
-                                alt={`/${inv.product.image.src}`}
-                                width={40}
-                                height={40}
-                              ></Image>
-                            </AvatarImage>
-                            <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                              <ImageIcon className="w-4 h-4" />
-                            </AvatarFallback>
-                          </Avatar>
+                          <AvatarItem src={`/${inv.product.image.src}`} />
 
-                          <div className="space-y-0 5">
+                          <div>
                             <div className="font-semibold truncate">
                               {inv.product.title}
                             </div>

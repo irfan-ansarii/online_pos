@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { AvatarItem } from "@/components/shared/avatar";
 
 const ItemCard = ({ adjustment }: any) => {
   return (
@@ -20,39 +21,27 @@ const ItemCard = ({ adjustment }: any) => {
             <div className="text-lg leading-tight font-semibold">02</div>
             <div className="leading-tight text-muted-foreground">Dec</div>
           </div>
-          <Avatar className="w-10 h-10 border-2">
-            <AvatarImage
-              asChild
-              src={`/${adjustment?.image?.src}`}
-              className="object-cover"
-            >
-              <Image
-                src={`/${adjustment?.image?.src}`}
-                alt={`/${adjustment?.image?.title}`}
-                width={40}
-                height={40}
-              />
-            </AvatarImage>
-            <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-              <ImageIcon className="w-4 h-4" />
-            </AvatarFallback>
-          </Avatar>
+          <AvatarItem src={`/${adjustment?.image?.src}`} />
           <div className="space-y-0.5 truncate">
-            <div className="font-semibold truncate">{adjustment.title}</div>
+            <div className="font-semibold truncate">
+              {adjustment.product.title}
+            </div>
             <div className="flex gap-2">
-              {adjustment.variantTitle && (
+              {adjustment.variant.title && (
                 <Badge className="py-0" variant="secondary">
-                  {adjustment.variantTitle}
+                  {adjustment.variant.title}
                 </Badge>
               )}
               <Badge className="py-0" variant="secondary">
-                {adjustment.sku}
+                {adjustment.variant.barcode}
               </Badge>
             </div>
           </div>
         </div>
 
         <div className="flex justify-end gap-6">
+          <span>{adjustment.reason}</span>
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Info className="w-5 h-5 text-muted-foreground" />

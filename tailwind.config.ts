@@ -51,6 +51,12 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        alert: {
+          DEFAULT: "hsl(var(--alert-background))",
+          foreground: "hsl(var(--alert-foreground))",
+          text: "hsl(var(--alert-text-foreground))",
+        },
+
         success: "hsl(var(--success))",
         info: "hsl(var(--info))",
         warning: "hsl(var(--warning))",

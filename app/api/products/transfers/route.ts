@@ -42,7 +42,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     };
 
     // find locations
-    const locations = await prisma.location.findMany();
+    //const locations = await prisma.location.findMany();
 
     // find all transfers
     const transfers = await prisma.transfer.findMany({
@@ -53,27 +53,15 @@ export async function GET(req: NextRequest, res: NextResponse) {
       },
       where: { ...filters },
       include: {
-        lineItems: true,
+        lineItems: {
+          include: { product: { include: { image: true } }, variant: true },
+        },
       },
     });
 
-    // add source and destination to response
-    // const transfersWithLocation = transfers.map((item) => {
-    //   const fromIndex = locations.findIndex((loc) => loc.id === item.fromId);
-    //   const toIndex = locations.findIndex((loc) => loc.id === item.toId);
-
-    //   return {
-    //     ...item,
-    //     source: locations[fromIndex],
-    //     destination: locations[toIndex],
-    //   };
-    // });
-
     // get pagination
     const total = await prisma.transfer.count({
-      orderBy: {
-        createdAt: "desc",
-      },
+      where: { ...filters },
     });
 
     // return response
@@ -121,29 +109,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!toId || !lineItems || lineItems.length <= 0) {
+    if (!toId || !lineItems || lineItems.length === 0) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
       );
     }
     const sourceId = Number(user.locationId);
-
     // oranize line items data
     const lineItemsToCreate = lineItems.map((item: any) => ({
+      variantId: Number(item.variantId),
+      productId: Number(item.productId),
       title: item.title,
       variantTitle: item.variantTitle,
       sku: item.sku,
+      barcode: item.barcode,
       price: item.price,
       quantity: item.quantity,
       total: item.total,
-      status: "pending",
-      variantId: Number(item.variantId),
-      imageId: Number(item.imageId),
     }));
 
+    const transactions = [];
     // create transfer and transfer line items
-    const transfer = await prisma.transfer.create({
+    transactions[0] = prisma.transfer.create({
       data: {
         toId: Number(toId),
         fromId: sourceId,
@@ -151,35 +139,40 @@ export async function POST(req: NextRequest) {
         totalItems,
         totalAmount,
         lineItems: {
-          create: lineItemsToCreate,
+          createMany: { data: lineItemsToCreate },
         },
       },
     });
 
-    // reduce stock from the source
+    // adjust stock from the source
     for (const item of lineItems) {
       const variantId = Number(item.variantId);
       const quantity = Number(item.quantity);
 
-      const updateResponse = await prisma.inventory.updateMany({
+      const decrement = prisma.inventory.updateMany({
         data: {
-          stock: { decrement: item.quantity },
+          stock: { decrement: quantity },
         },
         where: {
           AND: [{ locationId: sourceId }, { variantId: variantId }],
         },
       });
 
-      if (!updateResponse) {
-        await prisma.inventory.create({
-          data: {
-            locationId: sourceId,
-            variantId: variantId,
-            stock: 0 - quantity,
-          },
-        });
-      }
+      transactions.push(decrement);
+
+      const increment = prisma.inventory.updateMany({
+        data: {
+          stock: { increment: quantity },
+        },
+        where: {
+          AND: [{ locationId: Number(toId) }, { variantId: variantId }],
+        },
+      });
+      transactions.push(increment);
     }
+
+    const [transfer] = await prisma.$transaction(transactions);
+
     // return response
     return NextResponse.json({ data: transfer }, { status: 201 });
   } catch (error) {

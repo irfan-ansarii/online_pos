@@ -33,32 +33,38 @@ export async function GET(req: NextRequest) {
         { locationId: Number(user?.locationId) },
         {
           OR: [
-            { title: { contains: search, mode: "insensitive" } },
-            { variantTitle: { contains: search, mode: "insensitive" } },
-            { sku: { contains: search, mode: "insensitive" } },
+            { product: { title: { contains: search, mode: "insensitive" } } },
+            { variant: { title: { contains: search, mode: "insensitive" } } },
+            { variant: { sku: { contains: search, mode: "insensitive" } } },
+            {
+              variant: {
+                barcode: {
+                  equals: !isNaN(Number(search)) ? Number(search) : -1,
+                },
+              },
+            },
           ],
         },
       ],
     };
 
     // find adjustments
-    const response = await prisma.adjustment.findMany({
+    const find = prisma.adjustment.findMany({
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
         createdAt: "desc",
       },
       where: { ...filters },
-      include: { image: true },
+      include: { product: { include: { image: true } }, variant: true },
     });
 
     // get pagination
-    const total = await prisma.adjustment.count({
-      orderBy: {
-        createdAt: "desc",
-      },
+    const count = prisma.adjustment.count({
       where: { ...filters },
     });
+
+    const [response, pages] = await prisma.$transaction([find, count]);
 
     // return response
     return NextResponse.json(
@@ -67,8 +73,8 @@ export async function GET(req: NextRequest) {
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,
-          pageCount: Math.ceil(total / PAGE_SIZE),
-          total,
+          pageCount: Math.ceil(pages / PAGE_SIZE),
+          pages,
         },
       },
       { status: 200 }
@@ -89,7 +95,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { lineItems, reason, locationId } = body;
+    const { lineItems, reason, notes = "fdf", locationId } = body;
 
     const user = await getSession(req);
 
@@ -99,22 +105,23 @@ export async function POST(req: NextRequest) {
 
     const location = !isNaN(locationId) ? Number(locationId) : user.locationId;
 
+    const transactions = [];
     // create adjustment
-    const response = await prisma.adjustment.createMany({
+    const response = prisma.adjustment.createMany({
       data: lineItems.map((item: any) => ({
         locationId: location,
+        productId: item.productId,
         variantId: item.variantId,
-        title: item.title,
-        sku: item.sku,
-        variantTitle: item.variantTitle,
         quantity: Number(item.quantity),
         reason,
-        imageId: item.imageId,
+        notes,
       })),
     });
 
+    transactions.push(response);
+
     for (const item of lineItems) {
-      const inventory = await prisma.inventory.updateMany({
+      const inventory = prisma.inventory.updateMany({
         where: {
           AND: [
             { locationId: location! },
@@ -123,24 +130,17 @@ export async function POST(req: NextRequest) {
         },
         data: { stock: { increment: Number(item.quantity) } },
       });
-
-      if (!inventory) {
-        await prisma.inventory.create({
-          data: {
-            locationId: location!,
-            variantId: Number(item.variantId),
-            stock: Number(item.quantity),
-          },
-        });
-      }
+      transactions.push(inventory);
     }
+    const [adjustment] = await prisma.$transaction(transactions);
 
     // return response
     return NextResponse.json(
-      { data: response, message: "Created" },
+      { data: adjustment, message: "created" },
       { status: 201 }
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
