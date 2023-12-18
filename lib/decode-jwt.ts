@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
 export interface JwtPayload {
@@ -16,7 +16,6 @@ export const decodeJwt = (request: NextRequest) => {
     if (token) {
       return jwt.verify(token, process.env.TOKEN_SECRET!);
     }
-
     return null;
   } catch (error: any) {
     throw new Error(error.message);

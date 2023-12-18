@@ -53,7 +53,7 @@ function AdjustmentDialog({
     resolver: zodResolver(adjustmentValidation),
     defaultValues: {
       locationId: data.locationId,
-      lineItems: [{ ...data }],
+      lineItems: [{ ...data, itemId: data.productId }],
       reason: "",
     },
   });
@@ -76,7 +76,7 @@ function AdjustmentDialog({
       },
     });
   };
-  console.log(data);
+
   return (
     <Dialog open={open} onOpenChange={toggle}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -93,7 +93,7 @@ function AdjustmentDialog({
 
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
             className="flex flex-col h-full gap-6"
           >
             <FormField

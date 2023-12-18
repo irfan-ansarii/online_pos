@@ -77,7 +77,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
 
   const onSelect = (value: Option) => {
     const items = form.getValues("lineItems");
-    const index = items.findIndex((item) => item.id === value.id);
+    const index = items.findIndex((item) => item.itemId === value.itemId);
 
     if (index !== -1) {
       lineItems.update(index, {
@@ -90,7 +90,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     }
 
     lineItems.append({
-      id: value.id,
+      itemId: value.id,
       productId: value.product.id,
       variantId: value.variant.id,
       title: value.product.title,

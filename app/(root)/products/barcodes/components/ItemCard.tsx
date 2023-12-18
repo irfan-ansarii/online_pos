@@ -1,68 +1,56 @@
 import React from "react";
-import Image from "next/image";
-import { Image as ImageIcon, Printer } from "lucide-react";
+import { Printer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 import { Badge } from "@/components/ui/badge";
 
 import ItemDialog from "./ItemDialog";
+import { AvatarItem } from "@/components/shared/avatar";
+
 type BadgeClass = {
   [key: string]: string;
 };
+
 const ItemCard = ({ item }: { item: any }) => {
   const badgeClass: BadgeClass = {
     pending: "text-warning",
-    printed: "text-success",
+    printed: "text-muted-foreground",
     cancelled: "text-destructive",
   };
 
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
       <ItemDialog item={item}>
-        <CardContent className="grid grid-cols-3 items-center gap-2">
-          <div className="flex gap-3 items-center col-span-2">
-            <Avatar className="w-10 h-10 border-2">
-              <AvatarImage
-                asChild
-                src={`/${item?.variant?.product?.image?.src}`}
-                className="object-cover"
-              >
-                <Image
-                  src={`/${item?.variant?.product?.image?.src}`}
-                  alt={`/${item?.variant?.product?.image?.title}`}
-                  width={40}
-                  height={40}
-                />
-              </AvatarImage>
-              <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                <ImageIcon className="w-4 h-4" />
-              </AvatarFallback>
-            </Avatar>
+        <CardContent className="grid grid-cols-5 items-center gap-2">
+          <div className="flex gap-3 items-center col-span-3 md:col-span-4">
+            <AvatarItem src={`/${item?.product?.image?.src}`} />
             <div className="space-y-0.5 truncate">
               <div className="font-semibold truncate">
-                {item?.variant?.product?.title}
+                {item?.product?.title}
               </div>
               <div className="flex gap-2 items-end ">
                 <Badge variant="secondary" className="py-0">
                   {item?.variant?.title}
                 </Badge>
                 <Badge variant="secondary" className="py-0">
-                  {item?.variant?.sku}
+                  {item?.variant?.barcode}
                 </Badge>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end items-center">
-            <div className="w-20 flex justify-between items-center">
-              <span
-                className={`flex items-center gap-1 ${badgeClass[item.status]}`}
-              >
-                <Printer className="w-4 h-4" />
-              </span>
+          <div className="flex justify-between items-center gap-6 col-span-2 md:col-span-1">
+            <Badge
+              className={`gap-2 uppercase py-1 rounded-md ${
+                badgeClass[item.status]
+              }`}
+              variant="secondary"
+            >
+              <Printer className="w-4 h-4" />
+              <span>{item.status}</span>
+            </Badge>
 
-              <div>{item.quantity}</div>
-            </div>
+            <div className="text-base font-medium">{item.quantity}</div>
           </div>
         </CardContent>
       </ItemDialog>

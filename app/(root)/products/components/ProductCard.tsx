@@ -118,8 +118,13 @@ const ProductCard = ({ product }: { product: any }) => {
               </Avatar>
               <div className="space-y-0.5 truncate">
                 <div className="font-semibold truncate">{product.title}</div>
-                <div className="text-muted-foreground font-medium text-xs uppercase">
-                  {product.variants[0].sku}
+                <div className="flex gap-1">
+                  <Badge variant="secondary" className="py-0">
+                    {product?.variants?.[0]?.sku}
+                  </Badge>
+                  <Badge variant="secondary" className="py-0">
+                    {product?.variants?.[0]?.barcode}
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -130,7 +135,13 @@ const ProductCard = ({ product }: { product: any }) => {
               <div className={`font-medium text-right truncate md:hidden`}>
                 {priceRange}
               </div>
-              <div>{stock}</div>
+              <div
+                className={`text-base font-medium ${
+                  stock <= 0 ? "text-destructive" : ""
+                }`}
+              >
+                {stock}
+              </div>
             </div>
             <div className="hidden md:block text-right">
               <Badge

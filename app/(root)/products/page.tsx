@@ -1,5 +1,5 @@
 "use client";
-import { Plus, PlusCircle, X } from "lucide-react";
+import { ListFilter, Plus, PlusCircle, X } from "lucide-react";
 import { useQueryParams } from "@/hooks/useQueryParams";
 import { useProducts } from "@/hooks/useProduct";
 import { useIntersectionObserver } from "@uidotdev/usehooks";
@@ -11,6 +11,8 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -52,51 +54,47 @@ const Page = () => {
       <main className="grow">
         <Header
           action={
-            <NewSheet>
-              <Button className="ml-auto">
-                <Plus className="w-5 h-5 mr-2" />
-                New
-              </Button>
-            </NewSheet>
-          }
-          filters={
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  className="ml-auto border-dashed text-sm"
-                  variant="outline"
-                >
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  <span>Status</span>
-                  {queryParams.status && (
-                    <>
-                      <Separator orientation="vertical" className="mx-2 h-4" />
-                      <Badge
-                        variant="secondary"
-                        className="rounded-md py-1 pr-1 capitalize"
-                        onClick={() => setQueryParams({ status: null })}
-                      >
-                        {queryParams.status}
-                        <X className="w-4 h-4 ml-2" />
-                      </Badge>
-                    </>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
-                {["Active", "Archived", "Trash"].map((item) => (
-                  <DropdownMenuCheckboxItem
-                    key={item}
-                    checked={queryParams.status === item.toLowerCase()}
-                    onCheckedChange={() =>
-                      setQueryParams({ status: item.toLowerCase() })
-                    }
+            <div className="flex items-center gap-4 justify-end w-full">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="ml-auto gap-2" variant="secondary">
+                    <ListFilter className="w-4 h-4" />
+                    <span className="capitalize font-normal">
+                      {queryParams.status || "Filters"}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40 bg-background" align="end">
+                  {["active", "archived", "trash"].map((item) => (
+                    <DropdownMenuItem
+                      className="capitalize"
+                      onClick={() => {
+                        if (queryParams.status === item) {
+                          setQueryParams({ status: null });
+                          return;
+                        }
+                        setQueryParams({ status: item });
+                      }}
+                    >
+                      {item}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setQueryParams({ status: null })}
                   >
-                    {item}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    Clear
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <NewSheet>
+                <Button>
+                  <Plus className="w-5 h-5 mr-2" />
+                  New
+                </Button>
+              </NewSheet>
+            </div>
           }
         />
 
@@ -127,7 +125,7 @@ const Page = () => {
               />
             )}
 
-            {hasNextPage && <div ref={ref}></div>}
+            {/* {hasNextPage && <div ref={ref}></div>} */}
 
             {/* loading */}
             {(isLoading || isFetchingNextPage) &&

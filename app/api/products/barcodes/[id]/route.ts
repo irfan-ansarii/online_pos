@@ -34,7 +34,7 @@ export async function PUT(
     // return response
     return NextResponse.json(
       { data: response, message: "updated" },
-      { status: 201 }
+      { status: 200 }
     );
   } catch (error) {
     console.log(error);

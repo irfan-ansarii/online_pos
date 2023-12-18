@@ -43,7 +43,6 @@ const Page = () => {
               </Button>
             </NewSheet>
           }
-          filters={<div>Filters</div>}
         />
 
         {/* mobile navigation */}

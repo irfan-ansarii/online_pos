@@ -13,24 +13,20 @@ const ProductSheet = ({ product }: any) => {
 
   return (
     <SheetContent className="md:max-w-lg">
-      <SheetHeader className="md:pb-2">
-        <SheetTitle>{title}</SheetTitle>
-      </SheetHeader>
+      <div className="flex flex-col h-full">
+        <SheetHeader className="md:pb-2">
+          <SheetTitle>{title}</SheetTitle>
+        </SheetHeader>
 
-      <div className="space-y-2 flex flex-col h-full">
-        <div className="relative max-h-full overflow-y-auto scrollbox -mx-6">
+        <div className="relative flex-1 max-h-full overflow-y-auto scrollbox -mx-6">
           {variants?.map((variant: any) => (
             <div className="overflow-hidden border-b" key={variant.id}>
               <div className="grid grid-cols-4 gap-2 px-6 py-2 items-center bg-accent">
                 <div className="font-medium">
                   <div>{variant.title}</div>
                   <Badge className="py-0" variant="secondary">
-                    643576
+                    {variant.barcode}
                   </Badge>
-
-                  {/* <div className="text-xs uppercase text-muted-foreground">
-                    {variant.sku}
-                  </div> */}
                 </div>
                 <div className="text-right">
                   {Numeral(variant.purchasePrice).format()}

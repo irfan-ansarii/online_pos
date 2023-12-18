@@ -1,59 +1,53 @@
 import React from "react";
+import { Eye, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
-import { Eye, User } from "lucide-react";
+import { AvatarGroup, AvatarItem } from "@/components/shared/avatar";
 const SaleCard = () => {
   return (
     <Card>
       <CardContent className="grid grid-cols-12 gap-3 items-center">
-        <div className="flex gap-3 col-span-8 md:col-span-6 lg:col-span-7">
+        <div className="flex gap-3 col-span-4 md:col-span-6">
           <div className="md:border-r pr-4 md:text-center w-20 shrink-0">
             <div className="text-lg leading-tight font-semibold">02</div>
             <div className="leading-tight text-muted-foreground">Dec 23</div>
           </div>
           <div className="flex -space-x-2 truncate">
-            {[...Array(4)].map((e, i) => (
-              <Avatar className="w-10 h-10 border-2" key={i}>
-                <AvatarImage
-                  src="https://cdn.shopify.com/s/files/1/0652/3541/9353/files/aria3_200x.jpg?v=1685017009"
-                  alt="@shadcn"
+            <AvatarGroup maxCount={4}>
+              {[...Array(10)].map((_, i) => (
+                <AvatarItem
+                  key={i}
+                  src="/uploads/purple-3_1272x_$2a$10$f6m8M4FfnOyIFKtILCtReu.webp"
                 />
-                <AvatarFallback className="">CN</AvatarFallback>
-              </Avatar>
-            ))}
-            <Avatar className="w-10 h-10 border-2">
-              <AvatarFallback className="">+8</AvatarFallback>
-            </Avatar>
+              ))}
+            </AvatarGroup>
           </div>
         </div>
         <div className="col-span-4 text-right md:text-left md:col-span-2 space-y-0.5">
           <div className="font-medium">GN256533</div>
-          <div className="text-muted-foreground inline-flex gap-1 text-xs">
-            <Eye className="w-4 h-4" /> <span>View</span>
-          </div>
-        </div>
 
-        <div className="col-span-12 md:col-span-4 lg:col-span-3 text-right">
           <Badge
-            className="w-40 truncate gap-1 text-muted-foreground"
+            className="text-muted-foreground justify-start gap-1 pl-1 py-0"
             variant="secondary"
           >
-            <span className="uppercase truncate">Status </span>
-            <span>|</span>
-            <span className="ml-auto">1290</span>
+            <User className="w-4 h-4" /> <span>Employee</span>
           </Badge>
         </div>
 
-        {/* <Badge className="pl-1 gap-1 mr-2">
-          <Avatar className="w-6 h-6">
-            <AvatarFallback className="text-foreground">
-              <User className="w-4 h-4" />
-            </AvatarFallback>
-          </Avatar>
-          <div className="truncate leading-tight">John Doe</div>
-        </Badge> */}
+        <div className="col-span-2 flex flex-col space-y-0.5">
+          <div className="font-medium">Customer</div>
+          <div className="text-muted-foreground">9876543210</div>
+        </div>
+        <div className="col-span-12 md:col-span-4 space-y-0.5 lg:col-span-2 text-right">
+          <div>1290.00</div>
+          <Badge
+            variant="secondary"
+            className="rounded-md justify-center uppercase"
+          >
+            Paid
+          </Badge>
+        </div>
       </CardContent>
     </Card>
   );

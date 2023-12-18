@@ -70,7 +70,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     const index = items.findIndex(
       (item) => item.itemId === Number(value.itemId)
     );
-    console.log(value);
+
     if (index !== -1) {
       lineItems.update(index, {
         ...items[index],
@@ -80,9 +80,9 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     }
 
     lineItems.append({
-      itemId: Number(value.id),
-      productId: Number(value.variant.id),
-      variantId: Number(value.product.id),
+      itemId: value.id,
+      productId: value.product.id,
+      variantId: value.variant.id,
       title: value.product.title,
       variantTitle: value.variant.title,
       barcode: value.variant.barcode,
@@ -114,7 +114,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       onSuccess: (res) => {
         toast({
           variant: "success",
-          description: "Stock adjusted successfully.",
+          title: "Stock adjusted successfully.",
         });
         form.reset();
         toggle();

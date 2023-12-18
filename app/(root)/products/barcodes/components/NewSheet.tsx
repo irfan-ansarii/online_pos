@@ -27,8 +27,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 import AutoComplete from "@/components/shared/search-product";
+import { AvatarItem } from "@/components/shared/avatar";
 
-type Option = Record<string, string>;
+type Option = Record<string, any>;
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const { mutate, isLoading } = useCreateBarcode();
@@ -50,7 +51,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   const onSelect = (value: Option) => {
     const items = form.getValues("lineItems");
     const index = items.findIndex(
-      (item) => item.variantId === Number(value.variantId)
+      (item) => item.itemId === Number(value.itemId)
     );
 
     if (index !== -1) {
@@ -62,12 +63,14 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     }
 
     lineItems.append({
-      title: value.title,
-      variantTitle: value.variantTitle,
-      sku: value.sku,
+      itemId: value.id,
+      productId: value.product.id,
+      variantId: value.variant.id,
+      title: value.product.title,
+      variantTitle: value.variant.title,
+      barcode: value.variant.barcode,
       quantity: 1,
-      variantId: Number(value.variantId),
-      imageSrc: value.imageSrc,
+      imageSrc: value.product.image.src,
     });
   };
 
@@ -128,7 +131,9 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               <FormLabel>Products</FormLabel>
               <AutoComplete
                 onSelect={onSelect}
-                error={form.formState.errors.lineItems}
+                error={
+                  form.formState.errors.lineItems ? "Product required" : ""
+                }
               />
             </div>
             <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
@@ -138,23 +143,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   key={field.id}
                 >
                   <div className="flex gap-3 items-center col-span-2">
-                    <Avatar className="w-10 h-10 border-2">
-                      <AvatarImage
-                        asChild
-                        src={`/${field.imageSrc}`}
-                        className="object-cover"
-                      >
-                        <Image
-                          src={`/${field.imageSrc}`}
-                          alt={`/${field.imageSrc}`}
-                          width={40}
-                          height={40}
-                        />
-                      </AvatarImage>
-                      <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                        <ImageIcon className="w-4 h-4" />
-                      </AvatarFallback>
-                    </Avatar>
+                    <AvatarItem src={`/${field.imageSrc}`} />
                     <div className="space-y-0.5 truncate">
                       <div className="font-semibold truncate">
                         {field.title}

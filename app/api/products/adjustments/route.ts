@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { lineItems, reason, notes = "fdf", locationId } = body;
-
+    console.log(body);
     const user = await getSession(req);
 
     if (!user) {
@@ -106,11 +106,12 @@ export async function POST(req: NextRequest) {
     const location = !isNaN(locationId) ? Number(locationId) : user.locationId;
 
     const transactions = [];
+
     // create adjustment
     const response = prisma.adjustment.createMany({
       data: lineItems.map((item: any) => ({
         locationId: location,
-        productId: item.productId,
+        productId: Number(item.productId),
         variantId: item.variantId,
         quantity: Number(item.quantity),
         reason,
@@ -140,7 +141,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

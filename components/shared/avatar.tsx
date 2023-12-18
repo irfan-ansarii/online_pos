@@ -1,3 +1,4 @@
+"use client";
 import React, { FC, Children, HTMLProps } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -33,7 +34,7 @@ export const AvatarGroup: FC<BadgeProps> = ({ maxCount = 4, children }) => {
             </AvatarFallback>
           </Avatar>
         </PopoverTrigger>
-        <PopoverContent className="max-w-[16rem] w-auto p-2">
+        <PopoverContent className="max-w-[15rem] w-auto p-2">
           <div className="flex items-center flex-wrap gap-1">
             {childrenHidden}
           </div>

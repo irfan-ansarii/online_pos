@@ -34,22 +34,25 @@ export async function GET(req: NextRequest) {
         {
           OR: [
             {
-              variant: {
-                product: { title: { contains: search, mode: "insensitive" } },
-              },
+              product: { title: { contains: search, mode: "insensitive" } },
             },
             { variant: { title: { contains: search, mode: "insensitive" } } },
             { variant: { sku: { contains: search, mode: "insensitive" } } },
             {
-              variant: { barcode: { contains: search, mode: "insensitive" } },
+              variant: {
+                barcode: {
+                  equals: !isNaN(Number(search)) ? Number(search) : -1,
+                },
+              },
             },
           ],
         },
       ],
     };
 
+    const transactions = [];
     // find barcode list
-    const response = await prisma.label.findMany({
+    const response = prisma.label.findMany({
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
@@ -59,33 +62,32 @@ export async function GET(req: NextRequest) {
         ...filters,
       },
       include: {
-        variant: { include: { product: { include: { image: true } } } },
+        variant: true,
+        product: { include: { image: true } },
       },
     });
 
     // get pagination
-    const total = await prisma.label.count({
-      orderBy: {
-        createdAt: "desc",
-      },
+    const total = prisma.label.count({
       where: { ...filters },
     });
+
+    const [label, pages] = await prisma.$transaction([response, total]);
 
     // return response
     return NextResponse.json(
       {
-        data: response,
+        data: label,
         pagination: {
           page: currentPage,
           pageSize: PAGE_SIZE,
-          pageCount: Math.ceil(total / PAGE_SIZE),
+          pageCount: Math.ceil(pages / PAGE_SIZE),
           total,
         },
       },
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -113,6 +115,7 @@ export async function POST(req: NextRequest) {
     const response = await prisma.label.createMany({
       data: lineItems.map((item: any) => ({
         locationId: user.locationId,
+        productId: item.productId,
         variantId: item.variantId,
         quantity: Number(item.quantity),
       })),

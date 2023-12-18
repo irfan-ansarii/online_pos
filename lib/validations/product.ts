@@ -122,7 +122,7 @@ export const transferValidation = z.object({
   toId: z.string().nonempty(),
   lineItems: z
     .object({
-      id: z.number(),
+      itemId: z.number(),
       productId: z.number(),
       variantId: z.number(),
       title: z.string().optional(),
@@ -149,7 +149,8 @@ export const adjustmentValidation = z.object({
       variantId: z.number(),
       title: z.any(),
       variantTitle: z.any(),
-      barcode: z.any(),
+      sku: z.any().optional(),
+      barcode: z.number(),
       quantity: z
         .union([z.string(), z.number()])
         .refine((n: any) => !isNaN(n), { message: "Enter valid number" }),
@@ -164,11 +165,13 @@ export const adjustmentValidation = z.object({
 export const barcodeValidation = z.object({
   lineItems: z
     .object({
+      itemId: z.number(),
+      productId: z.number(),
+      variantId: z.number(),
       title: z.string().optional(),
       variantTitle: z.any().optional(),
-      sku: z.string().optional(),
-      barcode: z.string().optional(),
-      variantId: z.number(),
+      sku: z.any().optional(),
+      barcode: z.number(),
       quantity: z
         .union([z.string(), z.number()])
         .refine((n: any) => !isNaN(n), { message: "Enter valid number" }),
