@@ -34,7 +34,7 @@ export const AvatarGroup: FC<BadgeProps> = ({ maxCount = 4, children }) => {
             </AvatarFallback>
           </Avatar>
         </PopoverTrigger>
-        <PopoverContent className="max-w-[15rem] w-auto p-2">
+        <PopoverContent className="max-w-[14.6rem] w-auto p-2 bg-background">
           <div className="flex items-center flex-wrap gap-1">
             {childrenHidden}
           </div>
@@ -57,7 +57,9 @@ export const AvatarItem = ({
       <AvatarImage src={src} asChild className="object-cover">
         <Image src={src} alt={src} width={40} height={40} />
       </AvatarImage>
-      <AvatarFallback className="text-muted-foreground">
+      <AvatarFallback
+        className={cn("w-10 h-10 border-2 text-muted-foreground", className)}
+      >
         <ImageIcon className="w-4 h-4" />
       </AvatarFallback>
     </Avatar>

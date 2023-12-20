@@ -1,17 +1,19 @@
 "use client";
 import React from "react";
-import { ShoppingBag } from "lucide-react";
-import { useForm, useFieldArray } from "react-hook-form";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { saleValidation } from "@/lib/validations/sale";
 
+import { ShoppingBag } from "lucide-react";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
+
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+
+import InventoryProducts from "@/components/shared/inventory-products";
 import Cart from "./components/Cart";
-import Products from "./components/Products";
 
 const Page = () => {
   const form = useForm<z.infer<typeof saleValidation>>({
@@ -55,11 +57,46 @@ const Page = () => {
     shouldUnregister: false,
   });
 
-  const lineItems = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: "lineItems",
   });
 
+  const updatedLineItems = useWatch({
+    control: form.control,
+    name: "lineItems",
+  });
+
+  const onLineItemClick = (selected) => {
+    const { id, product, variant, stock } = selected;
+
+    const index = fields.findIndex((item) => item.itemId === selected.id);
+
+    if (index === -1) {
+      append({
+        itemId: id,
+        productId: product.id,
+        variantId: variant.id,
+        title: product.title,
+        variantTitle: variant.title,
+        sku: variant.sku,
+        barcode: variant.barcode,
+        stock: stock,
+        price: variant.salePrice,
+        taxRate: variant.taxRate,
+        imageSrc: product.image.src,
+        totalDiscount: 0,
+        quantity: 1,
+      });
+      return;
+    }
+
+    update(index, {
+      ...updatedLineItems[index],
+      totalDiscount: updatedLineItems[index].totalDiscount || 0,
+      quantity: Number(fields[index].quantity) + 1,
+    });
+  };
   return (
     <main className="grow pb-4 px-1 md:p-4  md:mt-[-4.8rem]">
       <Form {...form}>
@@ -74,15 +111,15 @@ const Page = () => {
                   <ShoppingBag className="w-5 h-5" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="h-[90%] p-4">
-                <Cart lineItems={lineItems} />
+              <DialogContent className="h-[90%] bg-accent p-4">
+                <Cart fields={fields} remove={remove} update={update} />
               </DialogContent>
             </Dialog>
 
-            <Products lineItems={lineItems} />
+            <InventoryProducts onSelect={onLineItemClick} />
           </div>
           <div className="hidden lg:block -mr-4 p-4 lg:col-span-6 xl:col-span-5 2xl:col-span-4 sticky bg-accent h-screen top-0 bottom-0 z-50">
-            <Cart lineItems={lineItems} />
+            <Cart fields={fields} remove={remove} update={update} />
           </div>
         </div>
       </Form>

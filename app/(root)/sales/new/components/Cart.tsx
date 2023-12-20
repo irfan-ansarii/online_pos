@@ -29,11 +29,18 @@ import ProceedDialog from "./ProceedDialog";
 import CartActions from "./CartActions";
 import DiscountPopover from "./DiscountPopover";
 import TaxPopover from "./TaxPopover";
+import { AvatarItem } from "@/components/shared/avatar";
 
-const Cart = ({ lineItems }: { lineItems: any }) => {
+const Cart = ({
+  fields,
+  remove,
+  update,
+}: {
+  fields: any;
+  remove: any;
+  update: any;
+}) => {
   const form = useFormContext();
-
-  const { fields, remove, update } = lineItems;
 
   // listen line item changes
   const watch = useWatch({
@@ -101,7 +108,7 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
     price: number;
     discount: number;
   }) => {
-    const total = price * fields[index].quantity - discount;
+    const total = Number(price * fields[index].quantity) - discount;
 
     const taxAmount = calculateTax({
       taxRate: fields[index].taxRate,
@@ -174,24 +181,10 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
               >
                 <AccordionTrigger asChild>
                   <div className="!py-0 hover:no-underline flex gap-2 cursor-pointer">
-                    <Avatar className="w-14 h-14 rounded-md flex-0 bg-border dark:bg-secondary">
-                      <AvatarImage
-                        alt="@shadcn"
-                        src={`/${field?.imageSrc}`}
-                        className="object-cover object-cover rounded-t-md"
-                        asChild
-                      >
-                        <Image
-                          src={`/${field?.imageSrc}`}
-                          width={50}
-                          height={60}
-                          alt=""
-                        ></Image>
-                      </AvatarImage>
-                      <AvatarFallback className="bg-transparent text-muted-foreground rounded-md">
-                        <ImageIcon className="w-5 h-5" />
-                      </AvatarFallback>
-                    </Avatar>
+                    <AvatarItem
+                      className="w-14 h-14 rounded-md flex-0 bg-border dark:bg-secondary"
+                      src={`${field.imageSrc}`}
+                    />
 
                     <div className="grid grid-cols-4 flex-1 h-14">
                       <div className="text-left col-span-3 space-y-1 text-sm font-normal truncate">
@@ -237,7 +230,8 @@ const Cart = ({ lineItems }: { lineItems: any }) => {
                           watch[i]?.total + watch[i]?.totalDiscount && (
                           <div className="line-through text-muted-foreground text-xs">
                             {Numeral(
-                              watch[i]?.total + watch[i]?.totalDiscount
+                              Number(watch[i]?.total) +
+                                Number(watch[i]?.totalDiscount)
                             ).format()}
                           </div>
                         )}
