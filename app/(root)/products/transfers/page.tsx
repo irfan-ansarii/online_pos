@@ -32,9 +32,9 @@ const Page = () => {
 
   return (
     <>
-      <MobileHeader title="Transfers" />
+      {/* <MobileHeader title="Transfers" /> */}
       <main className="grow">
-        <Header
+        {/* <Header
           action={
             <NewSheet>
               <Button className="ml-auto">
@@ -43,37 +43,30 @@ const Page = () => {
               </Button>
             </NewSheet>
           }
-        />
+        /> */}
 
-        {/* mobile navigation */}
-        <div className="h-[60px] px-4 overflow-x-auto md:hidden">
-          <Navigation />
-        </div>
+        <div className="grid grid-cols-1 md:gap-2 items-center">
+          {transfers?.pages.map((page) =>
+            page.data.data.length === 0 ? (
+              <EmptyBox className="col-span-1" title="No Products Found" />
+            ) : (
+              page.data.data.map((transfer: any) => (
+                <ItemCard transfer={transfer} key={transfer.id} />
+              ))
+            )
+          )}
 
-        <div className="md:p-6">
-          <div className="grid grid-cols-1 md:gap-2 items-center">
-            {transfers?.pages.map((page) =>
-              page.data.data.length === 0 ? (
-                <EmptyBox className="col-span-1" title="No Products Found" />
-              ) : (
-                page.data.data.map((transfer: any) => (
-                  <ItemCard transfer={transfer} key={transfer.id} />
-                ))
-              )
-            )}
+          {/* error */}
+          {isError && (
+            <ErrorBox
+              className="col-span-1"
+              title={error?.response?.data?.message}
+            />
+          )}
 
-            {/* error */}
-            {isError && (
-              <ErrorBox
-                className="col-span-1"
-                title={error?.response?.data?.message}
-              />
-            )}
-
-            {/* loading */}
-            {(isLoading || isFetchingNextPage) &&
-              [...Array(6)].map((_, i) => <Loading key={i} />)}
-          </div>
+          {/* loading */}
+          {(isLoading || isFetchingNextPage) &&
+            [...Array(6)].map((_, i) => <Loading key={i} />)}
         </div>
       </main>
     </>

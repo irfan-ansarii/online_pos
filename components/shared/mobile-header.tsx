@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "../ui/input";
 
 const MobileHeader = ({
   title,

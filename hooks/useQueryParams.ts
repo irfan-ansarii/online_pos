@@ -1,6 +1,11 @@
 "use client";
 import { useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+  useParams,
+} from "next/navigation";
 
 export function useQueryParams<T>() {
   const router = useRouter();

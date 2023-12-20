@@ -49,9 +49,9 @@ const Page = () => {
         />
 
         {/* mobile navigation */}
-        <div className="h-[60px] px-4 overflow-x-auto md:hidden">
+        {/* <div className="h-[60px] px-4 overflow-x-auto md:hidden">
           <Navigation />
-        </div>
+        </div> */}
         <div className="md:p-6">
           <div className="grid grid-cols-1 md:gap-2 items-center">
             {transfers?.pages.map((page) =>
