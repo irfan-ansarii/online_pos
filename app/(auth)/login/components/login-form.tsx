@@ -46,6 +46,8 @@ export function LoginForm() {
           variant: "success",
           title: "Logged in successfully!",
         });
+
+        router.refresh();
         router.replace(
           queryParams.redirect ? queryParams.redirect : "/dashboard"
         );

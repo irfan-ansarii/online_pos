@@ -4,11 +4,11 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productValidation } from "@/lib/validations/product";
 import { useForm } from "react-hook-form";
-import { useToggle } from "@uidotdev/usehooks";
+
 import { useToast } from "@/components/ui/use-toast";
 import { useCreateProduct } from "@/hooks/useProduct";
-import { useQueryParams } from "@/hooks/useQueryParams";
-
+import { useAtom } from "jotai";
+import { store } from "@/lib/store";
 import { ImagePlus, Loader2 } from "lucide-react";
 import {
   Sheet,
@@ -36,12 +36,11 @@ import Options from "./Options";
 import Variants from "./Variants";
 import MediaLibrary from "@/components/media-library/media-library";
 
-const NewSheet = ({ children }: { children: React.ReactNode }) => {
-  const { queryParams, setQueryParams } = useQueryParams();
-
+const NewSheet = () => {
   const [preview, setPreview] = React.useState("");
   const { mutate, isLoading } = useCreateProduct();
   const { toast } = useToast();
+  const [state, setState] = useAtom(store);
 
   const form = useForm<z.infer<typeof productValidation>>({
     resolver: zodResolver(productValidation),
@@ -81,7 +80,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
         });
         form.reset();
         setPreview("");
-        setQueryParams({ sheet: null });
       },
       onError: (error: any) => {
         toast({
@@ -98,7 +96,10 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <Sheet>
+    <Sheet
+      open={state.open}
+      onOpenChange={() => setState({ ...state, open: false })}
+    >
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form

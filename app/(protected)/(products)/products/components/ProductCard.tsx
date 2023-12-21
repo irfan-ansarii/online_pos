@@ -1,7 +1,9 @@
 "use client";
-import React, { HtmlHTMLAttributes } from "react";
+import React from "react";
+
 import Image from "next/image";
 import Numeral from "numeral";
+
 import { Image as ImageIcon, Loader2, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -29,6 +31,7 @@ import { toast } from "@/components/ui/use-toast";
 interface BadgeProps {
   [key: string]: string;
 }
+
 const ProductCard = ({ product }: { product: any }) => {
   const [open, toggle] = useToggle();
   const [openDelete, toggleDelete] = useToggle();

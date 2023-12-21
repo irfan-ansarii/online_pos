@@ -1,28 +1,32 @@
+import React from "react";
 import { fetchData } from "@/lib/api";
 import EmptyBox from "@/components/shared/empty-box";
-
+import ProductsClient from "./components/ProductsClient"; // Correct the import path
+import NewSheet from "./components/NewSheet";
 import { Product } from "@prisma/client";
-import ProductCard from "./components/ProductCard";
 
-interface SearchParamsProps {
+interface PageProps {
   [key: string]: string;
 }
 
-async function Page({ searchParams }: { searchParams: SearchParamsProps }) {
-  const { data, pagination } = await fetchData({
-    url: "/products",
+interface ResponseProps {
+  data: Product[];
+  pagination: PageProps;
+}
+
+async function Page({ searchParams }: { searchParams: PageProps }) {
+  const { data, pagination }: ResponseProps = await fetchData("/products", {
     params: searchParams,
   });
 
   return (
     <>
       {/* pages */}
-      {data?.map((product: Product) => (
-        <ProductCard product={product} key={product.id} />
-      ))}
+      <ProductsClient initialData={data} />
 
       {data?.length === 0 && <EmptyBox />}
-      {/* loading */}
+
+      <NewSheet />
     </>
   );
 }

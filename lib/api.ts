@@ -4,27 +4,39 @@ const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/api",
 });
 
+interface APIParams {
+  params?: { [key: string]: string };
+  data?: { [key: string]: string };
+  onSuccess?: (data: any) => void;
+  onError?: (error: any) => void;
+}
+
 interface Props {
   url: string;
   params?: { [key: string]: string };
   data?: any;
 }
 
-export const fetchData = async ({ url, params }: Props) => {
+export const fetchData = async (
+  url: string,
+  { params, onSuccess, onError }: APIParams
+) => {
   try {
     const response = await axiosInstance.get(url, {
       params,
     });
+    onSuccess && onSuccess(response.data);
     return response.data;
   } catch (error) {
+    let errorMessage = "Something went wrong!";
     if (axios.isAxiosError(error)) {
       if (error.response) {
-        throw Error(error.response.data.message);
+        errorMessage = error.response.data.message;
       }
-      throw Error(error.request.data.message);
-    } else {
-      throw Error("Something went wrong!");
+      errorMessage = error.request.data.message;
     }
+    onError && onError(error);
+    return errorMessage;
   }
 };
 

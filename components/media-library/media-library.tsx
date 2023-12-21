@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import SimpleBar from "simplebar-react";
+
 import { useToggle } from "@uidotdev/usehooks";
 import { useFiles } from "@/hooks/useFile";
 import { Input } from "@/components/ui/input";
@@ -67,7 +67,7 @@ const MediaLibrary: React.FC<Props> = ({
             </div>
           </div>
 
-          <SimpleBar className="h-full grow overflow-y-auto -mx-6 px-6">
+          <div className="h-full grow overflow-y-auto -mx-6 px-6">
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-3">
                 <Upload />
@@ -93,7 +93,7 @@ const MediaLibrary: React.FC<Props> = ({
                 />
               )}
             </div>
-          </SimpleBar>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

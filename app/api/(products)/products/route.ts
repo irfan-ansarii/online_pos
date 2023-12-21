@@ -35,29 +35,6 @@ export async function GET(req: NextRequest) {
           OR: [
             { title: { contains: search, mode: "insensitive" } },
             { description: { contains: search, mode: "insensitive" } },
-            {
-              OR: [
-                {
-                  variants: {
-                    some: { title: { contains: search, mode: "insensitive" } },
-                  },
-                },
-                {
-                  variants: {
-                    some: { sku: { contains: search, mode: "insensitive" } },
-                  },
-                },
-                {
-                  variants: {
-                    some: {
-                      barcode: {
-                        equals: !isNaN(Number(search)) ? Number(search) : -1,
-                      },
-                    },
-                  },
-                },
-              ],
-            },
           ],
         },
       ],
@@ -108,6 +85,7 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error", details: error },
       { status: 500 }

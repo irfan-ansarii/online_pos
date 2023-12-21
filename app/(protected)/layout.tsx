@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Sidebar from "@/components/global/sidebar";
 import Header from "@/components/global/header";
 import Footer from "@/components/global/footer";
@@ -8,8 +9,12 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  // load session
-  // if not session redirect to login
+  // const { session } = auth();
+
+  // if (!session) {
+  //   redirect("/login");
+  // }
+
   return (
     <div className="items-start flex flex-col md:grid md:grid-cols-[80px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)]">
       <Sidebar />

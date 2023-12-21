@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useAtom } from "jotai";
+import { store } from "@/lib/store";
 import { Plus } from "lucide-react";
 import StickyHeader from "@/components/shared/sticky-header";
 import SearchInput from "@/components/shared/search-input";
@@ -9,13 +10,7 @@ import { Button } from "@/components/ui/button";
 import Navigation from "./Navigation";
 
 const Header = ({ filters }: { filters?: React.ReactNode }) => {
-  const router = useRouter();
-  const path = usePathname();
-
-  const onClick = () => {
-    router.push(`${path}?sheet=new`);
-  };
-
+  const [state, setState] = useAtom(store);
   return (
     <StickyHeader className="justify-start">
       <div className="flex gap-4 flex-1 items-center">
@@ -24,7 +19,7 @@ const Header = ({ filters }: { filters?: React.ReactNode }) => {
           <SearchInput className="bg-secondary hover:bg-secondary/80 focus:bg-secondary/80" />
         </div>
         {filters}
-        <Button onClick={onClick}>
+        <Button onClick={() => setState({ ...state, open: true })}>
           <Plus className="w-5 h-5 mr-2" />
           New
         </Button>
