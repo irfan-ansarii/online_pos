@@ -1,5 +1,5 @@
 import "./globals.css";
-import "simplebar-react/dist/simplebar.min.css";
+
 import type { Metadata } from "next";
 import { cn } from "@/lib/utils";
 import { Inter } from "next/font/google";

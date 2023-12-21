@@ -15,9 +15,8 @@ const Page = () => {
 
         <div className="md:p-6">
           <div className="grid grid-cols-1 md:gap-2">
-            {[...Array(2)].map((el, i) => (
-              <Loading />
-            ))}
+            <Loading />
+
             {[...Array(18)].map((el, i) => (
               <SaleCard />
             ))}

@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { useToggle } from "@uidotdev/usehooks";
 import { useToast } from "@/components/ui/use-toast";
 import { useCreateProduct } from "@/hooks/useProduct";
+import { useQueryParams } from "@/hooks/useQueryParams";
 
 import { ImagePlus, Loader2 } from "lucide-react";
 import {
@@ -36,10 +37,11 @@ import Variants from "./Variants";
 import MediaLibrary from "@/components/media-library/media-library";
 
 const NewSheet = ({ children }: { children: React.ReactNode }) => {
+  const { queryParams, setQueryParams } = useQueryParams();
+
   const [preview, setPreview] = React.useState("");
   const { mutate, isLoading } = useCreateProduct();
   const { toast } = useToast();
-  const [open, toggle] = useToggle();
 
   const form = useForm<z.infer<typeof productValidation>>({
     resolver: zodResolver(productValidation),
@@ -79,7 +81,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
         });
         form.reset();
         setPreview("");
-        toggle();
+        setQueryParams({ sheet: null });
       },
       onError: (error: any) => {
         toast({
@@ -96,8 +98,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <Sheet open={open} onOpenChange={toggle}>
-      <SheetTrigger asChild>{children}</SheetTrigger>
+    <Sheet>
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form

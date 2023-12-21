@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 interface QueryParams {
   [key: string]: null;
 }
-const SearchInput = () => {
+const SearchInput = ({ className }: { className?: string }) => {
   const { queryParams, setQueryParams } = useQueryParams();
   const { search } = queryParams;
   const [searchTerm, setSearchTerm] = React.useState(search);
@@ -23,8 +23,8 @@ const SearchInput = () => {
   }, [debouncedSearchTerm]);
 
   return (
-    <div className="relative">
-      <span className="absolute inset-y-0 inline-flex items-center pr-4 text-muted-foreground">
+    <div className={`relative`}>
+      <span className="absolute inset-y-0 left-2 inline-flex items-center pr-4 text-muted-foreground">
         <Search className="w-5 h-5" />
       </span>
       <Input
@@ -32,7 +32,7 @@ const SearchInput = () => {
           setSearchTerm(e.target.value);
         }}
         value={searchTerm || ""}
-        className="bg-transparent rounded-none border-none pl-8 focus-visible:ring-transparent"
+        className={`bg-transparent border-none pl-10 focus-visible:ring-transparent  ${className}`}
         placeholder="Search..."
       />
     </div>

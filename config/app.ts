@@ -70,17 +70,18 @@ export const PRODUCT_PATHS = [
   {
     id: 2,
     label: "Transfers",
-    path: "/products/transfers",
+    path: "/transfers",
   },
   {
     id: 3,
     label: "Adjustments",
-    path: "/products/adjustments",
+    path: "/adjustments",
   },
   {
     id: 4,
     label: "Barcodes",
-    path: "/products/barcodes",
+    path: "/barcodes",
   },
 ];
+
 export const PAGE_SIZE = 12;

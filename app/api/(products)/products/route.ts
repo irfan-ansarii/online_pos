@@ -11,10 +11,10 @@ import { getSession, sanitizeOutput } from "@/lib/utils";
  */
 export async function GET(req: NextRequest) {
   try {
-    const user = await getSession(req);
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    // const user = await getSession(req);
+    // if (!user) {
+    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // }
 
     // get params
     const { searchParams } = req.nextUrl;
