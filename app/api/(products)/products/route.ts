@@ -65,9 +65,6 @@ export async function GET(req: NextRequest) {
 
     // get pagination
     const total = await prisma.product.count({
-      orderBy: {
-        createdAt: "desc",
-      },
       where: { ...filters },
     });
 

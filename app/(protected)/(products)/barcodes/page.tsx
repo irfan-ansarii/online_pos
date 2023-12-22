@@ -1,62 +1,42 @@
-"use client";
 import React from "react";
-import { Plus, Printer } from "lucide-react";
-import MobileHeader from "@/components/shared/mobile-header";
-import { Button } from "@/components/ui/button";
-
-import Header from "../components/Header";
-import Navigation from "../components/Navigation";
+import { Label } from "@prisma/client";
 import ItemCard from "./components/ItemCard";
-import NewSheet from "./components/NewSheet";
-import { useQueryParams } from "@/hooks/useQueryParams";
-import { useBarcodes } from "@/hooks/useProduct";
-import { useIntersectionObserver } from "@uidotdev/usehooks";
+
 import EmptyBox from "@/components/shared/empty-box";
-import ErrorBox from "@/components/shared/error-box";
-import Loading from "@/components/shared/Loading";
+import { fetchData } from "@/lib/actions";
+import Pagination from "@/components/shared/pagination";
 
-const Page = () => {
-  const { queryParams } = useQueryParams();
-  const {
-    data: transfers,
-    isLoading,
-    isError,
-    error,
-    isFetchingNextPage,
-    fetchNextPage,
-  } = useBarcodes(queryParams);
+interface PageProps {
+  [key: string]: string;
+}
 
-  const [ref, entry] = useIntersectionObserver({
-    threshold: 0,
-    root: null,
-    rootMargin: "0px",
+interface ResponseProps {
+  data: Label[];
+  pagination: { page: number; pageCount: number };
+}
+
+async function Page({ searchParams }: { searchParams: PageProps }) {
+  const { data, pagination }: ResponseProps = await fetchData({
+    endpoint: "barcodes",
+    params: searchParams,
   });
 
+  if (!data || data.length === 0) {
+    return <EmptyBox />;
+  }
   return (
     <>
-      {transfers?.pages.map((page) =>
-        page.data.data.length === 0 ? (
-          <EmptyBox className="col-span-1" title="No Products Found" />
-        ) : (
-          page.data.data.map((item: any) => (
-            <ItemCard item={item} key={item.id} />
-          ))
-        )
-      )}
+      <div className="grid grid-cols-1 md:gap-2 items-center">
+        {data.map((item) => (
+          <ItemCard item={item} key={item.id} />
+        ))}
+      </div>
 
-      {/* error */}
-      {isError && (
-        <ErrorBox
-          className="col-span-1"
-          title={error?.response?.data?.message}
-        />
-      )}
-
-      {/* loading */}
-      {(isLoading || isFetchingNextPage) &&
-        [...Array(6)].map((_, i) => <Loading key={i} />)}
+      <div className="flex items-center justify-center mt-6">
+        <Pagination className="mt-6" pagination={pagination} />
+      </div>
     </>
   );
-};
+}
 
 export default Page;

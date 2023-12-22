@@ -1,40 +1,38 @@
 "use client";
 import React from "react";
-import Image from "next/image";
+import { store } from "@/lib/utils";
+import { Loader2, Plus, X, Minus } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { barcodeValidation } from "@/lib/validations/product";
 
-import { useFieldArray, useForm } from "react-hook-form";
-import { useToggle } from "@uidotdev/usehooks";
-import { useToast } from "@/components/ui/use-toast";
-import { useCreateBarcode } from "@/hooks/useProduct";
+import { postData } from "@/lib/actions";
 
-import { Image as ImageIcon, Loader2, Plus, X, Minus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAtom } from "jotai";
+import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "@/components/ui/use-toast";
+
+import AutoComplete from "@/components/shared/search-product";
 
 import {
   Sheet,
   SheetHeader,
-  SheetTrigger,
   SheetTitle,
   SheetContent,
   SheetFooter,
 } from "@/components/ui/sheet";
 import { Form, FormLabel } from "@/components/ui/form";
-
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-
-import AutoComplete from "@/components/shared/search-product";
 import { AvatarItem } from "@/components/shared/avatar";
 
 type Option = Record<string, any>;
 
-const NewSheet = ({ children }: { children: React.ReactNode }) => {
-  const { mutate, isLoading } = useCreateBarcode();
-  const { toast } = useToast();
-  const [open, toggle] = useToggle();
+const NewSheet = () => {
+  const [state, setState] = useAtom(store);
+  const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof barcodeValidation>>({
     resolver: zodResolver(barcodeValidation),
@@ -93,30 +91,35 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const onSubmit = (values: z.infer<typeof barcodeValidation>) => {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Added to list successfully.",
-        });
-        form.reset();
-        toggle();
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+  const onSubmit = async (values: z.infer<typeof barcodeValidation>) => {
+    try {
+      setLoading(false);
+      await postData({ endpoint: "/barcodes", data: values });
+      toast({
+        variant: "success",
+        title: "Added to list",
+      });
+
+      form.reset();
+      setState({ ...state, open: false });
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Sheet open={open} onOpenChange={toggle}>
-      <SheetTrigger asChild>{children}</SheetTrigger>
+    <Sheet
+      open={state.open}
+      onOpenChange={() => setState({ ...state, open: false })}
+    >
       <SheetContent className="md:max-w-lg">
-        {isLoading && (
+        {loading && (
           <div className="absolute w-full h-full top-0 left-0 z-20"></div>
         )}
         <Form {...form}>
@@ -193,7 +196,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
 
             <SheetFooter className="pt-2 flex-col">
               <Button className="w-full" type="submit">
-                {isLoading ? (
+                {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   "Save"

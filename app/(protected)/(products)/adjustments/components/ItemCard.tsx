@@ -1,8 +1,7 @@
 import React from "react";
-import Image from "next/image";
-import { Image as ImageIcon, Info } from "lucide-react";
+import { Adjustment, Product, Variant, File } from "@prisma/client";
+import { Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 import {
   Tooltip,
@@ -12,11 +11,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { AvatarItem } from "@/components/shared/avatar";
 
-const ItemCard = ({ adjustment }: any) => {
+interface Props extends Adjustment {
+  product: Product & { image: File };
+  variant: Variant;
+}
+const ItemCard = ({ adjustment }: { adjustment: Props }) => {
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
-      <CardContent className="grid grid-cols-5 items-center gap-2">
-        <div className="flex gap-3 items-center col-span-3 md:col-span-4">
+      <CardContent className="grid grid-cols-3 items-center gap-2">
+        <div className="flex gap-3 items-center col-span-2">
           <div className="border-r pr-4 text-center w-14 md:w-20 shrink-0">
             <div className="text-lg leading-tight font-semibold">02</div>
             <div className="leading-tight text-muted-foreground">Dec</div>
@@ -39,8 +42,11 @@ const ItemCard = ({ adjustment }: any) => {
           </div>
         </div>
 
-        <div className="flex justify-between gap-6 col-span-2 md:col-span-1">
-          <Badge variant="secondary" className="rounded-md gap-2 py-1">
+        <div className="flex justify-between gap-6">
+          <Badge
+            variant="secondary"
+            className="rounded-md gap-2 py-1 hidden md:inline-flex"
+          >
             <span className="uppercase">{adjustment.reason}</span>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -53,7 +59,7 @@ const ItemCard = ({ adjustment }: any) => {
           </Badge>
 
           <div
-            className={`font-medium text-base ${
+            className={`font-medium text-base ml-auto ${
               adjustment.quantity > 0 ? "text-success" : "text-destructive"
             }`}
           >

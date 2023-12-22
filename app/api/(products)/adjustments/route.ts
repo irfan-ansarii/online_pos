@@ -11,10 +11,10 @@ import { getSession } from "@/lib/utils";
  */
 export async function GET(req: NextRequest) {
   try {
-    const user = await getSession(req);
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    // const user = await getSession(req);
+    // if (!user) {
+    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // }
 
     // get params
     const { searchParams } = req.nextUrl;
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
     const filters: Prisma.AdjustmentWhereInput = {
       AND: [
-        { locationId: Number(user?.locationId) },
+        { locationId: Number(1) },
         {
           OR: [
             { product: { title: { contains: search, mode: "insensitive" } } },

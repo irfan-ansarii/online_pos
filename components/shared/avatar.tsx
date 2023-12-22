@@ -57,9 +57,7 @@ export const AvatarItem = ({
       <AvatarImage src={src} asChild className="object-cover">
         <Image src={src} alt={src} width={40} height={40} />
       </AvatarImage>
-      <AvatarFallback
-        className={cn("w-10 h-10 border-2 text-muted-foreground", className)}
-      >
+      <AvatarFallback className="w-full h-full text-muted-foreground">
         <ImageIcon className="w-4 h-4" />
       </AvatarFallback>
     </Avatar>

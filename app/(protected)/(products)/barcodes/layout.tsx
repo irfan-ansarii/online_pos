@@ -3,6 +3,7 @@ import React from "react";
 import Header from "../components/Header";
 
 import Navigation from "../components/Navigation";
+import NewSheet from "./components/NewSheet";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -12,9 +13,8 @@ const layout = ({ children }: { children: React.ReactNode }) => {
         <Navigation />
       </div>
       <Header />
-      <div className="md:p-6">
-        <div className="grid grid-cols-1 md:gap-2 items-center">{children}</div>
-      </div>
+      <div className="md:p-6">{children}</div>
+      <NewSheet />
     </>
   );
 };

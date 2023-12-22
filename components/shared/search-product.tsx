@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 
-import Loading from "@/app/(root)/products/components/Loading";
+import Loading from "@/components/shared/Loading";
 import { Badge } from "../ui/badge";
 import { AvatarItem } from "@/components/shared/avatar";
 

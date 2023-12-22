@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productValidation } from "@/lib/validations/product";
@@ -7,8 +8,7 @@ import { useForm } from "react-hook-form";
 
 import { store } from "@/lib/utils";
 import { useAtom } from "jotai";
-import { useToast } from "@/components/ui/use-toast";
-import { useCreateProduct } from "@/hooks/useProduct";
+import { toast } from "@/components/ui/use-toast";
 
 import { ImagePlus, Loader2 } from "lucide-react";
 import {
@@ -36,12 +36,13 @@ import Options from "./Options";
 import Variants from "./Variants";
 import MediaLibrary from "@/components/media-library/media-library";
 
-import { postData } from "@/lib/api";
+import { postData } from "@/lib/actions";
+
 const NewSheet = () => {
-  const [preview, setPreview] = React.useState("");
-  const { mutate, isLoading } = useCreateProduct();
-  const { toast } = useToast();
   const [state, setState] = useAtom(store);
+  const router = useRouter();
+  const [preview, setPreview] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof productValidation>>({
     resolver: zodResolver(productValidation),
@@ -73,27 +74,29 @@ const NewSheet = () => {
       ];
     }
 
-    // try {
-    //   setLoading(true);
-    //   await postData("/products", {
-    //     data: values,
-    //   });
-    //   toast({
-    //     variant: "success",
-    //     title: "Product created successfully!",
-    //   });
-    //   form.reset();
-    //   setPreview("");
-
-    //   router.refresh();
-    // } catch (error: any) {
-    //   toast({
-    //     variant: "error",
-    //     title: error.response.data.message || "Something went wrong",
-    //   });
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      setLoading(true);
+      await postData({
+        endpoint: "/products",
+        data: values,
+      });
+      toast({
+        variant: "success",
+        title: "Product created successfully!",
+      });
+      form.reset();
+      setState({ ...state, open: false });
+      setPreview("");
+      router.refresh();
+    } catch (error: any) {
+      console.log(error);
+      toast({
+        variant: "error",
+        title: error?.response?.data?.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onSelect = (file: any) => {
@@ -112,7 +115,7 @@ const NewSheet = () => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col h-full relative"
           >
-            {isLoading && (
+            {loading && (
               <div className="absolute w-full h-full top-0 left-0 z-20"></div>
             )}
             <SheetHeader className="md:pb-2">
@@ -287,7 +290,7 @@ const NewSheet = () => {
 
             <SheetFooter className="pt-2">
               <Button className="w-full" type="submit">
-                {isLoading ? (
+                {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   "Save"

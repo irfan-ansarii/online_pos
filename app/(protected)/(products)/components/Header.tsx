@@ -16,7 +16,7 @@ const Header = ({ filters }: { filters?: React.ReactNode }) => {
       <div className="flex gap-4 flex-1 items-center">
         <Navigation />
         <div className="ml-auto flex-1 max-w-[400px]">
-          <SearchInput className="bg-secondary hover:bg-secondary/80 focus:bg-secondary/80" />
+          <SearchInput className="bg-secondary hover:bg-secondary/50 focus:bg-secondary/50" />
         </div>
         {filters}
         <Button onClick={() => setState({ ...state, open: true })}>

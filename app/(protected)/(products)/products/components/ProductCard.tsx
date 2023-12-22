@@ -1,12 +1,11 @@
 "use client";
 import React from "react";
-
-import Image from "next/image";
+import { deleteData } from "@/lib/actions";
 import Numeral from "numeral";
 
-import { Image as ImageIcon, Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import {
   AlertDialog,
@@ -25,8 +24,9 @@ import ProductSheet from "./ProductSheet";
 import EditSheet from "./EditSheet";
 
 import { useToggle } from "@uidotdev/usehooks";
-import { useDeleteProduct } from "@/hooks/useProduct";
+
 import { toast } from "@/components/ui/use-toast";
+import { AvatarItem } from "@/components/shared/avatar";
 
 interface BadgeProps {
   [key: string]: string;
@@ -35,7 +35,8 @@ interface BadgeProps {
 const ProductCard = ({ product }: { product: any }) => {
   const [open, toggle] = useToggle();
   const [openDelete, toggleDelete] = useToggle();
-  const { mutate, isLoading } = useDeleteProduct();
+  const [loading, setLoading] = React.useState(false);
+
   const priceRange = React.useMemo(() => {
     const { variants } = product;
 
@@ -73,27 +74,26 @@ const ProductCard = ({ product }: { product: any }) => {
     trash: "bg-destructive hover:bg-destructive",
   };
 
-  const onDelete = (e: React.MouseEvent<HTMLElement>) => {
+  const onDelete = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    mutate(
-      { id: product.id },
-      {
-        onSuccess: (res) => {
-          toast({
-            variant: "success",
-            title: "Product deleted successfully!",
-          });
 
-          toggleDelete();
-        },
-        onError: (error: any) => {
-          toast({
-            variant: "error",
-            title: error.response.data.message || "Something went wrong",
-          });
-        },
-      }
-    );
+    try {
+      setLoading(true);
+      await deleteData({ endpoint: `/products/${product.id}` });
+
+      toast({
+        variant: "success",
+        title: "Product deleted successfully!",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message,
+      });
+    } finally {
+      toggleDelete();
+      setLoading(false);
+    }
   };
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
@@ -101,24 +101,7 @@ const ProductCard = ({ product }: { product: any }) => {
         <SheetTrigger asChild>
           <CardContent className="grid grid-cols-7 items-center gap-2">
             <div className="flex items-center gap-3 col-span-4 md:col-span-3 items-center">
-              <Avatar className="w-12 h-12 border-2">
-                <AvatarImage
-                  src={product.image.src}
-                  alt={product.image.title}
-                  className="object-cover"
-                  asChild
-                >
-                  <Image
-                    src={`/${product.image.src}`}
-                    alt={product.image.title}
-                    width={60}
-                    height={60}
-                  ></Image>
-                </AvatarImage>
-                <AvatarFallback className="rounded-none  md:rounded-l-md object-cover text-muted-foreground">
-                  <ImageIcon className="w-5 h-5" />
-                </AvatarFallback>
-              </Avatar>
+              <AvatarItem src={`/${product.image.src}`} className="w-12 h-12" />
               <div className="space-y-0.5 truncate">
                 <div className="font-semibold truncate">{product.title}</div>
                 <div className="flex gap-1">
@@ -180,8 +163,11 @@ const ProductCard = ({ product }: { product: any }) => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onDelete} className="w-28">
-                {isLoading ? (
+              <AlertDialogAction
+                onClick={onDelete}
+                className="w-28 bg-destructive text-destructive-foreground hover:bg-destructive/80"
+              >
+                {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   "Delete"

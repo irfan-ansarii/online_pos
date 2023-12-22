@@ -3,20 +3,21 @@ import React from "react";
 
 import * as z from "zod";
 import Numeral from "numeral";
+import { useRouter } from "next/navigation";
+import { store } from "@/lib/utils";
 
+import { fetchData, postData } from "@/lib/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Minus, Plus, X } from "lucide-react";
 import { transferValidation } from "@/lib/validations/product";
+
 import { useFieldArray, useForm } from "react-hook-form";
-import { useToggle } from "@uidotdev/usehooks";
 import { toast } from "@/components/ui/use-toast";
-import { useCreateTransfer } from "@/hooks/useProduct";
-import { useLocations } from "@/hooks/useUser";
+import { useAtom } from "jotai";
 
 import {
   Sheet,
   SheetHeader,
-  SheetTrigger,
   SheetTitle,
   SheetContent,
   SheetFooter,
@@ -49,12 +50,10 @@ interface ClickProps {
   e: React.MouseEvent<HTMLElement>;
   index: number;
 }
-const NewSheet = ({ children }: { children: React.ReactNode }) => {
-  const { mutate, isLoading } = useCreateTransfer();
-  const { data: session } = useSession();
-  const { data: locations, isLoading: loading } = useLocations();
-
-  const [open, toggle] = useToggle();
+const NewSheet = () => {
+  const router = useRouter();
+  const [loading, setLoading] = React.useState(false);
+  const [state, setState] = useAtom(store);
 
   const form = useForm<z.infer<typeof transferValidation>>({
     resolver: zodResolver(transferValidation),
@@ -65,10 +64,6 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
       totalAmount: undefined,
     },
   });
-  const locationId = React.useMemo(
-    () => session?.data?.data?.locationId,
-    [session]
-  );
 
   const lineItems = useFieldArray({
     control: form.control,
@@ -140,28 +135,34 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
     form.setValue("totalAmount", total.total);
   }, [form.watch("lineItems")]);
 
-  const onSubmit = (values: z.infer<typeof transferValidation>) => {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Transfered successfully",
-        });
-        form.reset();
-        toggle();
-      },
-      onError: (res) => {
-        toast({
-          variant: "error",
-          title: "Error",
-        });
-      },
-    });
+  const onSubmit = async (values: z.infer<typeof transferValidation>) => {
+    try {
+      setLoading(true);
+
+      await postData({ endpoint: "/transfers", data: values });
+
+      toast({
+        variant: "success",
+        title: "Transfered successfully",
+      });
+      setState({ ...state, open: false });
+      form.reset();
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Sheet open={open} onOpenChange={toggle}>
-      <SheetTrigger asChild>{children}</SheetTrigger>
+    <Sheet
+      open={state.open}
+      onOpenChange={() => setState({ ...state, open: false })}
+    >
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form
@@ -172,7 +173,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
               <SheetTitle>New Transfer</SheetTitle>
             </SheetHeader>
 
-            {isLoading && (
+            {loading && (
               <div className="absolute w-full h-full top-0 left-0 z-20"></div>
             )}
 
@@ -199,7 +200,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                             </SelectTrigger>
                           </FormControl>
 
-                          <SelectContent>
+                          {/* <SelectContent>
                             {locations?.data.data.map((location: Option) =>
                               locationId === location.id ? null : (
                                 <SelectItem
@@ -210,7 +211,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                                 </SelectItem>
                               )
                             )}
-                          </SelectContent>
+                          </SelectContent> */}
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -299,7 +300,7 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
                   </div>
 
                   <Button className="w-full" type="submit">
-                    {isLoading ? (
+                    {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       "Save"

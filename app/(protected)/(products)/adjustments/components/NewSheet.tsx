@@ -1,13 +1,14 @@
 "use client";
 import React from "react";
 import * as z from "zod";
-import Image from "next/image";
-
-import { Loader2, X, Image as ImageIcon, Minus, Plus } from "lucide-react";
+import { store } from "@/lib/utils";
+import { postData } from "@/lib/actions";
+import { Loader2, X, Minus, Plus } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { adjustmentValidation } from "@/lib/validations/product";
 
+import { useAtom } from "jotai";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useToggle } from "@uidotdev/usehooks";
 import { useToast } from "@/components/ui/use-toast";
@@ -16,7 +17,6 @@ import { useCreateAdjustment } from "@/hooks/useProduct";
 import {
   Sheet,
   SheetHeader,
-  SheetTrigger,
   SheetTitle,
   SheetContent,
   SheetFooter,
@@ -29,10 +29,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 import AutoComplete from "@/components/shared/search-product";
 import {
@@ -46,9 +45,9 @@ import { AvatarItem } from "@/components/shared/avatar";
 
 type Option = Record<string, any>;
 
-const NewSheet = ({ children }: { children: React.ReactNode }) => {
+const NewSheet = () => {
   const { mutate, isLoading } = useCreateAdjustment();
-
+  const [state, setState] = useAtom(store);
   const { toast } = useToast();
   const [open, toggle] = useToggle();
 
@@ -129,8 +128,10 @@ const NewSheet = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <Sheet open={open} onOpenChange={toggle}>
-      <SheetTrigger asChild>{children}</SheetTrigger>
+    <Sheet
+      open={state.open}
+      onOpenChange={() => setState({ ...store, open: false })}
+    >
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form

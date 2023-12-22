@@ -1,9 +1,11 @@
 import React from "react";
-import { fetchData } from "@/lib/api";
-import EmptyBox from "@/components/shared/empty-box";
-import ProductsClient from "./components/ProductsClient"; // Correct the import path
-import NewSheet from "./components/NewSheet";
 import { Product } from "@prisma/client";
+import { fetchData } from "@/lib/actions";
+
+import EmptyBox from "@/components/shared/empty-box";
+
+import Pagination from "@/components/shared/pagination";
+import ProductCard from "./components/ProductCard";
 
 interface PageProps {
   [key: string]: string;
@@ -11,22 +13,30 @@ interface PageProps {
 
 interface ResponseProps {
   data: Product[];
-  pagination: PageProps;
+  pagination: { page: number; pageCount: number };
 }
 
 async function Page({ searchParams }: { searchParams: PageProps }) {
-  const { data, pagination }: ResponseProps = await fetchData("/products", {
+  const { data, pagination }: ResponseProps = await fetchData({
+    endpoint: "/products",
     params: searchParams,
   });
 
-  if (data && data.length === 0) {
+  if (!data || data.length === 0) {
     return <EmptyBox />;
   }
 
   return (
     <>
-      <ProductsClient initialData={data} />
-      <NewSheet />
+      <div className="grid grid-cols-1 md:gap-2 items-center">
+        {data.map((product) => (
+          <ProductCard product={product} key={product.id} />
+        ))}
+      </div>
+
+      <div className="flex items-center justify-center mt-6">
+        <Pagination className="mt-6" pagination={pagination} />
+      </div>
     </>
   );
 }

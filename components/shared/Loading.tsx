@@ -10,7 +10,7 @@ const Loading = ({
   count?: number;
 }) => {
   return (
-    <>
+    <div className="space-y-2">
       {[...Array(count)].map((_, i) => (
         <Card className={className} key={i}>
           <CardContent className="grid grid-cols-5 items-center">
@@ -28,7 +28,7 @@ const Loading = ({
           </CardContent>
         </Card>
       ))}
-    </>
+    </div>
   );
 };
 

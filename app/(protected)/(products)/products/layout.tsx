@@ -5,6 +5,8 @@ import Header from "../components/Header";
 import Navigation from "../components/Navigation";
 import Filters from "./components/Filters";
 
+import NewSheet from "./components/NewSheet";
+
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
@@ -14,6 +16,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
       </div>
       <Header filters={<Filters />} />
       <div className="md:p-6">{children}</div>
+      <NewSheet />
     </>
   );
 };
