@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useAtom } from "jotai";
-import { store } from "@/lib/store";
+import { store } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import StickyHeader from "@/components/shared/sticky-header";
 import SearchInput from "@/components/shared/search-input";

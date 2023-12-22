@@ -5,15 +5,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { productValidation } from "@/lib/validations/product";
 import { useForm } from "react-hook-form";
 
+import { store } from "@/lib/utils";
+import { useAtom } from "jotai";
 import { useToast } from "@/components/ui/use-toast";
 import { useCreateProduct } from "@/hooks/useProduct";
-import { useAtom } from "jotai";
-import { store } from "@/lib/store";
+
 import { ImagePlus, Loader2 } from "lucide-react";
 import {
   Sheet,
   SheetHeader,
-  SheetTrigger,
   SheetTitle,
   SheetContent,
   SheetFooter,
@@ -36,6 +36,7 @@ import Options from "./Options";
 import Variants from "./Variants";
 import MediaLibrary from "@/components/media-library/media-library";
 
+import { postData } from "@/lib/api";
 const NewSheet = () => {
   const [preview, setPreview] = React.useState("");
   const { mutate, isLoading } = useCreateProduct();
@@ -58,7 +59,7 @@ const NewSheet = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof productValidation>) => {
+  const onSubmit = async (values: z.infer<typeof productValidation>) => {
     if (values.type === "simple") {
       values.variants = [
         {
@@ -72,22 +73,27 @@ const NewSheet = () => {
       ];
     }
 
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Product created successfully!",
-        });
-        form.reset();
-        setPreview("");
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+    // try {
+    //   setLoading(true);
+    //   await postData("/products", {
+    //     data: values,
+    //   });
+    //   toast({
+    //     variant: "success",
+    //     title: "Product created successfully!",
+    //   });
+    //   form.reset();
+    //   setPreview("");
+
+    //   router.refresh();
+    // } catch (error: any) {
+    //   toast({
+    //     variant: "error",
+    //     title: error.response.data.message || "Something went wrong",
+    //   });
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const onSelect = (file: any) => {

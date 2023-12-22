@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { atom } from "jotai";
+import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -8,6 +9,12 @@ import { decodeJwt } from "./decode-jwt";
 import { JwtPayload } from "jsonwebtoken";
 
 Numeral.defaultFormat("0,0.00");
+
+type DataItem = Record<string, any>;
+
+interface State {
+  open: boolean;
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -28,8 +35,6 @@ export function getCookie(name: string) {
 export const api = axios.create({
   baseURL: "/api/",
 });
-
-type DataItem = Record<string, any>;
 
 export const sanitizeOutput = (
   data: DataItem | DataItem[],
@@ -60,3 +65,7 @@ export const getSession = async (req: NextRequest) => {
   const user = await prisma.user.findUnique({ where: { id: session.id } });
   return user;
 };
+
+export const store = atom<State>({
+  open: false,
+});

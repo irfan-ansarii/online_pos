@@ -13,9 +13,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
         <Navigation />
       </div>
       <Header filters={<Filters />} />
-      <div className="md:p-6">
-        <div className="grid grid-cols-1 md:gap-2 items-center">{children}</div>
-      </div>
+      <div className="md:p-6">{children}</div>
     </>
   );
 };

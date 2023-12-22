@@ -20,7 +20,7 @@ export default async function Layout({
       <Sidebar />
       <div className="flex flex-col h-full min-h-screen w-full">
         <Header />
-        <main className="grow">{children}</main>
+        <main className="flex-1">{children}</main>
         <Footer />
       </div>
       <Bottombar />

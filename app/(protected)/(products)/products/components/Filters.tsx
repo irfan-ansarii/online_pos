@@ -28,6 +28,7 @@ const Filters = () => {
         <DropdownMenuContent className="w-40 bg-background" align="end">
           {["active", "archived", "trash"].map((item) => (
             <DropdownMenuItem
+              key={item}
               className="capitalize"
               onClick={() => {
                 if (queryParams.status === item) {

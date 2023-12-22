@@ -1,4 +1,6 @@
+"use server";
 import axios from "axios";
+import { revalidatePath } from "next/cache";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/api",
@@ -6,7 +8,7 @@ const axiosInstance = axios.create({
 
 interface APIParams {
   params?: { [key: string]: string };
-  data?: { [key: string]: string };
+  data?: { [key: string]: string | any };
   onSuccess?: (data: any) => void;
   onError?: (error: any) => void;
 }
@@ -29,30 +31,31 @@ export const fetchData = async (
     return response.data;
   } catch (error) {
     let errorMessage = "Something went wrong!";
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        errorMessage = error.response.data.message;
-      }
-      errorMessage = error.request.data.message;
+    if (axios.isAxiosError(error) && error.response) {
+      errorMessage = error.response.data.message;
     }
     onError && onError(error);
-    return errorMessage;
+    throw new Error(errorMessage);
   }
 };
 
-export const postData = async ({ url, data }: Props) => {
+export const postData = async (
+  url: string,
+  { data, onSuccess, onError }: APIParams
+) => {
   try {
     const response = await axiosInstance.post(url, data);
+    onSuccess && onSuccess(response.data);
+    revalidatePath("/products");
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        throw Error(error.response.data.message);
-      }
-      throw Error(error.request.data.message);
-    } else {
-      throw Error("Something went wrong!");
+    console.log(error);
+    let errorMessage = "Something went wrong!";
+    if (axios.isAxiosError(error) && error.response) {
+      errorMessage = error.response.data.message;
     }
+    onError && onError(error);
+    throw new Error(errorMessage);
   }
 };
 

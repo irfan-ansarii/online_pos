@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+
 import { ProductStatus, Prisma } from "@prisma/client";
 import { PAGE_SIZE } from "@/config/app";
 import { getSession, sanitizeOutput } from "@/lib/utils";
@@ -85,7 +86,6 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { message: "Internal server error", details: error },
       { status: 500 }
@@ -104,10 +104,10 @@ export async function POST(req: NextRequest) {
     const { imageId, title, description, type, status, variants, options } =
       body;
 
-    const user = await getSession(req);
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    // const user = await getSession(req);
+    // if (!user) {
+    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // }
 
     // get all locations
     const locations = await prisma.location.findMany();
@@ -147,6 +147,7 @@ export async function POST(req: NextRequest) {
     // return response
     return NextResponse.json({ data: product }, { status: 201 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "Internal server error", details: error },
       { status: 500 }

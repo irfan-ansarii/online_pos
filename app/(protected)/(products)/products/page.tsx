@@ -19,13 +19,13 @@ async function Page({ searchParams }: { searchParams: PageProps }) {
     params: searchParams,
   });
 
+  if (data && data.length === 0) {
+    return <EmptyBox />;
+  }
+
   return (
     <>
-      {/* pages */}
       <ProductsClient initialData={data} />
-
-      {data?.length === 0 && <EmptyBox />}
-
       <NewSheet />
     </>
   );
