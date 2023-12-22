@@ -1,16 +1,13 @@
 import { atom } from "jotai";
-import { NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import axios from "axios";
 import Numeral from "numeral";
-import { decodeJwt } from "./decode-jwt";
 import { JwtPayload } from "jsonwebtoken";
 
 Numeral.defaultFormat("0,0.00");
-
-type DataItem = Record<string, any>;
 
 interface State {
   open: boolean;
@@ -36,34 +33,22 @@ export const api = axios.create({
   baseURL: "/api/",
 });
 
-export const sanitizeOutput = (
-  data: DataItem | DataItem[],
-  keys: string[]
-): DataItem | DataItem[] => {
-  const sanitizeItem = (item: DataItem) => {
-    const { ...copy } = item;
-    keys.forEach((key) => {
-      delete copy[key];
-    });
-    return copy;
-  };
-
-  if (Array.isArray(data)) {
-    return data.map(sanitizeItem);
-  }
-
-  return sanitizeItem(data);
-};
-
-export const getSession = async (req: NextRequest) => {
-  const session = decodeJwt(req) as JwtPayload | undefined;
-
+export const getSession = async () => {
+  const session = (await decodeJwt()) as JwtPayload | undefined;
+  console.log("promise", session);
   if (!session) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({ where: { id: session.id } });
-  return user;
+  return await prisma.user.findUnique({ where: { id: session.id } });
+};
+
+export const decodeJwt = async (token) => {
+  if (token) {
+    return await jwt.verify(token, process.env.TOKEN_SECRET!);
+  }
+
+  return null;
 };
 
 export const store = atom<State>({

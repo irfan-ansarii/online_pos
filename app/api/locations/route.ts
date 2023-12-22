@@ -9,10 +9,10 @@ import { getSession } from "@/lib/utils";
  */
 export async function GET(req: NextRequest) {
   try {
-    const session = await getSession(req);
-    if (!session) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    // const session = await getSession(req);
+    // if (!session) {
+    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // }
 
     // get params
     const { searchParams } = req.nextUrl;

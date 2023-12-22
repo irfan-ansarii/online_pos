@@ -1,7 +1,5 @@
 "use server";
-
 import axios from "axios";
-import { revalidatePath } from "next/cache";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/api",
@@ -11,19 +9,14 @@ interface APIParams {
   endpoint: string;
   params?: { [key: string]: string };
   data?: { [key: string]: string | any };
-  revalidate?: string;
 }
 
-export const fetchData = async ({
-  endpoint,
-  params,
-  revalidate,
-}: APIParams) => {
+export const fetchData = async ({ endpoint, params }: APIParams) => {
   try {
     const response = await axiosInstance.get(endpoint, {
       params,
     });
-    revalidate && revalidatePath(revalidate);
+
     return response.data;
   } catch (error) {
     let errorMessage = "Something went wrong!";
@@ -35,11 +28,10 @@ export const fetchData = async ({
   }
 };
 
-export const postData = async ({ endpoint, data, revalidate }: APIParams) => {
+export const postData = async ({ endpoint, data }: APIParams) => {
   try {
     const response = await axiosInstance.post(endpoint, data);
 
-    revalidate && revalidatePath(revalidate);
     return response.data;
   } catch (error) {
     let errorMessage = "Something went wrong!";
@@ -51,10 +43,10 @@ export const postData = async ({ endpoint, data, revalidate }: APIParams) => {
   }
 };
 
-export const updateData = async ({ endpoint, data, revalidate }: APIParams) => {
+export const updateData = async ({ endpoint, data }: APIParams) => {
   try {
     const response = await axiosInstance.put(endpoint, data);
-    revalidate && revalidatePath(revalidate);
+
     return response;
   } catch (error) {
     let errorMessage = "Something went wrong!";
@@ -66,10 +58,10 @@ export const updateData = async ({ endpoint, data, revalidate }: APIParams) => {
   }
 };
 
-export const deleteData = async ({ endpoint, data, revalidate }: APIParams) => {
+export const deleteData = async ({ endpoint, data }: APIParams) => {
   try {
     const response = await axiosInstance.delete(endpoint);
-    revalidate && revalidatePath(revalidate);
+
     return response;
   } catch (error) {
     let errorMessage = "Something went wrong!";
@@ -80,3 +72,12 @@ export const deleteData = async ({ endpoint, data, revalidate }: APIParams) => {
     throw new Error(errorMessage);
   }
 };
+
+// export const auth = async () => {
+//   try {
+//     const res = await fetchData({ endpoint: "/auth/session" });
+//     return res.data;
+//   } catch (error: any) {
+//     return null;
+//   }
+// };

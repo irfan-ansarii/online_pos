@@ -9,11 +9,16 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  // const { session } = auth();
-
-  // if (!session) {
+  // const res = await auth();
+  // console.log(res);
+  // if (!res) {
   //   redirect("/login");
   // }
+  // // const { session } = auth();
+
+  // // if (!session) {
+  // //   redirect("/login");
+  // // }
 
   return (
     <div className="items-start flex flex-col md:grid md:grid-cols-[80px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)]">

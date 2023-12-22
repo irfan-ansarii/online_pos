@@ -3,8 +3,8 @@ import prisma from "@/lib/prisma";
 
 import { ProductStatus, Prisma } from "@prisma/client";
 import { PAGE_SIZE } from "@/config/app";
-import { getSession, sanitizeOutput } from "@/lib/utils";
-
+import { getSession } from "@/lib/utils";
+import { getheader } from "@/lib/decode-jwt";
 /**
  * get products
  * @param req
@@ -12,10 +12,13 @@ import { getSession, sanitizeOutput } from "@/lib/utils";
  */
 export async function GET(req: NextRequest) {
   try {
-    // const user = await getSession(req);
-    // if (!user) {
-    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    // }
+    const t = await getheader();
+    console.log("get header in api server", t);
+    const user = await getSession();
+
+    if (!user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     // get params
     const { searchParams } = req.nextUrl;

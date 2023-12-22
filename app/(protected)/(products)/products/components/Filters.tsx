@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { ListFilter } from "lucide-react";
+import { ListFilter, Check } from "lucide-react";
 import { useQueryParams } from "@/hooks/useQueryParams";
 
 import {
@@ -39,6 +39,9 @@ const Filters = () => {
               }}
             >
               {item}
+              {queryParams.status === item && (
+                <Check className="w-4 h-4 ml-auto text-muted-foreground" />
+              )}
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />

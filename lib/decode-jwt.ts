@@ -1,4 +1,5 @@
-import { NextRequest } from "next/server";
+"use server";
+import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
 export interface JwtPayload {
@@ -9,15 +10,3 @@ export interface JwtPayload {
   iat: number;
   exp: number;
 }
-
-export const decodeJwt = (request: NextRequest) => {
-  try {
-    const token = request.cookies.get("_auth_token")?.value;
-    if (token) {
-      return jwt.verify(token, process.env.TOKEN_SECRET!);
-    }
-    return null;
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
-};

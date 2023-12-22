@@ -6,7 +6,7 @@ import EmptyBox from "@/components/shared/empty-box";
 
 import Pagination from "@/components/shared/pagination";
 import ProductCard from "./components/ProductCard";
-
+import { getheader } from "@/lib/decode-jwt";
 interface PageProps {
   [key: string]: string;
 }
@@ -17,6 +17,8 @@ interface ResponseProps {
 }
 
 async function Page({ searchParams }: { searchParams: PageProps }) {
+  const t = await getheader();
+  console.log("get header in product page ", t);
   const { data, pagination }: ResponseProps = await fetchData({
     endpoint: "/products",
     params: searchParams,

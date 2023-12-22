@@ -7,11 +7,17 @@ export async function GET(req: NextRequest) {
   try {
     const session = decodeJwt(req) as JwtPayload | undefined;
 
-    if (!session)
-      return NextResponse.json(
-        { message: "Missing or invalid credentials" },
+    if (!session) {
+      const response = NextResponse.json(
+        { message: "Unauthorized" },
         { status: 401 }
       );
+      await response.cookies.set("_auth_token", "", {
+        httpOnly: true,
+        expires: new Date(0),
+      });
+      return response;
+    }
 
     const user = await prisma.user.findUnique({
       where: {
