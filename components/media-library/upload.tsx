@@ -1,10 +1,10 @@
 import React from "react";
 import { Loader2, ImagePlus } from "lucide-react";
-import { useCreateFile } from "@/hooks/useFile";
+// import { useCreateFile } from "@/hooks/useFile";
 import { Input } from "@/components/ui/input";
 
 const Upload = () => {
-  const { isLoading, mutate } = useCreateFile();
+  // const { isLoading, mutate } = useCreateFile();
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -16,15 +16,15 @@ const Upload = () => {
       form.append("files", file);
     }
 
-    mutate(form, {
-      onSuccess: (response) => console.log("success;", response),
-      onError: (error) => console.log("error:", error),
-    });
+    // mutate(form, {
+    //   onSuccess: (response) => console.log("success;", response),
+    //   onError: (error) => console.log("error:", error),
+    // });
   };
 
   return (
     <div className="relative rounded-md bg-background transition duration-300 border-2 border-dashed h-20 mb-3 hover:bg-accent">
-      <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+      {/* <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
         {isLoading ? (
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         ) : (
@@ -39,7 +39,7 @@ const Upload = () => {
           className="h-full file:hidden opacity-0 cursor-pointer"
           onChange={onChange}
         />
-      )}
+      )} */}
     </div>
   );
 };

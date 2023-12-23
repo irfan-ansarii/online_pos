@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 
 import { useToggle } from "@uidotdev/usehooks";
-import { useFiles } from "@/hooks/useFile";
+// import { useFiles } from "@/hooks/useFile";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -32,12 +32,12 @@ const MediaLibrary: React.FC<Props> = ({
   const [query, setQuery] = useState("");
   const [open, toggle] = useToggle(false);
 
-  const {
-    data: files,
-    isLoading,
-    isError,
-    error,
-  } = useFiles({ search: query });
+  // const {
+  //   data: files,
+  //   isLoading,
+  //   isError,
+  //   error,
+  // } = useFiles({ search: query });
 
   const handleSelect = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
@@ -72,7 +72,7 @@ const MediaLibrary: React.FC<Props> = ({
               <div className="col-span-3">
                 <Upload />
               </div>
-              {isLoading
+              {/* {isLoading
                 ? [...Array(6)].map((_, i) => (
                     <Skeleton className="aspect-square" key={i} />
                   ))
@@ -91,7 +91,7 @@ const MediaLibrary: React.FC<Props> = ({
                   className="col-span-3"
                   title={error?.response?.data?.message}
                 />
-              )}
+              )} */}
             </div>
           </div>
         </div>

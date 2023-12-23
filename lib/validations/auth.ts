@@ -10,6 +10,7 @@ export const recoverValidation = z.object({
 });
 
 export const otpValidation = z.object({
+  email: z.string().email({ message: "Enter valid email" }),
   otp: z
     .string()
     .nonempty({ message: "OTP is required" })
@@ -19,6 +20,12 @@ export const otpValidation = z.object({
 
 export const resetValidation = z
   .object({
+    email: z.string().email({ message: "Enter valid email" }),
+    otp: z
+      .string()
+      .nonempty({ message: "OTP is required" })
+      .min(6, { message: "Incorrect OTP" })
+      .max(6, { message: "Incorrect OTP" }),
     newPassword: z
       .string()
       .nonempty({ message: "New password is required" })

@@ -12,20 +12,20 @@ import LocationDialog from "./location-dialog";
 import { ChevronDown, Power } from "lucide-react";
 
 import { useRouter } from "next/navigation";
-import { useLogout } from "@/hooks/useAuth";
+// import { useLogout } from "@/hooks/useAuth";
 import { useAuthContext } from "@/hooks/useAuthContext";
 
 const Profile = () => {
   const router = useRouter();
   const { session } = useAuthContext();
-  const { mutate } = useLogout();
+  // const { mutate } = useLogout();
 
   const logout = () => {
-    mutate({
-      onSuccess: () => {
-        router.replace("/login");
-      },
-    });
+    // mutate({
+    //   onSuccess: () => {
+    //     router.replace("/login");
+    //   },
+    // });
   };
   return (
     <DropdownMenu modal={false}>
@@ -51,11 +51,11 @@ const Profile = () => {
         <DropdownMenuSeparator className="mb-3" />
         <DropdownMenuItem>Profile</DropdownMenuItem>
 
-        <LocationDialog>
+        {/* <LocationDialog>
           <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground">
             Branches
           </div>
-        </LocationDialog>
+        </LocationDialog> */}
 
         <DropdownMenuSeparator />
         <DropdownMenuItem

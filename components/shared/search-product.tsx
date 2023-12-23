@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
-import { useInventory } from "@/hooks/useProduct";
+// import { useInventory } from "@/hooks/useProduct";
 
 import {
   CommandGroup,
@@ -30,7 +30,7 @@ const AutoComplete = ({
 
   const [open, toggle] = useToggle(false);
   const [inputValue, setInputValue] = useState("");
-  const { data: inventory, isLoading } = useInventory({ search: inputValue });
+  // const { data: inventory, isLoading } = useInventory({ search: inputValue });
 
   const handleSelectOption = useCallback(
     (selected: Option) => {

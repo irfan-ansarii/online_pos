@@ -6,7 +6,6 @@ import Numeral from "numeral";
 import { useRouter } from "next/navigation";
 import { store } from "@/lib/utils";
 
-import { fetchData, postData } from "@/lib/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Minus, Plus, X } from "lucide-react";
 import { transferValidation } from "@/lib/validations/product";
@@ -40,7 +39,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import AutoComplete from "@/components/shared/search-product";
-import { useSession } from "@/hooks/useAuth";
 
 import { Badge } from "@/components/ui/badge";
 import { AvatarItem } from "@/components/shared/avatar";
@@ -139,7 +137,7 @@ const NewSheet = () => {
     try {
       setLoading(true);
 
-      await postData({ endpoint: "/transfers", data: values });
+      // await postData({ endpoint: "/transfers", data: values });
 
       toast({
         variant: "success",

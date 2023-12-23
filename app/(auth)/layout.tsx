@@ -1,14 +1,15 @@
 import React from "react";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
-  // const { session } = auth();
+async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const session = auth();
 
-  // if (session) {
-  //   redirect("/dashboard");
-  // }
+  if (session) {
+    redirect("/dashboard");
+  }
 
-  return children;
-};
+  return <>{children}</>;
+}
 
-export default layout;
+export default AuthLayout;

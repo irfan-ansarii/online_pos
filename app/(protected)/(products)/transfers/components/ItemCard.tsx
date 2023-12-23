@@ -6,7 +6,6 @@ import { Download, Upload } from "lucide-react";
 
 import { useToggle } from "@uidotdev/usehooks";
 import { useAuthContext } from "@/hooks/useAuthContext";
-import { useLocations } from "@/hooks/useUser";
 
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -25,20 +24,12 @@ export interface TransferStatus {
 const ItemCard = ({ transfer }: { transfer: any }) => {
   const { session } = useAuthContext();
   const [open, toggle] = useToggle();
-  const { data: locations, isLoading } = useLocations();
 
   const badge: TransferStatus = {
     pending: "bg-info hover:bg-info",
     completed: "bg-success hover:bg-success",
     cancelled: "bg-destructive hover:bg-destructive",
   };
-
-  const destination = React.useMemo(() => {
-    if (isLoading) return {};
-    return locations?.data?.data?.find(
-      (loc: any) => loc.id === transfer.fromId
-    );
-  }, [locations]);
 
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
@@ -74,7 +65,7 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
               ) : (
                 <Upload className="w-5 h-5 text-warning" />
               )}
-              <span>{destination?.name}</span>
+              {/* <span>{destination?.name}</span> */}
             </div>
             <div className="text-right space-y-0.5 ml-auto truncate">
               <Badge

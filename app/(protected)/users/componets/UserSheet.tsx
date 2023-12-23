@@ -8,7 +8,7 @@ import { useAuthContext } from "@/hooks/useAuthContext";
 import { useToggle } from "@uidotdev/usehooks";
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
-import { useUpdateUser } from "@/hooks/useUser";
+
 import {
   Sheet,
   SheetContent,
@@ -43,8 +43,9 @@ const UserSheet = ({
   children: React.ReactNode;
 }) => {
   const { locations } = useAuthContext();
+  const [loading, setLoading] = React.useState(false);
   const [open, toggle] = useToggle();
-  const { mutate, isLoading } = useUpdateUser();
+
   const form = useForm<z.infer<typeof updateUserValidation>>({
     resolver: zodResolver(updateUserValidation),
     defaultValues: {
@@ -60,22 +61,22 @@ const UserSheet = ({
   });
 
   const onSubmit = (values: z.infer<typeof updateUserValidation>) => {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Updated successfully",
-        });
-        form.reset();
-        toggle();
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error?.response?.data?.message || "Something went wrong",
-        });
-      },
-    });
+    // mutate(values, {
+    //   onSuccess: (res) => {
+    //     toast({
+    //       variant: "success",
+    //       title: "Updated successfully",
+    //     });
+    //     form.reset();
+    //     toggle();
+    //   },
+    //   onError: (error: any) => {
+    //     toast({
+    //       variant: "error",
+    //       title: error?.response?.data?.message || "Something went wrong",
+    //     });
+    //   },
+    // });
   };
 
   if (user?.role === "user") {
@@ -92,7 +93,7 @@ const UserSheet = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col h-full relative"
           >
-            {isLoading && (
+            {loading && (
               <div className="absolute inset-0 bg-transparent z-20"></div>
             )}
             <SheetHeader className="md:pb-2">
@@ -244,7 +245,7 @@ const UserSheet = ({
               />
             </div>
             <Button type="submit" className="w-full">
-              {isLoading ? <Loader2 className="w-5 h-5" /> : "Save"}
+              {loading ? <Loader2 className="w-5 h-5" /> : "Save"}
             </Button>
           </form>
         </Form>

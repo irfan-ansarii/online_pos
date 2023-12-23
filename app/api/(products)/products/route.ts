@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { ProductStatus, Prisma } from "@prisma/client";
 import { PAGE_SIZE } from "@/config/app";
 import { getSession } from "@/lib/utils";
-import { getheader } from "@/lib/decode-jwt";
+import { getheader } from "@/lib/auth";
 /**
  * get products
  * @param req

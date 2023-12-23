@@ -1,6 +1,4 @@
 import React, { createContext, useContext, ReactNode } from "react";
-import { useSession } from "./useAuth";
-import { useLocations } from "./useUser";
 
 // Define the type for your session context
 interface SessionContextProps {
@@ -15,15 +13,12 @@ const SessionContext = createContext<SessionContextProps | null>(null);
 export const AuthContextProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const { data: session, isLoading } = useSession();
-  const { data: locations } = useLocations();
-
   return (
     <SessionContext.Provider
       value={{
-        session: session?.data?.data,
-        loading: isLoading,
-        locations: locations?.data?.data,
+        session: null,
+        loading: false,
+        locations: null,
       }}
     >
       {children}

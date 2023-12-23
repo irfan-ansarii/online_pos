@@ -1,9 +1,17 @@
 "use client";
 import * as z from "zod";
 import * as React from "react";
+import { verifyOTP } from "@/actions/auth-actions";
+import { sendOTP } from "@/actions/auth-actions";
+
+import { otpValidation } from "@/lib/validations/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "@/components/ui/use-toast";
+import { useLocalStorage } from "@uidotdev/usehooks";
+
 import { Loader2 } from "lucide-react";
 import {
   Form,
@@ -16,57 +24,82 @@ import {
 import { CardTitle, CardHeader, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { otpValidation } from "@/lib/validations/auth";
-import { useToast } from "@/components/ui/use-toast";
-import { useVerifyOTP, useSendOTP } from "@/hooks/useAuth";
-import { getCookie } from "@/lib/utils";
 
 export function VerifyOtpForm() {
-  const { mutate, isLoading } = useVerifyOTP();
-  const [resent, setResent] = React.useState(false);
-  const { mutate: sendOTP, isLoading: otpSending } = useSendOTP();
+  const [resentAt, setResentAt] = React.useState<null | number>(null);
+  const [resetData, setResetData] = useLocalStorage<string | null>(
+    "_auth",
+    null
+  );
+  const [loading, setLoading] = React.useState(false);
   const router = useRouter();
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof otpValidation>>({
     resolver: zodResolver(otpValidation),
     defaultValues: {
+      email: "",
       otp: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof otpValidation>) {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: res.data.message,
-        });
-        router.replace("/recover-password?step=3");
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+    try {
+      setLoading(true);
+      await verifyOTP(values);
+      toast({
+        variant: "success",
+        title: "OTP verified",
+      });
+
+      setResetData(JSON.stringify(values));
+
+      router.replace("/recover-password?step=3");
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function resenOTP() {
+    const email = form.getValues("email");
+
+    try {
+      setLoading(true);
+      await sendOTP({ email });
+      setResentAt(Date.now());
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   React.useEffect(() => {
-    const email = getCookie("_recovery_email");
-    if (!email) {
+    if (resetData) {
+      const parsed = JSON.parse(resetData);
+
+      form.setValue("email", parsed.email);
+    } else {
       router.push("/recover-password");
     }
-  });
+  }, []);
 
   return (
     <>
       <CardHeader className="p-0 pb-8">
         <CardTitle className="mb-2">Verify OTP</CardTitle>
         <CardDescription>
-          OTP has been {resent ? "resent" : "sent"} to{" "}
-          {getCookie("_recovery_email")}
+          <span>OTP has been sent to</span>
+          <span className="text-foreground underline pl-1">
+            {form.watch("email")}
+          </span>
         </CardDescription>
       </CardHeader>
 
@@ -76,7 +109,7 @@ export function VerifyOtpForm() {
           onSubmit={form.handleSubmit(onSubmit)}
         >
           {/*  loading */}
-          {(isLoading || otpSending) && (
+          {loading && (
             <div className="absolute w-full h-full transparent z-20"></div>
           )}
 
@@ -100,26 +133,17 @@ export function VerifyOtpForm() {
               <span className="text-muted-foreground">
                 Did not receive the OTP?
               </span>
-              <Button
-                variant="link"
-                type="button"
-                onClick={() => {
-                  sendOTP(
-                    { email: getCookie("_recovery_email") || "" },
-                    {
-                      onSuccess: () => {
-                        setResent(true);
-                      },
-                    }
-                  );
-                }}
-              >
-                {otpSending ? "Sending..." : "Resend"}
+              <Button variant="link" type="button" onClick={resenOTP}>
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  "Resend"
+                )}
               </Button>
             </div>
 
             <Button type="submit">
-              {isLoading ? (
+              {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 "Verify"

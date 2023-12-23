@@ -1,6 +1,7 @@
 "use client";
 import * as z from "zod";
 import * as React from "react";
+import { resetPassword } from "@/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,39 +18,56 @@ import { CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resetValidation } from "@/lib/validations/auth";
-import { useToast } from "@/components/ui/use-toast";
-import { useResetPassword } from "@/hooks/useAuth";
+import { toast } from "@/components/ui/use-toast";
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 export function ResetPasswordForm() {
-  const { mutate, isLoading } = useResetPassword();
+  const [loading, setLoading] = React.useState(false);
+  const [resetData, setResetData] = useLocalStorage<string | null>(
+    "_auth",
+    null
+  );
   const router = useRouter();
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof resetValidation>>({
     resolver: zodResolver(resetValidation),
     defaultValues: {
+      email: "",
+      otp: "",
       newPassword: "",
       confirmNewPassword: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof resetValidation>) {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: res.data.message,
-        });
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+    try {
+      setLoading(true);
+      await resetPassword(values);
+      toast({
+        variant: "success",
+        title: "Password reset successfull",
+      });
+      setResetData(null);
+      router.refresh();
+      router.push("/login");
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
-
+  React.useEffect(() => {
+    if (resetData) {
+      const parsed = JSON.parse(resetData);
+      form.setValue("email", parsed.email);
+      form.setValue("otp", parsed.otp);
+    } else {
+      router.push("/recover-password");
+    }
+  }, []);
   return (
     <>
       <CardHeader className="p-0 pb-8">
@@ -65,7 +83,7 @@ export function ResetPasswordForm() {
           onSubmit={form.handleSubmit(onSubmit)}
         >
           {/*  loading */}
-          {isLoading && (
+          {loading && (
             <div className="absolute w-full h-full transparent z-20"></div>
           )}
 
@@ -109,7 +127,7 @@ export function ResetPasswordForm() {
             )}
           />
           <Button type="submit">
-            {isLoading ? (
+            {loading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               "Reset Password"

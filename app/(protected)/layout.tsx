@@ -1,24 +1,21 @@
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+
 import Sidebar from "@/components/global/sidebar";
 import Header from "@/components/global/header";
 import Footer from "@/components/global/footer";
 import Bottombar from "@/components/global/bottom-bar";
 
-export default async function Layout({
+export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // const res = await auth();
-  // console.log(res);
-  // if (!res) {
-  //   redirect("/login");
-  // }
-  // // const { session } = auth();
+  const session = auth();
 
-  // // if (!session) {
-  // //   redirect("/login");
-  // // }
+  if (!session) {
+    redirect("/login");
+  }
 
   return (
     <div className="items-start flex flex-col md:grid md:grid-cols-[80px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)]">

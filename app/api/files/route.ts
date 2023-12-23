@@ -2,7 +2,7 @@ import bcryptjs from "bcryptjs";
 import { writeFile } from "fs/promises";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { decodeJwt, JwtPayload } from "@/lib/decode-jwt";
+import { decodeJwt, JwtPayload } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 import { Prisma } from "@prisma/client";
 

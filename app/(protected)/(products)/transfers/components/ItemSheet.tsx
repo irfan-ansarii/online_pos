@@ -3,8 +3,6 @@ import React from "react";
 
 import Numeral from "numeral";
 
-import { useLocations } from "@/hooks/useUser";
-import { useUpdateTransfer } from "@/hooks/useProduct";
 import { useAuthContext } from "@/hooks/useAuthContext";
 
 import {
@@ -28,21 +26,14 @@ import { AvatarItem } from "@/components/shared/avatar";
 import { Label } from "@/components/ui/label";
 
 const ItemSheet = ({ transfer }: { transfer: any }) => {
-  const { data: locations, isLoading } = useLocations();
   const { session } = useAuthContext();
-  const { mutate, isLoading: isUpdating } = useUpdateTransfer();
-
-  const destination = React.useMemo(() => {
-    if (isLoading) return {};
-    return locations?.data?.data?.find((loc: any) => loc.id === transfer.toId);
-  }, [locations]);
 
   return (
     <SheetContent className="md:max-w-lg">
       <div className="flex flex-col h-full">
-        {(isLoading || isUpdating) && (
+        {/* {(isLoading || isUpdating) && (
           <div className="absolute w-full h-full top-0 left-0 z-20"></div>
-        )}
+        )} */}
         <SheetHeader className="md:pb-2">
           <SheetTitle>Transfer</SheetTitle>
         </SheetHeader>
@@ -51,7 +42,7 @@ const ItemSheet = ({ transfer }: { transfer: any }) => {
           <Label>
             {session.locationId === transfer.fromId ? "Destination" : "Source"}
           </Label>
-          <Select defaultValue={`${destination.id}`}>
+          {/* <Select defaultValue={`${destination.id}`}>
             <SelectTrigger>
               <SelectValue placeholder="Select Destination" />
             </SelectTrigger>
@@ -61,7 +52,7 @@ const ItemSheet = ({ transfer }: { transfer: any }) => {
                 {destination?.name}
               </SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
 
         <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">

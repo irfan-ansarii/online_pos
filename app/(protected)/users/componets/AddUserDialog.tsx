@@ -26,11 +26,11 @@ import { Plus, Loader2 } from "lucide-react";
 import { userInviteValidation } from "@/lib/validations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
-import { useInviteUser } from "@/hooks/useUser";
 
 import { useAuthContext } from "@/hooks/useAuthContext";
 
 const AddUserDialog = ({ className }: { className?: string }) => {
+  const [loading, setLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const form = useForm<z.infer<typeof userInviteValidation>>({
     resolver: zodResolver(userInviteValidation),
@@ -40,25 +40,25 @@ const AddUserDialog = ({ className }: { className?: string }) => {
     },
   });
   const { toast } = useToast();
-  const { mutate, isLoading } = useInviteUser();
+
   const { locations } = useAuthContext();
 
   const onSubmit = (values: z.infer<typeof userInviteValidation>) => {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "User been invited successfully!",
-        });
-        setOpen(false);
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message,
-        });
-      },
-    });
+    // mutate(values, {
+    //   onSuccess: (res) => {
+    //     toast({
+    //       variant: "success",
+    //       title: "User been invited successfully!",
+    //     });
+    //     setOpen(false);
+    //   },
+    //   onError: (error: any) => {
+    //     toast({
+    //       variant: "error",
+    //       title: error.response.data.message,
+    //     });
+    //   },
+    // });
   };
 
   return (
@@ -86,7 +86,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
             </CardDescription>
           </CardHeader>
           {/*  loading */}
-          {isLoading && (
+          {loading && (
             <div className="absolute w-full h-full top-0 left-0 z-20"></div>
           )}
           <Form {...form}>
@@ -170,7 +170,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
               />
 
               <Button type="submit" className="w-full">
-                {isLoading ? (
+                {loading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   "Invite"

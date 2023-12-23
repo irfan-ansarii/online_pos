@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { decodeJwt, JwtPayload } from "@/lib/decode-jwt";
+import { decodeJwt, JwtPayload } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 /**
  * get products

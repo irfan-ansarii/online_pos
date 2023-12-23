@@ -1,9 +1,15 @@
 "use client";
 import * as z from "zod";
 import React from "react";
+
+import { signup } from "@/actions/auth-actions";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginValidation } from "@/lib/validations/auth";
+
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "@/components/ui/use-toast";
+
 import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 import {
@@ -14,18 +20,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { loginValidation } from "@/lib/validations/auth";
-import { toast } from "@/components/ui/use-toast";
-import { useSignup } from "@/hooks/useAuth";
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function SignupForm({ ...props }: UserAuthFormProps) {
+export function SignupForm() {
+  const [loading, setLoading] = React.useState(false);
   const router = useRouter();
 
-  const { mutate, isLoading } = useSignup();
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const form = useForm<z.infer<typeof loginValidation>>({
     resolver: zodResolver(loginValidation),
@@ -36,21 +37,24 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
   });
 
   async function onSubmit(values: z.infer<typeof loginValidation>) {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: res.data.message,
-        });
-        router.replace("/login");
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+    try {
+      setLoading(true);
+      await signup(values);
+      toast({
+        variant: "success",
+        title: "Logged in successfully",
+      });
+
+      router.refresh();
+      router.replace("/login");
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -60,7 +64,7 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         {/* loading */}
-        {isLoading && (
+        {loading && (
           <div className="absolute w-full h-full transparent z-20"></div>
         )}
 
@@ -118,7 +122,7 @@ export function SignupForm({ ...props }: UserAuthFormProps) {
         />
 
         <Button type="submit">
-          {isLoading ? (
+          {loading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             "Create Account"

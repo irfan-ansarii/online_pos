@@ -2,11 +2,18 @@
 import * as z from "zod";
 import * as React from "react";
 import Link from "next/link";
+
+import { login } from "@/actions/auth-actions";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginValidation } from "@/lib/validations/auth";
+
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useQueryParams } from "@/hooks/useQueryParams";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "@/components/ui/use-toast";
+
 import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
+
 import {
   Form,
   FormControl,
@@ -19,16 +26,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { loginValidation } from "@/lib/validations/auth";
-import { useToast } from "@/components/ui/use-toast";
-import { useLogin } from "@/hooks/useAuth";
 
 export function LoginForm() {
   const { queryParams } = useQueryParams();
+  const [loading, setLoading] = React.useState(false);
 
-  const { mutate, isLoading } = useLogin();
   const router = useRouter();
-  const { toast } = useToast();
+
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
 
   const form = useForm<z.infer<typeof loginValidation>>({
@@ -40,25 +44,26 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof loginValidation>) {
-    mutate(values, {
-      onSuccess: () => {
-        toast({
-          variant: "success",
-          title: "Logged in successfully!",
-        });
+    try {
+      setLoading(true);
+      await login(values);
+      toast({
+        variant: "success",
+        title: "Logged in successfully!",
+      });
 
-        router.refresh();
-        router.replace(
-          queryParams.redirect ? queryParams.redirect : "/dashboard"
-        );
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+      router.replace(
+        queryParams.redirect ? queryParams.redirect : "/dashboard"
+      );
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -68,7 +73,7 @@ export function LoginForm() {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         {/*  loading */}
-        {isLoading && (
+        {loading && (
           <div className="absolute w-full h-full transparent z-20"></div>
         )}
 
@@ -139,7 +144,7 @@ export function LoginForm() {
           </Button>
         </div>
         <Button type="submit">
-          {isLoading ? (
+          {loading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             "Login"

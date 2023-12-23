@@ -3,10 +3,9 @@ import React from "react";
 import Numeral from "numeral";
 import { useToggle } from "@uidotdev/usehooks";
 import { useWatch, useFormContext } from "react-hook-form";
-import { useCreateSale } from "@/hooks/useSale";
+
 import { useToast } from "@/components/ui/use-toast";
-import { useSession } from "@/hooks/useAuth";
-import SimpleBar from "simplebar-react";
+
 import {
   Dialog,
   DialogContent,
@@ -39,12 +38,10 @@ import EmployeeTab from "./EmployeeTab";
 import CustomerTab from "./CustomerTab";
 
 const tabs = ["employee", "customer", "payment", "completed"];
-
+const [loading, setLoading] = React.useState(false);
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
-  const session = useSession();
 
-  const { isLoading, mutate } = useCreateSale();
   const { toast } = useToast();
   const [open, toggle] = useToggle(false);
   const [active, setActive] = React.useState("employee");
@@ -87,7 +84,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
    * @param values
    */
   const onSubmit = (values: any) => {
-    const locationId = session?.data?.data?.data.locationId;
+    const locationId = null; // session?.data?.data?.data.locationId;
 
     values.title = "GN1234";
     values.locationId = locationId;
@@ -149,22 +146,22 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     }
 
     // call react query mutation
-    mutate(values, {
-      onSuccess: () => {
-        toast({
-          variant: "success",
-          title: "Sale created successfully!",
-        });
-        form.reset();
-        toggle();
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+    // mutate(values, {
+    //   onSuccess: () => {
+    //     toast({
+    //       variant: "success",
+    //       title: "Sale created successfully!",
+    //     });
+    //     form.reset();
+    //     toggle();
+    //   },
+    //   onError: (error: any) => {
+    //     toast({
+    //       variant: "error",
+    //       title: error.response.data.message || "Something went wrong",
+    //     });
+    //   },
+    // });
   };
 
   /**
@@ -175,7 +172,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     (active === tabs[1] && !form.watch("customerId"));
 
   /** button text */
-  const buttonText = isLoading ? (
+  const buttonText = loading ? (
     <Loader2 className="h-4 w-4 animate-spin" />
   ) : (
     {
@@ -233,9 +230,9 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
 
           {/* payment and create sale tab */}
           <TabsContent value="payment" className="mt-0">
-            {isLoading && (
+            {/* {isLoading && (
               <div className="absolute rounded-md inset-0 z-20"></div>
-            )}
+            )} */}
             <DialogHeader className="text-left pb-6">
               <div className="flex item-center mb-3">
                 {headerIcon}
@@ -257,7 +254,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                 </div>
               </div>
             </DialogHeader>
-            <SimpleBar className="h-72">
+            <div className="h-72">
               <Accordion type="single" className="w-full space-y-2">
                 {form.getValues("transactions").map((item: any, i: number) => (
                   <FormField
@@ -297,7 +294,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                   />
                 ))}
               </Accordion>
-            </SimpleBar>
+            </div>
           </TabsContent>
 
           {/* sale created tab */}
@@ -308,7 +305,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                 Select the option bellow send or print invoice
               </DialogDescription>
             </DialogHeader>
-            <SimpleBar className="h-80">
+            <div className="h-80">
               <RadioGroup defaultValue="card" className="flex flex-col">
                 {["Email", "Text", "What's App", "Print"].map((el) => (
                   <div key={el} className="relative">
@@ -331,7 +328,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                   </div>
                 ))}
               </RadioGroup>
-            </SimpleBar>
+            </div>
           </TabsContent>
           <div className="space-y-3 mt-3">
             {/* indicator */}

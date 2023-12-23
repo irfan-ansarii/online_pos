@@ -1,7 +1,7 @@
 import React from "react";
 import { MapPin, Settings2, Pencil } from "lucide-react";
 import Numeral from "numeral";
-import { useProduct } from "@/hooks/useProduct";
+
 import {
   Sheet,
   SheetContent,

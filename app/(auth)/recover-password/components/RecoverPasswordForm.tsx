@@ -2,9 +2,17 @@
 import * as z from "zod";
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+
+import { sendOTP } from "@/actions/auth-actions";
+
+import { recoverValidation } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/use-toast";
+import { useLocalStorage } from "@uidotdev/usehooks";
+
 import { Loader2, Mail } from "lucide-react";
 import {
   Form,
@@ -17,14 +25,12 @@ import {
 import { CardTitle, CardHeader, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { recoverValidation } from "@/lib/validations/auth";
-import { useToast } from "@/components/ui/use-toast";
-import { useSendOTP } from "@/hooks/useAuth";
 
 export function RecoverPasswordForm() {
-  const { mutate, isLoading } = useSendOTP();
+  const [_, setResetData] = useLocalStorage<string | null>("_auth", null);
+
+  const [loading, setLoading] = React.useState(false);
   const router = useRouter();
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof recoverValidation>>({
     resolver: zodResolver(recoverValidation),
@@ -34,21 +40,25 @@ export function RecoverPasswordForm() {
   });
 
   async function onSubmit(values: z.infer<typeof recoverValidation>) {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: res.data.message,
-        });
-        router.push(`/recover-password?step=2`);
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+    try {
+      setLoading(true);
+      await sendOTP(values);
+      toast({
+        variant: "success",
+        title: "OTP has been sent successfully",
+      });
+      setResetData(JSON.stringify(values));
+
+      router.refresh();
+      router.push(`/recover-password?step=2`);
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -66,7 +76,7 @@ export function RecoverPasswordForm() {
           onSubmit={form.handleSubmit(onSubmit)}
         >
           {/*  loading */}
-          {isLoading && (
+          {loading && (
             <div className="absolute w-full h-full transparent z-20"></div>
           )}
 
@@ -91,7 +101,7 @@ export function RecoverPasswordForm() {
 
           <div className="flex flex-col gap-3">
             <Button type="submit">
-              {isLoading ? (
+              {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 "Send OTP"

@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 
 import bcryptjs from "bcryptjs";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { sanitize } from "@/lib/sanitize-user";
-import { decodeJwt } from "@/lib/decode-jwt";
+import { auth } from "@/lib/auth";
 
 /**
  * login
@@ -22,7 +22,10 @@ export async function login(values: { email: string; password: string }) {
     }
 
     // find user
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { location: true },
+    });
 
     // validate password
     const isValid = await bcryptjs.compare(password, user?.password as string);
@@ -40,6 +43,10 @@ export async function login(values: { email: string; password: string }) {
       id: user.id,
       email: user.email,
       role: user.role,
+      location: {
+        id: user.locationId,
+        name: user.location?.name,
+      },
       status: user.status,
     };
 
@@ -48,15 +55,11 @@ export async function login(values: { email: string; password: string }) {
       expiresIn: "2d",
     });
 
-    const response = {
-      message: "Logged in successfully",
-      data: sanitize(user),
-      token,
-    };
-    const twoDays = 2 * 24 * 60 * 60 * 1000;
+    const twoDays = 48 * 60 * 60 * 1000;
 
     cookies().set("_auth_token", token, {
-      expires: Date.now() - twoDays,
+      expires: Date.now() + twoDays,
+      httpOnly: true,
     });
 
     // update last sign in
@@ -67,9 +70,13 @@ export async function login(values: { email: string; password: string }) {
       },
     });
 
-    return response;
+    return {
+      message: "Logged in successfully",
+      data: sanitize(user),
+      token,
+    };
   } catch (error: any) {
-    throw new Error("Internal server error");
+    throw new Error(error.message || "Internal server error");
   }
 }
 
@@ -84,7 +91,7 @@ export async function logout() {
       message: "Logout successfull",
     };
   } catch (error: any) {
-    throw new Error("Internal server error");
+    throw new Error(error.message || "Internal server error");
   }
 }
 
@@ -92,12 +99,19 @@ export async function logout() {
  * signup
  * @param values
  */
-export async function signup(values: { email: string; password: string }) {
+export async function signup(values: {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}) {
   try {
-    const { email, password } = values;
+    const { email, password, confirmPassword } = values;
 
     if (!email || !password) {
       throw new Error("Email and password is required");
+    }
+    if (password! === confirmPassword) {
+      throw new Error("Password do not match");
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
@@ -129,14 +143,18 @@ export async function signup(values: { email: string; password: string }) {
       message: "Account created successfully",
       data: sanitize(response),
     };
-  } catch (error) {
-    throw new Error("Internal server error");
+  } catch (error: any) {
+    throw new Error(error.message || "Internal server error");
   }
 }
 
+/**
+ * get current user session
+ * @returns
+ */
 export async function session() {
   try {
-    const session = decodeJwt() as JwtPayload | undefined;
+    const session = auth();
 
     if (!session) {
       cookies().set("_auth_token", "", {
@@ -149,6 +167,7 @@ export async function session() {
 
     const user = await prisma.user.findUnique({
       where: {
+        // @ts-ignore
         id: session.id,
       },
       include: {
@@ -157,8 +176,8 @@ export async function session() {
     });
 
     return { data: sanitize(user) };
-  } catch (err) {
-    throw new Error("Internal server error");
+  } catch (error: any) {
+    throw new Error(error.message || "Internal server error");
   }
 }
 
@@ -208,7 +227,7 @@ export async function sendOTP(values: { email: string }) {
       data: { email },
     };
   } catch (error: any) {
-    throw new Error("Internal server error");
+    throw new Error(error.message || "Internal server error");
   }
 }
 
@@ -240,7 +259,7 @@ export async function verifyOTP(values: { email: string; otp: string }) {
       message: "OTP verified successfully",
     };
   } catch (error: any) {
-    throw new Error("Internal server error");
+    throw new Error(error.message || "Internal server error");
   }
 }
 
@@ -281,7 +300,7 @@ export async function resetPassword(values: {
       data: {
         password: hashedPassword,
         recoveryOtp: "",
-        recoverySentAt: "",
+        recoverySentAt: null,
       },
     });
 
@@ -290,6 +309,6 @@ export async function resetPassword(values: {
       message: "Password reset successfull",
     };
   } catch (error: any) {
-    throw new Error("Internal server error");
+    throw new Error(error.message || "Internal server error");
   }
 }

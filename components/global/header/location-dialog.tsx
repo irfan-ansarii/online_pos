@@ -1,10 +1,6 @@
 "use client";
 import React from "react";
 
-import { useSwitchLocation } from "@/hooks/useUser";
-import { useSession } from "@/hooks/useAuth";
-import { useAuthContext } from "@/hooks/useAuthContext";
-
 import {
   Dialog,
   DialogContent,
@@ -21,38 +17,37 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CreateLocation from "./location-create";
 import { Home, Loader2, Plus } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { auth } from "@/lib/auth";
 
 const LocationDialog = () => {
+  const [loading, setLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-
-  const { mutate, isLoading } = useSwitchLocation();
-  const { locations, session } = useAuthContext();
-  const { refetch: refreshSession } = useSession();
+  const session = auth();
 
   const onChange = (value: string) => {
     const locationId = Number(value);
 
-    mutate(
-      { locationId },
-      {
-        onSuccess: (res) => {
-          toast({
-            variant: "success",
-            title: `Location changed to ${res.data.data.location.name}`,
-          });
-          refreshSession();
-        },
-        onError: (err: any) => {
-          toast({
-            variant: "error",
-            title: err.response.data.message,
-          });
-        },
-        onSettled: () => {
-          setOpen(false);
-        },
-      }
-    );
+    // mutate(
+    //   { locationId },
+    //   {
+    //     onSuccess: (res) => {
+    //       toast({
+    //         variant: "success",
+    //         title: `Location changed to ${res.data.data.location.name}`,
+    //       });
+    //       refreshSession();
+    //     },
+    //     onError: (err: any) => {
+    //       toast({
+    //         variant: "error",
+    //         title: err.response.data.message,
+    //       });
+    //     },
+    //     onSettled: () => {
+    //       setOpen(false);
+    //     },
+    //   }
+    // );
   };
 
   return (
@@ -82,7 +77,7 @@ const LocationDialog = () => {
           className="space-y-2 mb-4"
           onValueChange={onChange}
         >
-          {locations?.map((item: any) => (
+          {/* {locations?.map((item: any) => (
             <Label
               key={item.id}
               htmlFor={`${item.id}`}
@@ -104,17 +99,13 @@ const LocationDialog = () => {
 
           {(!locations || locations?.length == 0) && (
             <div>No Location Found</div>
-          )}
+          )} */}
         </RadioGroup>
         <CreateLocation
           trigger={
             <DialogTrigger asChild>
-              <Button
-                variant="secondary"
-                className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? (
+              <Button variant="secondary" className="w-full" disabled={loading}>
+                {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   <>
