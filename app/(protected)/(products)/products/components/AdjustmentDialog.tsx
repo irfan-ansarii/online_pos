@@ -2,11 +2,12 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { adjustmentValidation } from "@/lib/validations/product";
+import { createAdjustment } from "@/actions/adjustment-actions";
 
 import { useToggle } from "@uidotdev/usehooks";
-import { useCreateAdjustment } from "@/hooks/useProduct";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 import { Loader2 } from "lucide-react";
 
@@ -36,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import React from "react";
 
 function AdjustmentDialog({
   children,
@@ -45,36 +47,39 @@ function AdjustmentDialog({
   data: any;
 }) {
   const [open, toggle] = useToggle(false);
-  const { mutate, isLoading } = useCreateAdjustment();
-
+  const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof adjustmentValidation>>({
     resolver: zodResolver(adjustmentValidation),
     defaultValues: {
-      locationId: data.locationId,
+      locationId: undefined,
       lineItems: [{ ...data, itemId: data.productId }],
-      reason: "",
+      reason: "Correction",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof adjustmentValidation>) => {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Stock adjusted successfully.",
-        });
-        form.reset();
-        toggle();
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+  const onSubmit = async (values: z.infer<typeof adjustmentValidation>) => {
+    values.locationId = data.locationId;
+    try {
+      setLoading(true);
+      await createAdjustment(values);
+      toast({
+        variant: "success",
+        title: "Stock adjusted successfully.",
+      });
+      form.reset();
+      toggle();
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -84,10 +89,10 @@ function AdjustmentDialog({
         <DialogHeader>
           <DialogTitle>Adjustment</DialogTitle>
           <DialogDescription>
-            Make changes stock. Click save when you're done.
+            Maanage inventory . Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        {isLoading && (
+        {loading && (
           <div className="absolute w-full h-full top-0 left-0 z-20"></div>
         )}
 
@@ -147,8 +152,18 @@ function AdjustmentDialog({
             />
 
             <DialogFooter>
-              <Button type="submit" className="w-full">
-                {isLoading ? (
+              <Button
+                className="flex-1 md:flex-none"
+                onClick={() => toggle()}
+                variant="secondary"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 md:flex-none min-w-[6rem]"
+              >
+                {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   "Save"

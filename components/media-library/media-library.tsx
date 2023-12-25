@@ -26,7 +26,7 @@ interface Props {
 const MediaLibrary: React.FC<Props> = ({
   children,
   onSelect,
-  selected = 5,
+  selected,
   filter,
 }) => {
   const [query, setQuery] = useState("");

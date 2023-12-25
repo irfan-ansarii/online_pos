@@ -1,10 +1,17 @@
 "use client";
 import * as z from "zod";
 import React from "react";
-import { CardTitle, CardDescription, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
+import { createUser } from "@/actions/user-actions";
+import { userInviteValidation } from "@/lib/validations/user";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Loader2 } from "lucide-react";
+
 import { useForm } from "react-hook-form";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { useLocations } from "@/hooks/useLocations";
+
 import {
   Form,
   FormControl,
@@ -13,8 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import {
   Select,
   SelectContent,
@@ -22,61 +28,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Loader2 } from "lucide-react";
-import { userInviteValidation } from "@/lib/validations/user";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { CardTitle, CardDescription, CardHeader } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-import { useLocations } from "@/hooks/useLocations";
-
-const AddUserDialog = ({ className }: { className?: string }) => {
+const AddUserDialog = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const form = useForm<z.infer<typeof userInviteValidation>>({
     resolver: zodResolver(userInviteValidation),
-    defaultValues: {
-      role: "admin",
-      email: "",
-    },
+    defaultValues: { locationId: "", role: "admin", email: "" },
   });
   const { toast } = useToast();
 
   const { locations } = useLocations();
 
-  const onSubmit = (values: z.infer<typeof userInviteValidation>) => {
-    // mutate(values, {
-    //   onSuccess: (res) => {
-    //     toast({
-    //       variant: "success",
-    //       title: "User been invited successfully!",
-    //     });
-    //     setOpen(false);
-    //   },
-    //   onError: (error: any) => {
-    //     toast({
-    //       variant: "error",
-    //       title: error.response.data.message,
-    //     });
-    //   },
-    // });
+  const onSubmit = async (values: z.infer<typeof userInviteValidation>) => {
+    try {
+      setLoading(true);
+      await createUser(values);
+      toast({
+        variant: "success",
+        title: "Invited successfully!",
+      });
+      form.reset();
+      setOpen(false);
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <div className={className}>
-          <Button
-            size="icon"
-            className="rounded-full md:hidden fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
-          >
-            <Plus className="w-5 h-5" />
-          </Button>
-          <Button className="hidden md:flex">
-            <Plus className="w-5 h-5 mr-2" />
-            New
-          </Button>
-        </div>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <div className="relative">
           <CardHeader className="p-0 mb-6 space-y-0">
@@ -143,7 +134,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
               />
               <FormField
                 control={form.control}
-                name="location"
+                name="locationId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Location</FormLabel>
@@ -157,7 +148,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {locations?.map((location: any) => (
+                        {locations?.data?.map((location: any) => (
                           <SelectItem value={`${location.id}`}>
                             {location.name}
                           </SelectItem>

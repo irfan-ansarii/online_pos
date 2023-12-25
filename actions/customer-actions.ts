@@ -117,7 +117,7 @@ export async function getCustomers(params: ParamsProps) {
  * @returns
  */
 interface CustomerProps extends User {
-  addresses: Address[];
+  addresses?: Address[];
 }
 export async function createCustomer(values: CustomerProps) {
   try {
@@ -149,7 +149,7 @@ export async function createCustomer(values: CustomerProps) {
         role: "customer",
         status: "active",
         addresses: {
-          create: addresses.map((add: Address) => ({
+          create: addresses?.map((add: Address) => ({
             company: add.company,
             address: add.address,
             address2: add.address2,
@@ -181,8 +181,10 @@ export async function getCustomer(id: number | string) {
       throw new Error("Unauthorized");
     }
 
-    const userTransaction = prisma.user.findUnique({
-      where: { id: Number(id) },
+    const customer = await prisma.user.findFirst({
+      where: {
+        AND: [{ id: Number(id) }, { role: "customer" }],
+      },
       include: {
         customerSale: {
           orderBy: { createdAt: "desc" },
@@ -198,9 +200,13 @@ export async function getCustomer(id: number | string) {
       },
     });
 
-    const totalTransaction = prisma.sale.aggregate({
+    if (!customer) {
+      throw new Error("Not found");
+    }
+
+    const total = prisma.sale.aggregate({
       where: {
-        customerId: Number(id),
+        customerId: customer.id,
       },
       _sum: {
         total: true,
@@ -212,22 +218,15 @@ export async function getCustomer(id: number | string) {
         total: true,
       },
     });
-    const [customer, total] = await prisma.$transaction([
-      userTransaction,
-      totalTransaction,
-    ]);
-
-    if (!customer) {
-      throw new Error("Not found");
-    }
 
     const sanitized = sanitize(customer);
     const transformed = {
       ...sanitized,
-      customer: id,
-      orders: customer?.customerSale,
+      sales: customer?.customerSale,
       ...total,
     };
+
+    delete transformed.customerSale;
 
     return { data: transformed, message: "success" };
   } catch (error: any) {
@@ -241,10 +240,10 @@ export async function getCustomer(id: number | string) {
  * @param param1
  * @returns
  */
-export async function updateCustomer(values: CustomerProps) {
+export async function updateCustomer(values: any) {
   try {
     const session = await auth();
-    if (!session) {
+    if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
@@ -266,7 +265,7 @@ export async function updateCustomer(values: CustomerProps) {
         phone,
         email,
         addresses: {
-          upsert: addresses.map((add: any) => ({
+          upsert: addresses?.map((add: any) => ({
             where: {
               id: add.id,
             },
@@ -292,7 +291,7 @@ export async function updateCustomer(values: CustomerProps) {
       },
     });
 
-    return { data: user, message: "success" };
+    return { data: res, message: "updated" };
   } catch (error: any) {
     throw new Error(error.message || "Internal server error");
   }

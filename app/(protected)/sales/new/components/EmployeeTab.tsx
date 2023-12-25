@@ -1,12 +1,13 @@
 "use client";
 import React from "react";
 import { Check } from "lucide-react";
-import SimpleBar from "simplebar-react";
+
 import { TabsContent } from "@/components/ui/tabs";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 import {
   FormControl,
   FormField,
@@ -46,7 +47,7 @@ const EmployeeTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <SimpleBar className="h-80">
+      <div className="relative  max-h-full overflow-y-auto scrollbox h-80">
         {isError && (
           <div>
             <div className="text-center">An error occurred!</div>
@@ -115,7 +116,7 @@ const EmployeeTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
             </FormItem>
           )}
         />
-      </SimpleBar>
+      </div>
     </TabsContent>
   );
 };

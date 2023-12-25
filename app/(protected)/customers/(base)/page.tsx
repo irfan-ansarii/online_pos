@@ -1,24 +1,27 @@
-import { Transfer } from "@prisma/client";
-import { getTransfers } from "@/actions/transfer-actions";
+import React from "react";
+import { User } from "@prisma/client";
+
+import { getCustomers } from "@/actions/customer-actions";
 
 import EmptyBox from "@/components/shared/empty-box";
-import ItemCard from "./components/ItemCard";
+
+import CustomerCard from "./components/CustomerCard";
 import Pagination from "@/components/shared/pagination";
 
 interface SearchParamsProps {
   [key: string]: string;
 }
 interface ResponseProps {
-  data: Transfer[];
+  data: User[];
   pagination: { page: number; pageCount: number };
 }
 
-async function TransferPage({
+export default async function CustomerPage({
   searchParams,
 }: {
   searchParams: SearchParamsProps;
 }) {
-  const { data, pagination }: ResponseProps = await getTransfers(searchParams);
+  const { data, pagination }: ResponseProps = await getCustomers(searchParams);
 
   if (!data || data.length === 0) {
     return <EmptyBox />;
@@ -27,8 +30,8 @@ async function TransferPage({
   return (
     <>
       <div className="grid grid-cols-1 md:gap-2 items-center">
-        {data?.map((transfer: Transfer) => (
-          <ItemCard transfer={transfer} key={transfer.id} />
+        {data?.map((customer: User) => (
+          <CustomerCard customer={customer} key={customer.id} />
         ))}
       </div>
       <div className="flex items-center justify-center mt-auto">
@@ -37,5 +40,3 @@ async function TransferPage({
     </>
   );
 }
-
-export default TransferPage;

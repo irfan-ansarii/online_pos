@@ -55,12 +55,6 @@ const ProductSheet = ({ product }: any) => {
                           variantId: variant.id,
                           locationId: inventory.locationId,
                           quantity: 1,
-
-                          // optional fields
-                          title: product.title,
-                          variantTitle: variant.title,
-                          barcode: variant.barcode,
-                          imageSrc: product.image.src,
                         }}
                       >
                         <Button size="sm" variant="secondary">

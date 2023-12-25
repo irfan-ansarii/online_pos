@@ -1,12 +1,12 @@
 import * as z from "zod";
 
 export const userInviteValidation = z.object({
-  role: z.string().nonempty({ message: "Role is required" }),
-  location: z.string().nonempty(),
+  role: z.string().nonempty({ message: "Required" }),
+  locationId: z.string().nonempty({ message: "Required" }),
   email: z
     .string()
     .email({ message: "Enter valid email" })
-    .nonempty({ message: "Email is required" }),
+    .nonempty({ message: "Required" }),
 });
 
 export const updateUserValidation = z.object({

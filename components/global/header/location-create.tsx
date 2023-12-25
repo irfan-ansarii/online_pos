@@ -79,8 +79,8 @@ const CreateWorkspace = () => {
               <SheetTitle>New Store</SheetTitle>
             </SheetHeader>
 
-            <div className="grow -mx-6 h-full">
-              <div className="flex flex-col gap-6 px-6 relative pb-4 md:pb-6">
+            <div className="space-y-6 flex-1 overflow-auto snap-y snap-mandatory -mx-6 px-6 scrollbox mb-4">
+              <div className="flex flex-col gap-6 relative pb-4 md:pb-6">
                 {loading && (
                   <div className="absolute w-full h-full transparent z-20"></div>
                 )}
@@ -125,7 +125,7 @@ const CreateWorkspace = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>Store Name</FormLabel>
                       <div className="relative">
                         <FormControl>
                           <Input type="text" {...field} />
@@ -141,7 +141,7 @@ const CreateWorkspace = () => {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone</FormLabel>
+                      <FormLabel>Store Phone</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -154,7 +154,7 @@ const CreateWorkspace = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Store Email</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>

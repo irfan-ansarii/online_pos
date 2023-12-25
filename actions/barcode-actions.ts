@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Label, Prisma } from "@prisma/client";
+import { Label, LabelStatus, Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 
@@ -51,7 +51,6 @@ export async function getBarcodes(params: ParamsProps) {
       ],
     };
 
-    const transactions = [];
     // find barcode list
     const response = prisma.label.findMany({
       skip: offset,
@@ -95,7 +94,9 @@ export async function getBarcodes(params: ParamsProps) {
  * @param values
  * @returns
  */
-export async function createBarcode(values: { lineItems: [] }) {
+export async function createBarcode(values: {
+  lineItems: { [key: string]: string | number }[];
+}) {
   try {
     const session = await auth();
     if (!session || typeof session === "string") {
@@ -126,7 +127,7 @@ export async function createBarcode(values: { lineItems: [] }) {
  * @param values
  * @returns
  */
-export async function updateBarcode(values: Label) {
+export async function updateBarcode(values: any) {
   try {
     const session = await auth();
     if (!session || typeof session === "string") {
@@ -139,7 +140,7 @@ export async function updateBarcode(values: Label) {
     const response = await prisma.label.update({
       where: { id: Number(id) },
       data: {
-        status,
+        status: status,
         quantity: Number(quantity),
       },
     });

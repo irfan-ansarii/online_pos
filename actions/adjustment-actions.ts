@@ -94,8 +94,7 @@ export async function createAdjustment(values: any) {
       throw new Error("Unauthorized");
     }
 
-    const { lineItems, reason, notes, locationId } = values;
-
+    const { lineItems, reason, notes = "", locationId } = values;
     const location = !locationId ? session.location.id : Number(locationId);
 
     const transactions = [];

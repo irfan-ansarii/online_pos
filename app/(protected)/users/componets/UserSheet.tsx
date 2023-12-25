@@ -1,10 +1,14 @@
 "use client";
 import React from "react";
 import { Loader2 } from "lucide-react";
+
 import * as z from "zod";
+import { updateUser } from "@/actions/user-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserValidation } from "@/lib/validations/user";
 
+import { useLocations } from "@/hooks/useLocations";
+import { useSession } from "@/hooks/useSession";
 import { useToggle } from "@uidotdev/usehooks";
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
@@ -34,7 +38,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useLocations } from "@/hooks/useLocations";
 
 const UserSheet = ({
   user,
@@ -44,6 +47,7 @@ const UserSheet = ({
   children: React.ReactNode;
 }) => {
   const { locations } = useLocations();
+  const { session } = useSession();
   const [loading, setLoading] = React.useState(false);
   const [open, toggle] = useToggle();
 
@@ -61,26 +65,28 @@ const UserSheet = ({
     },
   });
 
-  const onSubmit = (values: z.infer<typeof updateUserValidation>) => {
-    // mutate(values, {
-    //   onSuccess: (res) => {
-    //     toast({
-    //       variant: "success",
-    //       title: "Updated successfully",
-    //     });
-    //     form.reset();
-    //     toggle();
-    //   },
-    //   onError: (error: any) => {
-    //     toast({
-    //       variant: "error",
-    //       title: error?.response?.data?.message || "Something went wrong",
-    //     });
-    //   },
-    // });
+  const onSubmit = async (values: z.infer<typeof updateUserValidation>) => {
+    try {
+      setLoading(true);
+
+      await updateUser(values);
+      toast({
+        variant: "success",
+        title: "Updated successfully",
+      });
+      form.reset();
+      toggle();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error?.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (user?.role === "user") {
+  if (session?.role === "user") {
     return children;
   }
 
@@ -233,7 +239,7 @@ const UserSheet = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {locations?.map((location: any) => (
+                        {locations?.data?.map((location: any) => (
                           <SelectItem value={`${location.id}`}>
                             {location.name}
                           </SelectItem>

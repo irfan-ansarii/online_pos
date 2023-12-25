@@ -6,7 +6,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { barcodeValidation } from "@/lib/validations/product";
 
-import { postData } from "@/lib/actions";
+import { createBarcode } from "@/actions/barcode-actions";
 
 import { useRouter } from "next/navigation";
 import { useAtom } from "jotai";
@@ -94,7 +94,7 @@ const NewSheet = () => {
   const onSubmit = async (values: z.infer<typeof barcodeValidation>) => {
     try {
       setLoading(false);
-      await postData({ endpoint: "/barcodes", data: values });
+      await createBarcode(values);
       toast({
         variant: "success",
         title: "Added to list",

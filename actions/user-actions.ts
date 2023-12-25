@@ -89,11 +89,7 @@ export async function getUsers(params: ParamsProps) {
  * @param values
  * @returns
  */
-export async function createUser(values: {
-  email: string;
-  role: UserRole;
-  locationId: string | number;
-}) {
+export async function createUser(values: any) {
   try {
     const session = await auth();
     if (!session) {
@@ -138,7 +134,7 @@ export async function createUser(values: {
  * @param values
  * @returns
  */
-export async function updateUser(values: User) {
+export async function updateUser(values: any) {
   try {
     const session = await auth();
     if (!session) {

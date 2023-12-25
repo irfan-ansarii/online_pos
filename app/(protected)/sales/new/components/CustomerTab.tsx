@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Check, Mail, Phone, Plus } from "lucide-react";
-import SimpleBar from "simplebar-react";
+
 import { TabsContent } from "@/components/ui/tabs";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -17,17 +17,15 @@ import {
 } from "@/components/ui/form";
 
 import { useFormContext } from "react-hook-form";
-import { useCustomers } from "@/hooks/useCustomer";
-import AddCustomerSheet from "@/app/(root)/customers/components/AddCustomerSheet";
+import { useCustomers } from "@/hooks/useCustomers";
+
+// import AddCustomerSheet from "@/app/(root)/customers/components/AddCustomerSheet";
+
 import { Button } from "@/components/ui/button";
 
 const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
   const form = useFormContext();
-  const { isLoading, data, isError, isRefetching, refetch } = useCustomers({});
-
-  const users = React.useMemo(() => {
-    return data?.pages.flatMap((page) => page.data.data);
-  }, [data]);
+  const { customers, isLoading, mutate } = useCustomers({});
 
   return (
     <TabsContent value="customer" className="mt-0">
@@ -41,8 +39,8 @@ const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
         <Input placeholder="Search..." className="bg-border" />
       </div>
 
-      <SimpleBar className="h-80">
-        {isError && (
+      <div className="relative  max-h-full overflow-y-auto scrollbox h-80">
+        {/* {isError && (
           <div>
             <div className="text-center">An error occurred!</div>
             <div className="text-muted-foreground text-center mb-3">
@@ -52,7 +50,7 @@ const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
               {isRefetching ? "Loading..." : "Refresh"}
             </Button>
           </div>
-        )}
+        )} */}
         {isLoading && (
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (
@@ -71,16 +69,16 @@ const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
         )}
 
         {/* add customer sheet*/}
-        {!isLoading && users?.length === 0 && (
+        {customers?.data?.length === 0 && (
           <div className="text-center space-y-4">
             <div>No results found.</div>
-            <AddCustomerSheet
+            {/* <AddCustomerSheet
               button={
                 <Button className="w-full">
                   <Plus className="w-5 h-5 mr-2" /> Create a new customer
                 </Button>
               }
-            />
+            /> */}
           </div>
         )}
 
@@ -95,7 +93,7 @@ const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
                   defaultValue={field.value}
                   className="flex flex-col"
                 >
-                  {users?.map((user) => (
+                  {customers?.data?.map((user) => (
                     <FormItem className="space-y-0 relative" key={user.id}>
                       <FormControl className="peer sr-only">
                         <RadioGroupItem value={user.id} />
@@ -124,7 +122,7 @@ const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
             </FormItem>
           )}
         />
-      </SimpleBar>
+      </div>
     </TabsContent>
   );
 };

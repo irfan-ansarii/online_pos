@@ -1,14 +1,16 @@
 "use client";
 import React from "react";
+// @ts-ignore
 import query from "india-pincode-search";
 import * as z from "zod";
+
+import { createCustomer } from "@/actions/customer-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerValidation } from "@/lib/validations/customer";
 
 import { Plus, Loader2, PlusCircle, Loader } from "lucide-react";
 
 import { useFieldArray, useForm } from "react-hook-form";
-import { useCreateCustomer } from "@/hooks/useCustomer";
 import { toast } from "@/components/ui/use-toast";
 
 import {
@@ -30,14 +32,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const AddUserDialog = ({
-  className,
-  button,
-}: {
-  className?: string;
-  button?: React.ReactNode;
-}) => {
+const AddUserDialog = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   const form = useForm<z.infer<typeof customerValidation>>({
     resolver: zodResolver(customerValidation),
     defaultValues: {
@@ -54,46 +51,27 @@ const AddUserDialog = ({
     control: form.control,
   });
 
-  const { mutate, isLoading } = useCreateCustomer();
-
   const onSubmit = (values: z.infer<typeof customerValidation>) => {
-    mutate(values, {
-      onSuccess: () => {
-        setOpen(false);
-        toast({
-          variant: "success",
-          title: "Customer created successfully",
-        });
-      },
-      onError: (err: any) => {
-        toast({
-          variant: "error",
-          title: err.response.data.message,
-        });
-      },
-    });
+    // mutate(values, {
+    //   onSuccess: () => {
+    //     setOpen(false);
+    //     toast({
+    //       variant: "success",
+    //       title: "Customer created successfully",
+    //     });
+    //   },
+    //   onError: (err: any) => {
+    //     toast({
+    //       variant: "error",
+    //       title: err.response.data.message,
+    //     });
+    //   },
+    // });
   };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      {button ? (
-        <SheetTrigger asChild>{button}</SheetTrigger>
-      ) : (
-        <SheetTrigger asChild>
-          <div className={className}>
-            <Button
-              size="icon"
-              className="rounded-full md:hidden fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
-            >
-              <Plus className="w-5 h-5" />
-            </Button>
-            <Button className="hidden md:flex">
-              <Plus className="w-5 h-5 mr-2" />
-              New
-            </Button>
-          </div>
-        </SheetTrigger>
-      )}
+      <SheetTrigger asChild>{children}</SheetTrigger>
 
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
@@ -101,7 +79,7 @@ const AddUserDialog = ({
             onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
             className="flex flex-col h-full  relative"
           >
-            {isLoading && (
+            {loading && (
               <div className="absolute inset-0 bg-transparent z-20"></div>
             )}
             <SheetHeader>
@@ -218,6 +196,7 @@ const AddUserDialog = ({
                             onChange={(e) => {
                               field.onChange(e);
 
+                              //@ts-ignore
                               const value = e.target.value;
                               const res = query.search(value);
 
@@ -309,7 +288,7 @@ const AddUserDialog = ({
 
             <SheetFooter className="md:justify-between pt-4">
               <Button className="w-full" type="submit">
-                {isLoading ? (
+                {loading ? (
                   <Loader2 className="w-5 h-5 animate-apin" />
                 ) : (
                   "Save"

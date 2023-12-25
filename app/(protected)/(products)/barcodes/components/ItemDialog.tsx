@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import * as z from "zod";
+import { updateBarcode } from "@/actions/barcode-actions";
 import { editBarcodeValidation } from "@/lib/validations/product";
 import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
-import { useUpdateBarcode } from "@/hooks/useProduct";
 import { useToggle } from "@uidotdev/usehooks";
 
 import {
@@ -43,7 +43,7 @@ const ItemDialog = ({
   children: React.ReactNode;
 }) => {
   const [open, toggle] = useToggle();
-  const { mutate, isLoading } = useUpdateBarcode();
+  const [loading, toggleLoading] = useToggle();
   const { toast } = useToast();
   const form = useForm<z.infer<typeof editBarcodeValidation>>({
     resolver: zodResolver(editBarcodeValidation),
@@ -65,30 +65,30 @@ const ItemDialog = ({
     form.setValue("quantity", updatedValue);
   };
 
-  const onSubmit = (values: z.infer<typeof editBarcodeValidation>) => {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Updated successfully.",
-        });
-        form.reset();
-        toggle();
-      },
-      onError: (error: any) => {
-        console.log(error);
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+  const onSubmit = async (values: z.infer<typeof editBarcodeValidation>) => {
+    try {
+      toggleLoading();
+      await updateBarcode(values);
+      toast({
+        variant: "success",
+        title: "Updated successfully.",
+      });
+      form.reset();
+      toggle();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      toggleLoading();
+    }
   };
   return (
     <Dialog open={open} onOpenChange={toggle}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
-        {isLoading && (
+        {loading && (
           <div className="absolute w-full h-full top-0 left-0 z-20"></div>
         )}
         <DialogHeader>
@@ -159,11 +159,7 @@ const ItemDialog = ({
             />
 
             <Button type="submit">
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                "Save"
-              )}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
             </Button>
           </form>
         </Form>

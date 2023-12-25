@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { deleteData } from "@/lib/actions";
+import { deleteProduct } from "@/actions/product-actions";
 import Numeral from "numeral";
 
 import { Loader2, Trash2 } from "lucide-react";
@@ -79,7 +79,7 @@ const ProductCard = ({ product }: { product: any }) => {
 
     try {
       setLoading(true);
-      await deleteData({ endpoint: `/products/${product.id}` });
+      await deleteProduct(product.id);
 
       toast({
         variant: "success",

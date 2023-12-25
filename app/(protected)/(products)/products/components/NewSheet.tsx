@@ -1,14 +1,15 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productValidation } from "@/lib/validations/product";
-import { useForm } from "react-hook-form";
+import { createProduct } from "@/actions/product-actions";
 
 import { store } from "@/lib/utils";
+import { useForm } from "react-hook-form";
 import { useAtom } from "jotai";
 import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 import { ImagePlus, Loader2 } from "lucide-react";
 import {
@@ -35,8 +36,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Options from "./Options";
 import Variants from "./Variants";
 import MediaLibrary from "@/components/media-library/media-library";
-
-import { postData } from "@/lib/actions";
 
 const NewSheet = () => {
   const [state, setState] = useAtom(store);
@@ -76,10 +75,7 @@ const NewSheet = () => {
 
     try {
       setLoading(true);
-      await postData({
-        endpoint: "/products",
-        data: values,
-      });
+      await createProduct(values);
       toast({
         variant: "success",
         title: "Product created successfully!",
@@ -89,7 +85,6 @@ const NewSheet = () => {
       setPreview("");
       router.refresh();
     } catch (error: any) {
-      console.log(error);
       toast({
         variant: "error",
         title: error?.response?.data?.message || "Something went wrong",

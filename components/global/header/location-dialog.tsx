@@ -3,8 +3,6 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { changeLocation } from "@/actions/store-actions";
 
-import { Button } from "@/components/ui/button";
-
 import { Check, ChevronsUpDown, Home } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
@@ -23,6 +21,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
 
 const LocationDialog = () => {
   const [open, setOpen] = React.useState(false);

@@ -42,6 +42,7 @@ import AutoComplete from "@/components/shared/search-product";
 
 import { Badge } from "@/components/ui/badge";
 import { AvatarItem } from "@/components/shared/avatar";
+import { createTransfer } from "@/actions/transfer-actions";
 
 type Option = Record<string, any>;
 interface ClickProps {
@@ -137,12 +138,13 @@ const NewSheet = () => {
     try {
       setLoading(true);
 
-      // await postData({ endpoint: "/transfers", data: values });
+      await createTransfer(values);
 
       toast({
         variant: "success",
         title: "Transfered successfully",
       });
+
       setState({ ...state, open: false });
       form.reset();
       router.refresh();

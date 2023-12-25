@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { User } from "lucide-react";
 const Profile = ({ customer }: { customer: any }) => {
   return (
-    <Card className="rounded-none md:rounded-md">
+    <Card className="rounded-none md:rounded-md order-1">
       <CardContent>
         <CardHeader className="p-0 pb-4">
           <div className="flex gap-2 items-center">

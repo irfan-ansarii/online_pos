@@ -1,13 +1,17 @@
+"use client";
 import React from "react";
 import * as z from "zod";
+// @ts-expect-error
 import query from "india-pincode-search";
+
+import { updateCustomer } from "@/actions/customer-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerValidation } from "@/lib/validations/customer";
+
 import { Loader2, PlusCircle } from "lucide-react";
 
 import { useToggle } from "@uidotdev/usehooks";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useUpdateCustomer } from "@/hooks/useCustomer";
 import { toast } from "@/components/ui/use-toast";
 
 import {
@@ -29,23 +33,23 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const UserSheet = ({
+const CustomerSheet = ({
   customer,
   children,
 }: {
   customer: any;
   children: React.ReactNode;
 }) => {
-  const [open, toggle] = useToggle();
-  const { mutate, isLoading } = useUpdateCustomer();
+  const [open, toggle] = useToggle(false);
+  const [loading, toggleLoading] = useToggle(false);
   const form = useForm<z.infer<typeof customerValidation>>({
     resolver: zodResolver(customerValidation),
     defaultValues: {
       id: customer.id,
       firstName: customer.firstName,
       lastName: customer.lastName,
-      phone: customer.phone,
-      email: customer.email,
+      phone: customer.phone || "",
+      email: customer.email || "",
       addresses: customer.addresses,
     },
   });
@@ -55,28 +59,27 @@ const UserSheet = ({
     control: form.control,
   });
 
-  const onSubmit = (values: z.infer<typeof customerValidation>) => {
-    console.log(values);
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Updated successfully",
-        });
-        form.reset();
-      },
-      onError: (error: any) => {
-        console.log("error", error);
-        toast({
-          variant: "error",
-          title: error?.response?.data?.message || "Something went wrong",
-        });
-      },
-    });
+  const onSubmit = async (values: z.infer<typeof customerValidation>) => {
+    try {
+      toggleLoading();
+      await updateCustomer(values);
+      toast({
+        variant: "success",
+        title: "Updated successfully",
+      });
+      form.reset();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      toggleLoading();
+    }
   };
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
@@ -84,7 +87,7 @@ const UserSheet = ({
             onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
             className="flex flex-col h-full  relative"
           >
-            {isLoading && (
+            {loading && (
               <div className="absolute inset-0 bg-transparent z-20"></div>
             )}
 
@@ -202,6 +205,7 @@ const UserSheet = ({
                             onChange={(e) => {
                               field.onChange(e);
 
+                              // @ts-ignore
                               const value = e.target.value;
                               const res = query.search(value);
 
@@ -295,7 +299,7 @@ const UserSheet = ({
 
             <SheetFooter className="md:justify-between pt-4">
               <Button className="w-full" type="submit">
-                {isLoading ? (
+                {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   "Save"
@@ -309,4 +313,4 @@ const UserSheet = ({
   );
 };
 
-export default UserSheet;
+export default CustomerSheet;

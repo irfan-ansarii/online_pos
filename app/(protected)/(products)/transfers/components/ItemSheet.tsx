@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-
+import { Transfer, TransferLineItem } from "@prisma/client";
 import Numeral from "numeral";
-
+import { useSession } from "@/hooks/useSession";
 import {
   SheetHeader,
   SheetTitle,
@@ -23,20 +23,23 @@ import { Badge } from "@/components/ui/badge";
 import { AvatarItem } from "@/components/shared/avatar";
 import { Label } from "@/components/ui/label";
 
-const ItemSheet = ({ transfer }: { transfer: any }) => {
+interface Props extends Transfer {
+  lineItems: TransferLineItem[];
+}
+const ItemSheet = ({ transfer }: { transfer: Props }) => {
+  const { session } = useSession();
   return (
     <SheetContent className="md:max-w-lg">
       <div className="flex flex-col h-full">
-        {/* {(isLoading || isUpdating) && (
-          <div className="absolute w-full h-full top-0 left-0 z-20"></div>
-        )} */}
-        <SheetHeader className="md:pb-2">
+        <SheetHeader>
           <SheetTitle>Transfer</SheetTitle>
         </SheetHeader>
 
         <div className="pb-4 space-y-1.5">
           <Label>
-            {/* {session.locationId === transfer.fromId ? "Destination" : "Source"} */}
+            {session?.location?.id === transfer.fromId
+              ? "Destination"
+              : "Source"}
           </Label>
           {/* <Select defaultValue={`${destination.id}`}>
             <SelectTrigger>

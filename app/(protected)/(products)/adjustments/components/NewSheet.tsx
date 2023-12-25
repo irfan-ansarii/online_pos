@@ -2,7 +2,7 @@
 import React from "react";
 import * as z from "zod";
 import { store } from "@/lib/utils";
-import { postData } from "@/lib/actions";
+import { createAdjustment } from "@/actions/adjustment-actions";
 import { Loader2, X, Minus, Plus } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,10 +10,8 @@ import { adjustmentValidation } from "@/lib/validations/product";
 
 import { useAtom } from "jotai";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useToggle } from "@uidotdev/usehooks";
-import { useToast } from "@/components/ui/use-toast";
-import { useCreateAdjustment } from "@/hooks/useProduct";
-
+import { toast } from "@/components/ui/use-toast";
+import { useSession } from "@/hooks/useSession";
 import {
   Sheet,
   SheetHeader,
@@ -46,14 +44,14 @@ import { AvatarItem } from "@/components/shared/avatar";
 type Option = Record<string, any>;
 
 const NewSheet = () => {
-  const { mutate, isLoading } = useCreateAdjustment();
+  const [loading, setLoading] = React.useState(false);
   const [state, setState] = useAtom(store);
-  const { toast } = useToast();
-  const [open, toggle] = useToggle();
 
+  const { session } = useSession();
   const form = useForm<z.infer<typeof adjustmentValidation>>({
     resolver: zodResolver(adjustmentValidation),
     defaultValues: {
+      locationId: session?.location?.id,
       lineItems: [],
       reason: "Correction",
     },
@@ -107,24 +105,24 @@ const NewSheet = () => {
     });
   };
 
-  const onSubmit = (values: z.infer<typeof adjustmentValidation>) => {
-    console.log(values);
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Stock adjusted successfully.",
-        });
-        form.reset();
-        toggle();
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "error",
-          title: error.response.data.message || "Something went wrong",
-        });
-      },
-    });
+  const onSubmit = async (values: z.infer<typeof adjustmentValidation>) => {
+    try {
+      setLoading(true);
+      await createAdjustment(values);
+      toast({
+        variant: "success",
+        title: "Stock adjusted successfully.",
+      });
+      setState({ ...store, open: false });
+      form.reset();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -138,7 +136,7 @@ const NewSheet = () => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col h-full relative"
           >
-            {isLoading && (
+            {loading && (
               <div className="absolute w-full h-full top-0 left-0 z-20"></div>
             )}
 
@@ -247,7 +245,7 @@ const NewSheet = () => {
 
             <SheetFooter className="pt-2 flex-col">
               <Button className="w-full" type="submit">
-                {isLoading ? (
+                {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   "Save"

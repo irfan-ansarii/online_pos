@@ -22,7 +22,7 @@ export default async function ProtectedLayout({
       <Sidebar />
       <div className="flex flex-col h-full min-h-screen w-full">
         <Header />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 flex flex-col h-full">{children}</main>
         <Footer />
       </div>
       <Bottombar />

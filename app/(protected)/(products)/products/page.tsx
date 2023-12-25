@@ -1,6 +1,6 @@
 import React from "react";
 import { Product } from "@prisma/client";
-import { fetchData } from "@/lib/actions";
+import { getProducts } from "@/actions/product-actions";
 
 import EmptyBox from "@/components/shared/empty-box";
 
@@ -16,10 +16,7 @@ interface ResponseProps {
 }
 
 async function Page({ searchParams }: { searchParams: PageProps }) {
-  const { data, pagination }: ResponseProps = await fetchData({
-    endpoint: "/products",
-    params: searchParams,
-  });
+  const { data, pagination }: ResponseProps = await getProducts(searchParams);
 
   if (!data || data.length === 0) {
     return <EmptyBox />;
@@ -33,7 +30,7 @@ async function Page({ searchParams }: { searchParams: PageProps }) {
         ))}
       </div>
 
-      <div className="flex items-center justify-center mt-6">
+      <div className="flex items-center justify-center mt-auto">
         <Pagination className="mt-6" pagination={pagination} />
       </div>
     </>

@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { saleValidation } from "@/lib/validations/sale";
 
 import { ShoppingBag } from "lucide-react";
+
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
@@ -118,6 +119,8 @@ const Page = () => {
 
             <InventoryProducts onSelect={onLineItemClick} />
           </div>
+
+          {/* render on desktop */}
           <div className="hidden lg:block -mr-4 p-4 lg:col-span-6 xl:col-span-5 2xl:col-span-4 sticky bg-accent h-screen top-0 bottom-0 z-50">
             <Cart fields={fields} remove={remove} update={update} />
           </div>
