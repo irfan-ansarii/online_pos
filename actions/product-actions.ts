@@ -79,7 +79,10 @@ export async function getProducts(params: ParamsProps) {
       },
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -137,7 +140,10 @@ export async function createProduct(values: any) {
     // return response
     return { data: product, message: "created" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -174,7 +180,10 @@ export async function updateProduct(values: any) {
 
     return { data: user, message: "updated" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -212,7 +221,10 @@ export async function getProduct(id: number) {
     // return response
     return { data: product, message: "success" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -255,6 +267,9 @@ export async function deleteProduct(id: number) {
 
     return { data: product, message: "success" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }

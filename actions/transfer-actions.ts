@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
+import { Prisma } from "@prisma/client";
 
 interface ParamsProps {
   [key: string]: string;
@@ -71,7 +72,10 @@ export async function getTransfers(params: ParamsProps) {
       },
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -159,6 +163,9 @@ export async function createTransfer(values: any) {
     // return response
     return { data: transfer, message: "created" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }

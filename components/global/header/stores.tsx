@@ -3,11 +3,12 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { changeLocation } from "@/actions/store-actions";
 
-import { Check, ChevronsUpDown, Home } from "lucide-react";
+import { Check, ChevronsUpDown, Home, PlusCircle } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-
+import { store } from "@/lib/utils";
 import { useLocations } from "@/hooks/useLocations";
 import { useSession } from "@/hooks/useSession";
+import { useAtom } from "jotai";
 
 import {
   Popover,
@@ -20,12 +21,13 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandSeparator,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 
-const LocationDialog = () => {
+const Stores = () => {
   const [open, setOpen] = React.useState(false);
-
+  const [storeOpen, setStoreOpen] = useAtom(store);
   const router = useRouter();
 
   const { locations } = useLocations();
@@ -90,10 +92,23 @@ const LocationDialog = () => {
               </CommandItem>
             ))}
           </CommandGroup>
+          <CommandSeparator />
+
+          <CommandGroup>
+            <CommandItem
+              onSelect={() => {
+                setOpen(false);
+                setStoreOpen({ ...storeOpen, storeModal: true });
+              }}
+            >
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Create Store
+            </CommandItem>
+          </CommandGroup>
         </Command>
       </PopoverContent>
     </Popover>
   );
 };
 
-export default LocationDialog;
+export default Stores;

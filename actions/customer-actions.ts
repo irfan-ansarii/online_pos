@@ -107,7 +107,10 @@ export async function getCustomers(params: ParamsProps) {
       },
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -165,7 +168,10 @@ export async function createCustomer(values: CustomerProps) {
     // return response
     return { data: customer, message: "created" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -230,7 +236,10 @@ export async function getCustomer(id: number | string) {
 
     return { data: transformed, message: "success" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -293,6 +302,9 @@ export async function updateCustomer(values: any) {
 
     return { data: res, message: "updated" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }

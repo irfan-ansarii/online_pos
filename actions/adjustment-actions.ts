@@ -78,7 +78,10 @@ export async function getAdjustments(params: ParamsProps) {
       },
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -130,6 +133,9 @@ export async function createAdjustment(values: any) {
     // return response
     return { data: adjustment, message: "created" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }

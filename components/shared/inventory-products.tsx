@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useRef, useCallback } from "react";
 import { ScanLine, Search, Image as ImageIcon } from "lucide-react";
 
-import { useInventory } from "@/hooks/useProduct";
+import { useInventory } from "@/hooks/useInventory";
 
 import { Input } from "@/components/ui/input";
 
@@ -24,12 +24,9 @@ const InventoryProducts = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const ref = useRef(null);
-  const {
-    data: inventory,
-    isLoading,
-    isError,
-    error,
-  } = useInventory({ search: searchTerm });
+  const { inventory, isLoading, isError } = useInventory({
+    search: searchTerm,
+  });
 
   const handleSelectOption = useCallback(
     (selected: Option) => {
@@ -66,7 +63,7 @@ const InventoryProducts = ({
         {/* loading cards */}
         {isLoading && [...Array(6)].map((_, i) => <ProductLoading key={i} />)}
 
-        {inventory?.data?.data?.map((item: Option) => (
+        {inventory?.data?.map((item: Option) => (
           <Card className="rounded-md" onClick={() => handleSelectOption(item)}>
             <CardContent className="p-0">
               <Avatar className="w-full h-full aspect-square rounded-none border-none rounded-t-md">
@@ -101,10 +98,7 @@ const InventoryProducts = ({
 
         {/* error box */}
         {isError && (
-          <ErrorBox
-            className="col-span-2 sm:col-span-3 md:col-span-3 lg:col-span-3 xl:col-span-4 2xl:col-span-5"
-            title={error?.response?.data?.message}
-          />
+          <ErrorBox className="col-span-2 sm:col-span-3 md:col-span-3 lg:col-span-3 xl:col-span-4 2xl:col-span-5" />
         )}
       </div>
     </div>

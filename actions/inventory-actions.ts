@@ -92,6 +92,9 @@ export async function getInventory(params: ParamsProps) {
       },
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }

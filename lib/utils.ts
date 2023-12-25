@@ -7,6 +7,7 @@ Numeral.defaultFormat("0,0.00");
 
 interface State {
   open: boolean;
+  storeModal: boolean;
 }
 
 // classname
@@ -17,4 +18,5 @@ export function cn(...inputs: ClassValue[]) {
 // jotai state
 export const store = atom<State>({
   open: false,
+  storeModal: false,
 });

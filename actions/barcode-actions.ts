@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Label, LabelStatus, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 
@@ -85,7 +85,10 @@ export async function getBarcodes(params: ParamsProps) {
       },
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -118,7 +121,10 @@ export async function createBarcode(values: {
     // return response
     return { data: response, message: "created" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -148,7 +154,10 @@ export async function updateBarcode(values: any) {
     // return response
     return { data: response, message: "updated" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -172,6 +181,9 @@ export async function printBarcodes() {
 
     return { data: response, message: "success" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }

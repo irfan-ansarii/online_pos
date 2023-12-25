@@ -6,6 +6,7 @@ import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sanitize } from "@/lib/sanitize-user";
 import { auth } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 
 /**
  * login
@@ -76,7 +77,10 @@ export async function login(values: { email: string; password: string }) {
       token,
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -91,7 +95,10 @@ export async function logout() {
       message: "Logout successfull",
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -144,7 +151,10 @@ export async function signup(values: {
       data: sanitize(response),
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -177,7 +187,10 @@ export async function session() {
 
     return { data: sanitize(user) };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -227,7 +240,10 @@ export async function sendOTP(values: { email: string }) {
       data: { email },
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -259,7 +275,10 @@ export async function verifyOTP(values: { email: string; otp: string }) {
       message: "OTP verified successfully",
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -309,6 +328,9 @@ export async function resetPassword(values: {
       message: "Password reset successfull",
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }

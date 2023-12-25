@@ -4,13 +4,13 @@ import * as z from "zod";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { createLocation } from "@/actions/store-actions";
-
+import { store } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { locationValidation } from "@/lib/validations/locations";
 
 import { toast } from "@/components/ui/use-toast";
 import { useForm } from "react-hook-form";
-
+import { useAtom } from "jotai";
 import { Loader2, Plus } from "lucide-react";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import {
@@ -34,8 +34,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const CreateWorkspace = () => {
-  const [open, setOpen] = React.useState<boolean>(false);
   const [loading, setLoading] = React.useState(false);
+  const [open, setOpen] = useAtom(store);
   const router = useRouter();
   const form = useForm<z.infer<typeof locationValidation>>({
     resolver: zodResolver(locationValidation),
@@ -62,13 +62,16 @@ const CreateWorkspace = () => {
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
+    <Sheet
+      open={open.storeModal}
+      onOpenChange={() => setOpen({ ...open, storeModal: false })}
+    >
+      {/* <SheetTrigger asChild>
         <Button variant="secondary" disabled={loading}>
           <Plus className="w-5 h-5 mr-2" />
           <span className="hidden md:inline-block">New Store</span>
         </Button>
-      </SheetTrigger>
+      </SheetTrigger> */}
       <SheetContent className="md:max-w-lg bg-background">
         <Form {...form}>
           <form

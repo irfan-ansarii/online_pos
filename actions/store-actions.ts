@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import { Prisma } from "@prisma/client";
 
 export async function getLocations() {
   try {
@@ -23,7 +24,10 @@ export async function getLocations() {
       data: locations,
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -69,7 +73,10 @@ export async function createLocation(values: any) {
 
     return { data: location, message: "created" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 /**
@@ -127,6 +134,9 @@ export async function changeLocation(locationId: number) {
 
     return { data: user, message: "success" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }

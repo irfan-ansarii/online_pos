@@ -4,7 +4,7 @@ import Numeral from "numeral";
 import { useToggle } from "@uidotdev/usehooks";
 import { useWatch, useFormContext } from "react-hook-form";
 
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 import {
   Dialog,
@@ -38,11 +38,11 @@ import EmployeeTab from "./EmployeeTab";
 import CustomerTab from "./CustomerTab";
 
 const tabs = ["employee", "customer", "payment", "completed"];
-const [loading, setLoading] = React.useState(false);
+
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
+  const [loading, setLoading] = React.useState(false);
 
-  const { toast } = useToast();
   const [open, toggle] = useToggle(false);
   const [active, setActive] = React.useState("employee");
 
