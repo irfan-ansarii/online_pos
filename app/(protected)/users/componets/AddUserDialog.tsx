@@ -27,7 +27,7 @@ import { userInviteValidation } from "@/lib/validations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
 
-import { useAuthContext } from "@/hooks/useAuthContext";
+import { useLocations } from "@/hooks/useLocations";
 
 const AddUserDialog = ({ className }: { className?: string }) => {
   const [loading, setLoading] = React.useState(false);
@@ -41,7 +41,7 @@ const AddUserDialog = ({ className }: { className?: string }) => {
   });
   const { toast } = useToast();
 
-  const { locations } = useAuthContext();
+  const { locations } = useLocations();
 
   const onSubmit = (values: z.infer<typeof userInviteValidation>) => {
     // mutate(values, {

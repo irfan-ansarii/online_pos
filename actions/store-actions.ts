@@ -3,46 +3,16 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { PAGE_SIZE } from "@/config/app";
-import { Prisma } from "@prisma/client";
 
-interface ParamsProps {
-  [key: string]: string;
-}
-export async function getLocations(params: ParamsProps) {
+export async function getLocations() {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
 
-    const { page, search } = params;
-
-    // pagination
-    const currentPage = parseInt(page, 10) || 1;
-
-    const offset = (currentPage - 1) * PAGE_SIZE;
-
-    const filters: Prisma.LocationWhereInput = {
-      OR: [
-        { name: { contains: search, mode: "insensitive" } },
-        { phone: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-      ],
-    };
-
     // find locations
     const locations = await prisma.location.findMany({
-      skip: offset,
-      take: PAGE_SIZE,
-      where: { ...filters },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    // get pagination
-    const total = await prisma.location.count({
       orderBy: {
         createdAt: "desc",
       },
@@ -51,12 +21,6 @@ export async function getLocations(params: ParamsProps) {
     // return response
     return {
       data: locations,
-      pagination: {
-        page: currentPage,
-        pageSize: PAGE_SIZE,
-        pageCount: Math.ceil(total / PAGE_SIZE),
-        total,
-      },
     };
   } catch (error: any) {
     throw new Error(error.message || "Internal server error");
@@ -65,7 +29,7 @@ export async function getLocations(params: ParamsProps) {
 
 export async function createLocation(values: any) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
@@ -115,7 +79,7 @@ export async function createLocation(values: any) {
  */
 export async function changeLocation(locationId: number) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }

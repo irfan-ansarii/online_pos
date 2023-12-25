@@ -17,7 +17,7 @@ interface ParamsProps {
  */
 export async function getUsers(params: ParamsProps) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
@@ -95,7 +95,7 @@ export async function createUser(values: {
   locationId: string | number;
 }) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
@@ -140,7 +140,7 @@ export async function createUser(values: {
  */
 export async function updateUser(values: User) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
@@ -176,7 +176,7 @@ export async function updateUser(values: User) {
  */
 export async function getUser(id: number) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
@@ -185,6 +185,9 @@ export async function getUser(id: number) {
       where: { id: Number(id) },
     });
 
+    if (!user) {
+      throw new Error("Not found");
+    }
     return { data: user, message: "success" };
   } catch (error: any) {
     throw new Error(error.message || "Internal server error");

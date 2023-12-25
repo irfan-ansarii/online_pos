@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserValidation } from "@/lib/validations/user";
-import { useAuthContext } from "@/hooks/useAuthContext";
+
 import { useToggle } from "@uidotdev/usehooks";
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLocations } from "@/hooks/useLocations";
 
 const UserSheet = ({
   user,
@@ -42,7 +43,7 @@ const UserSheet = ({
   user: any;
   children: React.ReactNode;
 }) => {
-  const { locations } = useAuthContext();
+  const { locations } = useLocations();
   const [loading, setLoading] = React.useState(false);
   const [open, toggle] = useToggle();
 

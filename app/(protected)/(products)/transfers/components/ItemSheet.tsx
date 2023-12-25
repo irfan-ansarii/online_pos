@@ -3,8 +3,6 @@ import React from "react";
 
 import Numeral from "numeral";
 
-import { useAuthContext } from "@/hooks/useAuthContext";
-
 import {
   SheetHeader,
   SheetTitle,
@@ -26,8 +24,6 @@ import { AvatarItem } from "@/components/shared/avatar";
 import { Label } from "@/components/ui/label";
 
 const ItemSheet = ({ transfer }: { transfer: any }) => {
-  const { session } = useAuthContext();
-
   return (
     <SheetContent className="md:max-w-lg">
       <div className="flex flex-col h-full">
@@ -40,7 +36,7 @@ const ItemSheet = ({ transfer }: { transfer: any }) => {
 
         <div className="pb-4 space-y-1.5">
           <Label>
-            {session.locationId === transfer.fromId ? "Destination" : "Source"}
+            {/* {session.locationId === transfer.fromId ? "Destination" : "Source"} */}
           </Label>
           {/* <Select defaultValue={`${destination.id}`}>
             <SelectTrigger>

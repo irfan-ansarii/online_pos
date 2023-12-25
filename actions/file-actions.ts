@@ -1,23 +1,28 @@
-import bcryptjs from "bcryptjs";
-import { writeFile } from "fs/promises";
+"use server";
+
 import prisma from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
-import { decodeJwt, JwtPayload } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 import { Prisma } from "@prisma/client";
+import bcryptjs from "bcryptjs";
+import { writeFile } from "fs/promises";
+
+interface ParamsProps {
+  [key: string]: string;
+}
 
 /**
- * GET
- * @param req
+ * get files
+ * @param params
  * @returns
  */
-export async function GET(req: NextRequest) {
+export async function getFiles(params: ParamsProps) {
   try {
-    // get params
-    const { searchParams } = req.nextUrl;
-    const params = Object.fromEntries([...searchParams.entries()]);
+    const session = await auth();
+    if (!session || typeof session === "string") {
+      throw new Error("Unauthorized");
+    }
 
-    // destructure params
     const { page, search } = params;
 
     // pagination
@@ -49,49 +54,56 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // get pagination
-    const total = await prisma.file.count({
+    // find files
+    const find = prisma.file.findMany({
+      skip: offset,
+      take: PAGE_SIZE,
       orderBy: {
         createdAt: "desc",
       },
-      where: filters,
+      where: { ...filters },
     });
 
-    // return response
-    return NextResponse.json(
-      {
-        data: files,
-        pagination: {
-          page: currentPage,
-          pageSize: PAGE_SIZE,
-          pageCount: Math.ceil(total / PAGE_SIZE),
-          total,
-        },
-      },
+    // get pagination
+    const count = prisma.file.count({
+      where: { ...filters },
+    });
 
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    const [response, pages] = await prisma.$transaction([find, count]);
+
+    // return response
+    return {
+      data: response,
+      pagination: {
+        page: currentPage,
+        pageSize: PAGE_SIZE,
+        pageCount: Math.ceil(pages / PAGE_SIZE),
+        pages,
+      },
+    };
+  } catch (error: any) {
+    throw new Error(error.message || "Internal server error");
   }
 }
 
 /**
- * POST
- * @param req
+ * create files
+ * @param params
  * @returns
  */
-export async function POST(req: NextRequest) {
+export async function createFiles(values: any) {
   try {
-    const form = await req.formData();
+    const session = await auth();
+    if (!session || typeof session === "string") {
+      throw new Error("Unauthorized");
+    }
+
+    const form = await values.formData();
 
     const files = [];
 
     if (!form) {
-      return NextResponse.json({ success: false });
+      throw new Error("Files must be form data.");
     }
 
     for (const [_, file] of form.entries()) {
@@ -105,7 +117,7 @@ export async function POST(req: NextRequest) {
 
       const buffer = Buffer.from(bytes);
       const fileName = `${title}_${hash}.${extension}`;
-      const src = `uploads/${fileName}`;
+      const src = `/uploads/${fileName}`;
       const path = `public/${src}`;
 
       await writeFile(path, buffer);
@@ -125,28 +137,16 @@ export async function POST(req: NextRequest) {
     }
 
     if (files.length === 0) {
-      return NextResponse.json({ success: false });
+      throw new Error("File not found");
     }
 
     const response = await prisma.file.createMany({
       data: files,
     });
-    return NextResponse.json({ success: false, data: response });
-  } catch (err) {
-    return NextResponse.json({ success: false });
+
+    // return response
+    return { data: response, message: "created" };
+  } catch (error: any) {
+    throw new Error(error.message || "Internal server error");
   }
 }
-
-/**
- * PUT
- * @param req
- * @returns
- */
-export async function PUT(req: NextRequest) {}
-
-/**
- * DELETE
- * @param req
- * @returns
- */
-export async function DELETE(req: NextRequest) {}

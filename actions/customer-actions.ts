@@ -16,7 +16,7 @@ interface ParamsProps {
 }
 export async function getCustomers(params: ParamsProps) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
@@ -121,7 +121,7 @@ interface CustomerProps extends User {
 }
 export async function createCustomer(values: CustomerProps) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
@@ -176,7 +176,7 @@ export async function createCustomer(values: CustomerProps) {
  */
 export async function getCustomer(id: number | string) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
@@ -243,7 +243,7 @@ export async function getCustomer(id: number | string) {
  */
 export async function updateCustomer(values: CustomerProps) {
   try {
-    const session = auth();
+    const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }

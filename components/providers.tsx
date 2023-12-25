@@ -11,7 +11,6 @@ import { ThemeProviderProps } from "next-themes/dist/types";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-import { AuthContextProvider } from "@/hooks/useAuthContext";
 import { Toaster } from "@/components/ui/toaster";
 
 export function Provider({ children, ...props }: ThemeProviderProps) {
@@ -20,14 +19,11 @@ export function Provider({ children, ...props }: ThemeProviderProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <NextTopLoader color="#da2576" />
-      <AuthContextProvider>
-        <NextThemesProvider {...props}>
-          <Toaster />
-          <TooltipProvider>{children}</TooltipProvider>
-        </NextThemesProvider>
-      </AuthContextProvider>
 
-      <ReactQueryDevtools initialIsOpen={false} />
+      <NextThemesProvider {...props}>
+        <Toaster />
+        <TooltipProvider>{children}</TooltipProvider>
+      </NextThemesProvider>
     </QueryClientProvider>
   );
 }

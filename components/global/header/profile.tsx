@@ -13,11 +13,12 @@ import { ChevronDown, Power } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 // import { useLogout } from "@/hooks/useAuth";
-import { useAuthContext } from "@/hooks/useAuthContext";
+
+import { useSession } from "@/hooks/useSession";
 
 const Profile = () => {
   const router = useRouter();
-  const { session } = useAuthContext();
+  const { session } = useSession();
   // const { mutate } = useLogout();
 
   const logout = () => {

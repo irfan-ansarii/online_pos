@@ -2,8 +2,16 @@
 import * as z from "zod";
 
 import React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { createLocation } from "@/actions/store-actions";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { locationValidation } from "@/lib/validations/locations";
+
+import { toast } from "@/components/ui/use-toast";
+import { useForm } from "react-hook-form";
+
+import { Loader2, Plus } from "lucide-react";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import {
   Sheet,
@@ -24,46 +32,43 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
 
-import { locationValidation } from "@/lib/validations/locations";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCreateLocation } from "@/hooks/useUser";
-
-const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
+const CreateWorkspace = () => {
   const [open, setOpen] = React.useState<boolean>(false);
-  const { toast } = useToast();
-  const { mutate, isLoading } = useCreateLocation();
-
+  const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
   const form = useForm<z.infer<typeof locationValidation>>({
     resolver: zodResolver(locationValidation),
     defaultValues: {},
   });
 
-  const onSubmit = (values: z.infer<typeof locationValidation>) => {
-    mutate(values, {
-      onSuccess: (res) => {
-        toast({
-          variant: "success",
-          title: "Location created successfully!",
-        });
-
-        setOpen(false);
-      },
-      onError: (err: any) => {
-        toast({
-          variant: "error",
-          title: err.response.data.message,
-        });
-      },
-    });
+  const onSubmit = async (values: z.infer<typeof locationValidation>) => {
+    try {
+      setLoading(true);
+      await createLocation(values);
+      toast({
+        variant: "success",
+        title: "Store created successfully!",
+      });
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>{trigger}</SheetTrigger>
+      <SheetTrigger asChild>
+        <Button variant="secondary" disabled={loading}>
+          <Plus className="w-5 h-5 mr-2" />
+          <span className="hidden md:inline-block">New Store</span>
+        </Button>
+      </SheetTrigger>
       <SheetContent className="md:max-w-lg bg-background">
         <Form {...form}>
           <form
@@ -71,12 +76,12 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
             className="flex flex-col h-full"
           >
             <SheetHeader className="md:pb-2">
-              <SheetTitle>New location</SheetTitle>
+              <SheetTitle>New Store</SheetTitle>
             </SheetHeader>
 
-            <ScrollArea className="grow -mx-6 h-full">
+            <div className="grow -mx-6 h-full">
               <div className="flex flex-col gap-6 px-6 relative pb-4 md:pb-6">
-                {isLoading && (
+                {loading && (
                   <div className="absolute w-full h-full transparent z-20"></div>
                 )}
 
@@ -85,7 +90,7 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                   name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location Type</FormLabel>
+                      <FormLabel>Store Type</FormLabel>
                       <FormControl>
                         <RadioGroup
                           onValueChange={field.onChange}
@@ -238,14 +243,14 @@ const CreateWorkspace = ({ trigger }: { trigger?: React.ReactNode }) => {
                   />
                 </div>
               </div>
-            </ScrollArea>
+            </div>
 
             <SheetFooter className="md:justify-between">
               <Button className="w-full" type="submit">
-                {isLoading ? (
+                {loading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  "Save"
+                  "Create"
                 )}
               </Button>
             </SheetFooter>

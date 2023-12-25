@@ -154,7 +154,7 @@ export async function signup(values: {
  */
 export async function session() {
   try {
-    const session = auth();
+    const session = await auth();
 
     if (!session) {
       cookies().set("_auth_token", "", {

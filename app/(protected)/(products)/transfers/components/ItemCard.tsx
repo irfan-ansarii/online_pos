@@ -5,7 +5,6 @@ import Numeral from "numeral";
 import { Download, Upload } from "lucide-react";
 
 import { useToggle } from "@uidotdev/usehooks";
-import { useAuthContext } from "@/hooks/useAuthContext";
 
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -22,7 +21,6 @@ export interface TransferStatus {
 }
 
 const ItemCard = ({ transfer }: { transfer: any }) => {
-  const { session } = useAuthContext();
   const [open, toggle] = useToggle();
 
   const badge: TransferStatus = {
@@ -60,11 +58,11 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
               <div>{Numeral(transfer.totalAmount).format()}</div>
             </div>
             <div className="flex items-center gap-2 justify-end col-span-2 md:col-span-1">
-              {transfer.toId === session?.locationId ? (
+              {/* {transfer.toId === session?.locationId ? (
                 <Download className="w-5 h-5 text-success" />
               ) : (
                 <Upload className="w-5 h-5 text-warning" />
-              )}
+              )} */}
               {/* <span>{destination?.name}</span> */}
             </div>
             <div className="text-right space-y-0.5 ml-auto truncate">
