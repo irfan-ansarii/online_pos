@@ -12,6 +12,7 @@ import { useAtom } from "jotai";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import { useSession } from "@/hooks/useSession";
+
 import {
   Sheet,
   SheetHeader,
@@ -113,7 +114,7 @@ const NewSheet = () => {
         variant: "success",
         title: "Stock adjusted successfully.",
       });
-      setState({ ...store, open: false });
+      setState({ ...state, open: false });
       form.reset();
     } catch (error: any) {
       toast({
@@ -128,7 +129,7 @@ const NewSheet = () => {
   return (
     <Sheet
       open={state.open}
-      onOpenChange={() => setState({ ...store, open: false })}
+      onOpenChange={() => setState({ ...state, open: false })}
     >
       <SheetContent className="md:max-w-lg">
         <Form {...form}>

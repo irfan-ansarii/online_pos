@@ -8,7 +8,7 @@ import { createCustomer } from "@/actions/customer-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerValidation } from "@/lib/validations/customer";
 
-import { Plus, Loader2, PlusCircle, Loader } from "lucide-react";
+import { Loader2, PlusCircle } from "lucide-react";
 
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
@@ -32,7 +32,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const AddUserDialog = ({ children }: { children: React.ReactNode }) => {
+const AddUserDialog = ({
+  children,
+  onSuccess,
+}: {
+  children: React.ReactNode;
+  onSuccess?: (value: any) => void;
+}) => {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const form = useForm<z.infer<typeof customerValidation>>({
@@ -51,22 +57,26 @@ const AddUserDialog = ({ children }: { children: React.ReactNode }) => {
     control: form.control,
   });
 
-  const onSubmit = (values: z.infer<typeof customerValidation>) => {
-    // mutate(values, {
-    //   onSuccess: () => {
-    //     setOpen(false);
-    //     toast({
-    //       variant: "success",
-    //       title: "Customer created successfully",
-    //     });
-    //   },
-    //   onError: (err: any) => {
-    //     toast({
-    //       variant: "error",
-    //       title: err.response.data.message,
-    //     });
-    //   },
-    // });
+  const onSubmit = async (values: z.infer<typeof customerValidation>) => {
+    try {
+      setLoading(true);
+      //@ts-ignore
+      const response = await createCustomer(values);
+      toast({
+        variant: "success",
+        title: "Customer created",
+      });
+      form.reset();
+      onSuccess && onSuccess(response.data);
+      setOpen(false);
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -270,6 +280,7 @@ const AddUserDialog = ({ children }: { children: React.ReactNode }) => {
               <Button
                 className="w-full"
                 variant="secondary"
+                type="submit"
                 onClick={(e) => {
                   e.preventDefault();
                   addresses.append({

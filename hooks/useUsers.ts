@@ -5,7 +5,8 @@ interface Props {
   [key: string]: any;
 }
 export const useUsers = (params: Props) => {
-  const { data, error, isLoading, mutate } = useSWR(`/users`, () => {
+  const key = new URLSearchParams(params).toString();
+  const { data, error, isLoading, mutate } = useSWR(`/users${key}`, () => {
     return getUsers(params);
   });
 

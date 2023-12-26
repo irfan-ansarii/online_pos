@@ -5,7 +5,8 @@ interface Props {
   [key: string]: any;
 }
 export const useInventory = (params: Props) => {
-  const { data, error, isLoading, mutate } = useSWR(`/inventory`, () => {
+  const key = new URLSearchParams(params).toString();
+  const { data, error, isLoading, mutate } = useSWR(`/inventory${key}`, () => {
     return getInventory(params);
   });
 

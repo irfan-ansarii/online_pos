@@ -150,7 +150,7 @@ export const adjustmentValidation = z.object({
       title: z.any(),
       variantTitle: z.any(),
       sku: z.any().optional(),
-      barcode: z.number(),
+      barcode: z.any(),
       quantity: z
         .union([z.string(), z.number()])
         .refine((n: any) => !isNaN(n), { message: "Enter valid number" }),

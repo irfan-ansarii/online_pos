@@ -1,10 +1,15 @@
 "use client";
-import React from "react";
+import React, { lazy, Suspense } from "react";
+
 import Numeral from "numeral";
+
 import { useToggle } from "@uidotdev/usehooks";
 import { useWatch, useFormContext } from "react-hook-form";
-
+import { useSession } from "@/hooks/useSession";
 import { toast } from "@/components/ui/use-toast";
+
+const EmployeeTab = lazy(() => import("./EmployeeTab"));
+const CustomerTab = lazy(() => import("./CustomerTab"));
 
 import {
   Dialog,
@@ -34,15 +39,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import EmployeeTab from "./EmployeeTab";
-import CustomerTab from "./CustomerTab";
+import LoadingSmall from "@/components/shared/loading-sm";
 
 const tabs = ["employee", "customer", "payment", "completed"];
 
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
   const [loading, setLoading] = React.useState(false);
-
+  const { session } = useSession();
   const [open, toggle] = useToggle(false);
   const [active, setActive] = React.useState("employee");
 
@@ -84,7 +88,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
    * @param values
    */
   const onSubmit = (values: any) => {
-    const locationId = null; // session?.data?.data?.data.locationId;
+    const locationId = session.location.id;
 
     values.title = "GN1234";
     values.locationId = locationId;
@@ -176,7 +180,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     <Loader2 className="h-4 w-4 animate-spin" />
   ) : (
     {
-      payment: "Create",
+      payment: "Create Sale",
       complete: "Done",
     }[active] || "Next"
   );
@@ -223,16 +227,23 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
         </Button>
       </DialogTrigger>
       <DialogContent>
+        {loading && (
+          <div className="absolute rounded-md inset-0 z-20 bg-accent/50"></div>
+        )}
+
         <Tabs value={active} onValueChange={setActive}>
-          <EmployeeTab headerIcon={headerIcon} />
+          <Suspense
+            fallback={
+              <div className="flex flex-col h-96 my-8 items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            }
+          >
+            <EmployeeTab headerIcon={headerIcon} />
+            <CustomerTab headerIcon={headerIcon} />
+          </Suspense>
 
-          <CustomerTab headerIcon={headerIcon} />
-
-          {/* payment and create sale tab */}
           <TabsContent value="payment" className="mt-0">
-            {/* {isLoading && (
-              <div className="absolute rounded-md inset-0 z-20"></div>
-            )} */}
             <DialogHeader className="text-left pb-6">
               <div className="flex item-center mb-3">
                 {headerIcon}

@@ -48,17 +48,23 @@ export const AvatarGroup: FC<BadgeProps> = ({ maxCount = 4, children }) => {
 export const AvatarItem = ({
   className,
   src,
+  iconClassName = "w-4 h-4",
+  width = 40,
+  height = 40,
 }: {
   className?: HTMLProps<HTMLElement>["className"];
   src: string;
+  iconClassName?: string;
+  width?: number;
+  height?: number;
 }) => {
   return (
     <Avatar className={cn("w-10 h-10 border-2", className)}>
       <AvatarImage src={src} asChild className="object-cover">
-        <Image src={src} alt={src} width={40} height={40} />
+        <Image src={src} alt={src} width={width} height={height} />
       </AvatarImage>
-      <AvatarFallback className="w-full h-full text-muted-foreground">
-        <ImageIcon className="w-4 h-4" />
+      <AvatarFallback className="w-full h-full rounded-none text-muted-foreground">
+        <ImageIcon className={iconClassName} />
       </AvatarFallback>
     </Avatar>
   );

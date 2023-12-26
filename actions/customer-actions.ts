@@ -1,3 +1,4 @@
+"use server";
 import prisma from "@/lib/prisma";
 import { Address, Prisma, User } from "@prisma/client";
 
@@ -77,25 +78,26 @@ export async function getCustomers(params: ParamsProps) {
       totalTransaction,
     ]);
 
-    const transformed = customers.map((user) => {
-      const sanitized = sanitize(user);
+    const transformed =
+      customers?.map((user) => {
+        const sanitized = sanitize(user);
 
-      const orderTotal = user.customerSale.reduce((acc, cur) => {
-        return acc + cur.total;
-      }, 0);
+        const orderTotal = user.customerSale.reduce((acc, cur) => {
+          return acc + Number(cur.total || 0);
+        }, 0);
 
-      return {
-        ...sanitized,
-        customer: null,
-        orders: {
-          _count: { total: user._count.customerSale },
-          _sum: {
-            total: orderTotal,
+        return {
+          ...sanitized,
+          customer: null,
+          orders: {
+            _count: { total: user._count.customerSale },
+            _sum: {
+              total: orderTotal,
+            },
           },
-        },
-        addresses: user.addresses,
-      };
-    });
+          addresses: user.addresses,
+        };
+      }) || [];
 
     return {
       data: transformed,

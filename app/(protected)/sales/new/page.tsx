@@ -13,7 +13,7 @@ import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 
-import InventoryProducts from "@/components/shared/inventory-products";
+import Inventory from "./components/Inventory";
 import Cart from "./components/Cart";
 
 const Page = () => {
@@ -98,6 +98,7 @@ const Page = () => {
       quantity: Number(fields[index].quantity) + 1,
     });
   };
+
   return (
     <main className="grow pb-4 px-1 md:p-4  md:mt-[-4.8rem]">
       <Form {...form}>
@@ -117,7 +118,7 @@ const Page = () => {
               </DialogContent>
             </Dialog>
 
-            <InventoryProducts onSelect={onLineItemClick} />
+            <Inventory onSelect={onLineItemClick} />
           </div>
 
           {/* render on desktop */}

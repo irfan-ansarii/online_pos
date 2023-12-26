@@ -46,7 +46,7 @@ function AdjustmentDialog({
   children: React.ReactNode;
   data: any;
 }) {
-  const [open, toggle] = useToggle(false);
+  const [open, toggle] = useToggle();
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -98,7 +98,7 @@ function AdjustmentDialog({
 
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col h-full gap-6"
           >
             <FormField
@@ -154,7 +154,11 @@ function AdjustmentDialog({
             <DialogFooter>
               <Button
                 className="flex-1 md:flex-none"
-                onClick={() => toggle()}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggle();
+                }}
                 variant="secondary"
               >
                 Cancel

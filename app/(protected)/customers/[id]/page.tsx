@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+
 import Numeral from "numeral";
 import { format } from "date-fns";
 import { getCustomer } from "@/actions/customer-actions";
@@ -24,10 +24,6 @@ import OrderItem from "./components/OrderItem";
 const Page = async ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const { data } = await getCustomer(id);
-
-  if (!data) {
-    return notFound();
-  }
 
   return (
     <>

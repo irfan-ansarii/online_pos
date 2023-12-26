@@ -1,22 +1,20 @@
 "use client";
 import React from "react";
-import Image from "next/image";
+
 import Numeral from "numeral";
+
 import { useFormContext, useWatch } from "react-hook-form";
-import { Plus, Minus, ShoppingBag, Image as ImageIcon } from "lucide-react";
+
+import { Plus, Minus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   FormField,
   FormItem,
@@ -183,7 +181,7 @@ const Cart = ({
                   <div className="!py-0 hover:no-underline flex gap-2 cursor-pointer">
                     <AvatarItem
                       className="w-14 h-14 rounded-md flex-0 bg-border dark:bg-secondary"
-                      src={`${field.imageSrc}`}
+                      src={`/${field.imageSrc}`}
                     />
 
                     <div className="grid grid-cols-4 flex-1 h-14">
