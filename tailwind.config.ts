@@ -52,7 +52,7 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
         alert: {
-          DEFAULT: "hsl(var(--alert-background))",
+          DEFAULT: "hsl(var(--alert))",
           foreground: "hsl(var(--alert-foreground))",
           text: "hsl(var(--alert-text-foreground))",
         },

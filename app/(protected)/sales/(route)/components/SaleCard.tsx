@@ -11,23 +11,23 @@ import SaleSheet from "./SaleSheet";
 const SaleCard = ({ sale }: { sale: any }) => {
   const status: { [key: string]: any } = {
     pending: {
-      className: "bg-warning hover:bg-warning",
+      className: "bg-warning hover:bg-warning text-white",
       text: "Pending",
     },
     paid: {
-      className: "bg-success hover:bg-success",
+      className: "bg-success hover:bg-success text-white",
       text: "Paid",
     },
     partialy_paid: {
-      className: "bg-info hover:bg-info",
+      className: "bg-info hover:bg-info text-white",
       text: "Partial",
     },
     partially_refunded: {
-      className: "bg-destructive hover:bg-destructive",
+      className: "bg-destructive hover:bg-destructive text-white",
       text: "Partial",
     },
     refunded: {
-      className: "bg-destructive hover:bg-destructive",
+      className: "bg-destructive hover:bg-destructive text-white",
       text: "Refunded",
     },
   };
@@ -74,7 +74,7 @@ const SaleCard = ({ sale }: { sale: any }) => {
             <Badge
               variant="secondary"
               className={cn(
-                `rounded-md justify-center uppercase py-0`,
+                `rounded-md uppercase`,
                 status[sale.status].className
               )}
             >

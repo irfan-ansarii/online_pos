@@ -36,36 +36,38 @@ const Page = async ({ params }: { params: { id: string } }) => {
               title="Total orders"
               value={data?._count?.total || "0.00"}
               icon={<Inbox className="w-5 h-5" />}
-              iconClassName="bg-emerald-500/20"
+              className="bg-success"
             />
             <Analytics
               title="Total spent"
               value={Numeral(data?._sum?.total).format()}
               icon={<IndianRupee className="w-5 h-5" />}
-              iconClassName="bg-emerald-500/20"
+              className="bg-pink-600"
             />
             <Analytics
               title="Avarage order value"
               value={Numeral(data?._avg?.total).format()}
               icon={<Percent className="w-5 h-5" />}
-              iconClassName="bg-emerald-500/20"
+              className="bg-violet-600"
             />
             <Analytics
               title="Last visit"
               value={
-                data?.orders?.[0]?.createdAt
-                  ? format(data?.orders?.[0]?.createdAt, "dd MMM, yy")
-                  : ""
+                data?.sales?.[0]?.createdAt
+                  ? format(data?.sales?.[0]?.createdAt, "dd MMM, yy")
+                  : "N/A"
               }
               icon={<CalendarDays className="w-5 h-5" />}
-              iconClassName="bg-emerald-500/20"
+              className="bg-blue-600"
             />
           </div>
 
           <Card className="pb-4">
             <CardHeader>
               <CardTitle className="text-base">Recent Purchases</CardTitle>
-              <CardDescription>You made 265 sales this month.</CardDescription>
+              <CardDescription>
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+              </CardDescription>
             </CardHeader>
             <CardContent className="divide-y py-0">
               {data?.sales?.map((sale: any) => (

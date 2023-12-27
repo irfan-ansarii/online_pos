@@ -166,7 +166,7 @@ export async function session() {
   try {
     const session = await auth();
 
-    if (!session) {
+    if (!session || typeof session === "string") {
       cookies().set("_auth_token", "", {
         expires: Date.now(),
       });
@@ -177,7 +177,6 @@ export async function session() {
 
     const user = await prisma.user.findUnique({
       where: {
-        // @ts-ignore
         id: session.id,
       },
       include: {

@@ -7,7 +7,7 @@ import { Trash2, Bookmark } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useToggle, useLocalStorage } from "@uidotdev/usehooks";
 import { useToast } from "@/components/ui/use-toast";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import {
   Dialog,
   DialogTrigger,

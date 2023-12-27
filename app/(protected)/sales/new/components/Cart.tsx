@@ -28,6 +28,7 @@ import CartActions from "./CartActions";
 import DiscountPopover from "./DiscountPopover";
 import TaxPopover from "./TaxPopover";
 import { AvatarItem } from "@/components/shared/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Cart = ({
   fields,
@@ -162,19 +163,20 @@ const Cart = ({
     );
 
     Object.entries(result).map(([key, value]) => {
+      // @ts-ignore
       form.setValue(key, value);
     });
   }, [watch]);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden lg:overflow-visible relative">
+    <div className="flex flex-col h-full overflow-hidden relative">
       {(!fields || fields.length === 0) && (
         <div className="flex flex-col h-full w-full grow items-center justify-center text-muted-foreground dark:text-background">
           <ShoppingBag className="w-20 h-20" />
         </div>
       )}
       {fields && fields.length > 0 && (
-        <div className="relative flex-1 overflow-y-auto snap-y snap-mandatory space-y-2 scrollbox">
+        <ScrollArea className="flex-1 space-y-2 -mx-4 px-4">
           <Accordion type="single" collapsible className="h-full divide-y">
             {fields.map((field: any, i: number) => (
               <AccordionItem
@@ -309,7 +311,7 @@ const Cart = ({
               </AccordionItem>
             ))}
           </Accordion>
-        </div>
+        </ScrollArea>
       )}
       <div className="border-t-2 pt-2 border-dashed">
         <div className="flex flex-col text-sm">

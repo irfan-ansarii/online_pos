@@ -69,7 +69,7 @@ const CustomerTab = ({ headerIcon }: { headerIcon?: React.ReactNode }) => {
         </AddCustomerSheet>
       </div>
 
-      <div className="relative overflow-y-auto scrollbox h-[21rem]">
+      <div className="overflow-y-auto relative scrollbox snap-y snap-mandatory h-[21rem]">
         {isLoading && <LoadingSmall />}
 
         {!isLoading && customers?.data?.length === 0 && (

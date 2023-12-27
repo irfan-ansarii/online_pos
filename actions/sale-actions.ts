@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import {
   LineItem,
   Prisma,
+  Sale,
   SaleFinancialStatus,
   Transaction,
 } from "@prisma/client";
@@ -120,7 +121,6 @@ export async function createSale(values: any) {
     }
 
     const {
-      title,
       customerId,
       employeeId,
       createdAt,
@@ -144,12 +144,12 @@ export async function createSale(values: any) {
       variantTitle: lineItem.variantTitle,
       sku: lineItem.sku,
       barcode: `${lineItem.barcode}`,
-      price: lineItem.price,
-      taxRate: lineItem.taxRate,
-      quantity: lineItem.quantity,
-      totalDiscount: lineItem.totalDiscount,
-      totalTax: lineItem.totalTax,
-      total: lineItem.total,
+      price: Number(lineItem.price),
+      taxRate: Number(lineItem.taxRate),
+      quantity: Number(lineItem.quantity),
+      totalDiscount: parseFloat(lineItem.totalDiscount.toFixed(2)),
+      totalTax: parseFloat(lineItem.totalTax.toFixed(2)),
+      total: parseFloat(lineItem.total.toFixed(2)),
       taxLines: lineItem.taxLines,
       productId: lineItem.productId,
       variantId: lineItem.variantId,
@@ -158,25 +158,26 @@ export async function createSale(values: any) {
     const transactionsToCreate = transactions.map((txn: Transaction) => ({
       ...txn,
       locationId: session.location.id,
+      kind: "sale",
+      status: "success",
+      amount: parseFloat(txn.amount.toFixed(2)),
     }));
 
-    const prismaTxn = [];
-
     // create product and variants
-    const saleTransaction = prisma.sale.create({
+    const sale = await prisma.sale.create({
       data: {
         locationId: session.location.id,
-        title,
+        title: "GN" /** random text   */,
         customerId,
         employeeId,
         createdAt,
         taxType,
-        subtotal,
-        totalTax,
-        totalDiscount,
-        roundedOff,
-        total,
-        totalDue,
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        totalTax: parseFloat(totalTax.toFixed(2)),
+        totalDiscount: parseFloat(totalDiscount.toFixed(2)),
+        roundedOff: parseFloat(roundedOff.toFixed(2)),
+        total: parseFloat(total.toFixed(2)),
+        totalDue: parseFloat(totalDue.toFixed(2)),
         taxLines,
         lineItemsTotal,
         status,
@@ -194,8 +195,8 @@ export async function createSale(values: any) {
         },
       },
     });
-    prismaTxn.push(saleTransaction);
 
+    const prismaTxn = [];
     for (const lineItem of lineItems) {
       const decrement = prisma.inventory.updateMany({
         data: {
@@ -211,10 +212,17 @@ export async function createSale(values: any) {
       prismaTxn.push(decrement);
     }
 
-    const [sale] = await prisma.$transaction(prismaTxn);
+    await prisma.$transaction(prismaTxn);
+
+    const updated = await prisma.sale.update({
+      where: { id: sale.id },
+      data: {
+        title: `GN${sale.id}` /** prefix =*sale id*= suffix */,
+      },
+    });
 
     // return response
-    return { data: sale, message: "created" };
+    return { data: updated, message: "created" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");

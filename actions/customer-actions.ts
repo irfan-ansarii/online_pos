@@ -209,10 +209,10 @@ export async function getCustomer(id: number | string) {
     });
 
     if (!customer) {
-      throw new Error("Not found");
+      return { data: null };
     }
 
-    const total = prisma.sale.aggregate({
+    const total = await prisma.sale.aggregate({
       where: {
         customerId: customer.id,
       },

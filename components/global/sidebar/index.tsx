@@ -14,7 +14,7 @@ import SearchPanel from "@/components/global/sidebar/search-panel";
 import { cn } from "@/lib/utils";
 function Sidebar() {
   const pathname = usePathname();
-  const [loaded, setLoaded] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
 
   const isActive = (current: any) => {
     const splitted = pathname.split("/").find((p) => p);
@@ -25,10 +25,11 @@ function Sidebar() {
   };
 
   React.useEffect(() => {
-    setLoaded(true);
+    setLoading(false);
   }, []);
+
   return (
-    <div className="top-0 z-30 hidden h-screen w-full bg-accent shrink-0 sticky md:block ">
+    <div className="top-0 z-30 hidden h-screen w-full bg-accent shrink-0 sticky md:block">
       <div className="flex flex-col px-4 h-full">
         <div className="shrink-0 -mx-4">
           <div className="h-[60px] flex items-center justify-center">
@@ -72,7 +73,9 @@ function Sidebar() {
 
         <div className="mt-4">
           <Separator className="hidden lg:block" />
-          <ThemeSwitcher className="" />
+
+          {!loading && <ThemeSwitcher />}
+
           <Separator className="mb-2 hidden lg:block" />
           <div className="pb-4 hidden lg:block">
             <ThemeCustomizer />

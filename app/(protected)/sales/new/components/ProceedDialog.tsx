@@ -1,11 +1,10 @@
 "use client";
 import React, { lazy, Suspense } from "react";
-
+import { mutate } from "swr";
 import Numeral from "numeral";
 
 import { useToggle } from "@uidotdev/usehooks";
 import { useWatch, useFormContext } from "react-hook-form";
-import { useSession } from "@/hooks/useSession";
 import { usePayments } from "@/hooks/usePayments";
 import { toast } from "@/components/ui/use-toast";
 
@@ -67,7 +66,7 @@ const invoiceOptions = [
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
   const [loading, setLoading] = React.useState(false);
-  const { session } = useSession();
+
   const { payments } = usePayments();
   const [open, toggle] = useToggle(false);
   const [active, setActive] = React.useState("employee");
@@ -153,10 +152,6 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
    * @param values
    */
   const onSubmit = async (values: any) => {
-    const locationId = session.location.id;
-
-    values.title = "GN1234";
-    values.locationId = locationId;
     values.createdAt = new Date(values.createdAt);
     values.roundedOff = Math.ceil(values.total) - values.total;
     values.total = Math.ceil(values.total);
@@ -170,7 +165,6 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     values.lineItems = values.lineItems.map((item: any) => {
       return {
         ...item,
-        locationId,
         createdAt: values.createdAt,
         taxLines: values.taxAllocations.map((tax: any) => {
           return {
@@ -198,12 +192,9 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
       ?.filter((transaction: any) => parseFloat(transaction.amount) > 0)
       .map((txn: any) => {
         return {
-          locationId,
           name: txn.name,
           label: txn.label,
-          kind: "sale",
-          status: "success",
-          amount: Math.round(txn.amount * 100) / 100,
+          amount: txn.amount,
           createdAt: values.createdAt,
         };
       });
@@ -220,8 +211,9 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
       await createSale(values);
       toast({
         variant: "success",
-        title: "Sale created successfully!",
+        title: "Sale created successfully",
       });
+
       form.reset();
       setActive("completed");
     } catch (error: any) {
@@ -231,23 +223,25 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
       });
     } finally {
       setLoading(false);
+      await mutate("/inventory?search=");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={toggle}>
       <DialogTrigger asChild>
-        <Button className="w-full" disabled={disabled}>
+        <Button
+          className="w-full"
+          disabled={disabled}
+          onClick={() => {
+            setActive("employee");
+            updateDue();
+          }}
+        >
           Checkout
         </Button>
       </DialogTrigger>
-      <DialogContent
-        className="focus-visible:ring-transparent"
-        onCloseAutoFocus={() => {
-          setActive("employee");
-          updateDue();
-        }}
-      >
+      <DialogContent className="focus-visible:ring-transparent">
         {loading && (
           <div className="absolute rounded-md inset-0 z-20 bg-accent/50"></div>
         )}
@@ -290,7 +284,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                 </div>
               </div>
             </DialogHeader>
-            <div className="h-72">
+            <div>
               <Accordion type="single" className="w-full space-y-2">
                 {payments?.data?.map((item: any, i: number) => (
                   <>

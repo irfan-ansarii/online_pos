@@ -24,7 +24,7 @@ export default async function CustomerPage({
   if (!data || data.length === 0) {
     return <EmptyBox />;
   }
-  console.log(data);
+
   return (
     <>
       <div className="grid grid-cols-1 md:gap-2">

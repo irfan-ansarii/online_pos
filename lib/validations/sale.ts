@@ -1,11 +1,8 @@
 import * as z from "zod";
 
-const number = z
-  .any()
-  .refine((val) => !isNaN(val), {
-    message: "Enter a valid number",
-  })
-  .transform(Number);
+const number = z.any().refine((val) => !isNaN(Number(val)), {
+  message: "Enter a valid number",
+});
 
 export const saleValidation = z.object({
   customerId: z.number(),
@@ -50,7 +47,7 @@ export const saleValidation = z.object({
     .object({
       name: z.string(),
       label: z.string(),
-      amount: number,
+      amount: number.default(0),
     })
     .array()
     .optional(),

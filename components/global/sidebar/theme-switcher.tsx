@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { Moon, Sun } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -9,9 +10,8 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
-import { Moon, Sun } from "lucide-react";
 
-const ThemeSwitcher = ({ className }: { className: string }) => {
+const ThemeSwitcher = ({ className }: { className?: string }) => {
   const { theme, setTheme } = useTheme();
   return (
     <ul className="flex flex-col gap-3">
