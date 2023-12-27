@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import Customizer from "@/components/global/sidebar/customizer";
 import ThemeSwitcher from "@/components/global/sidebar/theme-switcher";
 import SearchPanel from "@/components/global/sidebar/search-panel";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { cn } from "@/lib/utils";
 function Sidebar() {
   const pathname = usePathname();
@@ -39,7 +39,7 @@ function Sidebar() {
           <SearchPanel />
         </div>
 
-        <ScrollArea className="-mx-4 px-4 grow">
+        <div className="relative flex-1 max-h-full overflow-y-auto scrollbox -mx-x px-x">
           <ul className="flex flex-col gap-3">
             {MENU_ITEMS.map((el, i) => {
               const Icon = el.icon;
@@ -51,9 +51,9 @@ function Sidebar() {
                   <Link
                     href={el.href}
                     className={cn(
-                      `px-2 group md:justify-center lg:px-4 lg:justify-start py-3 lg:py-2.5 flex gap-3 transition duration-500 items-center text-sm font-medium text-foreground hover:bg-secondary  ${
+                      `px-2 group md:justify-center lg:px-4 lg:justify-start py-3 lg:py-2.5 flex gap-3 transition duration-500 items-center text-sm font-medium text-foreground hover:bg-secondary dark:hover:bg-secondary/50  ${
                         isActive(el.href)
-                          ? "bg-primary hover:bg-primary text-primary-foreground"
+                          ? "bg-secondary dark:bg-secondary/50  text-primary"
                           : ""
                       }`
                     )}
@@ -68,7 +68,7 @@ function Sidebar() {
               );
             })}
           </ul>
-        </ScrollArea>
+        </div>
 
         <div className="mt-4">
           <Separator className="hidden lg:block" />

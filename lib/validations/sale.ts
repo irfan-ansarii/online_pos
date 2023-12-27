@@ -13,11 +13,15 @@ export const saleValidation = z.object({
   employeeId: z.number(),
   lineItems: z
     .object({
+      itemId: z.number(),
       productId: z.number(),
       variantId: z.number(),
       title: z.string(),
       variantTitle: z.string().optional(),
       sku: z.string(),
+      barcode: z.any(),
+      stock: z.any(),
+      imageSrc: z.any(),
       price: number,
       taxRate: z.number(),
       quantity: z.number(),

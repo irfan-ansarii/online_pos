@@ -6,6 +6,7 @@ import Numeral from "numeral";
 import { useToggle } from "@uidotdev/usehooks";
 import { useWatch, useFormContext } from "react-hook-form";
 import { useSession } from "@/hooks/useSession";
+import { usePayments } from "@/hooks/usePayments";
 import { toast } from "@/components/ui/use-toast";
 
 const EmployeeTab = lazy(() => import("./EmployeeTab"));
@@ -39,7 +40,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import LoadingSmall from "@/components/shared/loading-sm";
 
 const tabs = ["employee", "customer", "payment", "completed"];
 
@@ -47,6 +47,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
   const [loading, setLoading] = React.useState(false);
   const { session } = useSession();
+  const { payments } = usePayments();
   const [open, toggle] = useToggle(false);
   const [active, setActive] = React.useState("employee");
 
@@ -87,7 +88,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
    * hanlde form submit
    * @param values
    */
-  const onSubmit = (values: any) => {
+  const onSubmit = async (values: any) => {
     const locationId = session.location.id;
 
     values.title = "GN1234";
@@ -135,6 +136,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
         return {
           locationId,
           name: txn.name,
+          label: txn.label,
           kind: "sale",
           status: "success",
           amount: Math.round(txn.amount * 100) / 100,
@@ -197,7 +199,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
    */
   const updateDue = () => {
     const total = form.getValues("total");
-    const received = transactions.reduce((acc: any, curr: any) => {
+    const received = transactions?.reduce((acc: any, curr: any) => {
       acc += parseFloat(curr.amount || 0);
       return acc;
     }, 0);
@@ -226,7 +228,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
           Checkout
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="focus-visible:ring-transparent">
         {loading && (
           <div className="absolute rounded-md inset-0 z-20 bg-accent/50"></div>
         )}
@@ -251,14 +253,18 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-border p-3 space-y-1 rounded-md text-center">
+                <div className="border p-3 space-y-1 rounded-md text-center">
                   <div className="font-medium text-xs uppercase">TOTAL</div>
                   <div className="font-medium text-lg">
                     {Numeral(form.watch("total")).format()}
                   </div>
                 </div>
-                <div className="bg-border p-3 space-y-1 rounded-md text-center">
-                  <div className="font-medium text-xs uppercase">DUE</div>
+                <div
+                  className={`border p-3 space-y-1 rounded-md text-center ${
+                    form.watch("totalDue") < 0 ? "border-destructive" : ""
+                  } `}
+                >
+                  <div className="font-medium text-xs uppercase">due</div>
                   <div className="font-medium text-lg">
                     {Numeral(form.watch("totalDue")).format()}
                   </div>
@@ -267,42 +273,57 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
             </DialogHeader>
             <div className="h-72">
               <Accordion type="single" className="w-full space-y-2">
-                {form.getValues("transactions").map((item: any, i: number) => (
-                  <FormField
-                    key={`${item.name}${i}`}
-                    control={form.control}
-                    name={`transactions.${i}.amount`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <AccordionItem
-                          value={`${item.name}${i}`}
-                          className="px-3 rounded-md border hover:bg-accent transition duration-300 data-[state=open]:bg-accent"
-                        >
-                          <AccordionTrigger>
-                            <FormLabel className="flex w-full cursor-pointer">
-                              {item.label}
+                {payments?.data?.map((item: any, i: number) => (
+                  <>
+                    <Input
+                      {...form.register(`transactions.${i}.name`)}
+                      className="hidden"
+                    />
+                    <Input
+                      {...form.register(`transactions.${i}.label`)}
+                      className="hidden"
+                    />
 
-                              {parseFloat(
-                                form.watch(`transactions.${i}.amount`) || 0
-                              ) > 0 && (
-                                <span className="ml-auto text-muted-foreground">
-                                  {Numeral(
-                                    form.watch(`transactions.${i}.amount`)
-                                  ).format()}
-                                </span>
-                              )}
-                            </FormLabel>
-                          </AccordionTrigger>
-                          <FormControl>
-                            <AccordionContent className="overflow-visible">
-                              <Input className="bg-accent" {...field} />
-                            </AccordionContent>
-                          </FormControl>
-                          <FormMessage />
-                        </AccordionItem>
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      key={`${item.id}`}
+                      control={form.control}
+                      name={`transactions.${i}.amount`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <AccordionItem
+                            value={`${item.id}`}
+                            className="px-3 rounded-md border hover:bg-accent transition duration-300 data-[state=open]:bg-accent"
+                          >
+                            <AccordionTrigger>
+                              <FormLabel className="flex w-full cursor-pointer">
+                                {item.label}
+
+                                {parseFloat(
+                                  form.watch(`transactions.${i}.amount`) || 0
+                                ) > 0 && (
+                                  <span className="ml-auto text-muted-foreground">
+                                    {Numeral(
+                                      form.watch(`transactions.${i}.amount`)
+                                    ).format()}
+                                  </span>
+                                )}
+                              </FormLabel>
+                            </AccordionTrigger>
+                            <FormControl>
+                              <AccordionContent className="overflow-visible">
+                                <Input
+                                  className="bg-accent"
+                                  {...field}
+                                  defaultValue={0}
+                                />
+                              </AccordionContent>
+                            </FormControl>
+                            <FormMessage />
+                          </AccordionItem>
+                        </FormItem>
+                      )}
+                    />
+                  </>
                 ))}
               </Accordion>
             </div>

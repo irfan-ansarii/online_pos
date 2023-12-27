@@ -259,6 +259,7 @@ model Transaction {
   saleId     Int
   locationId Int
   name       String
+  label      String
   amount     Float
   kind       TransactionKind
   status     TransactionStatus @default(pending)
@@ -267,6 +268,17 @@ model Transaction {
   sale       Sale              @relation(fields: [saleId], references: [id])
 
   @@map("transactions")
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  name      String
+  label     String
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payments")
 }
 
 enum SaleFinancialStatus {

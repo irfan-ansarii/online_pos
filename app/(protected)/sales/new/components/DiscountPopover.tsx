@@ -77,7 +77,10 @@ const DiscountPopover = () => {
             <PenSquare className="w-3 h-3" />
           </span>
         </PopoverTrigger>
-        <PopoverContent className="w-full min-w-[20rem] bg-background flex flex-col space-y-4">
+        <PopoverContent
+          align="start"
+          className="w-full min-w-[20rem] bg-background flex flex-col space-y-4"
+        >
           {hasProductDiscount && (
             <Alert variant="destructive" className="flex items-center ">
               <AlertCircle className="h-4 w-4" />

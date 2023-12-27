@@ -4,7 +4,7 @@ import React from "react";
 
 import { signup } from "@/actions/auth-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginValidation } from "@/lib/validations/auth";
+import { signupValidation } from "@/lib/validations/auth";
 
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -28,15 +28,16 @@ export function SignupForm() {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
-  const form = useForm<z.infer<typeof loginValidation>>({
-    resolver: zodResolver(loginValidation),
+  const form = useForm<z.infer<typeof signupValidation>>({
+    resolver: zodResolver(signupValidation),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof loginValidation>) {
+  async function onSubmit(values: z.infer<typeof signupValidation>) {
     try {
       setLoading(true);
       await signup(values);
@@ -93,6 +94,40 @@ export function SignupForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
+              <div className="relative">
+                <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
+                  <Lock className="w-4 h-4" />
+                </span>
+                <span
+                  className="absolute text-muted-foreground inset-y-0 right-0 flex flex-col justify-center px-3 cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </span>
+
+                <FormControl placeholder="••••••••">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    {...field}
+                    className="px-10"
+                  />
+                </FormControl>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
               <div className="relative">
                 <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
                   <Lock className="w-4 h-4" />

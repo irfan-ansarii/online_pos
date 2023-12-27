@@ -38,3 +38,20 @@ export const resetValidation = z
     message: "Passwords do not match",
     path: ["confirmNewPassword"],
   });
+
+export const signupValidation = z
+  .object({
+    email: z.string().email({ message: "Enter valid email" }),
+
+    password: z
+      .string()
+      .nonempty({ message: "Password is required" })
+      .min(8, { message: "Password must be atleast 8 characters" }),
+    confirmPassword: z
+      .string()
+      .nonempty({ message: "Confirm password is required" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });

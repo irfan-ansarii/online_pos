@@ -22,6 +22,8 @@ import {
   DialogContent,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
+  DialogCancel,
 } from "@/components/ui/dialog";
 
 import {
@@ -38,6 +40,7 @@ const SaveCartDialog = () => {
 
   const { watch, reset } = useFormContext();
 
+  const values = watch();
   const form = useForm({
     defaultValues: {
       name: "",
@@ -47,6 +50,7 @@ const SaveCartDialog = () => {
   const onSubmit = ({ name }: { name: string }) => {
     const json = JSON.parse(savedCarts);
     const cart = watch();
+
     json.push({
       name: name,
       cart: cart,
@@ -58,10 +62,34 @@ const SaveCartDialog = () => {
     reset();
     toast({
       variant: "success",
-      description: "Cart saved successfully!",
+      title: "Cart saved successfully!",
     });
     toggle(false);
   };
+
+  React.useEffect(() => {
+    if (values.total > 0 || values.lineItems?.length > 0) {
+      const json = JSON.parse(savedCarts);
+
+      const ind = json.findIndex((js: any) => js.name === "current");
+      if (ind === -1) {
+        json.push({
+          name: "current",
+          cart: values,
+          total: values.total,
+          createdAt: new Date(),
+        });
+      } else {
+        json[ind] = {
+          ...json[ind],
+          name: "current",
+          cart: values,
+          total: values.total,
+        };
+      }
+      saveCart(JSON.stringify(json));
+    }
+  }, [values]);
 
   return (
     <Dialog open={open} onOpenChange={toggle}>
@@ -69,8 +97,8 @@ const SaveCartDialog = () => {
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
             <Button
-              variant="ghost"
-              className="w-full"
+              variant="link"
+              className="w-full text-foreground"
               disabled={!watch("lineItems") || watch("lineItems").length < 1}
             >
               <BookmarkPlus className="w-5 h-5" />
@@ -106,9 +134,14 @@ const SaveCartDialog = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              Save
-            </Button>
+            <div className="flex justify-end gap-4">
+              <DialogCancel className="flex-1 md:flex-none">
+                Cancel
+              </DialogCancel>
+              <Button type="submit" className="flex-1 md:flex-none">
+                Save
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

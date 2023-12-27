@@ -34,10 +34,18 @@ const SavedCartsDialog = () => {
   // handle delete
   const onDelete = (e: React.MouseEvent, index: number) => {
     e.stopPropagation();
+    const { name, total, lineItems } = jsonCarts[index];
+    if (name === "current" && (total > 0 || lineItems.length > 0)) {
+      toast({
+        variant: "error",
+        title: "Cannot delete",
+      });
+      return;
+    }
     jsonCarts.splice(index, 1);
     toast({
       variant: "success",
-      description: "Cart removed successfully!",
+      title: "Cart removed successfully!",
     });
     saveCart(JSON.stringify(jsonCarts));
   };
@@ -46,7 +54,7 @@ const SavedCartsDialog = () => {
   const onSelect = (e: React.MouseEvent, index: number) => {
     const selected = jsonCarts.splice(index, 1);
     saveCart(JSON.stringify(jsonCarts));
-    console.log(selected);
+
     // set form context to
     // form.setValue('');
 
@@ -59,8 +67,8 @@ const SavedCartsDialog = () => {
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
             <Button
-              variant="ghost"
-              className="w-full"
+              variant="link"
+              className="w-full text-foreground"
               disabled={!jsonCarts || jsonCarts.length < 1}
             >
               <Bookmark className="w-5 h-5" />
@@ -72,7 +80,7 @@ const SavedCartsDialog = () => {
         </TooltipContent>
       </Tooltip>
       <DialogContent className="h-[60vh] flex flex-col gap-0">
-        <DialogHeader className="pb-2 border-b">
+        <DialogHeader className="pb-2">
           <DialogTitle className="text-lg">Manage saved carts</DialogTitle>
           <DialogDescription>
             Select or remove an item form the list bellow.
@@ -80,7 +88,7 @@ const SavedCartsDialog = () => {
         </DialogHeader>
 
         {jsonCarts && jsonCarts.length > 0 ? (
-          <ScrollArea className="grow h-full">
+          <div className="flex-1 overflow-y-auto scrollbox h-[21rem]">
             {jsonCarts.map(
               (
                 item: { name: string; createdAt: string; total: string },
@@ -88,11 +96,11 @@ const SavedCartsDialog = () => {
               ) => (
                 <div
                   key={`item${i}`}
-                  className="py-3 border-b h-full justify-between flex items-center relative cursor-pointer"
+                  className="py-3 border-b justify-between flex items-center relative cursor-pointer"
                   onClick={(e) => onSelect(e, i)}
                 >
                   <div className="space-y-1 text-left">
-                    <div>{item.name}</div>
+                    <div className="font-medium">{item.name}</div>
                     <div className="text-muted-foreground text-xs font-normal">
                       {format(
                         new Date(item.createdAt),
@@ -119,7 +127,7 @@ const SavedCartsDialog = () => {
                 </div>
               )
             )}
-          </ScrollArea>
+          </div>
         ) : (
           <div className="grow flex flex-col items-center justify-center text-muted-foreground">
             Saved carts will appear here!

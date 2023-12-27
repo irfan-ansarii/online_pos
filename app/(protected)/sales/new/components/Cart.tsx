@@ -162,15 +162,15 @@ const Cart = ({
   }, [watch]);
 
   return (
-    <div className="flex flex-col h-full w-full relative space-y-2">
+    <div className="flex flex-col h-full overflow-hidden lg:overflow-visible relative">
       {(!fields || fields.length === 0) && (
         <div className="flex flex-col h-full w-full grow items-center justify-center text-muted-foreground dark:text-background">
           <ShoppingBag className="w-20 h-20" />
         </div>
       )}
       {fields && fields.length > 0 && (
-        <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox -mx-4">
-          <Accordion type="single" collapsible className="h-full divide-y px-4">
+        <div className="relative flex-1 overflow-y-auto snap-y snap-mandatory space-y-2 scrollbox">
+          <Accordion type="single" collapsible className="h-full divide-y">
             {fields.map((field: any, i: number) => (
               <AccordionItem
                 key={field.id}
@@ -187,7 +187,7 @@ const Cart = ({
                     <div className="grid grid-cols-4 flex-1 h-14">
                       <div className="text-left col-span-3 space-y-1 text-sm font-normal truncate">
                         <div className="truncate">{field.title}</div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between items-end">
                           {field.variantTitle && (
                             <Badge
                               className="inline-flex py-0"
@@ -198,13 +198,13 @@ const Cart = ({
                           )}
 
                           <Badge
-                            className="shrink-0 px-0 py-0 min-w-[5rem] bg-secondary/80 ml-auto"
+                            className="shrink-0 px-0 py-0 min-w-[5rem] ml-auto"
                             variant="secondary"
                           >
                             <Button
                               onClick={(e) => handleMinus(e, i)}
                               size="icon"
-                              variant="secondary"
+                              variant="outline"
                               className="rounded-full w-6 h-6"
                             >
                               <Minus className="w-4 h-4" />
@@ -215,7 +215,7 @@ const Cart = ({
                             <Button
                               size="icon"
                               onClick={(e) => handlePlus(e, i)}
-                              variant="secondary"
+                              variant="outline"
                               className="rounded-full w-6 h-6"
                             >
                               <Plus className="w-4 h-4" />

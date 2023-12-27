@@ -51,7 +51,10 @@ const TaxPopover = () => {
             <PenSquare className="w-3 h-3 ml-2" />
           </span>
         </PopoverTrigger>
-        <PopoverContent className="min-w-[20rem] w-full bg-background flex flex-col">
+        <PopoverContent
+          className="min-w-[20rem] w-full bg-background flex flex-col"
+          align="start"
+        >
           <FormField
             control={form.control}
             name="taxType"

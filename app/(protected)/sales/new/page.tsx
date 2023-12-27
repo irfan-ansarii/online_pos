@@ -15,6 +15,7 @@ import { Form } from "@/components/ui/form";
 
 import Inventory from "./components/Inventory";
 import Cart from "./components/Cart";
+import { Badge } from "@/components/ui/badge";
 
 const Page = () => {
   const form = useForm<z.infer<typeof saleValidation>>({
@@ -32,28 +33,7 @@ const Page = () => {
       discountLine: { type: "percent", value: 0 },
       createdAt: new Date().toISOString(),
       taxAllocations: ["cgst", "sgst"],
-      transactions: [
-        {
-          name: "cash",
-          label: "Cash",
-          amount: 0,
-        },
-        {
-          name: "card",
-          label: "Credit/Debit Card",
-          amount: 0,
-        },
-        {
-          name: "upi",
-          label: "UPI",
-          amount: 0,
-        },
-        {
-          name: "paytm",
-          label: "Paytm Wallet",
-          amount: 0,
-        },
-      ],
+      transactions: [],
     },
     shouldUnregister: false,
   });
@@ -68,7 +48,7 @@ const Page = () => {
     name: "lineItems",
   });
 
-  const onLineItemClick = (selected) => {
+  const onLineItemClick = (selected: any) => {
     const { id, product, variant, stock } = selected;
 
     const index = fields.findIndex((item) => item.itemId === selected.id);
@@ -83,11 +63,13 @@ const Page = () => {
         sku: variant.sku,
         barcode: variant.barcode,
         stock: stock,
+        imageSrc: product.image.src,
         price: variant.salePrice,
         taxRate: variant.taxRate,
-        imageSrc: product.image.src,
-        totalDiscount: 0,
         quantity: 1,
+        totalDiscount: 0,
+        totalTax: 0,
+        total: variant.salePrice,
       });
       return;
     }
@@ -106,14 +88,23 @@ const Page = () => {
           <div className="col-span-12 lg:col-span-6 xl:col-span-7 2xl:col-span-8 bg-background">
             <Dialog>
               <DialogTrigger asChild>
-                <Button
-                  size="icon"
-                  className="rounded-full fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
-                >
-                  <ShoppingBag className="w-5 h-5" />
-                </Button>
+                <div className="relative">
+                  <Button
+                    size="icon"
+                    className="rounded-full fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+
+                    <Badge
+                      variant="secondary"
+                      className="absolute -top-2 py-0 px-2 -right-2"
+                    >
+                      {fields.length}
+                    </Badge>
+                  </Button>
+                </div>
               </DialogTrigger>
-              <DialogContent className="h-[90%] bg-accent p-4">
+              <DialogContent className="h-[90%] p-4">
                 <Cart fields={fields} remove={remove} update={update} />
               </DialogContent>
             </Dialog>

@@ -1,8 +1,10 @@
 import React from "react";
 import { CalendarDays } from "lucide-react";
 import format from "date-fns/format";
+
 import { useToggle } from "@uidotdev/usehooks";
 import { useFormContext } from "react-hook-form";
+
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+
 import ClearCartDialog from "./ClearCartDialog";
 import SaveCartDialog from "./SaveCartDialog";
 import SavedCartsDialog from "./SavedCartsDialog";
@@ -24,7 +27,7 @@ const CartActions = () => {
   const form = useFormContext();
 
   return (
-    <div className="grid grid-cols-4 mt-4 -mb-3 border-t-2 border-dashed pt-2 items-center divide-x">
+    <div className="grid grid-cols-4 mt-4 -mb-2 border-t-2 border-dashed pt-2 items-center divide-x">
       <div>
         <SaveCartDialog />
       </div>
@@ -36,7 +39,7 @@ const CartActions = () => {
           <Popover open={open} onOpenChange={toggle}>
             <PopoverTrigger asChild>
               <TooltipTrigger asChild>
-                <Button variant="ghost" className="w-full">
+                <Button variant="link" className="w-full text-foreground">
                   <CalendarDays className="w-5 h-5" />
                 </Button>
               </TooltipTrigger>

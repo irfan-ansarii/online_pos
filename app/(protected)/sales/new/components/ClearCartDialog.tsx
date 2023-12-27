@@ -40,8 +40,8 @@ const ClearCartDialog = () => {
         <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
             <Button
-              variant="ghost"
-              className="w-full"
+              variant="link"
+              className="w-full text-foreground"
               disabled={!watch("lineItems") || watch("lineItems").length < 1}
             >
               <Trash2 className="w-5 h-5" />
