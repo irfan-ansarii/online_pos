@@ -91,16 +91,19 @@ const Inventory = ({ onSelect }: { onSelect?: (value: Option) => void }) => {
         {isLoading && [...Array(6)].map((_, i) => <ProductLoading key={i} />)}
 
         {/* empty box */}
-        {inventory?.data.length === 0 && (
+        {inventory?.data.length === 0 && !isLoading && (
           <EmptyBox
-            className="col-span-2 sm:col-span-3 md:col-span-3 lg:col-span-3 xl:col-span-4 2xl:col-span-5"
+            className="col-span-2 sm:col-span-3 md:col-span-4 2xl:col-span-5"
             title="No Product Found"
           />
         )}
 
         {/* error box */}
-        {isError && (
-          <ErrorBox className="col-span-2 sm:col-span-3 md:col-span-3 lg:col-span-3 xl:col-span-4 2xl:col-span-5" />
+        {isError && !isLoading && (
+          <ErrorBox
+            className="col-span-2 sm:col-span-3 md:col-span-4 2xl:col-span-5"
+            title="Internal server error"
+          />
         )}
 
         {/* item card */}

@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,19 +8,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import LocationDialog from "./location-dialog";
-import { ChevronDown, Power } from "lucide-react";
 
-import { useRouter } from "next/navigation";
-// import { useLogout } from "@/hooks/useAuth";
+import { ChevronDown, LogOut } from "lucide-react";
 
 import { useSession } from "@/hooks/useSession";
+import { AvatarItem } from "@/components/shared/avatar";
 
 const Profile = () => {
   const router = useRouter();
   const { session } = useSession();
-  // const { mutate } = useLogout();
 
   const logout = () => {
     // mutate({
@@ -32,9 +29,7 @@ const Profile = () => {
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger>
         <div className="flex gap-2 items-center text-muted-foreground hover:text-foreground transition duration-500">
-          <Avatar className="border-2">
-            <AvatarFallback>IR</AvatarFallback>
-          </Avatar>
+          <AvatarItem src="" />
           <div className="hidden md:flex">
             <span className="text-sm mr-1">
               {session?.firstName ? session?.firstName : null}{" "}
@@ -44,27 +39,31 @@ const Profile = () => {
           </div>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="px-3 pb-3 w-40">
+      <DropdownMenuContent className="w-40">
         <DropdownMenuLabel>
-          {session?.firstName ? session?.firstName : null}{" "}
-          {session?.lastName ? session?.lastName : null}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator className="mb-3" />
-        <DropdownMenuItem>Profile</DropdownMenuItem>
+          <span>{session?.firstName ? session?.firstName : null}</span>
 
-        {/* <LocationDialog>
-          <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground">
-            Branches
+          <span className="ml-1">
+            {session?.lastName ? session?.lastName : null}
+          </span>
+
+          <div className="text-xs leading-none text-muted-foreground font-normal">
+            {session?.email}
           </div>
-        </LocationDialog> */}
+        </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={logout}
-          className="flex gap-3 text-destructive bg-destructive/10 dark:bg-destructive dark:text-foreground items-center"
-        >
-          <Power className="w-4 h-4" />
-          <span>Logout</span>
+        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuItem>Profile</DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={logout} className="flex">
+          <span className="text-destructive flex gap-2 items-center">
+            <LogOut className="w-4 h-4" />
+            <span className="font-medium">Logout</span>
+          </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

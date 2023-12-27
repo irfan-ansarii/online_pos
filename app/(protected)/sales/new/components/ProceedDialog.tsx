@@ -38,11 +38,32 @@ import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Loader2,
+  Mail,
+  MessageCircle,
+  Printer,
+} from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { createSale } from "@/actions/sale-actions";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const tabs = ["employee", "customer", "payment", "completed"];
-
+const invoiceOptions = [
+  {
+    key: 1,
+    name: "Email",
+    icon: <Mail className="w-4 h-4" />,
+  },
+  {
+    key: 2,
+    name: "Whats App",
+    icon: <MessageCircle className="w-4 h-4" />,
+  },
+  { key: 3, name: "Print", icon: <Printer className="w-4 h-4" /> },
+];
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
   const [loading, setLoading] = React.useState(false);
@@ -66,8 +87,12 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     } else if (active === "customer") {
       setActive("payment");
     } else if (active === "payment") {
+      console.log("first");
       form.handleSubmit(onSubmit, (e) => console.log("error:", e))();
     } else {
+      //TODO
+      // call send invoice api
+      console.log("send invoice");
       toggle();
     }
   };
@@ -83,6 +108,45 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
       toggle();
     }
   };
+
+  /**
+   * handle next step disabled/enabled
+   */
+  const isDisabled =
+    (active === tabs[0] && !form.watch("employeeId")) ||
+    (active === tabs[1] && !form.watch("customerId"));
+
+  /** button text */
+  const buttonText = loading ? (
+    <Loader2 className="h-4 w-4 animate-spin" />
+  ) : (
+    {
+      payment: "Create Sale",
+      complete: "Done",
+    }[active] || "Next"
+  );
+
+  /** header icon */
+  const headerIcon = (
+    <span className="pr-3 cursor-pointer" onClick={handlePrev}>
+      <ArrowLeft className="w-5 h-5" />
+    </span>
+  );
+
+  /**
+   * update due amount
+   */
+  const updateDue = () => {
+    const total = form.getValues("total");
+    const received = transactions?.reduce((acc: any, curr: any) => {
+      acc += parseFloat(curr.amount || 0);
+      return acc;
+    }, 0);
+    form.setValue("totalDue", total - received);
+  };
+  React.useEffect(() => {
+    updateDue();
+  }, [transactions, form.watch("lineItems")]);
 
   /**
    * hanlde form submit
@@ -151,84 +215,39 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
       values.status = "partialy_paid";
     }
 
-    // call react query mutation
-    // mutate(values, {
-    //   onSuccess: () => {
-    //     toast({
-    //       variant: "success",
-    //       title: "Sale created successfully!",
-    //     });
-    //     form.reset();
-    //     toggle();
-    //   },
-    //   onError: (error: any) => {
-    //     toast({
-    //       variant: "error",
-    //       title: error.response.data.message || "Something went wrong",
-    //     });
-    //   },
-    // });
+    try {
+      setLoading(true);
+      await createSale(values);
+      toast({
+        variant: "success",
+        title: "Sale created successfully!",
+      });
+      form.reset();
+      setActive("completed");
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
-
-  /**
-   * handle next step disabled/enabled
-   */
-  const isDisabled =
-    (active === tabs[0] && !form.watch("employeeId")) ||
-    (active === tabs[1] && !form.watch("customerId"));
-
-  /** button text */
-  const buttonText = loading ? (
-    <Loader2 className="h-4 w-4 animate-spin" />
-  ) : (
-    {
-      payment: "Create Sale",
-      complete: "Done",
-    }[active] || "Next"
-  );
-
-  /** header icon */
-  const headerIcon = (
-    <span className="pr-3 cursor-pointer" onClick={handlePrev}>
-      <ArrowLeft className="w-5 h-5" />
-    </span>
-  );
-
-  /**
-   * update due amount
-   */
-  const updateDue = () => {
-    const total = form.getValues("total");
-    const received = transactions?.reduce((acc: any, curr: any) => {
-      acc += parseFloat(curr.amount || 0);
-      return acc;
-    }, 0);
-    form.setValue("totalDue", total - received);
-  };
-
-  /**
-   * update due amount useEffect
-   */
-  React.useEffect(() => {
-    updateDue();
-  }, [transactions, form.watch("lineItems")]);
 
   return (
     <Dialog open={open} onOpenChange={toggle}>
       <DialogTrigger asChild>
-        <Button
-          className="w-full"
-          disabled={disabled}
-          onClick={() => {
-            setActive("employee");
-            updateDue();
-            toggle();
-          }}
-        >
+        <Button className="w-full" disabled={disabled}>
           Checkout
         </Button>
       </DialogTrigger>
-      <DialogContent className="focus-visible:ring-transparent">
+      <DialogContent
+        className="focus-visible:ring-transparent"
+        onCloseAutoFocus={() => {
+          setActive("employee");
+          updateDue();
+        }}
+      >
         {loading && (
           <div className="absolute rounded-md inset-0 z-20 bg-accent/50"></div>
         )}
@@ -330,31 +349,43 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
           </TabsContent>
 
           {/* sale created tab */}
-          <TabsContent value="completed" className="mt-0">
+          <TabsContent
+            value="completed"
+            className="mt-0 focus-visible:ring-transparent"
+          >
             <DialogHeader className="text-left pb-6">
-              <DialogTitle>Sale created successfully!</DialogTitle>
+              <DialogTitle>Sale created</DialogTitle>
               <DialogDescription>
-                Select the option bellow send or print invoice
+                Select the option bellow to send or print invoice
               </DialogDescription>
             </DialogHeader>
             <div className="h-80">
               <RadioGroup defaultValue="card" className="flex flex-col">
-                {["Email", "Text", "What's App", "Print"].map((el) => (
-                  <div key={el} className="relative">
+                {invoiceOptions.map((el) => (
+                  <div key={el.key} className="relative">
                     <RadioGroupItem
-                      value={el}
-                      id={el}
+                      value={el.name}
+                      id={`${el.key}`}
                       className="peer sr-only"
                     />
                     <div className="absolute w-5 h-5 bg-primary top-1/2 -translate-y-1/2 right-3 rounded-full inline-flex items-center justify-center opacity-0 peer-data-[state=checked]:opacity-100">
                       <Check className="w-3 h-3" />
                     </div>
-                    <Label htmlFor={el} className="block py-3 cursor-pointer">
-                      <div className="truncate w-full text-left mb-1">{el}</div>
-
-                      <div className="text-muted-foreground font-normal text-xs">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit.
+                    <Label
+                      htmlFor={`${el.key}`}
+                      className="flex gap-3 px-3 py-2 rounded-md border items-center cursor-pointer hover:bg-accent transition duration-300 peer-data-[state=checked]:bg-accent"
+                    >
+                      <Avatar className="w-10 h-10">
+                        <AvatarFallback>{el.icon}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="truncate w-full text-left mb-1">
+                          {el.name}
+                        </div>
+                        <div className="text-muted-foreground font-normal text-xs">
+                          Lorem ipsum dolor sit amet, consectetur adipisicing
+                          elit.
+                        </div>
                       </div>
                     </Label>
                   </div>

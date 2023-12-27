@@ -43,14 +43,16 @@ export default function SearchPanel() {
   return (
     <>
       <Button
-        variant="ghost"
+        variant="secondary"
         onClick={() => setOpen(true)}
         size="icon"
-        className="group lg:border w-full flex justify-center bg-secondary lg:bg-background lg:justify-between gap-3 rounded-md items-center h-[44px] lg:px-4"
+        className="group w-full justify-center bg-secondary/50 lg:justify-between gap-3 items-center h-[44px] lg:px-4"
       >
         <span className="inline-flex">
           <Search className="w-5 h-5 text-muted-foreground" />
-          <span className="hidden lg:block ml-3">Search</span>
+          <span className="hidden lg:block ml-3 text-muted-foreground">
+            Search...
+          </span>
         </span>
         <Badge className="hidden lg:block shadow" variant="secondary">
           ⌘K

@@ -29,8 +29,8 @@ function Sidebar() {
   }, []);
   return (
     <div className="top-0 z-30 hidden h-screen w-full bg-accent shrink-0 sticky md:block ">
-      <div className="flex flex-col px-4 h-full border-r">
-        <div className="border-b shrink-0 -mx-4">
+      <div className="flex flex-col px-4 h-full">
+        <div className="shrink-0 -mx-4">
           <div className="h-[60px] flex items-center justify-center">
             <Image src="/logo.png" width={200} height={60} alt="logo"></Image>
           </div>

@@ -33,16 +33,6 @@ const DiscountPopover = () => {
     name: "discountLine",
   });
 
-  // check if has applied discount
-  const hasProductDiscount = React.useMemo(() => {
-    for (const item of lineItems) {
-      if (item.totalDiscount > 0) {
-        return true;
-      }
-      return false;
-    }
-  }, [lineItems]);
-
   React.useEffect(() => {
     const taxType = form.getValues("taxType");
 
@@ -81,12 +71,6 @@ const DiscountPopover = () => {
           align="start"
           className="w-full min-w-[20rem] bg-background flex flex-col space-y-4"
         >
-          {hasProductDiscount && (
-            <Alert variant="destructive" className="flex items-center ">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>This will replace product discounts.</AlertTitle>
-            </Alert>
-          )}
           <div className="space-y-2">
             <FormField
               control={form.control}
@@ -96,25 +80,25 @@ const DiscountPopover = () => {
                   <FormLabel>Discount Type</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      className="space-y-1"
+                      className="flex"
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <FormItem className="flex flex-1 items-center space-y-0">
-                        <FormLabel className="font-normal flex-1 cursor-pointer">
-                          Percentage
-                        </FormLabel>
+                      <FormItem className="flex flex-1 items-center space-y-0 gap-2">
                         <FormControl>
                           <RadioGroupItem value="percent" />
                         </FormControl>
-                      </FormItem>
-                      <FormItem className="flex flex-1 items-center  space-y-0">
-                        <FormLabel className="font-normal flex-1 cursor-pointer">
-                          Fixed Amount
+                        <FormLabel className="font-normal text-muted-foreground flex-1 cursor-pointer">
+                          Percentage
                         </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex flex-1 items-center gap-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="fixed" />
                         </FormControl>
+                        <FormLabel className="font-normal text-muted-foreground flex-1 cursor-pointer truncate">
+                          Fixed Amount
+                        </FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>

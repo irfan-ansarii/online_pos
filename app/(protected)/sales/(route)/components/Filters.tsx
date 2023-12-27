@@ -14,15 +14,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { PlusCircle } from "lucide-react";
+import { ListFilter } from "lucide-react";
 
-export default function DataTableFacetedFilter() {
+export default function Filters() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="border-dashed">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          title
+        <Button variant="secondary" className="border-dashed">
+          <ListFilter className="w-4 h-4 mr-2" />
+          Filters
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">

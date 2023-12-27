@@ -61,30 +61,30 @@ const TaxPopover = () => {
             render={({ field }) => (
               <FormItem className="space-y-3">
                 <FormLabel>Tax Type</FormLabel>
-                <FormControl>
+                <FormControl className="flex">
                   <RadioGroup
                     className="gap-3"
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <PopoverClose asChild>
-                      <FormItem className="flex items-center justify-between space-y-0">
-                        <FormLabel className="font-normal flex-1 cursor-pointer">
-                          Included
-                        </FormLabel>
+                      <FormItem className="flex flex-1 items-center gap-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="included" />
                         </FormControl>
+                        <FormLabel className="font-normal text-muted-foreground flex-1 cursor-pointer">
+                          Included
+                        </FormLabel>
                       </FormItem>
                     </PopoverClose>
                     <PopoverClose asChild>
-                      <FormItem className="flex items-center justify-between space-y-0">
-                        <FormLabel className="font-normal flex-1 cursor-pointer">
-                          Excluded
-                        </FormLabel>
+                      <FormItem className="flex flex-1 items-center gap-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="excluded" />
                         </FormControl>
+                        <FormLabel className="font-normal text-muted-foreground flex-1 cursor-pointer">
+                          Excluded
+                        </FormLabel>
                       </FormItem>
                     </PopoverClose>
                   </RadioGroup>
@@ -110,7 +110,7 @@ const TaxPopover = () => {
                           key={item.id}
                           className="flex flex-row items-center space-x-3 space-y-0"
                         >
-                          <FormLabel className="font-normal flex-1 cursor-pointer">
+                          <FormLabel className="font-normal flex-1 text-muted-foreground cursor-pointer">
                             {item.label}
                           </FormLabel>
                           <FormControl>

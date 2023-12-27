@@ -8,9 +8,9 @@ const number = z
   .transform(Number);
 
 export const saleValidation = z.object({
-  createdAt: z.string().datetime(),
   customerId: z.number(),
   employeeId: z.number(),
+  createdAt: z.string().datetime(),
   lineItems: z
     .object({
       itemId: z.number(),

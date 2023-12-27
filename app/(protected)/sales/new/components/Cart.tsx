@@ -87,8 +87,8 @@ const Cart = ({
 
     const taxAmount =
       taxType === "included"
-        ? total - total / (1 + taxRate / 100)
-        : total * (taxRate / 100);
+        ? Number(total) - Number(total) / (1 + Number(taxRate) / 100)
+        : Number(total) * (Number(taxRate) / 100);
 
     return taxAmount;
   };
@@ -122,7 +122,8 @@ const Cart = ({
    */
   React.useEffect(() => {
     fields.forEach((item: any, i: number) => {
-      const taxableAmount = item.price * item.quantity - item.totalDiscount;
+      const taxableAmount =
+        Number(item.price) * Number(item.quantity) - Number(item.totalDiscount);
 
       const taxAmount = calculateTax({
         taxRate: item.taxRate,
@@ -141,12 +142,15 @@ const Cart = ({
     const taxType = form.getValues("taxType");
     const result = watch.reduce(
       (acc: any, curr: any) => {
-        const total = curr.price * curr.quantity - curr.totalDiscount || 0;
+        const total =
+          Number(curr.price) * Number(curr.quantity) -
+          Number(curr.totalDiscount || 0);
 
         acc.subtotal += Number(total) + Number(curr.totalDiscount || 0);
-        acc.totalDiscount += curr.totalDiscount || 0;
-        acc.totalTax += curr.totalTax;
-        acc.total += taxType === "included" ? total : total + curr.totalTax;
+        acc.totalDiscount += Number(curr.totalDiscount || 0);
+        acc.totalTax += Number(curr.totalTax);
+        acc.total +=
+          taxType === "included" ? total : total + Number(curr.totalTax);
         return acc;
       },
       {
@@ -156,6 +160,7 @@ const Cart = ({
         total: 0,
       }
     );
+
     Object.entries(result).map(([key, value]) => {
       form.setValue(key, value);
     });
@@ -225,7 +230,8 @@ const Cart = ({
                       </div>
                       <div className="flex flex-col justify-end pb-1 h-full font-medium text-right">
                         {watch[i]?.total <
-                          watch[i]?.total + watch[i]?.totalDiscount && (
+                          Number(watch[i]?.total) +
+                            Number(watch[i]?.totalDiscount) && (
                           <div className="line-through text-muted-foreground text-xs">
                             {Numeral(
                               Number(watch[i]?.total) +

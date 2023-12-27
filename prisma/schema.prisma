@@ -82,6 +82,7 @@ model Product {
   label            Label[]
   adjustment       Adjustment[]
   transferLineItem TransferLineItem[]
+  LineItem         LineItem[]
 
   @@map("products")
 }
@@ -103,6 +104,7 @@ model Variant {
   product          Product            @relation(fields: [productId], references: [id])
   transferLineItem TransferLineItem[]
   adjustment       Adjustment[]
+  LineItem         LineItem[]
 
   @@map("variants")
 }
@@ -212,16 +214,16 @@ model Sale {
   shippingAddress Json?
   lineItemsTotal  Float
   subtotal        Float
+  taxType         String              @default("included")
   totalTax        Float
   totalDiscount   Float
   roundedOff      Float               @default(0)
   total           Float
   totalDue        Float
   taxLines        Json?
+  status          SaleFinancialStatus @default(pending)
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
-  status          SaleFinancialStatus @default(pending)
-  taxType         String              @default("included")
   lineItems       LineItem[]
   customer        User                @relation("customerSale", fields: [customerId], references: [id])
   employee        User                @relation("employeeSale", fields: [employeeId], references: [id])
@@ -250,6 +252,8 @@ model LineItem {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   sale          Sale     @relation(fields: [saleId], references: [id])
+  product       Product  @relation(fields: [productId], references: [id])
+  variant       Variant  @relation(fields: [variantId], references: [id])
 
   @@map("line_items")
 }
@@ -287,12 +291,12 @@ enum SaleFinancialStatus {
   partialy_paid
   partially_refunded
   refunded
-  voided
 }
 
 enum TransactionKind {
   sale
-  void
+  purchase
+  expense
   refund
 }
 

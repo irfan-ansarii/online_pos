@@ -93,7 +93,7 @@ export async function createTransfer(values: any) {
 
     const { toId, lineItems, totalItems, totalAmount } = values;
 
-    if (session.locationId === toId) {
+    if (session.location.id === toId) {
       throw new Error("Source and destination cannot be same");
     }
 
@@ -101,7 +101,7 @@ export async function createTransfer(values: any) {
       throw new Error("Missing required fields");
     }
 
-    const sourceId = Number(session.locationId);
+    const sourceId = Number(session.location.id);
     // oranize line items data
     const lineItemsToCreate = lineItems.map((item: any) => ({
       variantId: Number(item.variantId),
