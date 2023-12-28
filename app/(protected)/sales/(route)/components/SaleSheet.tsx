@@ -69,6 +69,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Transaction } from "@prisma/client";
+import { format } from "date-fns";
 
 const SaleSheet = ({
   children,
@@ -127,7 +129,7 @@ const SaleSheet = ({
                 className="flex rounded-md border p-2 pr-0 items-center snap-start"
                 key={field.id}
               >
-                <AvatarItem src={`/${field.product.image.src}`} />
+                <AvatarItem src={`/${field?.product?.image?.src}`} />
 
                 <div className="space-y-0.5 truncate flex-1 mx-3">
                   <div className="font-medium truncate">{field.title}</div>
@@ -176,27 +178,38 @@ const SaleSheet = ({
 
             <div className="border-b-2 border-dashed my-2" />
             <Collapsible className="space-y-2 group">
-              <CollapsibleTrigger asChild>
-                <div className="flex items-center text-lg font-medium">
-                  Total
-                  <span
-                    role="button"
-                    className="text-muted-foreground text-xs font-normal ml-2 inline-flex cursor-pointer"
-                  >
-                    View transactions
-                    <ChevronDown className="w-4 h-4 ml-2 group-data-[state=open]:rotate-180" />
-                  </span>
-                  <div className="ml-auto"> {Numeral(sale.total).format()}</div>
-                </div>
-              </CollapsibleTrigger>
+              <div className="flex items-center text-lg font-medium">
+                Total
+                {sale?.transactions?.length > 0 && (
+                  <CollapsibleTrigger asChild>
+                    <span
+                      role="button"
+                      className="text-muted-foreground text-xs font-normal ml-2 inline-flex cursor-pointer"
+                    >
+                      View transactions
+                      <ChevronDown className="w-4 h-4 ml-2 group-data-[state=open]:rotate-180" />
+                    </span>
+                  </CollapsibleTrigger>
+                )}
+                <div className="ml-auto"> {Numeral(sale.total).format()}</div>
+              </div>
 
-              <CollapsibleContent className="space-y-1">
-                <div className="rounded-md border px-4 py-3 font-mono text-sm">
-                  @radix-ui/colors
-                </div>
-                <div className="rounded-md border px-4 py-3 font-mono text-sm">
-                  @stitches/react
-                </div>
+              <CollapsibleContent className="divide-y">
+                {sale.transactions.map((transaction: Transaction) => (
+                  <div className="py-2" key={transaction.id}>
+                    <div className="flex gap-2 items-center">
+                      <div>
+                        <div>Label</div>
+                        <div className="text-xs text-muted-foreground">
+                          {format(transaction.createdAt, "dd MMM, yyyy")}
+                        </div>
+                      </div>
+                      <div className="ml-auto text-right">
+                        {Numeral(transaction.amount).format()}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </CollapsibleContent>
             </Collapsible>
 

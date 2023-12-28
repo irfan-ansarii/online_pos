@@ -1,12 +1,13 @@
 "use client";
 import React from "react";
+import { JwtPayload } from "jsonwebtoken";
 import Profile from "@/components/global/header/profile";
 import Activity from "@/components/global/header/activity";
 import Setting from "@/components/global/header/setting";
 import Stores from "@/components/global/header/stores";
 import CreateStore from "./create-store";
 
-const Header = () => {
+const Header = ({ session }: { session: JwtPayload }) => {
   return (
     <div className="hidden md:block sticky top-0 z-50 shadow w-full border-b bg-background/95 backdrop-blur">
       <header className="h-[60px] px-4">
@@ -19,7 +20,7 @@ const Header = () => {
             <Setting />
 
             <Activity />
-            <Profile />
+            <Profile session={session} />
           </div>
         </div>
       </header>

@@ -4,9 +4,9 @@ import { mutate } from "swr";
 import Numeral from "numeral";
 
 import { useToggle } from "@uidotdev/usehooks";
-import { useWatch, useFormContext } from "react-hook-form";
-import { usePayments } from "@/hooks/usePayments";
+import { useWatch, useFormContext, useFieldArray } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
+import { usePayments } from "@/hooks/usePayments";
 
 const EmployeeTab = lazy(() => import("./EmployeeTab"));
 const CustomerTab = lazy(() => import("./CustomerTab"));
@@ -68,7 +68,6 @@ const invoiceOptions = [
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
   const [loading, setLoading] = React.useState(false);
-
   const { payments } = usePayments();
   const [open, toggle] = useToggle(false);
   const [active, setActive] = React.useState("employee");
@@ -90,13 +89,14 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     }, 0);
     form.setValue("totalDue", total - received);
   };
+
   React.useEffect(() => {
     updateDue();
   }, [transactions, form.watch("lineItems")]);
 
-  const handleSubmit = () => {
-    console.log("sebmit");
-    form.handleSubmit(onSubmit, (e) => console.log("error:", e));
+  // handle form submit
+  const handleNext = () => {
+    form.handleSubmit(onSubmit, (e) => console.log("error:", e))();
   };
   /**
    * hanlde form submit
@@ -143,9 +143,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
       ?.filter((transaction: any) => Number(transaction.amount) > 0)
       .map((txn: any) => {
         return {
-          name: txn.name,
-          label: txn.label,
-          amount: txn.amount,
+          ...txn,
           createdAt: values.createdAt,
         };
       });
@@ -194,7 +192,9 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
       </DialogTrigger>
       <DialogContent className="focus-visible:ring-transparent">
         {loading && (
-          <div className="absolute rounded-md inset-0 z-20 bg-accent/50"></div>
+          <div className="absolute rounded-md inset-0 z-20 bg-accent/10 flex flex-col justify-center items-center">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
         )}
 
         <Tabs value={active} onValueChange={setActive}>
@@ -254,10 +254,12 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                           <Input
                             {...form.register(`transactions.${i}.name`)}
                             className="hidden"
+                            defaultValue={item.name}
                           />
                           <Input
                             {...form.register(`transactions.${i}.label`)}
                             className="hidden"
+                            defaultValue={item.label}
                           />
                           <AccordionItem
                             value={`${item.id}`}
@@ -276,7 +278,11 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                             </AccordionTrigger>
                             <FormControl>
                               <AccordionContent className="overflow-visible">
-                                <Input className="bg-accent" {...field} />
+                                <Input
+                                  className="bg-accent"
+                                  {...field}
+                                  defaultValue="0"
+                                />
                               </AccordionContent>
                             </FormControl>
                             <FormMessage />
@@ -289,8 +295,8 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
               </div>
               <Button
                 className="w-full mt-8"
-                type="button"
-                onClick={handleSubmit}
+                type="submit"
+                onClick={handleNext}
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

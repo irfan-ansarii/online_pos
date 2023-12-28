@@ -35,7 +35,6 @@ const Page = () => {
       taxAllocations: ["cgst", "sgst"],
       transactions: [],
     },
-    shouldUnregister: false,
   });
 
   const { fields, append, remove, update } = useFieldArray({
@@ -54,8 +53,6 @@ const Page = () => {
     const index = fields.findIndex((item) => item.itemId === selected.id);
 
     if (index === -1) {
-      const line = form.getValues("discountLine");
-
       append({
         itemId: id,
         productId: product.id,

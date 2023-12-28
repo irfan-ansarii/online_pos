@@ -231,41 +231,17 @@ export async function getProduct(id: number) {
 export async function deleteProduct(id: number) {
   try {
     const session = await auth();
-    if (!session) {
+    if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
-    const variants = await prisma.variant.findMany({
-      where: { productId: Number(id) },
-    });
-
-    const recordsToDelete = variants.map((variant) => variant.id);
-
-    const deleteInventory = prisma.inventory.deleteMany({
-      where: { variantId: { in: recordsToDelete } },
-    });
-
-    const deleteVariants = prisma.variant.deleteMany({
-      where: { productId: Number(id) },
-    });
-
-    const deleteProduct = prisma.product.delete({
+    const deleteProduct = await prisma.product.delete({
       where: {
         id: Number(id),
       },
     });
 
-    const [i, v, product] = await prisma.$transaction([
-      deleteInventory,
-      deleteVariants,
-      deleteProduct,
-    ]);
-
-    if (!product) {
-      throw new Error("Not found");
-    }
-
-    return { data: product, message: "success" };
+    return { data: deleteProduct, message: "success" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");

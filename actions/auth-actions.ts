@@ -162,7 +162,7 @@ export async function signup(values: {
  * get current user session
  * @returns
  */
-export async function session() {
+export async function getSession() {
   try {
     const session = await auth();
 

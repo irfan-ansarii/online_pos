@@ -1,11 +1,12 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 import format from "date-fns/format";
 import Numeral from "numeral";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AvatarGroup, AvatarItem } from "@/components/shared/avatar";
-import { cn } from "@/lib/utils";
+
 import SaleSheet from "./SaleSheet";
 
 const SaleCard = ({ sale }: { sale: any }) => {

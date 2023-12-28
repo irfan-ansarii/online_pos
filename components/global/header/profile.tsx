@@ -1,5 +1,7 @@
 "use client";
+import { JwtPayload } from "jsonwebtoken";
 import { useRouter } from "next/navigation";
+import { logout } from "@/actions/auth-actions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,23 +13,16 @@ import {
 
 import { ChevronDown, LogOut } from "lucide-react";
 
-import { useSession } from "@/hooks/useSession";
 import { AvatarItem } from "@/components/shared/avatar";
 
-const Profile = () => {
+const Profile = ({ session }: { session: JwtPayload }) => {
   const router = useRouter();
-  const { session } = useSession();
 
-  const logout = () => {
-    // mutate({
-    //   onSuccess: () => {
-    //     router.replace("/login");
-    //   },
-    // });
-  };
+  const logout = async () => {};
+
   return (
     <DropdownMenu modal={false}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger className="focus-visible:ring-transparent outline-none">
         <div className="flex gap-2 items-center text-muted-foreground hover:text-foreground transition duration-500">
           <AvatarItem src="" />
           <div className="hidden md:flex">

@@ -60,7 +60,7 @@ export async function getSales(params: ParamsProps) {
       where: filters,
       include: {
         transactions: true,
-        lineItems: true,
+        lineItems: { include: { product: true } },
         employee: true,
         customer: true,
       },
@@ -69,23 +69,28 @@ export async function getSales(params: ParamsProps) {
     const transformed = [];
 
     for (const sale of sales) {
-      const item = [];
+      const lineItems = [];
 
-      for (const lineItem of sale.lineItems) {
+      for (const item of sale.lineItems) {
+        if (!item.productId) {
+          lineItems.push(item);
+          continue;
+        }
+
         const product = await prisma.product.findUnique({
-          where: { id: lineItem.productId },
+          where: { id: item.productId },
           include: { image: true },
         });
 
-        item.push({
-          ...lineItem,
+        lineItems.push({
+          ...item,
           product,
         });
       }
 
       transformed.push({
         ...sale,
-        lineItems: item,
+        lineItems,
       });
     }
 
@@ -152,9 +157,9 @@ export async function createSale(values: any) {
       price: Number(lineItem.price),
       taxRate: Number(lineItem.taxRate),
       quantity: Number(lineItem.quantity),
-      totalDiscount: parseFloat(lineItem.totalDiscount.toFixed(2)),
-      totalTax: parseFloat(lineItem.totalTax.toFixed(2)),
-      total: parseFloat(lineItem.total.toFixed(2)),
+      totalDiscount: Number(lineItem.totalDiscount),
+      totalTax: Number(lineItem.totalTax),
+      total: Number(lineItem.total),
       taxLines: lineItem.taxLines,
       productId: lineItem.productId,
       variantId: lineItem.variantId,
@@ -164,7 +169,7 @@ export async function createSale(values: any) {
       ...txn,
       locationId: session.location.id,
       kind: "sale",
-      amount: parseFloat(txn.amount.toFixed(2)),
+      amount: Number(txn.amount),
     }));
 
     // create product and variants
@@ -329,31 +334,26 @@ export async function deleteSale(id: number) {
     }
 
     // increase stock
-    const updateStock = sale?.lineItems.map((item) => ({
-      variantId: item.variantId,
-      quantity: item.quantity,
-    }));
+    const updateStock = [];
+    for (const item of sale.lineItems) {
+      if (item.variantId) {
+        updateStock.push({
+          variantId: item.variantId,
+          quantity: item.quantity,
+        });
+      }
+    }
 
     await updateInventory({
       data: updateStock,
       locationId: sale.locationId,
     });
 
-    const transactions = [
-      prisma.sale.deleteMany({
-        where: { id: sale.id },
-      }),
-      prisma.lineItem.deleteMany({
-        where: { saleId: sale.id },
-      }),
-      prisma.transaction.deleteMany({
-        where: { saleId: sale.id },
-      }),
-    ];
+    const response = await prisma.sale.deleteMany({
+      where: { id: sale.id },
+    });
 
-    const [saleResponse] = await prisma.$transaction(transactions);
-
-    return { data: saleResponse, message: "success" };
+    return { data: response, message: "success" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
@@ -361,3 +361,7 @@ export async function deleteSale(id: number) {
     throw new Error(error.message);
   }
 }
+
+export async function createTransactions() {}
+
+export async function updateTransaction() {}

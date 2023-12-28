@@ -13,7 +13,7 @@ const Header = () => {
         <div className="justify-self-end flex gap-3">
           <Setting />
           <Activity />
-          <Profile />
+          <Profile session={{}} />
         </div>
       </div>
     </header>

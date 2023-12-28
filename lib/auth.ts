@@ -8,6 +8,7 @@ export const auth = async () => {
   if (!token) return null;
   try {
     const decoded = await jwt.verify(token, process.env.TOKEN_SECRET!);
+    if (typeof decoded === "string") return null;
     return decoded;
   } catch (error) {
     return null;
