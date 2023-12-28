@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 import { Prisma } from "@prisma/client";
+import { updateInventory } from "./inventory-actions";
 
 interface ParamsProps {
   [key: string]: string;
@@ -115,10 +116,8 @@ export async function createTransfer(values: any) {
       total: item.total,
     }));
 
-    const transactions = [];
-
     // create transfer and transfer line items
-    transactions[0] = prisma.transfer.create({
+    const response = await prisma.transfer.create({
       data: {
         toId: Number(toId),
         fromId: sourceId,
@@ -131,37 +130,22 @@ export async function createTransfer(values: any) {
       },
     });
 
-    // adjust stock from the source
-    for (const item of lineItems) {
-      const variantId = Number(item.variantId);
-      const quantity = Number(item.quantity);
+    // reduce stock from source
+    const dec = lineItems.map((item: any) => ({
+      variantId: item.variantId,
+      quantity: -Math.abs(item.quantity),
+    }));
+    await updateInventory({ data: dec, locationId: sourceId });
 
-      const decrement = prisma.inventory.updateMany({
-        data: {
-          stock: { decrement: quantity },
-        },
-        where: {
-          AND: [{ locationId: sourceId }, { variantId: variantId }],
-        },
-      });
-
-      transactions.push(decrement);
-
-      const increment = prisma.inventory.updateMany({
-        data: {
-          stock: { increment: quantity },
-        },
-        where: {
-          AND: [{ locationId: Number(toId) }, { variantId: variantId }],
-        },
-      });
-      transactions.push(increment);
-    }
-
-    const [transfer] = await prisma.$transaction(transactions);
+    // increase stock at destination
+    const inc = lineItems.map((item: any) => ({
+      variantId: item.variantId,
+      quantity: Number(item.quantity),
+    }));
+    await updateInventory({ data: inc, locationId: Number(toId) });
 
     // return response
-    return { data: transfer, message: "created" };
+    return { data: response, message: "created" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");

@@ -50,6 +50,7 @@ import { createSale } from "@/actions/sale-actions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const tabs = ["employee", "customer", "payment", "completed"];
+
 const invoiceOptions = [
   {
     key: 1,
@@ -63,6 +64,7 @@ const invoiceOptions = [
   },
   { key: 3, name: "Print", icon: <Printer className="w-4 h-4" /> },
 ];
+
 const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
   const form = useFormContext();
   const [loading, setLoading] = React.useState(false);
@@ -76,61 +78,6 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     control: form.control,
     name: "transactions",
   });
-
-  /**
-   * handle next step click
-   */
-  const handleNext = () => {
-    if (active === "employee") {
-      setActive("customer");
-    } else if (active === "customer") {
-      setActive("payment");
-    } else if (active === "payment") {
-      console.log("first");
-      form.handleSubmit(onSubmit, (e) => console.log("error:", e))();
-    } else {
-      //TODO
-      // call send invoice api
-      console.log("send invoice");
-      toggle();
-    }
-  };
-
-  /**
-   * handle prev step click
-   */
-  const handlePrev = () => {
-    const index = tabs.indexOf(active);
-    if (index > 0) {
-      setActive(tabs[index - 1]);
-    } else {
-      toggle();
-    }
-  };
-
-  /**
-   * handle next step disabled/enabled
-   */
-  const isDisabled =
-    (active === tabs[0] && !form.watch("employeeId")) ||
-    (active === tabs[1] && !form.watch("customerId"));
-
-  /** button text */
-  const buttonText = loading ? (
-    <Loader2 className="h-4 w-4 animate-spin" />
-  ) : (
-    {
-      payment: "Create Sale",
-      complete: "Done",
-    }[active] || "Next"
-  );
-
-  /** header icon */
-  const headerIcon = (
-    <span className="pr-3 cursor-pointer" onClick={handlePrev}>
-      <ArrowLeft className="w-5 h-5" />
-    </span>
-  );
 
   /**
    * update due amount
@@ -147,6 +94,10 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
     updateDue();
   }, [transactions, form.watch("lineItems")]);
 
+  const handleSubmit = () => {
+    console.log("sebmit");
+    form.handleSubmit(onSubmit, (e) => console.log("error:", e));
+  };
   /**
    * hanlde form submit
    * @param values
@@ -189,7 +140,7 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
 
     // transactions
     values.transactions = values.transactions
-      ?.filter((transaction: any) => parseFloat(transaction.amount) > 0)
+      ?.filter((transaction: any) => Number(transaction.amount) > 0)
       .map((txn: any) => {
         return {
           name: txn.name,
@@ -247,62 +198,67 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
         )}
 
         <Tabs value={active} onValueChange={setActive}>
+          {/* dialog loading  */}
           <Suspense
             fallback={
-              <div className="flex flex-col h-96 my-8 items-center justify-center">
+              <div className="flex flex-col h-[32rem] bg-background relative z-50 items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             }
           >
-            <EmployeeTab headerIcon={headerIcon} />
-            <CustomerTab headerIcon={headerIcon} />
+            <EmployeeTab setActive={setActive} />
+            <CustomerTab setActive={setActive} />
           </Suspense>
 
-          <TabsContent value="payment" className="mt-0">
-            <DialogHeader className="text-left pb-6">
-              <div className="flex item-center mb-3">
-                {headerIcon}
-                <DialogTitle>Collect Payment</DialogTitle>
-              </div>
+          <TabsContent value="payment" className="mt-0 ">
+            <div className="flex flex-col h-[32rem]">
+              <DialogHeader className="text-left pb-6">
+                <div className="flex item-center mb-3">
+                  <span
+                    className="pr-3 cursor-pointer"
+                    onClick={() => setActive("customer")}
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </span>
+                  <DialogTitle>Collect Payment</DialogTitle>
+                </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="border p-3 space-y-1 rounded-md text-center">
-                  <div className="font-medium text-xs uppercase">TOTAL</div>
-                  <div className="font-medium text-lg">
-                    {Numeral(form.watch("total")).format()}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="border p-3 space-y-1 rounded-md text-center">
+                    <div className="font-medium text-xs uppercase">TOTAL</div>
+                    <div className="font-medium text-lg">
+                      {Numeral(form.watch("total")).format()}
+                    </div>
+                  </div>
+                  <div
+                    className={`border p-3 space-y-1 rounded-md text-center ${
+                      form.watch("totalDue") < 0 ? "border-destructive" : ""
+                    } `}
+                  >
+                    <div className="font-medium text-xs uppercase">due</div>
+                    <div className="font-medium text-lg">
+                      {Numeral(form.watch("totalDue")).format()}
+                    </div>
                   </div>
                 </div>
-                <div
-                  className={`border p-3 space-y-1 rounded-md text-center ${
-                    form.watch("totalDue") < 0 ? "border-destructive" : ""
-                  } `}
-                >
-                  <div className="font-medium text-xs uppercase">due</div>
-                  <div className="font-medium text-lg">
-                    {Numeral(form.watch("totalDue")).format()}
-                  </div>
-                </div>
-              </div>
-            </DialogHeader>
-            <div>
-              <Accordion type="single" className="w-full space-y-2">
-                {payments?.data?.map((item: any, i: number) => (
-                  <>
-                    <Input
-                      {...form.register(`transactions.${i}.name`)}
-                      className="hidden"
-                    />
-                    <Input
-                      {...form.register(`transactions.${i}.label`)}
-                      className="hidden"
-                    />
-
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto scrollbox">
+                <Accordion type="single" className="w-full space-y-2">
+                  {payments?.data?.map((item: any, i: number) => (
                     <FormField
                       key={`${item.id}`}
                       control={form.control}
                       name={`transactions.${i}.amount`}
                       render={({ field }) => (
                         <FormItem>
+                          <Input
+                            {...form.register(`transactions.${i}.name`)}
+                            className="hidden"
+                          />
+                          <Input
+                            {...form.register(`transactions.${i}.label`)}
+                            className="hidden"
+                          />
                           <AccordionItem
                             value={`${item.id}`}
                             className="px-3 rounded-md border hover:bg-accent transition duration-300 data-[state=open]:bg-accent"
@@ -311,24 +267,16 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                               <FormLabel className="flex w-full cursor-pointer">
                                 {item.label}
 
-                                {parseFloat(
-                                  form.watch(`transactions.${i}.amount`) || 0
-                                ) > 0 && (
-                                  <span className="ml-auto text-muted-foreground">
-                                    {Numeral(
-                                      form.watch(`transactions.${i}.amount`)
-                                    ).format()}
-                                  </span>
-                                )}
+                                <span className="ml-auto text-muted-foreground">
+                                  {Numeral(
+                                    form.watch(`transactions.${i}.amount`)
+                                  ).format()}
+                                </span>
                               </FormLabel>
                             </AccordionTrigger>
                             <FormControl>
                               <AccordionContent className="overflow-visible">
-                                <Input
-                                  className="bg-accent"
-                                  {...field}
-                                  defaultValue={0}
-                                />
+                                <Input className="bg-accent" {...field} />
                               </AccordionContent>
                             </FormControl>
                             <FormMessage />
@@ -336,9 +284,20 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
                         </FormItem>
                       )}
                     />
-                  </>
-                ))}
-              </Accordion>
+                  ))}
+                </Accordion>
+              </div>
+              <Button
+                className="w-full mt-8"
+                type="button"
+                onClick={handleSubmit}
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Create Sale"
+                )}
+              </Button>
             </div>
           </TabsContent>
 
@@ -347,70 +306,63 @@ const ProceedDialog = ({ disabled }: { disabled: boolean }) => {
             value="completed"
             className="mt-0 focus-visible:ring-transparent"
           >
-            <DialogHeader className="text-left pb-6">
-              <DialogTitle>Sale created</DialogTitle>
-              <DialogDescription>
-                Select the option bellow to send or print invoice
-              </DialogDescription>
-            </DialogHeader>
-            <div className="h-80">
-              <RadioGroup defaultValue="card" className="flex flex-col">
-                {invoiceOptions.map((el) => (
-                  <div key={el.key} className="relative">
-                    <RadioGroupItem
-                      value={el.name}
-                      id={`${el.key}`}
-                      className="peer sr-only"
-                    />
-                    <div className="absolute w-5 h-5 bg-primary top-1/2 -translate-y-1/2 right-3 rounded-full inline-flex items-center justify-center opacity-0 peer-data-[state=checked]:opacity-100">
-                      <Check className="w-3 h-3" />
-                    </div>
-                    <Label
-                      htmlFor={`${el.key}`}
-                      className="flex gap-3 px-3 py-2 rounded-md border items-center cursor-pointer hover:bg-accent transition duration-300 peer-data-[state=checked]:bg-accent"
-                    >
-                      <Avatar className="w-10 h-10">
-                        <AvatarFallback>{el.icon}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="truncate w-full text-left mb-1">
-                          {el.name}
-                        </div>
-                        <div className="text-muted-foreground font-normal text-xs">
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit.
-                        </div>
+            <div className="flex flex-col h-[32rem]">
+              <DialogHeader className="text-left pb-6">
+                <DialogTitle>Sale created</DialogTitle>
+                <DialogDescription>
+                  Select the option bellow to send or print invoice
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto scrollbox">
+                <RadioGroup defaultValue="card" className="flex flex-col">
+                  {invoiceOptions.map((el) => (
+                    <div key={el.key} className="relative">
+                      <RadioGroupItem
+                        value={el.name}
+                        id={`${el.key}`}
+                        className="peer sr-only"
+                      />
+                      <div className="absolute w-5 h-5 bg-primary top-1/2 -translate-y-1/2 right-3 rounded-full inline-flex items-center justify-center opacity-0 peer-data-[state=checked]:opacity-100">
+                        <Check className="w-3 h-3" />
                       </div>
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-          </TabsContent>
-          <div className="space-y-3 mt-3">
-            {/* indicator */}
-            <div className="flex gap-1 justify-center">
-              {tabs.map((el) => (
-                <div
-                  key={el}
-                  className={`py-0 block h-2 rounded-full ${
-                    active === el ? "bg-primary w-10" : "bg-secondary w-6"
-                  }`}
-                />
-              ))}
-            </div>
+                      <Label
+                        htmlFor={`${el.key}`}
+                        className="flex gap-3 px-3 py-2 rounded-md border items-center cursor-pointer hover:bg-accent transition duration-300 peer-data-[state=checked]:bg-accent"
+                      >
+                        <Avatar className="w-10 h-10">
+                          <AvatarFallback>{el.icon}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="truncate w-full text-left mb-1">
+                            {el.name}
+                          </div>
+                          <div className="text-muted-foreground font-normal text-xs">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing
+                            elit.
+                          </div>
+                        </div>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
 
-            {/* handle step */}
-            <div className="flex gap-4">
-              <Button
-                className="flex-1"
-                type="button"
-                onClick={handleNext}
-                disabled={isDisabled}
-              >
-                {buttonText}
+              <Button className="w-full mt-10" type="button">
+                Send Invoice
               </Button>
             </div>
+          </TabsContent>
+
+          {/* indicator */}
+          <div className="flex gap-1 justify-center absolute bottom-20 inset-x-0">
+            {tabs.map((el) => (
+              <div
+                key={el}
+                className={`py-0 block h-2 rounded-full ${
+                  active === el ? "bg-primary w-10" : "bg-secondary w-6"
+                }`}
+              />
+            ))}
           </div>
         </Tabs>
       </DialogContent>

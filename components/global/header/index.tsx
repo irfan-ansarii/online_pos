@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import Profile from "@/components/global/header/profile";
 import Activity from "@/components/global/header/activity";

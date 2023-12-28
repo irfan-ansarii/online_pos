@@ -1,4 +1,5 @@
 "use client";
+
 import ErrorBox from "@/components/shared/error-box";
 export default function Error({
   error,

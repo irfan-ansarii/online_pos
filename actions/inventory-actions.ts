@@ -98,3 +98,52 @@ export async function getInventory(params: ParamsProps) {
     throw new Error(error.message);
   }
 }
+
+/**
+ * update inventory
+ * @param data
+ * @returns
+ */
+interface UpdateProps {
+  data: {
+    quantity: number;
+    variantId: number;
+  }[];
+  locationId?: number;
+}
+export async function updateInventory({ data, locationId }: UpdateProps) {
+  try {
+    const session = await auth();
+    if (!session || typeof session === "string") {
+      throw new Error("Unauthorized");
+    }
+    const transactions = [];
+
+    for (const item of data) {
+      const transaction = prisma.inventory.updateMany({
+        data: {
+          stock: { increment: item.quantity },
+        },
+        where: {
+          AND: [
+            { locationId: locationId || session.location.id },
+            { variantId: Number(item.variantId) },
+          ],
+        },
+      });
+      transactions.push(transaction);
+    }
+
+    const response = await prisma.$transaction(transactions);
+
+    return {
+      data: response,
+      message: "success",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+}

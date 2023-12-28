@@ -259,17 +259,16 @@ model LineItem {
 }
 
 model Transaction {
-  id         Int               @id @default(autoincrement())
+  id         Int             @id @default(autoincrement())
   saleId     Int
   locationId Int
   name       String
   label      String
   amount     Float
   kind       TransactionKind
-  status     TransactionStatus @default(pending)
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  sale       Sale              @relation(fields: [saleId], references: [id])
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  sale       Sale            @relation(fields: [saleId], references: [id])
 
   @@map("transactions")
 }
@@ -295,15 +294,8 @@ enum SaleFinancialStatus {
 
 enum TransactionKind {
   sale
-  purchase
-  expense
+  void
   refund
-}
-
-enum TransactionStatus {
-  pending
-  failure
-  success
 }
 
 enum UserStatus {

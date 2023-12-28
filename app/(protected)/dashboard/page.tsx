@@ -14,7 +14,7 @@ import { useState } from "react";
 export function PickerExample() {
   return (
     <div className="w-full h-full preview flex min-h-[350px] justify-center p-10 items-center rounded !bg-cover !bg-center transition-all">
-      <ColorPicker />
+      {/* <ColorPicker /> */}
     </div>
   );
 }

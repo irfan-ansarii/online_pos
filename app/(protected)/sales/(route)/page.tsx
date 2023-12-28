@@ -32,6 +32,7 @@ export default async function CustomerPage({
           <SaleCard sale={sale} key={sale.id} />
         ))}
       </div>
+
       <div className="flex items-center justify-center mt-auto">
         <Pagination className="mt-6" pagination={pagination} />
       </div>

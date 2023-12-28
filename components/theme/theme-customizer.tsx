@@ -16,7 +16,14 @@ import {
 
 export function ThemeCustomizer() {
   const [config, setConfig] = useTheme();
+  const [loading, setLoading] = React.useState(true);
   const { resolvedTheme: mode } = useNextTheme();
+
+  React.useEffect(() => {
+    setLoading(false);
+  }, []);
+
+  if (loading) return;
 
   return (
     <div className="grid grid-cols-6 gap-1">

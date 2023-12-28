@@ -4,12 +4,12 @@ import prisma from "@/lib/prisma";
 import {
   LineItem,
   Prisma,
-  Sale,
   SaleFinancialStatus,
   Transaction,
 } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
+import { updateInventory } from "./inventory-actions";
 
 interface ParamsProps {
   [key: string]: string;
@@ -49,9 +49,14 @@ export async function getSales(params: ParamsProps) {
     const sales = await prisma.sale.findMany({
       skip: offset,
       take: PAGE_SIZE,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: [
+        {
+          id: "desc",
+        },
+        {
+          createdAt: "desc",
+        },
+      ],
       where: filters,
       include: {
         transactions: true,
@@ -159,7 +164,6 @@ export async function createSale(values: any) {
       ...txn,
       locationId: session.location.id,
       kind: "sale",
-      status: "success",
       amount: parseFloat(txn.amount.toFixed(2)),
     }));
 
@@ -196,28 +200,18 @@ export async function createSale(values: any) {
       },
     });
 
-    const prismaTxn = [];
-    for (const lineItem of lineItems) {
-      const decrement = prisma.inventory.updateMany({
-        data: {
-          stock: { decrement: lineItem.quantity },
-        },
-        where: {
-          AND: [
-            { locationId: session.location.id },
-            { variantId: lineItem.variantId },
-          ],
-        },
-      });
-      prismaTxn.push(decrement);
-    }
+    // update inventory
+    const updateData = lineItems.map((item: LineItem) => ({
+      variantId: item.variantId,
+      quantity: -Math.abs(item.quantity),
+    }));
 
-    await prisma.$transaction(prismaTxn);
+    await updateInventory({ data: updateData });
 
     const updated = await prisma.sale.update({
       where: { id: sale.id },
       data: {
-        title: `GN${sale.id}` /** prefix =*sale id*= suffix */,
+        title: `GN${sale.id}` /** prefix =* saleid *= suffix */,
       },
     });
 
@@ -320,41 +314,46 @@ export async function getSale(id: number) {
 export async function deleteSale(id: number) {
   try {
     const session = await auth();
-    if (!session) {
+
+    if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
-    const variants = await prisma.variant.findMany({
-      where: { productId: Number(id) },
+    const sale = await prisma.sale.findUnique({
+      where: { id: id },
+      include: { lineItems: true },
     });
 
-    const recordsToDelete = variants.map((variant) => variant.id);
-
-    const deleteInventory = prisma.inventory.deleteMany({
-      where: { variantId: { in: recordsToDelete } },
-    });
-
-    const deleteVariants = prisma.variant.deleteMany({
-      where: { productId: Number(id) },
-    });
-
-    const deleteProduct = prisma.product.delete({
-      where: {
-        id: Number(id),
-      },
-    });
-
-    const [i, v, product] = await prisma.$transaction([
-      deleteInventory,
-      deleteVariants,
-      deleteProduct,
-    ]);
-
-    if (!product) {
+    if (!sale) {
       throw new Error("Not found");
     }
 
-    return { data: product, message: "success" };
+    // increase stock
+    const updateStock = sale?.lineItems.map((item) => ({
+      variantId: item.variantId,
+      quantity: item.quantity,
+    }));
+
+    await updateInventory({
+      data: updateStock,
+      locationId: sale.locationId,
+    });
+
+    const transactions = [
+      prisma.sale.deleteMany({
+        where: { id: sale.id },
+      }),
+      prisma.lineItem.deleteMany({
+        where: { saleId: sale.id },
+      }),
+      prisma.transaction.deleteMany({
+        where: { saleId: sale.id },
+      }),
+    ];
+
+    const [saleResponse] = await prisma.$transaction(transactions);
+
+    return { data: saleResponse, message: "success" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");

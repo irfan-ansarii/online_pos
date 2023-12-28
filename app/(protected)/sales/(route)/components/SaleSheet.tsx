@@ -6,7 +6,22 @@ import { updateCustomer } from "@/actions/customer-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerValidation } from "@/lib/validations/customer";
 
-import { Loader2, PlusCircle, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronsUpDown,
+  Eye,
+  IndianRupee,
+  Loader2,
+  Mail,
+  MoreVertical,
+  PenSquare,
+  PlusCircle,
+  Printer,
+  Send,
+  SendHorizonal,
+  Trash2,
+  X,
+} from "lucide-react";
 
 import { useToggle } from "@uidotdev/usehooks";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -33,6 +48,27 @@ import { Input } from "@/components/ui/input";
 import { AvatarItem } from "@/components/shared/avatar";
 import { Badge } from "@/components/ui/badge";
 import PaymentDialog from "./PaymentDialog";
+import Numeral from "numeral";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const SaleSheet = ({
   children,
@@ -47,16 +83,51 @@ const SaleSheet = ({
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="md:max-w-lg">
         <div className="flex flex-col h-full">
-          <SheetHeader>
-            <SheetTitle className="text-lg">{sale.title}</SheetTitle>
+          <SheetHeader className="mb-4">
+            <div className="flex justify-between items-center">
+              <SheetTitle className="">{sale.title}</SheetTitle>
+
+              <span className="px-4">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <MoreVertical className="w-4 h-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-40" align="end">
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem>
+                        <PenSquare className="w-4 h-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Printer className="w-4 h-4 mr-2" />
+                        Print Invoice
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Mail className="w-4 h-4 mr-2" />
+                        Send Invoice
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <IndianRupee className="w-4 h-4 mr-2" />
+                        Collect Payment
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-error">
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </span>
+            </div>
           </SheetHeader>
           <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
-            {sale.lineItems.map((field, i) => (
+            {sale.lineItems.map((field: any) => (
               <div
                 className="flex rounded-md border p-2 pr-0 items-center snap-start"
-                key={field?.id}
+                key={field.id}
               >
-                <AvatarItem src={`/${field?.product.image.src}`} />
+                <AvatarItem src={`/${field.product.image.src}`} />
 
                 <div className="space-y-0.5 truncate flex-1 mx-3">
                   <div className="font-medium truncate">{field.title}</div>
@@ -67,13 +138,15 @@ const SaleSheet = ({
                       </Badge>
                     )}
                     <div className="ml-auto text-muted-foreground">
-                      1290 x 1
+                      {Numeral(field.price).format()} x {field.quantity}
                     </div>
                   </div>
                 </div>
                 <div className="space-y-0.5 text-right">
                   <div className="line-through text-muted-foreground">1290</div>
-                  <div className="font-medium">657.00</div>
+                  <div className="font-medium">
+                    {Numeral(field.total).format()}
+                  </div>
                 </div>
                 <div className="flex items-center gap-6">
                   <Button
@@ -87,31 +160,53 @@ const SaleSheet = ({
               </div>
             ))}
           </div>
-          <div className="border-t-2 py-2 border-dashed">
+          <div className="border-t-2 pt-2 border-dashed">
             <div className="flex justify-between py-1">
               <div>Subtotal</div>
-              <div>550</div>
+              <div>{Numeral(sale.subtotal).format()}</div>
             </div>
             <div className="flex justify-between py-1">
               <div>Discount</div>
-              <div>550</div>
+              <div>{Numeral(sale.totalDiscount).format()}</div>
             </div>
             <div className="flex justify-between py-1">
               <div>Tax</div>
-              <div>550</div>
+              <div>{Numeral(sale.totalTax).format()}</div>
             </div>
 
             <div className="border-b-2 border-dashed my-2" />
-            <div className="flex items-center py-1 text-lg font-medium">
-              <div>Total</div>
-              <div className="ml-auto">56756</div>
-            </div>
-            <div className="flex items-center p-2 mb-4 rounded-md bg-warning/20">
-              <div>Due</div>
-              <div className="ml-auto">56756</div>
-            </div>
+            <Collapsible className="space-y-2 group">
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center text-lg font-medium">
+                  Total
+                  <span
+                    role="button"
+                    className="text-muted-foreground text-xs font-normal ml-2 inline-flex cursor-pointer"
+                  >
+                    View transactions
+                    <ChevronDown className="w-4 h-4 ml-2 group-data-[state=open]:rotate-180" />
+                  </span>
+                  <div className="ml-auto"> {Numeral(sale.total).format()}</div>
+                </div>
+              </CollapsibleTrigger>
 
-            <PaymentDialog />
+              <CollapsibleContent className="space-y-1">
+                <div className="rounded-md border px-4 py-3 font-mono text-sm">
+                  @radix-ui/colors
+                </div>
+                <div className="rounded-md border px-4 py-3 font-mono text-sm">
+                  @stitches/react
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+
+            {sale.totalDue > 0 && (
+              <div className="flex items-center p-2 mt-2 rounded-md bg-warning/20">
+                <div>Due</div>
+                {/* <PaymentDialog /> */}
+                <div className="ml-auto">{Numeral(sale.totalDue).format()}</div>
+              </div>
+            )}
           </div>
         </div>
       </SheetContent>

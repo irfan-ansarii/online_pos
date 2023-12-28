@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 import { Prisma } from "@prisma/client";
+import { updateInventory } from "./inventory-actions";
 
 interface ParamsProps {
   [key: string]: string;
@@ -97,13 +98,10 @@ export async function createAdjustment(values: any) {
       throw new Error("Unauthorized");
     }
 
-    const { lineItems, reason, notes = "", locationId } = values;
-    const location = !locationId ? session.location.id : Number(locationId);
-
-    const transactions = [];
+    const { lineItems, reason, notes, locationId } = values;
 
     // create adjustment
-    const response = prisma.adjustment.createMany({
+    const response = await prisma.adjustment.createMany({
       data: lineItems.map((item: any) => ({
         locationId: location,
         productId: Number(item.productId),
@@ -114,24 +112,19 @@ export async function createAdjustment(values: any) {
       })),
     });
 
-    transactions.push(response);
+    // update inventory
+    const updateData = lineItems.map((item: any) => ({
+      variantId: item.variantId,
+      quantity: item.quantity,
+    }));
 
-    for (const item of lineItems) {
-      const inventory = prisma.inventory.updateMany({
-        where: {
-          AND: [
-            { locationId: location! },
-            { variantId: Number(item.variantId) },
-          ],
-        },
-        data: { stock: { increment: Number(item.quantity) } },
-      });
-      transactions.push(inventory);
-    }
-    const [adjustment] = await prisma.$transaction(transactions);
+    await updateInventory({
+      data: updateData,
+      locationId: locationId || session.location.id,
+    });
 
     // return response
-    return { data: adjustment, message: "created" };
+    return { data: response, message: "created" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");

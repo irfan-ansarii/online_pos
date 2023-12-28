@@ -31,7 +31,9 @@ const PaymentDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full">Collect Payment</Button>
+        <Button className="h-6 bg-primary/30" variant="ghost">
+          Collect Payment
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <Form {...form}>
