@@ -129,7 +129,7 @@ const SaleSheet = ({
                 className="flex rounded-md border p-2 pr-0 items-center snap-start"
                 key={field.id}
               >
-                <AvatarItem src={`/${field?.product?.image?.src}`} />
+                <AvatarItem src={field?.product?.image?.src} />
 
                 <div className="space-y-0.5 truncate flex-1 mx-3">
                   <div className="font-medium truncate">{field.title}</div>

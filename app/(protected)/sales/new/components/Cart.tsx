@@ -188,7 +188,7 @@ const Cart = ({
                   <div className="!py-0 hover:no-underline flex gap-2 cursor-pointer">
                     <AvatarItem
                       className="w-14 h-14 rounded-md flex-0 bg-border dark:bg-secondary"
-                      src={`/${field.imageSrc}`}
+                      src={field?.imageSrc}
                     />
 
                     <div className="grid grid-cols-4 flex-1 h-14">

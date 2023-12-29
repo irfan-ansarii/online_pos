@@ -52,7 +52,7 @@ const SaleCard = ({ sale }: { sale: any }) => {
                 {sale?.lineItems?.map((lineItem: any) => (
                   <AvatarItem
                     key={lineItem.id}
-                    src={`/${lineItem?.product?.image?.src}`}
+                    src={lineItem?.product?.image?.src}
                   />
                 ))}
               </AvatarGroup>

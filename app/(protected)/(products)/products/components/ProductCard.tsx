@@ -101,7 +101,7 @@ const ProductCard = ({ product }: { product: any }) => {
         <SheetTrigger asChild>
           <CardContent className="grid grid-cols-7 items-center gap-2">
             <div className="flex items-center gap-3 col-span-4 md:col-span-3 items-center">
-              <AvatarItem src={`/${product.image.src}`} className="w-12 h-12" />
+              <AvatarItem src={product?.image?.src} className="w-12 h-12" />
               <div className="space-y-0.5 truncate">
                 <div className="font-semibold truncate">{product.title}</div>
                 <div className="flex gap-1">

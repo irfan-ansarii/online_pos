@@ -123,7 +123,7 @@ const Inventory = ({ onSelect }: { onSelect?: (value: Option) => void }) => {
             </Badge>
             <CardContent className="p-0">
               <AvatarItem
-                src={`/${item.product.image.src}`}
+                src={item?.product?.image?.src}
                 className="w-full h-full aspect-square rounded-none border-none rounded-t-md"
                 width={140}
                 height={140}

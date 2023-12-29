@@ -11,12 +11,11 @@ import { locationValidation } from "@/lib/validations/locations";
 import { toast } from "@/components/ui/use-toast";
 import { useForm } from "react-hook-form";
 import { useAtom } from "jotai";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import {
   Sheet,
   SheetHeader,
-  SheetTrigger,
   SheetTitle,
   SheetContent,
   SheetFooter,
@@ -66,12 +65,6 @@ const CreateWorkspace = () => {
       open={open.storeModal}
       onOpenChange={() => setOpen({ ...open, storeModal: false })}
     >
-      {/* <SheetTrigger asChild>
-        <Button variant="secondary" disabled={loading}>
-          <Plus className="w-5 h-5 mr-2" />
-          <span className="hidden md:inline-block">New Store</span>
-        </Button>
-      </SheetTrigger> */}
       <SheetContent className="md:max-w-lg bg-background">
         <Form {...form}>
           <form
@@ -82,7 +75,7 @@ const CreateWorkspace = () => {
               <SheetTitle>New Store</SheetTitle>
             </SheetHeader>
 
-            <div className="space-y-6 flex-1 overflow-auto snap-y snap-mandatory -mx-6 px-6 scrollbox mb-4">
+            <div className="space-y-4 flex-1 overflow-auto snap-y snap-mandatory -mx-6 px-6 scrollbox mb-4">
               <div className="flex flex-col gap-6 relative pb-4 md:pb-6">
                 {loading && (
                   <div className="absolute w-full h-full transparent z-20"></div>
@@ -139,59 +132,60 @@ const CreateWorkspace = () => {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Store Phone</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Store Email</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address2"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address2</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <div className="grid grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Store Phone</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Store Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address2"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address2</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="city"

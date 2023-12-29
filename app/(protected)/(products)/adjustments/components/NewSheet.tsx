@@ -196,7 +196,7 @@ const NewSheet = () => {
                   key={field.id}
                 >
                   <div className="flex gap-3 items-center col-span-2">
-                    <AvatarItem src={`/${field.imageSrc}`} />
+                    <AvatarItem src={field.imageSrc} />
                     <div className="space-y-0.5 truncate">
                       <div className="font-semibold truncate">
                         {field.title}

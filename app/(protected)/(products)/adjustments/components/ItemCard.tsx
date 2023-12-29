@@ -24,7 +24,7 @@ const ItemCard = ({ adjustment }: { adjustment: Props }) => {
             <div className="text-lg leading-tight font-semibold">02</div>
             <div className="leading-tight text-muted-foreground">Dec</div>
           </div>
-          <AvatarItem src={`/${adjustment?.product?.image?.src}`} />
+          <AvatarItem src={adjustment?.product?.image?.src} />
           <div className="space-y-0.5 truncate">
             <div className="font-semibold truncate">
               {adjustment.product.title}

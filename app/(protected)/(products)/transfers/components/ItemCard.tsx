@@ -47,7 +47,7 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
                 <AvatarGroup maxCount={2}>
                   {transfer.lineItems?.map((lineItem: any) => (
                     <AvatarItem
-                      src={`/${lineItem?.product?.image?.src}`}
+                      src={lineItem?.product?.image?.src}
                       key={lineItem.id}
                     />
                   ))}

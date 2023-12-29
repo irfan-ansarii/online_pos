@@ -61,7 +61,7 @@ const ItemSheet = ({ transfer }: { transfer: Props }) => {
               key={field.id}
             >
               <div className="flex gap-3 items-center col-span-2">
-                <AvatarItem src={`/${field.product.image.src}`} />
+                <AvatarItem src={field.product.image.src} />
                 <div className="space-y-0.5 truncate">
                   <div className="font-semibold truncate">{field.title}</div>
                   {field.variantTitle && (

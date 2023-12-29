@@ -235,7 +235,7 @@ const NewSheet = () => {
                     ({ title, variantTitle, imageSrc, quantity }, i) => (
                       <div className="flex rounded-md border p-2 pr-0 items-center snap-start">
                         <div className="flex gap-3 items-center col-span-2">
-                          <AvatarItem src={`/${imageSrc}`} />
+                          <AvatarItem src={imageSrc} />
                           <div className="space-y-0.5 truncate">
                             <div className="font-semibold truncate">
                               {title}

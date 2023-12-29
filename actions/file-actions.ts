@@ -38,24 +38,11 @@ export async function getFiles(params: ParamsProps) {
         {
           caption: { contains: search, mode: "insensitive" },
         },
-        {
-          ext: { contains: search, mode: "insensitive" },
-        },
       ],
     };
 
     // find files
-    const files = await prisma.file.findMany({
-      where: filters,
-      skip: offset,
-      take: PAGE_SIZE,
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    // find files
-    const find = prisma.file.findMany({
+    const files = prisma.file.findMany({
       skip: offset,
       take: PAGE_SIZE,
       orderBy: {
@@ -69,7 +56,7 @@ export async function getFiles(params: ParamsProps) {
       where: { ...filters },
     });
 
-    const [response, pages] = await prisma.$transaction([find, count]);
+    const [response, pages] = await prisma.$transaction([files, count]);
 
     // return response
     return {
@@ -82,7 +69,10 @@ export async function getFiles(params: ParamsProps) {
       },
     };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }
 
@@ -91,32 +81,28 @@ export async function getFiles(params: ParamsProps) {
  * @param params
  * @returns
  */
-export async function createFiles(values: any) {
+export async function createFiles(values: HTMLFormElement) {
   try {
     const session = await auth();
-    if (!session || typeof session === "string") {
+    if (!session) {
       throw new Error("Unauthorized");
     }
 
-    const form = await values.formData();
-
     const files = [];
 
-    if (!form) {
-      throw new Error("Files must be form data.");
-    }
-
-    for (const [_, file] of form.entries()) {
+    for (const [_, file] of values.entries()) {
       const { size, type, name } = file;
       const salt = await bcryptjs.genSalt(10);
       const hash = salt.replace(/[/\\?%*:|"<>]/g, "_");
 
       const [title, extension] = name.split(name[name.lastIndexOf(".")]);
 
+      const transformedTitle = title.replace(/[/\\?%*:|"<>]/g, "_");
+
       const bytes = await file.arrayBuffer();
 
       const buffer = Buffer.from(bytes);
-      const fileName = `${title}_${hash}.${extension}`;
+      const fileName = `${transformedTitle}_${hash}.${extension}`;
       const src = `/uploads/${fileName}`;
       const path = `public/${src}`;
 
@@ -147,6 +133,9 @@ export async function createFiles(values: any) {
     // return response
     return { data: response, message: "created" };
   } catch (error: any) {
-    throw new Error(error.message || "Internal server error");
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
   }
 }

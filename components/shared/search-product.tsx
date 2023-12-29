@@ -95,7 +95,7 @@ const AutoComplete = ({
                         className="flex items-center gap-2 w-full"
                       >
                         <div className="flex gap-3 items-center col-span-2">
-                          <AvatarItem src={`/${inv.product.image.src}`} />
+                          <AvatarItem src={inv.product.image.src} />
 
                           <div>
                             <div className="font-semibold truncate">

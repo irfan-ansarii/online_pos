@@ -7,8 +7,6 @@ import { changeLocation } from "@/actions/store-actions";
 import { Check, ChevronsUpDown, Home, PlusCircle } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { store } from "@/lib/utils";
-import { useLocations } from "@/hooks/useLocations";
-import { useSession } from "@/hooks/useSession";
 import { useAtom } from "jotai";
 
 import {
@@ -25,14 +23,19 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
+import { Location } from "@prisma/client";
+import { JwtPayload } from "jsonwebtoken";
 
-const Stores = () => {
+const Stores = ({
+  locations,
+  session,
+}: {
+  locations: Location[];
+  session: JwtPayload;
+}) => {
   const [open, setOpen] = React.useState(false);
   const [storeOpen, setStoreOpen] = useAtom(store);
   const router = useRouter();
-
-  const { locations } = useLocations();
-  const { session, mutate } = useSession();
 
   const onChange = async (value: string) => {
     const locationId = Number(value);
@@ -43,7 +46,7 @@ const Stores = () => {
         variant: "success",
         title: `Switched to ${res?.data?.location?.name}`,
       });
-      mutate();
+
       router.refresh();
     } catch (error: any) {
       toast({
@@ -76,7 +79,7 @@ const Stores = () => {
           <CommandInput placeholder="Search store..." />
           <CommandEmpty>No store found.</CommandEmpty>
           <CommandGroup>
-            {locations?.data?.map((store) => (
+            {locations?.map((store) => (
               <CommandItem
                 key={store.id}
                 value={`${store.id}`}

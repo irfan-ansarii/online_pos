@@ -23,7 +23,7 @@ const ItemCard = ({ item }: { item: any }) => {
       <ItemDialog item={item}>
         <CardContent className="grid grid-cols-5 items-center gap-2">
           <div className="flex gap-3 items-center col-span-3 md:col-span-4">
-            <AvatarItem src={`/${item?.product?.image?.src}`} />
+            <AvatarItem src={item?.product?.image?.src} />
             <div className="space-y-0.5 truncate">
               <div className="font-semibold truncate">
                 {item?.product?.title}
