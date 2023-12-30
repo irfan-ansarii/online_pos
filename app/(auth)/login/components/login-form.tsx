@@ -61,7 +61,6 @@ export function LoginForm() {
         variant: "error",
         title: error.message || "Something went wrong",
       });
-    } finally {
       setLoading(false);
     }
   }

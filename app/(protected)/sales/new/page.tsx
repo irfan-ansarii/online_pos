@@ -62,7 +62,7 @@ const Page = () => {
         sku: variant.sku,
         barcode: variant.barcode,
         stock: stock,
-        imageSrc: product.image.src,
+        imageSrc: product?.image?.src,
         price: variant.salePrice,
         taxRate: variant.taxRate,
         quantity: 1,

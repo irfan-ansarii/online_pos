@@ -78,6 +78,7 @@ export async function login(values: { email: string; password: string }) {
       token,
     };
   } catch (error: any) {
+    console.log(error.message);
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }

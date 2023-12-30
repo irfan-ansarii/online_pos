@@ -9,6 +9,7 @@ import { Sale } from "@prisma/client";
 interface SearchParamsProps {
   [key: string]: string;
 }
+
 interface ResponseProps {
   data: Sale[];
   pagination: { page: number; pageCount: number };

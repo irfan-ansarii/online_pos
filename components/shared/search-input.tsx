@@ -15,11 +15,14 @@ const SearchInput = ({ className }: { className?: string }) => {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   React.useEffect(() => {
-    const nullParams: QueryParams = Object.fromEntries(
-      Object.keys(queryParams).map((key) => [key, null])
-    );
-
-    setQueryParams({ ...nullParams, search: debouncedSearchTerm || null });
+    if (!debouncedSearchTerm && searchTerm) {
+      const nullParams: QueryParams = Object.fromEntries(
+        Object.keys(queryParams).map((key) => [key, null])
+      );
+      setQueryParams({ ...nullParams, search: debouncedSearchTerm || null });
+    } else {
+      setQueryParams({ search: searchTerm });
+    }
   }, [debouncedSearchTerm]);
 
   return (

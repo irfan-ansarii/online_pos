@@ -97,24 +97,24 @@ const SaleSheet = ({
                   <DropdownMenuContent className="w-40" align="end">
                     <DropdownMenuGroup>
                       <DropdownMenuItem>
-                        <PenSquare className="w-4 h-4 mr-2" />
+                        <PenSquare className="w-4 h-4 mr-2 text-muted-foreground" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        <Printer className="w-4 h-4 mr-2" />
+                        <Printer className="w-4 h-4 mr-2 text-muted-foreground" />
                         Print Invoice
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        <Mail className="w-4 h-4 mr-2" />
+                        <Mail className="w-4 h-4 mr-2 text-muted-foreground" />
                         Send Invoice
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        <IndianRupee className="w-4 h-4 mr-2" />
+                        <IndianRupee className="w-4 h-4 mr-2 text-muted-foreground" />
                         Collect Payment
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-error">
-                        <Trash2 className="w-4 h-4 mr-2" />
+                        <Trash2 className="w-4 h-4 mr-2 " />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
@@ -194,12 +194,12 @@ const SaleSheet = ({
                 <div className="ml-auto"> {Numeral(sale.total).format()}</div>
               </div>
 
-              <CollapsibleContent className="divide-y">
+              <CollapsibleContent className="divide-y border-t">
                 {sale.transactions.map((transaction: Transaction) => (
                   <div className="py-2" key={transaction.id}>
                     <div className="flex gap-2 items-center">
                       <div>
-                        <div>Label</div>
+                        <div>{transaction.label}</div>
                         <div className="text-xs text-muted-foreground">
                           {format(transaction.createdAt, "dd MMM, yyyy")}
                         </div>

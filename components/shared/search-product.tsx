@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
-// import { useInventory } from "@/hooks/useProduct";
+import { useInventory } from "@/hooks/useInventory";
 
 import {
   CommandGroup,
@@ -30,7 +30,7 @@ const AutoComplete = ({
 
   const [open, toggle] = useToggle(false);
   const [inputValue, setInputValue] = useState("");
-  // const { data: inventory, isLoading } = useInventory({ search: inputValue });
+  const { inventory, isLoading } = useInventory({ search: inputValue });
 
   const handleSelectOption = useCallback(
     (selected: Option) => {
@@ -80,49 +80,48 @@ const AutoComplete = ({
               )}
 
               {/* data */}
-              {inventory?.data?.data?.length > 0 && !isLoading && (
-                <CommandGroup>
-                  {inventory?.data?.data?.map((inv: any) => {
-                    return (
-                      <CommandItem
-                        key={inv.id}
-                        value={inv.id}
-                        onMouseDown={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                        }}
-                        onSelect={() => handleSelectOption(inv)}
-                        className="flex items-center gap-2 w-full"
-                      >
-                        <div className="flex gap-3 items-center col-span-2">
-                          <AvatarItem src={inv.product.image.src} />
 
-                          <div>
-                            <div className="font-semibold truncate">
-                              {inv.product.title}
-                            </div>
+              <CommandGroup>
+                {inventory?.data?.map((inv: any) => {
+                  return (
+                    <CommandItem
+                      key={inv.id}
+                      value={inv.id}
+                      onMouseDown={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                      }}
+                      onSelect={() => handleSelectOption(inv)}
+                      className="flex items-center gap-2 w-full"
+                    >
+                      <div className="flex gap-3 items-center col-span-2">
+                        <AvatarItem src={inv.product?.image?.src} />
 
-                            <Badge
-                              className="py-0 text-muted-foreground"
-                              variant="secondary"
-                            >
-                              {inv.variant.title !== "Default" && (
-                                <>
-                                  <span>{inv.variant.title}</span>
-                                  <span className="px-1">|</span>
-                                </>
-                              )}
-                              <span> {inv.variant.barcode}</span>
-                            </Badge>
+                        <div>
+                          <div className="font-semibold truncate">
+                            {inv.product.title}
                           </div>
-                        </div>
 
-                        <div className="ml-auto">{inv.stock}</div>
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              )}
+                          <Badge
+                            className="py-0 text-muted-foreground"
+                            variant="secondary"
+                          >
+                            {inv.variant.title !== "Default" && (
+                              <>
+                                <span>{inv.variant.title}</span>
+                                <span className="px-1">|</span>
+                              </>
+                            )}
+                            <span> {inv.variant.barcode}</span>
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="ml-auto">{inv.stock}</div>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
             </CommandList>
           </div>
         )}
