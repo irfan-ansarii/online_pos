@@ -16,11 +16,8 @@ export const metadata: Metadata = {
     default: "Inventory Management",
     template: `%s - Goldy's Nestt`,
   },
-  description: "Inventory Managemen",
-  // themeColor: [
-  //   { media: "(prefers-color-scheme: light)", color: "white" },
-  //   { media: "(prefers-color-scheme: dark)", color: "black" },
-  // ],
+  description: "Inventory Management",
+
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",

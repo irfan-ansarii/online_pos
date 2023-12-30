@@ -94,18 +94,18 @@ export async function getAdjustments(params: ParamsProps) {
 export async function createAdjustment(values: any) {
   try {
     const session = await auth();
-    if (!session || typeof session === "string") {
+    if (!session) {
       throw new Error("Unauthorized");
     }
 
-    const { lineItems, reason, notes, locationId } = values;
+    const { lineItems, reason, notes = "", locationId } = values;
 
     // create adjustment
     const response = await prisma.adjustment.createMany({
       data: lineItems.map((item: any) => ({
-        locationId: location,
+        locationId: locationId || session.location.id,
         productId: Number(item.productId),
-        variantId: item.variantId,
+        variantId: Number(item.variantId),
         quantity: Number(item.quantity),
         reason,
         notes,
@@ -114,8 +114,8 @@ export async function createAdjustment(values: any) {
 
     // update inventory
     const updateData = lineItems.map((item: any) => ({
-      variantId: item.variantId,
-      quantity: item.quantity,
+      variantId: Number(item.variantId),
+      quantity: Number(item.quantity),
     }));
 
     await updateInventory({
@@ -129,6 +129,7 @@ export async function createAdjustment(values: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }
+
     throw new Error(error.message);
   }
 }

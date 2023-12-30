@@ -1,5 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 
 import bcryptjs from "bcryptjs";
@@ -166,13 +167,11 @@ export async function getSession() {
   try {
     const session = await auth();
 
-    if (!session || typeof session === "string") {
+    if (!session) {
       cookies().set("_auth_token", "", {
         expires: Date.now(),
       });
-      return {
-        message: "Unauthorized",
-      };
+      redirect("/login");
     }
 
     const user = await prisma.user.findUnique({
