@@ -25,7 +25,7 @@ export async function getPayments() {
     // find payments
     const payments = await prisma.payment.findMany({
       orderBy: {
-        order: "asc",
+        position: "asc",
       },
     });
 
@@ -54,14 +54,14 @@ export async function createPayment(values: Payment) {
       throw new Error("Unauthorized");
     }
 
-    const { name, label, order } = values;
+    const { name, label, position } = values;
 
     // create payment
     const payment = await prisma.payment.create({
       data: {
         name,
         label,
-        order,
+        position,
       },
     });
 
@@ -88,7 +88,7 @@ export async function updatePayment(values: Payment) {
       throw new Error("Unauthorized");
     }
 
-    const { id, name, label, order } = values;
+    const { id, name, label, position } = values;
 
     if (session.role !== "admin") {
       throw new Error("Access Denied");
@@ -99,7 +99,7 @@ export async function updatePayment(values: Payment) {
       data: {
         name,
         label,
-        order,
+        position,
       },
     });
 

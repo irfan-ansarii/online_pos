@@ -5,18 +5,17 @@ import Numeral from "numeral";
 
 Numeral.defaultFormat("0,0.00");
 
-interface State {
-  open: boolean;
-  storeModal: boolean;
-}
-
 // classname
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 // jotai state
-export const store = atom<State>({
+export const store = atom<{ [key: string]: Boolean }>({
   open: false,
   storeModal: false,
+  newSheet: false,
+  sheet: false,
+  editSheet: false,
+  deleteSheet: false,
 });

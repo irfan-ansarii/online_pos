@@ -1,4 +1,15 @@
+import * as z from "zod";
 import React from "react";
+import Numeral from "numeral";
+import { Sale } from "@prisma/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { collectPayementValidation } from "@/lib/validations/sale";
+
+import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { useSheetToggle } from "@/hooks/useSheet";
+
+import { Loader2 } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -8,9 +19,10 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogCancel,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -24,20 +36,54 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { usePayments } from "@/hooks/usePayments";
 import { Button } from "@/components/ui/button";
+import { createTransactions } from "@/actions/sale-actions";
 
-const PaymentDialog = () => {
-  const form = useForm();
+const PaymentDialog = ({ sale }: { sale: Sale }) => {
+  const [open, toggle] = useSheetToggle("new");
+  const [loading, setLoading] = React.useState(false);
+
   const { payments } = usePayments();
+  const router = useRouter();
+  const form = useForm<z.infer<typeof collectPayementValidation>>({
+    resolver: zodResolver(collectPayementValidation),
+    defaultValues: {
+      due: sale.totalDue,
+      saleId: sale.id,
+      transactions: [],
+    },
+  });
+
+  const onSubmit = async (
+    values: z.infer<typeof collectPayementValidation>
+  ) => {
+    const { saleId, transactions } = values;
+
+    try {
+      setLoading(true);
+      await createTransactions({ saleId, transactions });
+
+      toast({
+        variant: "success",
+        title: "Payment collected successfully",
+      });
+
+      router.refresh();
+      toggle();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="h-6 bg-primary/30" variant="ghost">
-          Collect Payment
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={toggle}>
       <DialogContent>
         <Form {...form}>
-          <form>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader className="text-left pb-6">
               <DialogTitle>Collect Payment</DialogTitle>
             </DialogHeader>
@@ -48,9 +94,17 @@ const PaymentDialog = () => {
                     <Input
                       {...form.register(`transactions.${i}.name`)}
                       className="hidden"
+                      defaultValue={item.name}
                     />
                     <Input
                       {...form.register(`transactions.${i}.label`)}
+                      className="hidden"
+                      defaultValue={item.label}
+                    />
+
+                    <Input
+                      {...form.register(`transactions.${i}.kind`)}
+                      defaultValue="sale"
                       className="hidden"
                     />
 
@@ -68,7 +122,7 @@ const PaymentDialog = () => {
                               <FormLabel className="flex w-full cursor-pointer">
                                 {item.label}
 
-                                {/* {parseFloat(
+                                {parseFloat(
                                   form.watch(`transactions.${i}.amount`) || 0
                                 ) > 0 && (
                                   <span className="ml-auto text-muted-foreground">
@@ -76,7 +130,7 @@ const PaymentDialog = () => {
                                       form.watch(`transactions.${i}.amount`)
                                     ).format()}
                                   </span>
-                                )} */}
+                                )}
                               </FormLabel>
                             </AccordionTrigger>
                             <FormControl>
@@ -84,7 +138,7 @@ const PaymentDialog = () => {
                                 <Input
                                   className="bg-accent"
                                   {...field}
-                                  defaultValue={0}
+                                  defaultValue="0"
                                 />
                               </AccordionContent>
                             </FormControl>
@@ -97,9 +151,19 @@ const PaymentDialog = () => {
                 ))}
               </Accordion>
             </div>
-            <Button className="w-full" type="submit">
-              Save
-            </Button>
+            <DialogFooter className="flex justify-between md:justify-end gap-4">
+              <DialogCancel className="flex 1 md:flex-none">
+                Cancel
+              </DialogCancel>
+
+              <Button className="flex 1 md:flex-none md:w-28" type="submit">
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

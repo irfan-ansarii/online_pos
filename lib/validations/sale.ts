@@ -53,3 +53,36 @@ export const saleValidation = z.object({
     .optional(),
   status: z.string().default("pending"),
 });
+
+export const collectPayementValidation = z
+  .object({
+    due: z.number(),
+    saleId: z.number(),
+    transactions: z
+      .object({
+        name: z.string(),
+        label: z.string(),
+        kind: z.string(),
+        amount: z
+          .any()
+          .refine((val) => !isNaN(Number(val)), { message: "Error" }),
+      })
+      .array(),
+  })
+  .superRefine((val, ctx) => {
+    const { due, transactions } = val;
+    const total = transactions.reduce((acc, curr) => {
+      const amount = acc + Number(curr.amount);
+      return amount;
+    }, 0);
+
+    if (total > due) {
+      for (let i = 0; i < transactions.length; i++) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Value should be less than due",
+          path: [`transactions.${i}.amount`],
+        });
+      }
+    }
+  });

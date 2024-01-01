@@ -60,39 +60,11 @@ export async function getSales(params: ParamsProps) {
       where: filters,
       include: {
         transactions: true,
-        lineItems: { include: { product: true } },
+        lineItems: { include: { product: { include: { image: true } } } },
         employee: true,
         customer: true,
       },
     });
-
-    const transformed = [];
-
-    for (const sale of sales) {
-      const lineItems = [];
-
-      for (const item of sale.lineItems) {
-        if (!item.productId) {
-          lineItems.push(item);
-          continue;
-        }
-
-        const product = await prisma.product.findUnique({
-          where: { id: item.productId },
-          include: { image: true },
-        });
-
-        lineItems.push({
-          ...item,
-          product,
-        });
-      }
-
-      transformed.push({
-        ...sale,
-        lineItems,
-      });
-    }
 
     // get pagination
     const total = await prisma.sale.count({
@@ -101,7 +73,7 @@ export async function getSales(params: ParamsProps) {
 
     // return response
     return {
-      data: transformed,
+      data: sales,
       pagination: {
         page: currentPage,
         pageSize: PAGE_SIZE,
@@ -110,7 +82,7 @@ export async function getSales(params: ParamsProps) {
       },
     };
   } catch (error: any) {
-    if (error instanceof Prisma.PrismaClientInitializationError) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
       throw new Error("Internal server error");
     }
     throw new Error(error.message);
@@ -284,25 +256,23 @@ export async function getSale(id: number) {
     }
 
     // find product
-    const product = await prisma.product.findUnique({
+    const sale = await prisma.sale.findUnique({
       where: {
         id: Number(id),
       },
       include: {
-        variants: {
-          include: { inventory: { include: { location: true } } },
-        },
-        image: true,
+        transactions: true,
+        lineItems: { include: { product: { include: { image: true } } } },
       },
     });
 
     // if product not found
-    if (!product) {
+    if (!sale) {
       throw new Error("Not found");
     }
 
     // return response
-    return { data: product, message: "success" };
+    return { data: sale, message: "success" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
@@ -349,8 +319,8 @@ export async function deleteSale(id: number) {
       locationId: sale.locationId,
     });
 
-    const response = await prisma.sale.deleteMany({
-      where: { id: sale.id },
+    const response = await prisma.sale.delete({
+      where: { id: id },
     });
 
     return { data: response, message: "success" };
@@ -362,6 +332,110 @@ export async function deleteSale(id: number) {
   }
 }
 
-export async function createTransactions() {}
+/**
+ * create transactions
+ * @param param0
+ * @returns
+ */
+export async function createTransactions({
+  saleId,
+  transactions,
+}: {
+  saleId: number;
+  transactions: any[];
+}) {
+  try {
+    const session = await auth();
 
-export async function updateTransaction() {}
+    if (!session || typeof session === "string") {
+      throw new Error("Unauthorized");
+    }
+
+    const sale = await prisma.sale.findUnique({
+      where: { id: saleId },
+    });
+
+    if (!sale) {
+      throw new Error("Not found");
+    }
+
+    const totalDue = sale.totalDue;
+
+    const transactionTotal = transactions.reduce((acc, curr) => {
+      const total = Number(acc + curr.amount);
+      return total;
+    }, 0);
+
+    if (transactionTotal > totalDue) {
+      throw new Error("Amount should be less than due");
+    }
+
+    const transactionRes = prisma.transaction.createMany({
+      data: transactions.map((txn) => ({
+        ...txn,
+        amount: Number(txn.amount),
+        saleId,
+        locationId: session.location.id,
+      })),
+    });
+
+    const saleStatus =
+      totalDue - transactionTotal == 0 ? "paid" : "partialy_paid";
+
+    const saleRes = prisma.sale.update({
+      where: { id: saleId },
+      data: {
+        totalDue: totalDue - transactionTotal,
+      },
+    });
+
+    const [response, _] = await prisma.$transaction([transactionRes, saleRes]);
+
+    return {
+      data: response,
+      message: "created",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+}
+
+export async function updateTransaction(values: Transaction) {
+  try {
+    const session = await auth();
+
+    if (!session || typeof session === "string") {
+      throw new Error("Unauthorized");
+    }
+
+    const { id, amount, kind } = values;
+
+    const oldTransaction = await prisma.transaction.findUnique({
+      where: { id: id },
+    });
+
+    if (!oldTransaction) {
+      throw new Error("Not found");
+    }
+
+    const response = await prisma.transaction.update({
+      where: { id: id },
+      data: {
+        amount,
+        kind,
+      },
+    });
+    return {
+      data: response,
+      message: "updated",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+}

@@ -94,7 +94,7 @@ export async function getAdjustments(params: ParamsProps) {
 export async function createAdjustment(values: any) {
   try {
     const session = await auth();
-    if (!session) {
+    if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 

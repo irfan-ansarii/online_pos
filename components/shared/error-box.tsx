@@ -24,10 +24,6 @@ const ErrorBox = ({
     >
       <div className="relative text-destructive/80">
         <PackageSearch className="w-24 h-24  relative z-10" />
-
-        <div className="absolute inset-0 flex items-center justify-center text-9xl font-black">
-          5 <span className="opacity-0 px-16"></span> 0
-        </div>
       </div>
 
       <h3 className="mt-4 font-semibold uppercase tracking-widest text-muted-foreground">

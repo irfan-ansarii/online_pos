@@ -85,29 +85,6 @@ const Page = () => {
       <Form {...form}>
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 lg:col-span-6 xl:col-span-7 2xl:col-span-8 bg-background">
-            <Dialog>
-              <DialogTrigger asChild>
-                <div className="relative">
-                  <Button
-                    size="icon"
-                    className="rounded-full fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
-                  >
-                    <ShoppingBag className="w-5 h-5" />
-
-                    <Badge
-                      variant="secondary"
-                      className="absolute -top-2 py-0 px-2 -right-2"
-                    >
-                      {fields.length}
-                    </Badge>
-                  </Button>
-                </div>
-              </DialogTrigger>
-              <DialogContent className="h-[90%] p-4">
-                <Cart fields={fields} remove={remove} update={update} />
-              </DialogContent>
-            </Dialog>
-
             <Inventory onSelect={onLineItemClick} />
           </div>
 
@@ -116,6 +93,28 @@ const Page = () => {
             <Cart fields={fields} remove={remove} update={update} />
           </div>
         </div>
+        <Dialog>
+          <DialogTrigger asChild>
+            <div className="relative">
+              <Button
+                size="icon"
+                className="rounded-full fixed z-50 bottom-[54px] md:bottom-4 left-1/2 -translate-x-1/2 lg:hidden w-12 h-12"
+              >
+                <ShoppingBag className="w-5 h-5" />
+
+                <Badge
+                  variant="secondary"
+                  className="absolute -top-2 py-0 px-2 -right-2"
+                >
+                  {fields.length}
+                </Badge>
+              </Button>
+            </div>
+          </DialogTrigger>
+          <DialogContent className="h-[90%] p-4">
+            <Cart fields={fields} remove={remove} update={update} />
+          </DialogContent>
+        </Dialog>
       </Form>
     </main>
   );

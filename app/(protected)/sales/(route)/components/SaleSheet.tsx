@@ -1,76 +1,30 @@
 "use client";
 import React from "react";
-import * as z from "zod";
-
-import { updateCustomer } from "@/actions/customer-actions";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { customerValidation } from "@/lib/validations/customer";
-
-import {
-  ChevronDown,
-  ChevronsUpDown,
-  Eye,
-  IndianRupee,
-  Loader2,
-  Mail,
-  MoreVertical,
-  PenSquare,
-  PlusCircle,
-  Printer,
-  Send,
-  SendHorizonal,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Transaction } from "@prisma/client";
+import { format } from "date-fns";
+import Numeral from "numeral";
 
 import { useToggle } from "@uidotdev/usehooks";
-import { useForm, useFieldArray } from "react-hook-form";
-import { toast } from "@/components/ui/use-toast";
 
+import { ChevronDown, X } from "lucide-react";
 import {
   Sheet,
   SheetTrigger,
   SheetContent,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { AvatarItem } from "@/components/shared/avatar";
-import { Badge } from "@/components/ui/badge";
-import PaymentDialog from "./PaymentDialog";
-import Numeral from "numeral";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Transaction } from "@prisma/client";
-import { format } from "date-fns";
+import { AvatarItem } from "@/components/shared/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+import SheetActions from "./SheetActions";
 
 const SaleSheet = ({
   children,
@@ -79,48 +33,18 @@ const SaleSheet = ({
   sale: any;
   children: React.ReactNode;
 }) => {
-  const [open, toggle] = useToggle(false);
+  const [open, toggle] = useToggle();
+
   return (
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="md:max-w-lg">
+      <SheetContent className="md:max-w-lg !pt-2">
         <div className="flex flex-col h-full">
           <SheetHeader className="mb-4">
             <div className="flex justify-between items-center">
               <SheetTitle className="">{sale.title}</SheetTitle>
 
-              <span className="px-4">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <MoreVertical className="w-4 h-4" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-40" align="end">
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>
-                        <PenSquare className="w-4 h-4 mr-2 text-muted-foreground" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Printer className="w-4 h-4 mr-2 text-muted-foreground" />
-                        Print Invoice
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Mail className="w-4 h-4 mr-2 text-muted-foreground" />
-                        Send Invoice
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <IndianRupee className="w-4 h-4 mr-2 text-muted-foreground" />
-                        Collect Payment
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-error">
-                        <Trash2 className="w-4 h-4 mr-2 " />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </span>
+              <SheetActions sale={sale} toggle={toggle} />
             </div>
           </SheetHeader>
           <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
@@ -216,7 +140,6 @@ const SaleSheet = ({
             {sale.totalDue > 0 && (
               <div className="flex items-center p-2 mt-2 rounded-md bg-warning/20">
                 <div>Due</div>
-                {/* <PaymentDialog /> */}
                 <div className="ml-auto">{Numeral(sale.totalDue).format()}</div>
               </div>
             )}
