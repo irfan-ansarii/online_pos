@@ -1,5 +1,5 @@
 import React from "react";
-import { MapPin, Settings2, Pencil } from "lucide-react";
+import { MapPin, Settings2, Pencil, PenSquare } from "lucide-react";
 import Numeral from "numeral";
 
 import {
@@ -18,7 +18,7 @@ const EditSheet = () => {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="secondary" size="icon" className="">
-          <Pencil className="w-4 h-4" />
+          <PenSquare className="w-4 h-4" />
         </Button>
       </SheetTrigger>
 

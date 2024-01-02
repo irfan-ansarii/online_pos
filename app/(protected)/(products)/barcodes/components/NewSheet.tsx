@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { store } from "@/lib/utils";
+
 import { Loader2, Plus, X, Minus } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +9,7 @@ import { barcodeValidation } from "@/lib/validations/product";
 import { createBarcode } from "@/actions/barcode-actions";
 
 import { useRouter } from "next/navigation";
-import { useAtom } from "jotai";
+import { useSheetToggle } from "@/hooks/useSheet";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 
@@ -30,7 +30,7 @@ import { AvatarItem } from "@/components/shared/avatar";
 type Option = Record<string, any>;
 
 const NewSheet = () => {
-  const [state, setState] = useAtom(store);
+  const [open, toggle] = useSheetToggle("newSheet");
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
 
@@ -101,7 +101,7 @@ const NewSheet = () => {
       });
 
       form.reset();
-      setState({ ...state, open: false });
+      toggle();
       router.refresh();
     } catch (error: any) {
       toast({
@@ -114,10 +114,7 @@ const NewSheet = () => {
   };
 
   return (
-    <Sheet
-      open={state.open}
-      onOpenChange={() => setState({ ...state, open: false })}
-    >
+    <Sheet open={open} onOpenChange={toggle}>
       <SheetContent className="md:max-w-lg">
         {loading && (
           <div className="absolute w-full h-full top-0 left-0 z-20"></div>

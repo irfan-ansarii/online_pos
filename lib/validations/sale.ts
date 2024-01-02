@@ -10,7 +10,6 @@ export const saleValidation = z.object({
   createdAt: z.string().datetime(),
   lineItems: z
     .object({
-      itemId: z.number(),
       productId: z.number(),
       variantId: z.number(),
       title: z.string(),
@@ -54,31 +53,33 @@ export const saleValidation = z.object({
 });
 
 export const editSaleValidation = z.object({
-  customerId: z.number(),
-  employeeId: z.number(),
-  createdAt: z.string().datetime(),
+  customerId: z.any(),
+  employeeId: z.any(),
+  createdAt: z.date(),
   lineItems: z
     .object({
-      itemId: z.number(),
-      productId: z.number(),
-      variantId: z.number(),
-      title: z.string(),
-      variantTitle: z.string().optional(),
-      sku: z.string(),
+      itemId: z.union([number, z.null()]),
+      productId: z.union([z.number(), z.any()]),
+      variantId: z.union([z.number(), z.any()]),
+      title: z.any(),
+      variantTitle: z.any(),
+      sku: z.any(),
       barcode: z.any(),
       stock: z.any(),
       imageSrc: z.any(),
+
       price: number,
-      taxRate: z.number(),
       quantity: z.number(),
+      taxRate: z.number(),
       totalDiscount: number,
+      taxableValue: number,
       totalTax: number,
+      totalBeforeDisccount: number,
       total: number,
-      type: z.enum(["new", "return"]),
     })
     .array()
     .nonempty(),
-  taxType: z.enum(["included", "excluded"]),
+  taxType: z.string(),
   subtotal: number,
   totalTax: number,
   totalDiscount: number,

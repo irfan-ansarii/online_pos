@@ -159,7 +159,7 @@ export const adjustmentValidation = z.object({
     .array()
     .min(1),
   reason: z.string().min(1, { message: "Required" }),
-  notes: z.any(),
+  note: z.any(),
 });
 
 export const barcodeValidation = z.object({

@@ -6,15 +6,14 @@ import Numeral from "numeral";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import { Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
+
 import {
   FormField,
   FormItem,
@@ -22,13 +21,14 @@ import {
   FormMessage,
   FormLabel,
 } from "@/components/ui/form";
-
-import ProceedDialog from "./ProceedDialog";
-import CartActions from "./CartActions";
-import DiscountPopover from "./DiscountPopover";
-import TaxPopover from "./TaxPopover";
-import { AvatarItem } from "@/components/shared/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+import { AvatarItem } from "@/components/shared/avatar";
+
+import TaxPopover from "../../new/components/TaxPopover";
 
 const Cart = ({
   fields,
@@ -48,124 +48,34 @@ const Cart = ({
   });
 
   // handle quantity minus
-  const handleMinus = (e: React.MouseEvent, index: number) => {
-    e.preventDefault();
-    const currentQuantity = fields[index].quantity;
-    const newQuantity =
-      currentQuantity - 1 === 0 ? -1 : Number(fields[index].quantity) - 1;
-    update(index, {
-      ...watch[index],
-      quantity: newQuantity,
-    });
-  };
-
-  // handle quantity plus
-  const handlePlus = (e: React.MouseEvent, index: number) => {
-    e.preventDefault();
-    const currentQuantity = fields[index].quantity;
-    const newQuantity =
-      currentQuantity + 1 === 0 ? 1 : Number(fields[index].quantity) + 1;
-    update(index, {
-      ...watch[index],
-      quantity: newQuantity,
-    });
-  };
-
-  /**
-   * calculate tax helper function
-   * @param {taxRate, itemTotal}
-   * @returns
-   */
-  const calculateTax = ({
-    taxRate,
-    total,
-  }: {
-    taxRate: number;
-    total: number;
-  }) => {
-    const taxType = form.watch("taxType");
-
-    const taxAmount =
-      taxType === "included"
-        ? Number(total) - Number(total) / (1 + Number(taxRate) / 100)
-        : Number(total) * (Number(taxRate) / 100);
-
-    return taxAmount;
-  };
-
-  /**
-   * handle price and discount change
-   * @param {index, price, discount}
-   */
-  const handleFieldChange = ({
-    index,
-    price,
-    discount,
-  }: {
-    index: number;
-    price: number;
-    discount: number;
-  }) => {
-    const total = Number(price * fields[index].quantity) - discount;
-
-    const taxAmount = calculateTax({
-      taxRate: fields[index].taxRate,
-      total: total,
-    });
-
-    form.setValue(`lineItems.${index}.totalTax`, taxAmount);
-    form.setValue(`lineItems.${index}.total`, total);
-  };
-
-  /**
-   * calculate tax and total on line item or tax type change
-   */
-  React.useEffect(() => {
-    fields.forEach((item: any, i: number) => {
-      const taxableAmount =
-        Number(item.price) * Number(item.quantity) - Number(item.totalDiscount);
-
-      const taxAmount = calculateTax({
-        taxRate: item.taxRate,
-        total: taxableAmount,
+  const handleMinus = React.useCallback(
+    (e: React.MouseEvent, index: number) => {
+      e.preventDefault();
+      const currentQuantity = fields[index].quantity;
+      const newQuantity =
+        currentQuantity - 1 === 0 ? -1 : Number(fields[index].quantity) - 1;
+      update(index, {
+        ...watch[index],
+        quantity: newQuantity,
       });
+    },
+    [fields, update]
+  );
 
-      form.setValue(`lineItems.${i}.totalTax`, taxAmount);
-      form.setValue(`lineItems.${i}.total`, taxableAmount);
-    });
-  }, [form.watch("taxType"), fields]);
-
-  /**
-   * calculate cart on line item change
-   */
-  React.useEffect(() => {
-    const taxType = form.getValues("taxType");
-    const result = watch.reduce(
-      (acc: any, curr: any) => {
-        const total =
-          Number(curr.price) * Number(curr.quantity) -
-          Number(curr.totalDiscount || 0);
-
-        acc.subtotal += Number(total) + Number(curr.totalDiscount || 0);
-        acc.totalDiscount += Number(curr.totalDiscount || 0);
-        acc.totalTax += Number(curr.totalTax);
-        acc.total +=
-          taxType === "included" ? total : total + Number(curr.totalTax);
-        return acc;
-      },
-      {
-        subtotal: 0,
-        totalTax: 0,
-        totalDiscount: 0,
-        total: 0,
-      }
-    );
-
-    Object.entries(result).map(([key, value]) => {
-      // @ts-ignore
-      form.setValue(key, value);
-    });
-  }, [watch]);
+  // handle plus quantity
+  const handlePlus = React.useCallback(
+    (e: React.MouseEvent, index: number) => {
+      e.preventDefault();
+      const currentQuantity = fields[index].quantity;
+      const newQuantity =
+        currentQuantity + 1 === 0 ? 1 : Number(fields[index].quantity) + 1;
+      update(index, {
+        ...watch[index],
+        quantity: newQuantity,
+      });
+    },
+    [fields, update]
+  );
 
   return (
     <div className="flex flex-col h-full overflow-hidden relative">
@@ -181,10 +91,10 @@ const Cart = ({
               <AccordionItem
                 key={field.id}
                 value={field.id}
-                className="border-b-0 py-1.5 first:pt-0 last:pb-0 relative snap-start"
+                className="border-b-0 py-1.5 first:pt-0 last:pb-0 snap-start"
               >
                 <AccordionTrigger asChild>
-                  <div className="!py-0 hover:no-underline flex gap-2 cursor-pointer relative">
+                  <div className="!py-0 hover:no-underline flex gap-2 cursor-pointer">
                     <AvatarItem
                       className="w-14 h-14 rounded-md flex-0 bg-border dark:bg-secondary"
                       src={field?.imageSrc}
@@ -260,18 +170,7 @@ const Cart = ({
                             <FormItem>
                               <FormLabel>Price</FormLabel>
                               <FormControl>
-                                <Input
-                                  {...field}
-                                  onChange={(e) => {
-                                    handleFieldChange({
-                                      index: i,
-                                      price: parseFloat(e.target.value),
-                                      discount: watch[i].totalDiscount,
-                                    });
-
-                                    return field.onChange(e);
-                                  }}
-                                />
+                                <Input {...field} />
                               </FormControl>
 
                               <FormMessage />
@@ -288,18 +187,7 @@ const Cart = ({
                             <FormItem>
                               <FormLabel>Discount</FormLabel>
                               <FormControl>
-                                <Input
-                                  {...field}
-                                  onChange={(e) => {
-                                    handleFieldChange({
-                                      index: i,
-                                      price: watch[i].price,
-                                      discount: parseFloat(e.target.value),
-                                    });
-
-                                    return field.onChange(e);
-                                  }}
-                                />
+                                <Input {...field} />
                               </FormControl>
 
                               <FormMessage />
@@ -308,6 +196,7 @@ const Cart = ({
                         />
                       </div>
                     </div>
+
                     <Button
                       variant="link"
                       className="text-error w-full mt-2"
@@ -329,7 +218,13 @@ const Cart = ({
             <div>{Numeral(form.watch("subtotal")).format()}</div>
           </div>
 
-          <DiscountPopover />
+          <div className="flex items-center py-1">
+            <div>Discount</div>
+            <div className="ml-auto">
+              {form.watch("totalDiscount") > 0 && "- "}
+              {Numeral(form.watch("totalDiscount")).format()}
+            </div>
+          </div>
 
           <TaxPopover />
 
@@ -344,9 +239,8 @@ const Cart = ({
         </div>
 
         <div className="mt-2">
-          <ProceedDialog disabled={fields.length <= 0} />
+          <Button className="w-full">Proceed</Button>
         </div>
-        <CartActions />
       </div>
     </div>
   );

@@ -1,14 +1,14 @@
 "use client";
 import React from "react";
 import * as z from "zod";
-import { store } from "@/lib/utils";
+
 import { createAdjustment } from "@/actions/adjustment-actions";
 import { Loader2, X, Minus, Plus } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { adjustmentValidation } from "@/lib/validations/product";
 
-import { useAtom } from "jotai";
+import { useSheetToggle } from "@/hooks/useSheet";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import { useSession } from "@/hooks/useSession";
@@ -41,12 +41,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AvatarItem } from "@/components/shared/avatar";
+import { Textarea } from "@/components/ui/textarea";
 
 type Option = Record<string, any>;
 
 const NewSheet = () => {
   const [loading, setLoading] = React.useState(false);
-  const [state, setState] = useAtom(store);
+  const [open, toggle] = useSheetToggle("newSheet");
 
   const { session } = useSession();
   const form = useForm<z.infer<typeof adjustmentValidation>>({
@@ -55,6 +56,7 @@ const NewSheet = () => {
       locationId: session?.location?.id,
       lineItems: [],
       reason: "Correction",
+      note: "",
     },
   });
 
@@ -85,7 +87,7 @@ const NewSheet = () => {
       variantTitle: value.variant.title,
       barcode: value.variant.barcode,
       quantity: 1,
-      imageSrc: value.product.image.src,
+      imageSrc: value?.product?.image?.src,
     });
   };
 
@@ -114,7 +116,7 @@ const NewSheet = () => {
         variant: "success",
         title: "Stock adjusted successfully.",
       });
-      setState({ ...state, open: false });
+      toggle();
       form.reset();
     } catch (error: any) {
       toast({
@@ -127,10 +129,7 @@ const NewSheet = () => {
   };
 
   return (
-    <Sheet
-      open={state.open}
-      onOpenChange={() => setState({ ...state, open: false })}
-    >
+    <Sheet open={open} onOpenChange={toggle}>
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form
@@ -180,6 +179,21 @@ const NewSheet = () => {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="note"
+              render={({ field }) => (
+                <FormItem className="mb-6">
+                  <FormLabel>Note</FormLabel>
+
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="flex flex-col gap-2 mb-2">
               <FormLabel>Products</FormLabel>
               <AutoComplete

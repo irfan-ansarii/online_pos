@@ -4,14 +4,15 @@ import * as z from "zod";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { createLocation } from "@/actions/store-actions";
-import { store } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { locationValidation } from "@/lib/validations/locations";
 
 import { toast } from "@/components/ui/use-toast";
 import { useForm } from "react-hook-form";
-import { useAtom } from "jotai";
+import { useSheetToggle } from "@/hooks/useSheet";
+
 import { Loader2 } from "lucide-react";
+
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import {
   Sheet,
@@ -29,12 +30,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
 
 const CreateWorkspace = () => {
   const [loading, setLoading] = React.useState(false);
-  const [open, setOpen] = useAtom(store);
+
+  const [open, toggleOpen] = useSheetToggle("storeModal");
   const router = useRouter();
   const form = useForm<z.infer<typeof locationValidation>>({
     resolver: zodResolver(locationValidation),
@@ -49,7 +50,9 @@ const CreateWorkspace = () => {
         variant: "success",
         title: "Store created successfully!",
       });
+
       router.refresh();
+      toggleOpen();
     } catch (error: any) {
       toast({
         variant: "error",
@@ -61,10 +64,7 @@ const CreateWorkspace = () => {
   };
 
   return (
-    <Sheet
-      open={open.storeModal}
-      onOpenChange={() => setOpen({ ...open, storeModal: false })}
-    >
+    <Sheet open={open} onOpenChange={toggleOpen}>
       <SheetContent className="md:max-w-lg bg-background">
         <Form {...form}>
           <form

@@ -3,7 +3,7 @@ import * as z from "zod";
 import React from "react";
 import { LineItem, Sale, Transaction } from "@prisma/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { saleValidation } from "@/lib/validations/sale";
+import { editSaleValidation } from "@/lib/validations/sale";
 
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
@@ -15,7 +15,7 @@ import { ShoppingBag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 import Inventory from "../../new/components/Inventory";
-import Cart from "../../new/components/Cart";
+import Cart from "./Cart";
 
 interface Props extends Sale {
   lineItems: LineItem[];
@@ -44,21 +44,42 @@ const EditForm = ({ initialValue }: { initialValue: Props }) => {
     transactions,
   } = initialValue;
 
-  const form = useForm<z.infer<typeof saleValidation>>({
-    resolver: zodResolver(saleValidation),
+  const form = useForm<z.infer<typeof editSaleValidation>>({
+    resolver: zodResolver(editSaleValidation),
     mode: "onChange",
     defaultValues: {
-      lineItems: lineItems,
-      taxType: "included",
-      subtotal: 0,
-      totalTax: 0,
-      totalDiscount: 0,
-      total: 0,
-      totalDue: 0,
-      taxLines: [],
       discountLine: { type: "percent", value: 0 },
-      createdAt: new Date().toISOString(),
-      taxAllocations: ["cgst", "sgst"],
+      customerId: customerId,
+      employeeId: employeeId,
+      lineItems: lineItems.map((item) => ({
+        itemId: null,
+        productId: item.productId || null,
+        variantId: item.variantId,
+        title: item.title,
+        variantTitle: item.variantTitle,
+        sku: item.sku,
+        barcode: `${item.barcode}`,
+        stock: 0,
+        imageSrc: "",
+        price: item.price,
+        taxRate: item.taxRate,
+        quantity: item.quantity,
+        totalDiscount: item.totalDiscount,
+        totalTax: item.totalTax,
+        total: item.total,
+      })),
+
+      taxType: taxType,
+      subtotal: subtotal,
+      totalTax: totalTax,
+      totalDiscount: totalDiscount,
+      total: total,
+      totalDue: totalDue,
+      taxLines: taxLines,
+
+      createdAt: createdAt,
+      // @ts-ignore
+      taxAllocations: taxLines?.map((tax) => tax.title),
       transactions: [],
     },
   });
@@ -74,13 +95,13 @@ const EditForm = ({ initialValue }: { initialValue: Props }) => {
   });
 
   const onLineItemClick = (selected: any) => {
-    const { id, product, variant, stock } = selected;
+    const { product, variant, stock, barcode } = selected;
 
-    const index = fields.findIndex((item) => item.itemId === selected.id);
+    const index = fields.findIndex((item) => item.barcode === barcode);
 
     if (index === -1) {
       append({
-        itemId: id,
+        itemId: null,
         productId: product.id,
         variantId: variant.id,
         title: product.title,
@@ -99,10 +120,13 @@ const EditForm = ({ initialValue }: { initialValue: Props }) => {
       return;
     }
 
+    // update existing item
+    const quantity = Number(fields[index].quantity);
+    const newQuantity = quantity < 0 ? quantity - 1 : quantity + 1;
     update(index, {
       ...updatedLineItems[index],
       totalDiscount: updatedLineItems[index].totalDiscount || 0,
-      quantity: Number(fields[index].quantity) + 1,
+      quantity: newQuantity,
     });
   };
 

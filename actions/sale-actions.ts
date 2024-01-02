@@ -334,7 +334,7 @@ export async function deleteSale(id: number) {
 
 /**
  * create transactions
- * @param param0
+ * @param param
  * @returns
  */
 export async function createTransactions({
@@ -359,7 +359,7 @@ export async function createTransactions({
       throw new Error("Not found");
     }
 
-    const totalDue = sale.totalDue;
+    const { totalDue, total, status } = sale;
 
     const transactionTotal = transactions.reduce((acc, curr) => {
       const total = Number(acc + curr.amount);
@@ -367,7 +367,7 @@ export async function createTransactions({
     }, 0);
 
     if (transactionTotal > totalDue) {
-      throw new Error("Amount should be less than due");
+      throw new Error("Payment amount must not exceed the total due amount");
     }
 
     const transactionRes = prisma.transaction.createMany({
@@ -403,6 +403,11 @@ export async function createTransactions({
   }
 }
 
+/**
+ * update transaction
+ * @param values
+ * @returns
+ */
 export async function updateTransaction(values: Transaction) {
   try {
     const session = await auth();

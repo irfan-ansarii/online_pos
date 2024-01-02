@@ -44,7 +44,7 @@ const TaxPopover = () => {
       <div className="flex items-center py-1">
         <div>Tax</div>
         <PopoverTrigger asChild>
-          <span className="ml-4 cursor-pointer text-muted-foreground inline-flex items-center">
+          <span className="ml-4 cursor-pointer text-muted-foreground inline-flex items-center select-none">
             <span className="text-sm font-normal capitalize">
               ( {form.watch("taxType")} )
             </span>

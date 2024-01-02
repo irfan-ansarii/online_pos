@@ -4,10 +4,9 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { changeLocation } from "@/actions/store-actions";
 
-import { Check, ChevronsUpDown, Home, PlusCircle } from "lucide-react";
+import { Check, ChevronsUpDown, Home, PlusCircle, Store } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { store } from "@/lib/utils";
-import { useAtom } from "jotai";
+import { useSheetToggle } from "@/hooks/useSheet";
 
 import {
   Popover,
@@ -34,7 +33,8 @@ const Stores = ({
   session: JwtPayload;
 }) => {
   const [open, setOpen] = React.useState(false);
-  const [storeOpen, setStoreOpen] = useAtom(store);
+  const [_, setStoreOpen] = useSheetToggle("storeModal");
+
   const router = useRouter();
 
   const onChange = async (value: string) => {
@@ -68,7 +68,7 @@ const Stores = ({
           className="w-[200px] justify-between"
         >
           <span className="inline-flex items-center">
-            <Home className="w-4 h-4 mr-2" />
+            <Store className="w-4 h-4 mr-2" />
             {session?.location?.name || "Select Store"}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -102,10 +102,10 @@ const Stores = ({
             <CommandItem
               onSelect={() => {
                 setOpen(false);
-                setStoreOpen({ ...storeOpen, storeModal: true });
+                setStoreOpen();
               }}
             >
-              <PlusCircle className="mr-2 h-5 w-5" />
+              <PlusCircle className="mr-2 h-4 w-4" />
               Create Store
             </CommandItem>
           </CommandGroup>

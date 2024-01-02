@@ -69,7 +69,11 @@ const SaleSheet = ({
                   </div>
                 </div>
                 <div className="space-y-0.5 text-right">
-                  <div className="line-through text-muted-foreground">1290</div>
+                  <div className="line-through text-muted-foreground">
+                    {Number(field.totalDiscount) > 0
+                      ? Numeral(field.totalDiscount).format()
+                      : null}
+                  </div>
                   <div className="font-medium">
                     {Numeral(field.total).format()}
                   </div>

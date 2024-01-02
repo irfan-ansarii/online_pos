@@ -48,13 +48,12 @@ const Page = () => {
   });
 
   const onLineItemClick = (selected: any) => {
-    const { id, product, variant, stock } = selected;
+    const { product, variant, stock, barcode } = selected;
 
-    const index = fields.findIndex((item) => item.itemId === selected.id);
+    const index = fields.findIndex((item) => item.barcode == barcode);
 
     if (index === -1) {
       append({
-        itemId: id,
         productId: product.id,
         variantId: variant.id,
         title: product.title,
@@ -73,10 +72,13 @@ const Page = () => {
       return;
     }
 
+    const quantity = Number(fields[index].quantity);
+    const newQuantity = quantity < 0 ? quantity - 1 : quantity + 1;
+
     update(index, {
       ...updatedLineItems[index],
       totalDiscount: updatedLineItems[index].totalDiscount || 0,
-      quantity: Number(fields[index].quantity) + 1,
+      quantity: newQuantity,
     });
   };
 

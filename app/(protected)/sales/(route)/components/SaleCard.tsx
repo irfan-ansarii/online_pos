@@ -1,15 +1,39 @@
+"use client";
 import React from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import format from "date-fns/format";
 import Numeral from "numeral";
 
+import { deleteSale } from "@/actions/sale-actions";
+
+import { useRouter } from "next/navigation";
+import { useToggle } from "@uidotdev/usehooks";
+import { toast } from "@/components/ui/use-toast";
+
+import { Loader2, Trash2, PenSquare } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AvatarGroup, AvatarItem } from "@/components/shared/avatar";
 
 import SaleSheet from "./SaleSheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 const SaleCard = ({ sale }: { sale: any }) => {
+  const [openDelete, toggleDelete] = useToggle();
+  const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
   const status: { [key: string]: any } = {
     pending: {
       className: "bg-warning hover:bg-warning text-white",
@@ -33,6 +57,30 @@ const SaleCard = ({ sale }: { sale: any }) => {
     },
   };
 
+  // handle delete sale action
+  const onDelete = async (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await deleteSale(sale.id);
+      toast({
+        variant: "success",
+        title: "Sale deleted successfully",
+      });
+
+      // hide delete dialog
+      toggleDelete();
+      // refresh route
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <Card className="hover:bg-accent group relative cursor-pointer">
       <SaleSheet sale={sale}>
@@ -84,6 +132,45 @@ const SaleCard = ({ sale }: { sale: any }) => {
           </div>
         </CardContent>
       </SaleSheet>
+
+      <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
+        <Button variant="secondary" size="icon">
+          <Link href={`/sales/${sale.id}`}>
+            <PenSquare className="w-4 h-4" />
+          </Link>
+        </Button>
+
+        {/* delete alert */}
+        <AlertDialog open={openDelete} onOpenChange={toggleDelete}>
+          <AlertDialogTrigger asChild>
+            <Button variant="secondary" size="icon">
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action will permanently remove the sale and restock the
+                products from the system and cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={onDelete}
+                className="w-28 bg-destructive text-destructive-foreground hover:bg-destructive/80"
+              >
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Delete"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </Card>
   );
 };

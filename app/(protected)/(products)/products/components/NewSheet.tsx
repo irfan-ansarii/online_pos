@@ -5,12 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { productValidation } from "@/lib/validations/product";
 import { createProduct } from "@/actions/product-actions";
 
-import { store } from "@/lib/utils";
 import { useForm } from "react-hook-form";
-import { useAtom } from "jotai";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-
+import { useSheetToggle } from "@/hooks/useSheet";
 import { ImagePlus, Loader2 } from "lucide-react";
 import {
   Sheet,
@@ -38,7 +36,7 @@ import Variants from "./Variants";
 import MediaLibrary from "@/components/media-library/media-library";
 
 const NewSheet = () => {
-  const [state, setState] = useAtom(store);
+  const [open, toggle] = useSheetToggle("newSheet");
   const router = useRouter();
   const [preview, setPreview] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -81,7 +79,7 @@ const NewSheet = () => {
         title: "Product created successfully!",
       });
       form.reset();
-      setState({ ...state, open: false });
+      toggle();
       setPreview("");
       router.refresh();
     } catch (error: any) {
@@ -100,10 +98,7 @@ const NewSheet = () => {
   };
 
   return (
-    <Sheet
-      open={state.open}
-      onOpenChange={() => setState({ ...state, open: false })}
-    >
+    <Sheet open={open} onOpenChange={toggle}>
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form

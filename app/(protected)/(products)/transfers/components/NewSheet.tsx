@@ -4,7 +4,6 @@ import React from "react";
 import * as z from "zod";
 import Numeral from "numeral";
 import { useRouter } from "next/navigation";
-import { store } from "@/lib/utils";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Minus, Plus, X } from "lucide-react";
@@ -13,7 +12,7 @@ import { transferValidation } from "@/lib/validations/product";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import { useAtom } from "jotai";
-
+import { useSheetToggle } from "@/hooks/useSheet";
 import {
   Sheet,
   SheetHeader,
@@ -52,7 +51,7 @@ interface ClickProps {
 const NewSheet = () => {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
-  const [state, setState] = useAtom(store);
+  const [open, toggle] = useSheetToggle("newSheet");
 
   const form = useForm<z.infer<typeof transferValidation>>({
     resolver: zodResolver(transferValidation),
@@ -94,7 +93,7 @@ const NewSheet = () => {
       price: value.variant.salePrice,
       quantity: 1,
       total: value.variant.salePrice,
-      imageSrc: value.product.image.src,
+      imageSrc: value?.product?.image?.src,
     });
   };
 
@@ -145,7 +144,7 @@ const NewSheet = () => {
         title: "Transfered successfully",
       });
 
-      setState({ ...state, open: false });
+      toggle();
       form.reset();
       router.refresh();
     } catch (error: any) {
@@ -159,10 +158,7 @@ const NewSheet = () => {
   };
 
   return (
-    <Sheet
-      open={state.open}
-      onOpenChange={() => setState({ ...state, open: false })}
-    >
+    <Sheet open={open} onOpenChange={toggle}>
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form

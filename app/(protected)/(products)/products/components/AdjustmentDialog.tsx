@@ -38,6 +38,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React from "react";
+import { Textarea } from "@/components/ui/textarea";
 
 function AdjustmentDialog({
   children,
@@ -146,6 +147,19 @@ function AdjustmentDialog({
                     </SelectContent>
                   </Select>
 
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lineItems.0.note"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Note</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
