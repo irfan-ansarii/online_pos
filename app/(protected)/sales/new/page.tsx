@@ -30,9 +30,8 @@ const Page = () => {
       total: 0,
       totalDue: 0,
       taxLines: [],
-      discountLine: { type: "percent", value: 0 },
       createdAt: new Date().toISOString(),
-      taxAllocations: ["cgst", "sgst"],
+      saleType: "state",
       transactions: [],
     },
   });

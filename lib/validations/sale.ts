@@ -19,9 +19,11 @@ export const saleValidation = z.object({
       stock: z.any(),
       imageSrc: z.any(),
       price: number,
-      taxRate: z.number(),
-      quantity: z.number(),
+      quantity: number,
+      totalBeforeDiscount: number,
       totalDiscount: number,
+      taxRate: number,
+      taxableValue: number,
       totalTax: number,
       total: number,
     })
@@ -35,13 +37,7 @@ export const saleValidation = z.object({
   roundedOff: number.default(0),
   totalDue: number,
   taxLines: z.any(),
-  taxAllocations: z.string().array(),
-  discountLine: z
-    .object({
-      type: z.string(),
-      value: number,
-    })
-    .optional(),
+  saleType: z.enum(["state", "inter_state"]),
   transactions: z
     .object({
       name: z.string(),
