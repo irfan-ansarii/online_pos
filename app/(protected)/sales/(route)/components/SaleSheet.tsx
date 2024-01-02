@@ -39,10 +39,10 @@ const SaleSheet = ({
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="md:max-w-lg !pt-2">
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full ">
           <SheetHeader className="mb-4">
-            <div className="flex justify-between items-center">
-              <SheetTitle className="">{sale.title}</SheetTitle>
+            <div className="flex justify-between items-center gap-2">
+              <SheetTitle>{sale.title}</SheetTitle>
 
               <SheetActions sale={sale} toggle={toggle} />
             </div>
@@ -50,7 +50,7 @@ const SaleSheet = ({
           <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
             {sale.lineItems.map((field: any) => (
               <div
-                className="flex rounded-md border p-2 pr-0 items-center snap-start"
+                className="flex rounded-md border p-2 items-center snap-start"
                 key={field.id}
               >
                 <AvatarItem src={field?.product?.image?.src} />
@@ -73,15 +73,6 @@ const SaleSheet = ({
                   <div className="font-medium">
                     {Numeral(field.total).format()}
                   </div>
-                </div>
-                <div className="flex items-center gap-6">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="opacity-50 hover:opacity-100 hover:bg-background transition"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
                 </div>
               </div>
             ))}

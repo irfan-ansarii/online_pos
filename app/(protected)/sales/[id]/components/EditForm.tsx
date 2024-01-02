@@ -48,7 +48,7 @@ const EditForm = ({ initialValue }: { initialValue: Props }) => {
     resolver: zodResolver(saleValidation),
     mode: "onChange",
     defaultValues: {
-      lineItems: [],
+      lineItems: lineItems,
       taxType: "included",
       subtotal: 0,
       totalTax: 0,

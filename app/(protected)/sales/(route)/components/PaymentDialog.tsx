@@ -33,7 +33,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { usePayments } from "@/hooks/usePayments";
 import { Button } from "@/components/ui/button";
 import { createTransactions } from "@/actions/sale-actions";
@@ -47,12 +47,16 @@ const PaymentDialog = ({ sale }: { sale: Sale }) => {
   const form = useForm<z.infer<typeof collectPayementValidation>>({
     resolver: zodResolver(collectPayementValidation),
     defaultValues: {
-      due: sale.totalDue,
+      totalDue: sale.totalDue,
       saleId: sale.id,
       transactions: [],
     },
   });
 
+  const transactions = useWatch({
+    name: "transactions",
+    control: form.control,
+  });
   const onSubmit = async (
     values: z.infer<typeof collectPayementValidation>
   ) => {
@@ -79,15 +83,45 @@ const PaymentDialog = ({ sale }: { sale: Sale }) => {
     }
   };
 
+  const received = React.useMemo(() => {
+    if (!transactions || transactions.length < 1) {
+      return 0;
+    }
+    const total = transactions.reduce((acc: any, curr: any) => {
+      const t = acc + Number(curr.amount);
+      return t;
+    }, 0);
+    return total;
+  }, [transactions]);
+
   return (
     <Dialog open={open} onOpenChange={toggle}>
       <DialogContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col"
+          >
             <DialogHeader className="text-left pb-6">
               <DialogTitle>Collect Payment</DialogTitle>
             </DialogHeader>
-            <div className="overflow-y-auto relative scrollbox snap-y snap-mandatory h-96">
+
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="border p-3 space-y-1 rounded-md text-center">
+                <div className="font-medium text-xs uppercase">TOTAL due</div>
+                <div className="font-medium text-lg">
+                  {Numeral(form.watch("totalDue")).format()}
+                </div>
+              </div>
+              <div className={`border p-3 space-y-1 rounded-md text-center`}>
+                <div className="font-medium text-xs uppercase">Received</div>
+                <div className="font-medium text-lg">
+                  {Numeral(received).format()}
+                </div>
+              </div>
+            </div>
+
+            <div className="overflow-y-auto relative scrollbox snap-y snap-mandatory h-80">
               <Accordion type="single" className="w-full space-y-2">
                 {payments?.data?.map((item: any, i: number) => (
                   <>

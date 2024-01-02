@@ -47,36 +47,84 @@ export const saleValidation = z.object({
     .object({
       name: z.string(),
       label: z.string(),
-      amount: number.default(0),
+      amount: number,
     })
     .array()
     .optional(),
-  status: z.string().default("pending"),
+});
+
+export const editSaleValidation = z.object({
+  customerId: z.number(),
+  employeeId: z.number(),
+  createdAt: z.string().datetime(),
+  lineItems: z
+    .object({
+      itemId: z.number(),
+      productId: z.number(),
+      variantId: z.number(),
+      title: z.string(),
+      variantTitle: z.string().optional(),
+      sku: z.string(),
+      barcode: z.any(),
+      stock: z.any(),
+      imageSrc: z.any(),
+      price: number,
+      taxRate: z.number(),
+      quantity: z.number(),
+      totalDiscount: number,
+      totalTax: number,
+      total: number,
+      type: z.enum(["new", "return"]),
+    })
+    .array()
+    .nonempty(),
+  taxType: z.enum(["included", "excluded"]),
+  subtotal: number,
+  totalTax: number,
+  totalDiscount: number,
+  total: number,
+  roundedOff: number.default(0),
+  totalDue: number,
+  taxLines: z.any(),
+  taxAllocations: z.string().array(),
+  discountLine: z
+    .object({
+      type: z.string(),
+      value: number,
+    })
+    .optional(),
+  transactions: z
+    .object({
+      id: z.number(),
+      name: z.string(),
+      label: z.string(),
+      amount: number,
+    })
+    .array()
+    .optional(),
 });
 
 export const collectPayementValidation = z
   .object({
-    due: z.number(),
+    totalDue: z.number(),
     saleId: z.number(),
     transactions: z
       .object({
         name: z.string(),
         label: z.string(),
         kind: z.string(),
-        amount: z
-          .any()
-          .refine((val) => !isNaN(Number(val)), { message: "Error" }),
+        amount: number,
       })
       .array(),
   })
   .superRefine((val, ctx) => {
-    const { due, transactions } = val;
+    const { totalDue, transactions } = val;
     const total = transactions.reduce((acc, curr) => {
       const amount = acc + Number(curr.amount);
       return amount;
     }, 0);
 
-    if (total > due) {
+    if (total > totalDue) {
       for (let i = 0; i < transactions.length; i++) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

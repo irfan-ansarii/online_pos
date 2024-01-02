@@ -94,31 +94,31 @@ export default function SheetActions({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size="icon" variant="ghost">
-            <MoreVertical className="w-4 h-4" />
+          <Button size="icon" variant="ghost" className="mr-2">
+            <MoreVertical className="w-5 h-5" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-40" align="end">
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
               <Link href={`/sales/${sale.id}`}>
-                <PenSquare className="w-4 h-4 mr-2 text-muted-foreground" />
+                <PenSquare className="w-4 h-4 mr-2" />
                 Edit
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Printer className="w-4 h-4 mr-2 text-muted-foreground" />
+              <Printer className="w-4 h-4 mr-2" />
               Print Invoice
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Mail className="w-4 h-4 mr-2 text-muted-foreground" />
+              <Mail className="w-4 h-4 mr-2" />
               Send Invoice
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={toggleNew}
               disabled={sale.totalDue <= 0}
             >
-              <IndianRupee className="w-4 h-4 mr-2 text-muted-foreground" />
+              <IndianRupee className="w-4 h-4 mr-2" />
               Collect Payment
             </DropdownMenuItem>
             <DropdownMenuSeparator />
