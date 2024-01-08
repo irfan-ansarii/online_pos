@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 const SaleCard = ({ sale }: { sale: any }) => {
   const [openDelete, toggleDelete] = useToggle();
   const [loading, setLoading] = React.useState(false);
+
   const router = useRouter();
   const status: { [key: string]: any } = {
     pending: {
@@ -47,7 +48,7 @@ const SaleCard = ({ sale }: { sale: any }) => {
       className: "bg-info hover:bg-info text-white",
       text: "Partial",
     },
-    partially_refunded: {
+    partialy_refunded: {
       className: "bg-destructive hover:bg-destructive text-white",
       text: "Partial",
     },
@@ -68,9 +69,7 @@ const SaleCard = ({ sale }: { sale: any }) => {
         title: "Sale deleted successfully",
       });
 
-      // hide delete dialog
       toggleDelete();
-      // refresh route
       router.refresh();
     } catch (error: any) {
       toast({
@@ -110,16 +109,18 @@ const SaleCard = ({ sale }: { sale: any }) => {
           <div className="block col-span-2 space-y-0.5">
             <div className="font-medium uppercase">{sale.title}</div>
             <span className="text-muted-foreground">
-              {sale.employee.firstName}
+              {sale?.employee?.firstName}
             </span>
           </div>
 
           <div className="hidden md:flex flex-col space-y-0.5">
-            <div className="font-medium">{sale.customer.firstName}</div>
-            <div className="text-muted-foreground">{sale.customer.phone}</div>
+            <div className="font-medium">{sale?.customer?.firstName}</div>
+            <div className="text-muted-foreground">{sale?.customer?.phone}</div>
           </div>
           <div className="col-span-2 md:col-span-1 space-y-0.5  text-right">
-            <div>{Numeral(sale.total).format()}</div>
+            <div className={sale.total < 0 ? "text-error" : ""}>
+              {Numeral(sale.total).format()}
+            </div>
             <Badge
               variant="secondary"
               className={cn(

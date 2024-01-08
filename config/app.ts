@@ -7,6 +7,9 @@ import {
   Tag,
   Inbox,
   BarChart3,
+  Mail,
+  MessageCircle,
+  Printer,
 } from "lucide-react";
 
 export const MENU_ITEMS = [
@@ -85,3 +88,30 @@ export const PRODUCT_PATHS = [
 ];
 
 export const PAGE_SIZE = 12;
+
+export const PROCEED_SALE_TABS = [
+  "employee",
+  "customer",
+  "payment",
+  "completed",
+];
+
+export const INVOICE_OPTIONS = [
+  {
+    key: 1,
+    name: "Email",
+    icon: Mail,
+  },
+  {
+    key: 2,
+    name: "Whats App",
+    icon: MessageCircle,
+  },
+  {
+    key: 3,
+    name: "Print",
+    icon: Printer,
+  },
+];
+
+export const PROCEED_PURCHASES_TABS = ["supplier", "receipt", "payment"];

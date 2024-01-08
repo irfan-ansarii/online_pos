@@ -17,11 +17,11 @@ interface ParamsProps {
 }
 
 /**
- * get sales
+ * get purchases
  * @param params
  * @returns
  */
-export async function getSales(params: ParamsProps) {
+export async function getPurchases(params: ParamsProps) {
   try {
     const session = await auth();
 
@@ -36,7 +36,7 @@ export async function getSales(params: ParamsProps) {
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
-    const filters: Prisma.SaleWhereInput = {
+    const filters: Prisma.PurchaseWhereInput = {
       AND: [
         { locationId: { equals: session.location.id } },
         { status: { equals: status as SaleFinancialStatus } },
@@ -47,7 +47,7 @@ export async function getSales(params: ParamsProps) {
     };
 
     // find sales
-    const sales = await prisma.sale.findMany({
+    const purchases = await prisma.purchase.findMany({
       skip: offset,
       take: PAGE_SIZE,
       orderBy: [
@@ -62,19 +62,18 @@ export async function getSales(params: ParamsProps) {
       include: {
         transactions: true,
         lineItems: { include: { product: { include: { image: true } } } },
-        employee: true,
-        customer: true,
+        supplier: true,
       },
     });
 
     // get pagination
-    const total = await prisma.sale.count({
+    const total = await prisma.purchase.count({
       where: filters,
     });
 
     // return response
     return {
-      data: sales,
+      data: purchases,
       pagination: {
         page: currentPage,
         pageSize: PAGE_SIZE,
@@ -91,12 +90,12 @@ export async function getSales(params: ParamsProps) {
 }
 
 /**
- * create sale
+ * create purchase
  * @param values
  * @returns
  */
 
-export async function createSale(values: any) {
+export async function createPurchase(values: any) {
   try {
     const session = await auth();
     if (!session || typeof session === "string") {
@@ -104,8 +103,8 @@ export async function createSale(values: any) {
     }
 
     const {
-      customerId,
-      employeeId,
+      supplierId,
+      title,
       createdAt,
       taxType,
       subtotal,
@@ -139,12 +138,11 @@ export async function createSale(values: any) {
     }));
 
     // create product and variants
-    const sale = await prisma.sale.create({
+    const purchase = await prisma.purchase.create({
       data: {
         locationId: session.location.id,
-        title: "GN" /** random text   */,
-        customerId,
-        employeeId,
+        title,
+        supplierId,
         createdAt,
         taxType,
         subtotal: parseFloat(subtotal.toFixed(2)),
@@ -168,25 +166,16 @@ export async function createSale(values: any) {
     // update inventory
     const updateData = lineItems.map((item: LineItem) => ({
       variantId: item.variantId,
-      quantity:
-        item.quantity > 0 ? -Math.abs(item.quantity) : Math.abs(item.quantity),
+      quantity: item.quantity,
     }));
 
     await updateInventory({ data: updateData });
 
     // update transactions
-    await createTransactions({ saleId: sale.id, data: transactions });
-
-    // update sale
-    const updated = await prisma.sale.update({
-      where: { id: sale.id },
-      data: {
-        title: `GN${sale.id}` /** prefix =* saleid *= suffix */,
-      },
-    });
+    await createTransactions({ saleId: purchase.id, data: transactions });
 
     // return response
-    return { data: updated, message: "created" };
+    return { data: purchase, message: "created" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
@@ -196,7 +185,7 @@ export async function createSale(values: any) {
 }
 
 /**
- * update sale
+ * update purchase
  * @param values
  * @returns
  */
@@ -204,13 +193,12 @@ export async function createSale(values: any) {
 export async function updateSale(values: any) {
   try {
     const session = await auth();
-    if (!session) {
+    if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
     const { id, firstName, lastName, role, status, locationId } = values;
 
-    // @ts-ignore: Unreachable code error
     if (session.role !== "admin") {
       throw new Error("Access Denied");
     }
@@ -236,36 +224,37 @@ export async function updateSale(values: any) {
 }
 
 /**
- * get sale
+ * get purchase
  * @param id
  * @returns
  */
-export async function getSale(id: number) {
+export async function getPurchase(id: number) {
   try {
     const session = await auth();
 
-    if (!session) {
+    if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
-    // find product
-    const sale = await prisma.sale.findUnique({
+    // find purchase
+    const purchase = await prisma.purchase.findUnique({
       where: {
         id: Number(id),
       },
       include: {
         transactions: true,
+        supplier: true,
         lineItems: { include: { product: { include: { image: true } } } },
       },
     });
 
-    // if product not found
-    if (!sale) {
+    // if purchase not found
+    if (!purchase) {
       throw new Error("Not found");
     }
 
     // return response
-    return { data: sale, message: "success" };
+    return { data: purchase, message: "success" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
@@ -275,11 +264,11 @@ export async function getSale(id: number) {
 }
 
 /**
- * delete sale
+ * delete purchase
  * @param id
  * @returns
  */
-export async function deleteSale(id: number) {
+export async function deletePurchase(id: number) {
   try {
     const session = await auth();
 
@@ -287,18 +276,18 @@ export async function deleteSale(id: number) {
       throw new Error("Unauthorized");
     }
 
-    const sale = await prisma.sale.findUnique({
+    const purchase = await prisma.purchase.findUnique({
       where: { id: id },
       include: { lineItems: true },
     });
 
-    if (!sale) {
+    if (!purchase) {
       throw new Error("Not found");
     }
 
     // increase stock
     const updateStock = [];
-    for (const item of sale.lineItems) {
+    for (const item of purchase.lineItems) {
       if (item.variantId) {
         updateStock.push({
           variantId: item.variantId,
@@ -309,10 +298,10 @@ export async function deleteSale(id: number) {
 
     await updateInventory({
       data: updateStock,
-      locationId: sale.locationId,
+      locationId: purchase.locationId,
     });
 
-    const response = await prisma.sale.delete({
+    const response = await prisma.purchase.delete({
       where: { id: id },
     });
 
@@ -349,7 +338,7 @@ export async function createTransactions({
     });
 
     if (!sale) {
-      throw new Error("Sale Not found");
+      throw new Error("Purchase not found");
     }
 
     // Calculate total amounts for new and existing transactions

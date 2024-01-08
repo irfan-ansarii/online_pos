@@ -4,11 +4,13 @@ const number = z.any().refine((val) => !isNaN(Number(val)), {
   message: "Enter a valid number",
 });
 
-export const saleValidation = z
+export const purchaseValidation = z
   .object({
     id: z.union([z.null(), z.number()]),
-    customerId: z.number(),
-    employeeId: z.number(),
+    title: z.string().nonempty({
+      message: "Required",
+    }),
+    supplierId: z.number(),
     createdAt: z.string().datetime(),
     lineItems: z
       .object({
@@ -42,11 +44,12 @@ export const saleValidation = z
     roundedOff: number.default(0),
     totalDue: number,
     taxLines: z.any(),
-    saleType: z.enum(["state", "inter_state"]),
+    purchaseType: z.enum(["state", "inter_state"]),
     transactions: z
       .object({
         name: z.string(),
         label: z.string(),
+        refrenceNumber: z.string(),
         amount: number,
       })
       .array()

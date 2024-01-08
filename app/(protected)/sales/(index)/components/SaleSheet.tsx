@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/collapsible";
 import { AvatarItem } from "@/components/shared/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 import SheetActions from "./SheetActions";
 
@@ -57,18 +56,19 @@ const SaleSheet = ({
 
                 <div className="space-y-0.5 truncate flex-1 mx-3">
                   <div className="font-medium truncate">{field.title}</div>
-                  <div className="flex w-full">
+                  <div className="flex w-full gap-4">
                     {field.variantTitle && (
                       <Badge className="py-0" variant="secondary">
                         {field.variantTitle}
                       </Badge>
                     )}
-                    <div className="ml-auto text-muted-foreground">
+                    <div className="text-muted-foreground">
                       {Numeral(field.price).format()} x {field.quantity}
                     </div>
                   </div>
                 </div>
-                <div className="space-y-0.5 text-right">
+
+                <div className="space-y-0.5 text-right pl-4">
                   <div className="line-through text-muted-foreground">
                     {Number(field.totalDiscount) > 0
                       ? Numeral(field.totalDiscount).format()

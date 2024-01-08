@@ -93,7 +93,7 @@ model Variant {
   id               Int                @id @default(autoincrement())
   productId        Int
   sku              String?
-  barcode          Int                @unique @default(autoincrement())
+  barcode          String             @unique
   title            String
   purchasePrice    Float
   salePrice        Float
@@ -194,7 +194,7 @@ model TransferLineItem {
   title        String
   variantTitle String?
   sku          String
-  barcode      Int
+  barcode      String
   price        Float
   quantity     Int
   total        Float
@@ -293,6 +293,7 @@ model Payment {
   id        Int      @id @default(autoincrement())
   name      String
   label     String
+  type      String   @default("sale") // sale, purchase
   position  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -301,25 +302,25 @@ model Payment {
 }
 
 model Purchase {
-  id                  Int                   @id @default(autoincrement())
-  locationId          Int
-  title               String
-  supplierId          Int?
-  lineItemsTotal      Float
-  subtotal            Float
-  taxType             String                @default("included")
-  totalTax            Float
-  totalDiscount       Float
-  roundedOff          Float                 @default(0)
-  total               Float
-  totalDue            Float
-  taxLines            Json?
-  status              SaleFinancialStatus   @default(pending)
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  supplier            User?                 @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  PurchaseLineItem    PurchaseLineItem[]
-  PurchaseTransaction PurchaseTransaction[]
+  id             Int                   @id @default(autoincrement())
+  locationId     Int
+  title          String
+  supplierId     Int?
+  lineItemsTotal Float
+  subtotal       Float
+  taxType        String                @default("included")
+  totalTax       Float
+  totalDiscount  Float
+  roundedOff     Float                 @default(0)
+  total          Float
+  totalDue       Float
+  taxLines       Json?
+  status         SaleFinancialStatus   @default(pending)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  supplier       User?                 @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  lineItems      PurchaseLineItem[]
+  transactions   PurchaseTransaction[]
 
   @@map("purchase")
 }
@@ -351,16 +352,17 @@ model PurchaseLineItem {
 }
 
 model PurchaseTransaction {
-  id         Int             @id @default(autoincrement())
-  purchaseId Int
-  locationId Int
-  name       String
-  label      String
-  amount     Float
-  kind       TransactionKind
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  purchase   Purchase        @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  id             Int                     @id @default(autoincrement())
+  purchaseId     Int
+  locationId     Int
+  name           String
+  label          String
+  refrenceNumber String
+  amount         Float
+  kind           PurchaseTransactionKind
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  purchase       Purchase                @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
 
   @@map("purchase_transactions")
 }
@@ -369,12 +371,18 @@ enum SaleFinancialStatus {
   pending
   paid
   partialy_paid
-  partially_refunded
+  partialy_refunded
   refunded
 }
 
 enum TransactionKind {
   sale
+  void
+  refund
+}
+
+enum PurchaseTransactionKind {
+  purchase
   void
   refund
 }

@@ -3,7 +3,6 @@ import React from "react";
 
 import { Sale } from "@prisma/client";
 
-import { useRouter } from "next/navigation";
 import { useSheetToggle } from "@/hooks/useSheet";
 
 import {
@@ -23,9 +22,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import PaymentDialog from "./PaymentDialog";
-
-export default function SheetActions({ sale }: { sale: Sale }) {
+export default function SheetActions({
+  sale,
+  toggle,
+}: {
+  sale: Sale;
+  toggle: () => void;
+}) {
   const [newOpen, toggleNew] = useSheetToggle("new");
 
   // handle print invoice action
@@ -72,9 +75,6 @@ export default function SheetActions({ sale }: { sale: Sale }) {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      {/* collect payment dialog */}
-      {newOpen && <PaymentDialog sale={sale} />}
     </>
   );
 }

@@ -5,7 +5,7 @@ import Numeral from "numeral";
 
 import { useFormContext, useWatch } from "react-hook-form";
 import { useSheetToggle } from "@/hooks/useSheet";
-import { Plus, Minus, ShoppingBag, Trash2, PackageMinus } from "lucide-react";
+import { Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/form";
 
 import ProceedDialog from "./ProceedDialog";
-import CartActions from "./CartActions";
 import Popover from "./Popover";
 import { AvatarItem } from "@/components/shared/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -87,28 +86,10 @@ const Cart = ({
   };
 
   /**
-   * handle return item
-   * @param index
-   */
-  const handleReturn = (index: number) => {
-    const lineItem = form.getValues(`lineItems.${index}`);
-    const quantity =
-      lineItem.quantity > 0 ? -lineItem.quantity : Math.abs(lineItem.quantity);
-    const discount =
-      lineItem.quantity > 0
-        ? -lineItem.totalDiscount
-        : Math.abs(lineItem.totalDiscount);
-
-    form.setValue(`lineItems.${index}.quantity`, quantity);
-    form.setValue(`lineItems.${index}.totalDiscount`, discount);
-    handleUpdate(index);
-  };
-
-  /**
    * update cart values on line items changes
    */
   React.useEffect(() => {
-    const saleType = form.getValues(`saleType`);
+    const saleType = form.getValues(`purchaseType`);
     const result = watch.reduce(
       (acc: any, curr: any) => {
         acc.subtotal += curr.beforeDiscount;
@@ -157,14 +138,13 @@ const Cart = ({
                   title,
                   beforeDiscount,
                   lineTotal,
-                  total,
                   variantTitle,
                 }: any,
                 i: number
               ) => (
                 <AccordionItem
                   key={id}
-                  value={`lineItem-${i}`}
+                  value={`lineItem-${id}`}
                   className="border-b-0 py-1.5 first:pt-0 last:pb-0 relative snap-start"
                 >
                   <AccordionTrigger asChild>
@@ -274,22 +254,14 @@ const Cart = ({
                             )}
                           />
                         </div>
-
-                        <Button
-                          variant="secondary"
-                          className="flex-1"
-                          onClick={() => handleReturn(i)}
-                        >
-                          <PackageMinus className="w-4 h-4 mr-2" /> Return
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          className="flex-1 bg-destructive/30"
-                          onClick={() => remove(i)}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" /> Remove
-                        </Button>
                       </div>
+                      <Button
+                        variant="destructive"
+                        className="w-full mt-3 bg-destructive/30 hover:bg-destructive/50"
+                        onClick={() => remove(i)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" /> Remove
+                      </Button>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -353,7 +325,6 @@ const Cart = ({
             Checkout
           </Button>
         </div>
-        <CartActions />
       </div>
 
       {open && <ProceedDialog />}

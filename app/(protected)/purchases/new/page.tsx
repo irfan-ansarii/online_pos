@@ -7,6 +7,7 @@ const Page = async () => {
 
   const initialValues = {
     id: null,
+    supplierId: undefined,
     lineItems: [],
     taxType: "included",
     subtotal: 0,
@@ -17,11 +18,12 @@ const Page = async () => {
     totalDue: 0,
     taxLines: [],
     createdAt: new Date().toISOString(),
-    saleType: "state",
+    purchaseType: "state",
     transactions: data.map((payment) => ({
       id: payment.id,
       name: payment.name,
       label: payment.label,
+      refrenceNumber: "",
       amount: "0",
     })),
   };
