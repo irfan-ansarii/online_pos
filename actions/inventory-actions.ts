@@ -45,7 +45,8 @@ export async function getInventory(params: ParamsProps) {
             {
               variant: {
                 barcode: {
-                  equals: !isNaN(Number(search)) ? Number(search) : -1,
+                  contains: search,
+                  mode: "insensitive",
                 },
               },
             },

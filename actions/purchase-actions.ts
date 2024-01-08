@@ -291,7 +291,10 @@ export async function deletePurchase(id: number) {
       if (item.variantId) {
         updateStock.push({
           variantId: item.variantId,
-          quantity: item.quantity,
+          quantity:
+            item.quantity > 0
+              ? -Math.abs(item.quantity)
+              : Math.abs(item.quantity),
         });
       }
     }

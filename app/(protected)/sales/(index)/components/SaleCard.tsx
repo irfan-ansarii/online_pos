@@ -38,18 +38,18 @@ const SaleCard = ({ sale }: { sale: any }) => {
   const status: { [key: string]: any } = {
     pending: {
       className: "bg-warning hover:bg-warning text-white",
-      text: "Pending",
+      text: "due",
     },
     paid: {
       className: "bg-success hover:bg-success text-white",
-      text: "Paid",
+      text: "paid",
     },
     partialy_paid: {
       className: "bg-info hover:bg-info text-white",
       text: "Partial",
     },
     partialy_refunded: {
-      className: "bg-destructive hover:bg-destructive text-white",
+      className: "bg-info hover:bg-info text-white",
       text: "Partial",
     },
     refunded: {
@@ -118,13 +118,13 @@ const SaleCard = ({ sale }: { sale: any }) => {
             <div className="text-muted-foreground">{sale?.customer?.phone}</div>
           </div>
           <div className="col-span-2 md:col-span-1 space-y-0.5  text-right">
-            <div className={sale.total < 0 ? "text-error" : ""}>
+            <div className={`font-semibold`}>
               {Numeral(sale.total).format()}
             </div>
             <Badge
               variant="secondary"
               className={cn(
-                `rounded-md uppercase`,
+                `rounded-md uppercase w-20 justify-center truncate`,
                 status[sale.status].className
               )}
             >

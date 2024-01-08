@@ -63,6 +63,7 @@ const Inventory = ({ onSelect }: { onSelect?: (value: Option) => void }) => {
     //@ts-ignore
     ref.current.focus();
   }, []);
+
   return (
     <div>
       <div className="flex items-center h-[61px] border-b sticky top-0 z-50 bg-background mb-4">
@@ -99,14 +100,12 @@ const Inventory = ({ onSelect }: { onSelect?: (value: Option) => void }) => {
         )}
 
         {/* error box */}
-        {isError && !isLoading && (
+        {isError && !isLoading && !inventory?.data && (
           <ErrorBox
             className="col-span-2 sm:col-span-3 md:col-span-4 2xl:col-span-5"
             title="Internal server error"
           />
         )}
-
-        {/* item card */}
         {inventory?.data?.map((item: Option) => (
           <Card
             key={item.id}

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 
-import Inventory from "./Inventory";
+import Inventory from "../../../sales/new/components/Inventory";
 import Cart from "./Cart";
 
 const CartForm = ({ initialValues }: { initialValues: any }) => {

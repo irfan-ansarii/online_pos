@@ -3,9 +3,12 @@ import React from "react";
 import Link from "next/link";
 import format from "date-fns/format";
 import Numeral from "numeral";
-import { cn } from "@/lib/utils";
-import { Loader2, PenSquare, Trash2, User } from "lucide-react";
+import { Loader2, PenSquare, Trash2 } from "lucide-react";
 
+import { deletePurchase } from "@/actions/purchase-actions";
+
+import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 import { useToggle } from "@uidotdev/usehooks";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,15 +30,61 @@ import {
 
 import PurchaseSheet from "./PurchaseSheet";
 
-const PurchaseCard = ({ purchase }) => {
+const PurchaseCard = ({ purchase }: { purchase: any }) => {
   const [openDelete, toggleDelete] = useToggle();
   const [loading, setLoading] = useToggle(false);
-  const onDelete = () => {
-    console.log("delete");
+
+  const router = useRouter();
+
+  const status: { [key: string]: any } = {
+    pending: {
+      className: "bg-warning hover:bg-warning text-white",
+      text: "due",
+    },
+    paid: {
+      className: "bg-success hover:bg-success text-white",
+      text: "paid",
+    },
+    partialy_paid: {
+      className: "bg-info hover:bg-info text-white",
+      text: "Partial",
+    },
+    partialy_refunded: {
+      className: "bg-info hover:bg-info text-white",
+      text: "Partial",
+    },
+    refunded: {
+      className: "bg-destructive hover:bg-destructive text-white",
+      text: "Refunded",
+    },
   };
+
+  // handle delete sale action
+  const onDelete = async (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await deletePurchase(purchase.id);
+      toast({
+        variant: "success",
+        title: "Purchase deleted successfully",
+      });
+
+      toggleDelete();
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card className="hover:bg-accent group relative cursor-pointer">
-      <PurchaseSheet purchase={{}}>
+      <PurchaseSheet purchase={purchase}>
         <CardContent className="grid grid-cols-8 gap-3 items-center">
           <div className="flex gap-3 col-span-4">
             <div className="border-r pr-4 text-center shrink-0">
@@ -49,25 +98,35 @@ const PurchaseCard = ({ purchase }) => {
 
             <div className="flex -space-x-2 truncate">
               <AvatarGroup maxCount={4}>
-                {[...Array(10)].map((lineItem: any, i) => (
-                  <AvatarItem key={i} src={lineItem?.product?.image?.src} />
+                {purchase?.lineItems?.map((lineItem: any) => (
+                  <AvatarItem
+                    key={lineItem.id}
+                    src={lineItem?.product?.image?.src}
+                  />
                 ))}
               </AvatarGroup>
             </div>
           </div>
 
           <div className="block col-span-2 space-y-0.5">
-            <div className="font-medium uppercase">GN1235656</div>
+            <div className="font-medium uppercase">{purchase.title}</div>
           </div>
 
           <div className="hidden md:flex flex-col space-y-0.5">
-            <div className="font-medium">Supplier</div>
+            <div className="font-medium">{purchase.supplier?.firstName}</div>
             <div className="text-muted-foreground">Supplier Phone</div>
           </div>
           <div className="col-span-2 md:col-span-1 space-y-0.5  text-right">
-            <div>{Numeral(540).format()}</div>
-            <Badge variant="secondary" className={`rounded-md uppercase`}>
-              status
+            <div className={`font-semibold`}>
+              {Numeral(purchase.total).format()}
+            </div>
+            <Badge
+              variant="secondary"
+              className={`rounded-md uppercase w-20 justify-center truncate ${
+                status[purchase.status].className
+              }`}
+            >
+              {[status[purchase.status].text]}
             </Badge>
           </div>
         </CardContent>

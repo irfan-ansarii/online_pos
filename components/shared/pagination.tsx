@@ -14,7 +14,7 @@ const Pagination = ({ pagination, className }: Props) => {
   const { page, pageCount } = pagination;
 
   return (
-    <div className="[&>button]:rounded-none rounded-md overflow-hidden inline-flex items-center divide-x-2 divide-accent">
+    <div className="[&>button]:rounded-none mb-6 md:mb-0 rounded-md overflow-hidden inline-flex items-center divide-x-2 divide-accent">
       {/* prev button */}
       <Button
         size="icon"

@@ -27,14 +27,13 @@ import SheetActions from "./SheetActions";
 
 const PurchaseSheet = ({
   children,
-  sale,
+  purchase,
 }: {
-  sale: any;
+  purchase: any;
   children: React.ReactNode;
 }) => {
   const [open, toggle] = useToggle();
 
-  return children;
   return (
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
@@ -42,13 +41,13 @@ const PurchaseSheet = ({
         <div className="flex flex-col h-full ">
           <SheetHeader className="mb-4">
             <div className="flex justify-between items-center gap-2">
-              <SheetTitle>{sale.title}</SheetTitle>
+              <SheetTitle>{purchase.title}</SheetTitle>
 
-              <SheetActions sale={sale} toggle={toggle} />
+              <SheetActions sale={purchase} toggle={toggle} />
             </div>
           </SheetHeader>
           <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
-            {sale.lineItems.map((field: any) => (
+            {purchase.lineItems.map((field: any) => (
               <div
                 className="flex rounded-md border p-2 items-center snap-start"
                 key={field.id}
@@ -85,22 +84,22 @@ const PurchaseSheet = ({
           <div className="border-t-2 pt-2 border-dashed">
             <div className="flex justify-between py-1">
               <div>Subtotal</div>
-              <div>{Numeral(sale.subtotal).format()}</div>
+              <div>{Numeral(purchase.subtotal).format()}</div>
             </div>
             <div className="flex justify-between py-1">
               <div>Discount</div>
-              <div>{Numeral(sale.totalDiscount).format()}</div>
+              <div>{Numeral(purchase.totalDiscount).format()}</div>
             </div>
             <div className="flex justify-between py-1">
               <div>Tax</div>
-              <div>{Numeral(sale.totalTax).format()}</div>
+              <div>{Numeral(purchase.totalTax).format()}</div>
             </div>
 
             <div className="border-b-2 border-dashed my-2" />
             <Collapsible className="space-y-2 group">
               <div className="flex items-center text-lg font-medium">
                 Total
-                {sale?.transactions?.length > 0 && (
+                {purchase?.transactions?.length > 0 && (
                   <CollapsibleTrigger asChild>
                     <span
                       role="button"
@@ -111,11 +110,14 @@ const PurchaseSheet = ({
                     </span>
                   </CollapsibleTrigger>
                 )}
-                <div className="ml-auto"> {Numeral(sale.total).format()}</div>
+                <div className="ml-auto">
+                  {" "}
+                  {Numeral(purchase.total).format()}
+                </div>
               </div>
 
               <CollapsibleContent className="divide-y border-t">
-                {sale.transactions.map((transaction: Transaction) => (
+                {purchase.transactions.map((transaction: Transaction) => (
                   <div className="py-2" key={transaction.id}>
                     <div className="flex gap-2 items-center">
                       <div>
@@ -133,10 +135,12 @@ const PurchaseSheet = ({
               </CollapsibleContent>
             </Collapsible>
 
-            {sale.totalDue > 0 && (
+            {purchase.totalDue > 0 && (
               <div className="flex items-center p-2 mt-2 rounded-md bg-warning/20">
                 <div>Due</div>
-                <div className="ml-auto">{Numeral(sale.totalDue).format()}</div>
+                <div className="ml-auto">
+                  {Numeral(purchase.totalDue).format()}
+                </div>
               </div>
             )}
           </div>

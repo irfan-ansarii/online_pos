@@ -1,36 +1,38 @@
 import React from "react";
-import { getSales } from "@/actions/sale-actions";
+import { getPurchases } from "@/actions/purchase-actions";
 
 import EmptyBox from "@/components/shared/empty-box";
 import PurchaseCard from "./components/PurchaseCard";
 import Pagination from "@/components/shared/pagination";
-import { Sale } from "@prisma/client";
+import { Purchase } from "@prisma/client";
 
 interface SearchParamsProps {
   [key: string]: string;
 }
 
 interface ResponseProps {
-  data: Sale[];
+  data: Purchase[];
   pagination: { page: number; pageCount: number };
 }
 
-export default async function CustomerPage({
+export default async function PurchasePage({
   searchParams,
 }: {
   searchParams: SearchParamsProps;
 }) {
-  const { data, pagination }: ResponseProps = await getSales(searchParams);
+  const { data: purchases, pagination }: ResponseProps = await getPurchases(
+    searchParams
+  );
 
-  if (!data || data.length === 0) {
+  if (!purchases || purchases.length === 0) {
     return <EmptyBox />;
   }
 
   return (
     <>
       <div className="grid grid-cols-1 md:gap-2">
-        {data?.map((sale) => (
-          <PurchaseCard purchase={sale} key={sale.id} />
+        {purchases?.map((purchase) => (
+          <PurchaseCard purchase={purchase} key={purchase.id} />
         ))}
       </div>
 

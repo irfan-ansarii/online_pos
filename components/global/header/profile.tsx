@@ -34,7 +34,7 @@ const Profile = ({ session }: { session: JwtPayload }) => {
           </div>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-40">
+      <DropdownMenuContent className="w-40 bg-background">
         <DropdownMenuLabel>
           <span>{session?.firstName ? session?.firstName : null}</span>
 

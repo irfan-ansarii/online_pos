@@ -11,7 +11,7 @@ const SingleHeader = ({
 }) => {
   return (
     <div className="hidden md:block bg-background">
-      <div className="h-[60px] border-b shadow px-2">
+      <div className="h-[60px] border-b shadow px-2 ">
         <div className="flex h-full w-full items-center justify-between">
           <div className="flex items-center">
             <Button
