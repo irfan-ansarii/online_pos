@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-
+import Numeral from "numeral";
 import { useState, useRef, useCallback } from "react";
 import { ScanLine, Search } from "lucide-react";
 
@@ -17,7 +17,13 @@ import { AvatarItem } from "@/components/shared/avatar";
 
 export type Option = Record<string, any>;
 
-const Inventory = ({ onSelect }: { onSelect?: (value: Option) => void }) => {
+const Inventory = ({
+  onSelect,
+  displayPrice = "salePrice",
+}: {
+  onSelect?: (value: Option) => void;
+  displayPrice?: string;
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const ref = useRef(null);
   const { inventory, isLoading, isError } = useInventory({
@@ -134,7 +140,7 @@ const Inventory = ({ onSelect }: { onSelect?: (value: Option) => void }) => {
                 {item.product.title}
               </div>
               <div className="leading-tight font-medium text-muted-foreground">
-                {item.variant.salePrice}
+                {Numeral(item.variant[displayPrice]).format()}
               </div>
             </div>
           </Card>

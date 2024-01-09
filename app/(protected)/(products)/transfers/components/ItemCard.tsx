@@ -35,12 +35,12 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
         <SheetTrigger asChild>
           <CardContent className="grid grid-cols-6 items-center gap-2">
             <div className="flex col-span-3 items-center gap-4">
-              <div className="border-r pr-4 text-center w-14 md:w-20 shrink-0">
+              <div className="border-r pr-4 text-center shrink-0">
                 <div className="text-lg leading-tight font-semibold">
-                  {format(new Date(transfer.createdAt), "dd")}
+                  {format(transfer.createdAt, "dd")}
                 </div>
-                <div className="leading-tight text-muted-foreground">
-                  {format(new Date(transfer.createdAt), "MMM")}
+                <div className="leading-tight text-xs text-muted-foreground">
+                  {format(transfer.createdAt, "MMM yy")}
                 </div>
               </div>
               <div className="flex truncate">

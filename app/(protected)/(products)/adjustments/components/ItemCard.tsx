@@ -1,4 +1,5 @@
 import React from "react";
+import { format } from "date-fns";
 import { Adjustment, Product, Variant, File } from "@prisma/client";
 import { Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,9 +21,13 @@ const ItemCard = ({ adjustment }: { adjustment: Props }) => {
     <Card className="relative group hover:bg-accent overflow-hidden">
       <CardContent className="grid grid-cols-3 items-center gap-2">
         <div className="flex gap-3 items-center col-span-2">
-          <div className="border-r pr-4 text-center w-14 md:w-20 shrink-0">
-            <div className="text-lg leading-tight font-semibold">02</div>
-            <div className="leading-tight text-muted-foreground">Dec</div>
+          <div className="border-r pr-4 text-center shrink-0">
+            <div className="text-lg leading-tight font-semibold">
+              {format(adjustment.createdAt, "dd")}
+            </div>
+            <div className="leading-tight text-xs text-muted-foreground">
+              {format(adjustment.createdAt, "MMM yy")}
+            </div>
           </div>
           <AvatarItem src={adjustment?.product?.image?.src} />
           <div className="space-y-0.5 truncate">

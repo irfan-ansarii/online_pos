@@ -57,7 +57,7 @@ const SaleSheet = ({
                 <div className="space-y-0.5 truncate flex-1 mx-3">
                   <div className="font-medium truncate">{field.title}</div>
                   <div className="flex w-full gap-4">
-                    {field.variantTitle && (
+                    {field.variantTitle !== "Default" && (
                       <Badge className="py-0" variant="secondary">
                         {field.variantTitle}
                       </Badge>
@@ -77,6 +77,14 @@ const SaleSheet = ({
                   <div className="font-medium">
                     {Numeral(field.total).format()}
                   </div>
+                  {field.quantity < 0 && (
+                    <Badge
+                      className="py-0 rounded-md uppercase"
+                      variant="destructive"
+                    >
+                      Return
+                    </Badge>
+                  )}
                 </div>
               </div>
             ))}

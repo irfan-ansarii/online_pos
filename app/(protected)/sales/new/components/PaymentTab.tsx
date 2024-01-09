@@ -28,6 +28,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 
 const PaymentTab = ({
   setActive,
@@ -61,6 +62,11 @@ const PaymentTab = ({
     updateDue();
   }, [transactions, form.watch("lineItems")]);
 
+  const applyStoreCredit = () => {
+    form.setValue("transactions.2.name", "code");
+    form.setValue("transactions.2.label", "Store Credit");
+    form.setValue("transactions.2.amount", 500);
+  };
   /**
    * hanlde form submit
    * @param values
@@ -170,6 +176,26 @@ const PaymentTab = ({
             ))}
           </Accordion>
         </div>
+
+        {/* store credit */}
+        <div className="rounded-md border flex p-2 items-center">
+          <div className="space-y-0.5">
+            <div className="font-medium">Store Credit</div>
+            <div>
+              <span className="text-muted-foreground">Available Balance -</span>
+              <span className="font-medium"> 1290</span>
+            </div>
+          </div>
+          <div className="ml-auto">
+            <Badge
+              className="rounded-md cursor-pointer"
+              onClick={() => applyStoreCredit()}
+            >
+              Apply
+            </Badge>
+          </div>
+        </div>
+
         <Button className="w-full mt-8" type="submit" onClick={handleNext}>
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create"}
         </Button>

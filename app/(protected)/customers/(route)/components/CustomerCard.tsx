@@ -19,9 +19,9 @@ const CustomerCard = ({ customer }: any) => {
   };
   return (
     <Card className="hover:bg-accent group relative">
-      <CardContent className="grid grid-cols-8 gap-3 items-center relative">
+      <CardContent className="grid grid-cols-7 gap-3 items-center relative">
         <Link
-          className="flex gap-2 items-center col-span-4 md:col-span-3"
+          className="flex gap-2 items-center col-span-3"
           href={`/customers/${customer.id}`}
         >
           <Avatar className="border-2 shrink-0">
@@ -47,33 +47,20 @@ const CustomerCard = ({ customer }: any) => {
           <div className="text-muted-foreground">{customer.email}</div>
         </div>
 
-        <div className="hidden md:block col-span-2">
-          <div className="inline-flex flex-col gap-0.5 uppercase">
-            <Badge
-              className="py-0 truncate text-muted-foreground w-40"
-              variant="secondary"
-            >
-              <span>Orders</span>
-              <span className="mx-1 opacity-40">|</span>
-              <span className="ml-auto">{customer.orders._count.total}</span>
-            </Badge>
-            <Badge
-              className={`py-0 truncate text-white w-40 ${getBadgeClass(
-                customer.orders._sum.total
-              )}`}
-              variant="secondary"
-            >
-              <span>spent</span>
-              <span className="mx-1 opacity-40">|</span>
-              <span className="ml-auto">
-                {Numeral(customer.orders._sum.total).format()}
-              </span>
-            </Badge>
+        <div className="col-span-2 text-right overflow-hidden">
+          <div className="font-medium">
+            {Numeral(customer.orders._sum.total).format()}
           </div>
-        </div>
-        <div className="col-span-2 md:col-span-1 text-right">
-          <Badge className="uppercase" variant="secondary">
-            Group
+
+          <Badge
+            className={`rounded-md uppercase truncate text-white w-24 ${getBadgeClass(
+              customer.orders._sum.total
+            )}`}
+            variant="secondary"
+          >
+            <span>Orders</span>
+            <span className="mx-1 opacity-40">|</span>
+            <span className="ml-auto">{customer.orders._count.total}</span>
           </Badge>
         </div>
       </CardContent>

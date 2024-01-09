@@ -135,7 +135,24 @@ export async function createProduct(values: any) {
           create: variantsToCreate,
         },
       },
+      include: { variants: true },
     });
+
+    const { variants: createdVariants } = product;
+
+    for (const variant of createdVariants) {
+      const { id, sku } = variant;
+
+      // generate barcode with prefix and suffix
+      const barcode = `GN${`${id}`.padStart(6, "0")}`;
+
+      await prisma.variant.update({
+        data: { sku: sku ? sku : barcode, barcode },
+        where: {
+          id: id,
+        },
+      });
+    }
 
     // return response
     return { data: product, message: "created" };

@@ -93,7 +93,7 @@ model Variant {
   id               Int                @id @default(autoincrement())
   productId        Int
   sku              String?
-  barcode          String             @unique
+  barcode          String?
   title            String
   purchasePrice    Float
   salePrice        Float
@@ -241,8 +241,8 @@ model LineItem {
   saleId        Int
   title         String
   variantTitle  String?
-  sku           String
-  barcode       String
+  sku           String?
+  barcode       String?
   price         Float
   taxRate       Int
   quantity      Int
@@ -331,8 +331,8 @@ model PurchaseLineItem {
   purchaseId    Int
   title         String
   variantTitle  String?
-  sku           String
-  barcode       String
+  sku           String?
+  barcode       String?
   price         Float
   taxRate       Int
   quantity      Int

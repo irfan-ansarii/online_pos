@@ -41,7 +41,8 @@ export async function getAdjustments(params: ParamsProps) {
             {
               variant: {
                 barcode: {
-                  equals: !isNaN(Number(search)) ? Number(search) : -1,
+                  contains: search,
+                  mode: "insensitive",
                 },
               },
             },

@@ -42,6 +42,8 @@ import AutoComplete from "@/components/shared/search-product";
 import { Badge } from "@/components/ui/badge";
 import { AvatarItem } from "@/components/shared/avatar";
 import { createTransfer } from "@/actions/transfer-actions";
+import { useLocations } from "@/hooks/useLocations";
+import { useSession } from "@/hooks/useSession";
 
 type Option = Record<string, any>;
 interface ClickProps {
@@ -50,7 +52,9 @@ interface ClickProps {
 }
 const NewSheet = () => {
   const router = useRouter();
+  const { locations } = useLocations();
   const [loading, setLoading] = React.useState(false);
+  const { session } = useSession();
   const [open, toggle] = useSheetToggle("newSheet");
 
   const form = useForm<z.infer<typeof transferValidation>>({
@@ -70,6 +74,7 @@ const NewSheet = () => {
 
   const onSelect = (value: Option) => {
     const items = form.getValues("lineItems");
+
     const index = items.findIndex((item) => item.itemId === value.itemId);
 
     if (index !== -1) {
@@ -196,9 +201,9 @@ const NewSheet = () => {
                             </SelectTrigger>
                           </FormControl>
 
-                          {/* <SelectContent>
-                            {locations?.data.data.map((location: Option) =>
-                              locationId === location.id ? null : (
+                          <SelectContent>
+                            {locations?.data.map((location: Option) =>
+                              session?.locationId === location.id ? null : (
                                 <SelectItem
                                   value={`${location.id}`}
                                   key={location.id}
@@ -207,7 +212,7 @@ const NewSheet = () => {
                                 </SelectItem>
                               )
                             )}
-                          </SelectContent> */}
+                          </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>

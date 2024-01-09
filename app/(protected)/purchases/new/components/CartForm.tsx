@@ -114,7 +114,10 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
     <Form {...form}>
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 lg:col-span-6 xl:col-span-7 2xl:col-span-8 bg-background">
-          <Inventory onSelect={onLineItemClick} />
+          <Inventory
+            onSelect={onLineItemClick}
+            displayPrice={"purchasePrice"}
+          />
         </div>
 
         {/* render on desktop */}

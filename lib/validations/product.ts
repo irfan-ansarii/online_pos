@@ -128,7 +128,7 @@ export const transferValidation = z.object({
       title: z.string().optional(),
       variantTitle: z.string().nullable(),
       sku: z.any().optional(),
-      barcode: z.number(),
+      barcode: z.any().optional(),
       price: z.number(),
       quantity: z.number(),
       total: z.number(),
@@ -150,7 +150,7 @@ export const adjustmentValidation = z.object({
       title: z.any(),
       variantTitle: z.any(),
       sku: z.any().optional(),
-      barcode: z.any(),
+      barcode: z.any().optional(),
       quantity: z
         .union([z.string(), z.number()])
         .refine((n: any) => !isNaN(n), { message: "Enter valid number" }),

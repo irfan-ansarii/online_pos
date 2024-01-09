@@ -59,7 +59,7 @@ const PurchaseCard = ({ purchase }: { purchase: any }) => {
     },
   };
 
-  // handle delete sale action
+  // handle delete purchase action
   const onDelete = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -114,7 +114,9 @@ const PurchaseCard = ({ purchase }: { purchase: any }) => {
 
           <div className="hidden md:flex flex-col space-y-0.5">
             <div className="font-medium">{purchase.supplier?.firstName}</div>
-            <div className="text-muted-foreground">Supplier Phone</div>
+            <div className="text-muted-foreground">
+              {purchase.supplier?.phone}
+            </div>
           </div>
           <div className="col-span-2 md:col-span-1 space-y-0.5  text-right">
             <div className={`font-semibold`}>
