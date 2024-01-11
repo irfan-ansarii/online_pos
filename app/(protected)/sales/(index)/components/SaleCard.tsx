@@ -28,7 +28,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 const SaleCard = ({ sale }: { sale: any }) => {
   const [openDelete, toggleDelete] = useToggle();
@@ -135,11 +135,12 @@ const SaleCard = ({ sale }: { sale: any }) => {
       </SaleSheet>
 
       <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
-        <Button variant="secondary" size="icon">
-          <Link href={`/sales/${sale.id}`}>
-            <PenSquare className="w-4 h-4" />
-          </Link>
-        </Button>
+        <Link
+          href={`/sales/${sale.id}`}
+          className={buttonVariants({ variant: "secondary", size: "icon" })}
+        >
+          <PenSquare className="w-4 h-4" />
+        </Link>
 
         {/* delete alert */}
         <AlertDialog open={openDelete} onOpenChange={toggleDelete}>

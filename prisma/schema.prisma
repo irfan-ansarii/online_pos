@@ -220,7 +220,8 @@ model Sale {
   taxType         String              @default("included")
   totalTax        Float
   totalDiscount   Float
-  roundedOff      Float               @default(0)
+  roundedOff      Float
+  invoiceTotal    Float
   total           Float
   totalDue        Float
   taxLines        Json?

@@ -9,7 +9,7 @@ export const saleValidation = z
     id: z.union([z.null(), z.number()]),
     customerId: z.number(),
     employeeId: z.number(),
-    createdAt: z.string().datetime(),
+    createdAt: z.date(),
     lineItems: z
       .object({
         itemId: z.union([z.null(), z.number()]),
@@ -41,9 +41,11 @@ export const saleValidation = z
     totalTax: number,
     total: number,
     roundedOff: number.default(0),
-    totalPaid: z.union([z.null(), number]),
-    totalRefund: z.union([z.null(), number]),
-    totalInvoice: z.union([z.null(), number]),
+
+    totalPaid: z.union([z.any(), number]),
+    totalRefund: z.union([z.any(), number]),
+    invoiceTotal: z.union([z.any(), number]),
+
     totalDue: number,
     taxLines: z.any(),
     saleType: z.enum(["state", "inter_state"]),
@@ -57,7 +59,13 @@ export const saleValidation = z
       .optional(),
   })
   .superRefine((val, ctx) => {
-    const { total, transactions, lineItems } = val;
+    const {
+      total,
+      transactions,
+      totalRefund = 0,
+      totalPaid = 0,
+      lineItems,
+    } = val;
 
     for (let i = 0; i < lineItems.length; i++) {
       const { price, quantity, totalDiscount } = lineItems[i];
@@ -79,7 +87,9 @@ export const saleValidation = z
       0
     );
 
-    if (received > Math.abs(total) || received < 0) {
+    const dueAmount = total + Number(totalRefund) - totalPaid;
+
+    if (received > Math.abs(dueAmount) || received < 0) {
       for (let i = 0; i < transactions.length; i++) {
         const { amount } = transactions[i];
         if (amount !== 0) {

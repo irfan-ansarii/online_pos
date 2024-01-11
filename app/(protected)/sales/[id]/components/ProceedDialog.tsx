@@ -42,26 +42,24 @@ const ProceedDialog = () => {
     const totalPaid = form.getValues("totalPaid");
     const totalRefund = form.getValues("totalRefund");
 
-    const received = transactions?.reduce(
-      (acc: any, curr: any) => {
-        if (curr.kind === "refund") {
-          acc.refund += Number(curr.amount | 0);
-        } else {
-          acc.sale += Number(curr.amount || 0);
-        }
+    const received = transactions?.reduce((acc: any, curr: any) => {
+      return (acc += Number(curr.amount));
+    }, 0);
 
-        return acc;
-      },
-      {
-        sale: totalPaid || 0,
-        refund: totalRefund || 0,
-      }
-    );
+    const dueAmount = total + Number(totalRefund) - totalPaid;
+
+    if (dueAmount < 0) {
+      form.setValue("transactionKind", "refund");
+    } else {
+      form.setValue("transactionKind", "sale");
+    }
 
     form.setValue(
       "totalDue",
-      Math.abs(total) + Number(received.refund) - received.sale
+      dueAmount + (dueAmount < 0 ? received : -received)
     );
+
+    form.setValue("due", Math.abs(dueAmount) - received);
   };
 
   return (

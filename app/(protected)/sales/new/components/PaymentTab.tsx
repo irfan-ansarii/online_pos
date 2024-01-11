@@ -72,8 +72,6 @@ const PaymentTab = ({
    * @param values
    */
   const onSubmit = async (values: any) => {
-    values.roundedOff = Math.ceil(values.total) - values.total;
-
     // transactions
     values.transactions = values.transactions
       ?.filter((transaction: any) => Number(transaction.amount) !== 0)

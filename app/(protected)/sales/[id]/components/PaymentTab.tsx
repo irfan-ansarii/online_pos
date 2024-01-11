@@ -62,19 +62,13 @@ const PaymentTab = ({
     updateDue();
   }, [transactions, form.watch("lineItems")]);
 
-  const applyStoreCredit = () => {
-    form.setValue("transactions.2.name", "code");
-    form.setValue("transactions.2.label", "Store Credit");
-    form.setValue("transactions.2.amount", 500);
-  };
   /**
    * hanlde form submit
    * @param values
    */
   const onSubmit = async (values: any) => {
-    values.roundedOff = Math.ceil(values.total) - values.total;
-    values.total = Math.ceil(values.total);
-
+    console.log(values);
+    return;
     // transactions
     values.transactions = values.transactions
       ?.filter((transaction: any) => Number(transaction.amount) !== 0)
@@ -105,7 +99,7 @@ const PaymentTab = ({
       await mutate("/inventory?search=");
     }
   };
-  console.log(form.watch("totalInvoice"));
+
   return (
     <TabsContent value="payment" className="mt-0 ">
       <div className="flex flex-col h-[32rem]">
@@ -128,9 +122,11 @@ const PaymentTab = ({
               </div>
             </div>
             <div className={`border p-3 space-y-1 rounded-md text-center`}>
-              <div className="font-medium text-xs uppercase">{"due"}</div>
+              <div className="font-medium text-xs uppercase">
+                {form.watch("transactionKind") === "sale" ? "Due" : "Refund"}
+              </div>
               <div className="font-medium text-lg">
-                {Numeral(form.watch("totalDue")).format()}
+                {Numeral(form.watch("due")).format()}
               </div>
             </div>
           </div>
@@ -163,12 +159,6 @@ const PaymentTab = ({
                           </span>
                         </FormLabel>
                       </AccordionTrigger>
-                      <Input
-                        name={`transactions.${i}.kind`}
-                        value={
-                          form.getValues("totalInvoice") < 0 ? "refund" : "sale"
-                        }
-                      ></Input>
                       <FormControl>
                         <AccordionContent className="overflow-visible">
                           <Input className="bg-accent" {...field} />

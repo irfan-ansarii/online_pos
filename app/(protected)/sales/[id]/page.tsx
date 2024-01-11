@@ -8,6 +8,22 @@ const page = async ({ params }: { params: { id: number } }) => {
   const { id } = params;
   const { data } = await getSale(id);
   const { data: transactions } = await getPayments();
+
+  const { sale, refund } = data.transactions.reduce(
+    (acc, curr) => {
+      if (curr.kind === "refund") {
+        acc.refund += Number(curr.amount);
+      } else {
+        acc.sale += Number(curr.amount);
+      }
+      return acc;
+    },
+    {
+      sale: 0,
+      refund: 0,
+    }
+  );
+
   const initialValues = {
     id: data.id,
     customerId: data.customerId,
@@ -37,9 +53,14 @@ const page = async ({ params }: { params: { id: number } }) => {
     lineItemsTotal: data.lineItemsTotal,
     total: data.total,
     totalDue: data.totalDue,
-    totalPaid: Math.abs(data.total) - Math.abs(data.totalDue),
-    totalInvoice: Math.abs(data.total) + Number(0) - 11503.6,
-    // Math.abs(total) + Number(received.refund) - received.sale
+    invoiceTotal: data.invoiceTotal,
+
+    // temporary
+    due: 0,
+    totalPaid: sale,
+    totalRefund: refund,
+    transactionKind: data.total + Number(refund) - sale < 0 ? "refund" : "sale",
+
     taxLines: data.taxLines,
     createdAt: new Date(data.createdAt),
     saleType: "state",
@@ -50,7 +71,7 @@ const page = async ({ params }: { params: { id: number } }) => {
       amount: "0",
     })),
   };
-  console.log(data, Math.abs(data.total) + Number(0) - 11503);
+
   return (
     <main className="grow pb-4 px-1 md:p-4  md:mt-[-4.8rem]">
       <EditForm initialValues={initialValues} />

@@ -113,7 +113,7 @@ const Cart = ({
         acc.subtotal += curr.beforeDiscount;
         acc.totalDiscount += Number(curr.totalDiscount || 0);
         acc.totalTax += curr.totalTax;
-        acc.total += curr.total;
+        acc.invoiceTotal += curr.total;
 
         return acc;
       },
@@ -121,16 +121,23 @@ const Cart = ({
         subtotal: 0,
         totalTax: 0,
         totalDiscount: 0,
-        total: 0,
+        invoiceTotal: 0,
       }
     );
+    const { invoiceTotal } = result;
+
+    result.roundedOff = Math.ceil(invoiceTotal) - invoiceTotal;
+    result.total = invoiceTotal + result.roundedOff;
 
     result.taxLines = [
-      { title: "CGST", amount: result.totalTax / 2 },
-      { title: "SGST", amount: result.totalTax / 2 },
+      { title: "CGST", amount: parseFloat((result.totalTax / 2).toFixed(2)) },
+      { title: "SGST", amount: parseFloat((result.totalTax / 2).toFixed(2)) },
     ];
+
     if (saleType === "inter_state") {
-      result.taxLines = [{ title: "IGST", amount: result.totalTax }];
+      result.taxLines = [
+        { title: "IGST", amount: parseFloat(result.totalTax.toFixed(2)) },
+      ];
     }
 
     Object.entries(result).map(([key, value]) => {
