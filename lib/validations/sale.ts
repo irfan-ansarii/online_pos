@@ -12,6 +12,7 @@ export const saleValidation = z
     createdAt: z.string().datetime(),
     lineItems: z
       .object({
+        itemId: z.union([z.null(), z.number()]),
         productId: z.number(),
         variantId: z.number(),
         title: z.string(),
@@ -40,6 +41,9 @@ export const saleValidation = z
     totalTax: number,
     total: number,
     roundedOff: number.default(0),
+    totalPaid: z.union([z.null(), number]),
+    totalRefund: z.union([z.null(), number]),
+    totalInvoice: z.union([z.null(), number]),
     totalDue: number,
     taxLines: z.any(),
     saleType: z.enum(["state", "inter_state"]),

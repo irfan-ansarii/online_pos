@@ -73,6 +73,7 @@ const PaymentTab = ({
    */
   const onSubmit = async (values: any) => {
     values.roundedOff = Math.ceil(values.total) - values.total;
+    values.total = Math.ceil(values.total);
 
     // transactions
     values.transactions = values.transactions
@@ -116,7 +117,7 @@ const PaymentTab = ({
             >
               <ArrowLeft className="w-5 h-5" />
             </span>
-            <DialogTitle>Payment</DialogTitle>
+            <DialogTitle>Create Refund</DialogTitle>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -127,7 +128,7 @@ const PaymentTab = ({
               </div>
             </div>
             <div className={`border p-3 space-y-1 rounded-md text-center`}>
-              <div className="font-medium text-xs uppercase">{"due"}</div>
+              <div className="font-medium text-xs uppercase">Refund</div>
               <div className="font-medium text-lg">
                 {Numeral(form.watch("totalDue")).format()}
               </div>

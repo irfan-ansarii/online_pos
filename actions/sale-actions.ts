@@ -5,7 +5,6 @@ import {
   LineItem,
   Prisma,
   SaleFinancialStatus,
-  Transaction,
   TransactionKind,
 } from "@prisma/client";
 import { auth } from "@/lib/auth";
@@ -29,7 +28,7 @@ export async function getSales(params: ParamsProps) {
       throw new Error("Unauthorized");
     }
 
-    const { page, search, status } = params;
+    const { page, search, status, employee, customer } = params;
 
     // pagination
     const currentPage = parseInt(page, 10) || 1;

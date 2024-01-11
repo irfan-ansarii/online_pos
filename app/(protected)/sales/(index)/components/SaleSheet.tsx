@@ -6,7 +6,7 @@ import Numeral from "numeral";
 
 import { useToggle } from "@uidotdev/usehooks";
 
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import {
   Sheet,
   SheetTrigger,

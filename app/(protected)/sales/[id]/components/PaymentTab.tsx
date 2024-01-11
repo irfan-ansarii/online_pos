@@ -73,6 +73,7 @@ const PaymentTab = ({
    */
   const onSubmit = async (values: any) => {
     values.roundedOff = Math.ceil(values.total) - values.total;
+    values.total = Math.ceil(values.total);
 
     // transactions
     values.transactions = values.transactions
@@ -104,7 +105,7 @@ const PaymentTab = ({
       await mutate("/inventory?search=");
     }
   };
-
+  console.log(form.watch("totalInvoice"));
   return (
     <TabsContent value="payment" className="mt-0 ">
       <div className="flex flex-col h-[32rem]">
@@ -162,6 +163,12 @@ const PaymentTab = ({
                           </span>
                         </FormLabel>
                       </AccordionTrigger>
+                      <Input
+                        name={`transactions.${i}.kind`}
+                        value={
+                          form.getValues("totalInvoice") < 0 ? "refund" : "sale"
+                        }
+                      ></Input>
                       <FormControl>
                         <AccordionContent className="overflow-visible">
                           <Input className="bg-accent" {...field} />
@@ -176,27 +183,8 @@ const PaymentTab = ({
           </Accordion>
         </div>
 
-        {/* store credit */}
-        <div className="rounded-md border flex p-2 items-center">
-          <div className="space-y-0.5">
-            <div className="font-medium">Store Credit</div>
-            <div>
-              <span className="text-muted-foreground">Available Balance -</span>
-              <span className="font-medium"> 1290</span>
-            </div>
-          </div>
-          <div className="ml-auto">
-            <Badge
-              className="rounded-md cursor-pointer"
-              onClick={() => applyStoreCredit()}
-            >
-              Apply
-            </Badge>
-          </div>
-        </div>
-
         <Button className="w-full mt-8" type="submit" onClick={handleNext}>
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create"}
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Update"}
         </Button>
       </div>
     </TabsContent>
