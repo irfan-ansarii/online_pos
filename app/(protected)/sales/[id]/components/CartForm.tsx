@@ -55,6 +55,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
       imageSrc: product?.image?.src,
       price: variant.salePrice,
       taxRate: variant.taxRate,
+      originalQuantity: 0,
       quantity: 1,
       totalDiscount: 0,
     });

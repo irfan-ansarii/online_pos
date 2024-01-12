@@ -13,6 +13,7 @@ export const saleValidation = z
     lineItems: z
       .object({
         itemId: z.union([z.null(), z.number()]),
+        originalQuantity: z.union([z.null(), z.number()]),
         productId: z.number(),
         variantId: z.number(),
         title: z.string(),
@@ -41,11 +42,10 @@ export const saleValidation = z
     totalTax: number,
     total: number,
     roundedOff: number.default(0),
-
-    totalPaid: z.union([z.any(), number]),
-    totalRefund: z.union([z.any(), number]),
     invoiceTotal: z.union([z.any(), number]),
-
+    totalPaid: z.union([z.any(), number]).default(0),
+    totalRefund: z.union([z.any(), number]).default(0),
+    transactionKind: z.enum(["sale", "refund"]).default("sale"),
     totalDue: number,
     taxLines: z.any(),
     saleType: z.enum(["state", "inter_state"]),

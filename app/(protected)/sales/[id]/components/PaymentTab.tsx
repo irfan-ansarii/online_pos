@@ -3,7 +3,7 @@ import React from "react";
 import { mutate } from "swr";
 
 import Numeral from "numeral";
-import { createSale } from "@/actions/sale-actions";
+import { updateSale } from "@/actions/sale-actions";
 
 import { ArrowLeft, Loader2 } from "lucide-react";
 
@@ -67,21 +67,21 @@ const PaymentTab = ({
    * @param values
    */
   const onSubmit = async (values: any) => {
-    console.log(values);
-    return;
+    const { transactionKind, transactions, createdAt } = values;
     // transactions
-    values.transactions = values.transactions
-      ?.filter((transaction: any) => Number(transaction.amount) !== 0)
+    values.transactions = transactions
+      ?.filter((transaction: any) => Number(transaction.amount) > 0)
       .map((txn: any) => {
         return {
           ...txn,
-          createdAt: values.createdAt,
+          kind: transactionKind,
+          createdAt,
         };
       });
 
     try {
       setLoading(true);
-      await createSale(values);
+      await updateSale(values);
       toast({
         variant: "success",
         title: "Sale created successfully",
@@ -126,7 +126,7 @@ const PaymentTab = ({
                 {form.watch("transactionKind") === "sale" ? "Due" : "Refund"}
               </div>
               <div className="font-medium text-lg">
-                {Numeral(form.watch("due")).format()}
+                {Numeral(Math.abs(form.watch("totalDue"))).format()}
               </div>
             </div>
           </div>

@@ -58,8 +58,6 @@ const ProceedDialog = () => {
       "totalDue",
       dueAmount + (dueAmount < 0 ? received : -received)
     );
-
-    form.setValue("due", Math.abs(dueAmount) - received);
   };
 
   return (

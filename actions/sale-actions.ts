@@ -110,6 +110,7 @@ export async function createSale(values: any) {
       subtotal,
       totalTax,
       totalDiscount,
+      invoiceTotal,
       total,
       roundedOff,
       totalDue,
@@ -149,6 +150,7 @@ export async function createSale(values: any) {
         subtotal: parseFloat(subtotal.toFixed(2)),
         totalTax: parseFloat(totalTax.toFixed(2)),
         totalDiscount: parseFloat(totalDiscount.toFixed(2)),
+        invoiceTotal,
         roundedOff: parseFloat(roundedOff.toFixed(2)),
         total: parseFloat(total.toFixed(2)),
         totalDue: parseFloat(totalDue.toFixed(2)),
@@ -167,8 +169,7 @@ export async function createSale(values: any) {
     // update inventory
     const updateData = lineItems.map((item: LineItem) => ({
       variantId: item.variantId,
-      quantity:
-        item.quantity > 0 ? -Math.abs(item.quantity) : Math.abs(item.quantity),
+      quantity: Math.sign(item.quantity) * -Math.abs(item.quantity),
     }));
 
     await updateInventory({ data: updateData });
@@ -203,29 +204,169 @@ export async function createSale(values: any) {
 export async function updateSale(values: any) {
   try {
     const session = await auth();
-    if (!session) {
+    if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
-    const { id, firstName, lastName, role, status, locationId } = values;
+    const {
+      id,
+      customerId,
+      employeeId,
+      createdAt,
+      saleType,
+      taxType,
+      subtotal,
+      totalTax,
+      totalDiscount,
+      invoiceTotal,
+      total,
+      roundedOff,
+      totalDue,
+      taxLines,
+      lineItems,
+      lineItemsTotal,
+      transactions,
+      status,
+    } = values;
 
-    // @ts-ignore: Unreachable code error
-    if (session.role !== "admin") {
-      throw new Error("Access Denied");
-    }
-
-    const user = await prisma.user.update({
-      where: { id: Number(id) },
-      data: {
-        firstName,
-        lastName,
-        role,
-        status,
-        locationId: Number(locationId),
+    const results = await prisma.lineItem.findMany({
+      where: {
+        saleId: id,
       },
     });
 
-    return { data: user, message: "updated" };
+    const prismaTransactions = [];
+    const lineItemsToUpdate = [];
+    const lineItemsToCreate = [];
+    const lineItemsToDelete = [];
+
+    prismaTransactions.push(
+      prisma.sale.update({
+        data: {
+          customerId,
+          employeeId,
+          createdAt,
+          saleType,
+          taxType,
+          subtotal: parseFloat(subtotal.toFixed(2)),
+          totalTax: parseFloat(totalTax.toFixed(2)),
+          totalDiscount: parseFloat(totalDiscount.toFixed(2)),
+          invoiceTotal,
+          roundedOff: parseFloat(roundedOff.toFixed(2)),
+          total: parseFloat(total.toFixed(2)),
+          totalDue: parseFloat(totalDue.toFixed(2)),
+          taxLines,
+          lineItemsTotal,
+          status,
+        },
+        where: {
+          id,
+        },
+      })
+    );
+
+    for (const item of lineItems) {
+      // update line item if exists
+
+      const index = results.findIndex((result) => result.id === item.itemId);
+      const quantity = -2 - item.quantity;
+      if (index !== -1) {
+        //update if already exists
+        lineItemsToUpdate.push({
+          ...item,
+          quantity: quantity,
+        });
+      } else {
+        // create if not found
+        lineItemsToCreate.push({
+          ...item,
+          saleId: id,
+          quantity: item.quantity,
+        });
+      }
+    }
+
+    // delete line items which are not linked
+    for (const result of results) {
+      const index = lineItems.findIndex(
+        (item: any) => item.itemId === result.id
+      );
+      if (index === -1) {
+        lineItemsToDelete.push({
+          ...result,
+        });
+      }
+    }
+
+    const inventoryToUpdate = [
+      ...lineItemsToCreate,
+      ...lineItemsToUpdate,
+      ...lineItemsToDelete,
+    ].map((item) => ({
+      variantId: item.variantId,
+      quantity: item.quantity,
+    }));
+    console.log(inventoryToUpdate);
+
+    if (lineItemsToUpdate.length > 0) {
+      prismaTransactions.push(
+        prisma.lineItem.updateMany({
+          data: lineItemsToUpdate.map((update) => ({
+            price: parseFloat(update.price),
+            quantity: parseFloat(update.quantity),
+            totalDiscount: parseFloat(update.totalDiscount),
+            totalTax: parseFloat(update.totalTax),
+            total: parseFloat(update.total),
+            taxLines: update.taxLines,
+          })),
+          where: {
+            id: { in: lineItemsToUpdate.map((update) => update.id) },
+          },
+        })
+      );
+    }
+
+    // Combine line item creation and deletion
+    if (lineItemsToCreate.length > 0) {
+      prismaTransactions.push(
+        prisma.lineItem.createMany({
+          data: lineItemsToCreate.map((create) => ({
+            saleId: id,
+            locationId: session.location.id,
+            title: create.title,
+            variantTitle: create.variantTitle,
+            sku: create.sku,
+            barcode: create.barcode,
+            price: parseFloat(create.price),
+            taxRate: parseFloat(create.taxRate),
+            quantity: parseFloat(create.quantity),
+            totalDiscount: parseFloat(create.totalDiscount),
+            totalTax: parseFloat(create.totalTax),
+            total: parseFloat(create.total),
+            taxLines: create.taxLines,
+            productId: create.productId,
+            variantId: create.variantId,
+          })),
+        })
+      );
+    }
+    if (lineItemsToDelete.length > 0) {
+      prisma.lineItem.deleteMany({
+        where: {
+          id: { in: lineItemsToDelete.map((deleteItem) => deleteItem.id) },
+        },
+      });
+    }
+
+    await updateInventory({
+      data: inventoryToUpdate,
+    });
+
+    const [sale] = await prisma.$transaction(prismaTransactions);
+    return {
+      data: sale,
+      message: "success",
+    };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");

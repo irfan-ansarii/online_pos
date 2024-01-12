@@ -217,6 +217,7 @@ model Sale {
   shippingAddress Json?
   lineItemsTotal  Float
   subtotal        Float
+  saleType        String              @default("state")
   taxType         String              @default("included")
   totalTax        Float
   totalDiscount   Float
