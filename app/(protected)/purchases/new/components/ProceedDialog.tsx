@@ -8,11 +8,11 @@ import { useSheetToggle } from "@/hooks/useSheet";
 
 const SupplierTab = lazy(() => import("./SupplierTab"));
 const PaymentTab = lazy(() => import("./PaymentTab"));
+const ReceiptTab = lazy(() => import("./ReceiptTab"));
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 import { Tabs } from "@/components/ui/tabs";
-import ReceiptTab from "./ReceiptTab";
 
 const ProceedDialog = () => {
   const form = useFormContext();
@@ -24,6 +24,7 @@ const ProceedDialog = () => {
   /**
    * update due amount
    */
+
   const updateDue = () => {
     const total = form.getValues("total");
     const transactions = form.getValues("transactions");
@@ -32,7 +33,16 @@ const ProceedDialog = () => {
       acc += Math.abs(curr.amount || 0);
       return acc;
     }, 0);
-    form.setValue("totalDue", Math.abs(total) - received);
+
+    const dueAmount = total + (total < 0 ? received : -received);
+
+    if (dueAmount < 0) {
+      form.setValue("transactionKind", "refund");
+    } else {
+      form.setValue("transactionKind", "purchase");
+    }
+
+    form.setValue("totalDue", received > Math.abs(total) ? total : dueAmount);
   };
 
   return (

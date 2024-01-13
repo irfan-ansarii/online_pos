@@ -208,17 +208,16 @@ model TransferLineItem {
 }
 
 model Sale {
-  id              Int                 @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   locationId      Int
   title           String
   customerId      Int?
   employeeId      Int?
   billingAddress  Json?
   shippingAddress Json?
-  lineItemsTotal  Float
   subtotal        Float
-  saleType        String              @default("state")
-  taxType         String              @default("included")
+  saleType        String          @default("state")
+  taxType         String          @default("included")
   totalTax        Float
   totalDiscount   Float
   roundedOff      Float
@@ -226,12 +225,12 @@ model Sale {
   total           Float
   totalDue        Float
   taxLines        Json?
-  status          SaleFinancialStatus @default(pending)
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  status          FinancialStatus @default(pending)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   lineItems       LineItem[]
-  customer        User?               @relation("customerSale", fields: [customerId], references: [id], onDelete: SetNull)
-  employee        User?               @relation("employeeSale", fields: [employeeId], references: [id], onDelete: SetNull)
+  customer        User?           @relation("customerSale", fields: [customerId], references: [id], onDelete: SetNull)
+  employee        User?           @relation("employeeSale", fields: [employeeId], references: [id], onDelete: SetNull)
   transactions    Transaction[]
 
   @@map("sales")
@@ -247,6 +246,7 @@ model LineItem {
   barcode       String?
   price         Float
   taxRate       Int
+  kind          String   @default("sale") // sale|return
   quantity      Int
   totalDiscount Float
   totalTax      Float
@@ -304,25 +304,26 @@ model Payment {
 }
 
 model Purchase {
-  id             Int                   @id @default(autoincrement())
-  locationId     Int
-  title          String
-  supplierId     Int?
-  lineItemsTotal Float
-  subtotal       Float
-  taxType        String                @default("included")
-  totalTax       Float
-  totalDiscount  Float
-  roundedOff     Float                 @default(0)
-  total          Float
-  totalDue       Float
-  taxLines       Json?
-  status         SaleFinancialStatus   @default(pending)
-  createdAt      DateTime              @default(now())
-  updatedAt      DateTime              @updatedAt
-  supplier       User?                 @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  lineItems      PurchaseLineItem[]
-  transactions   PurchaseTransaction[]
+  id            Int                   @id @default(autoincrement())
+  locationId    Int
+  title         String
+  supplierId    Int?
+  purchaseType  String                @default("state")
+  subtotal      Float
+  taxType       String                @default("included")
+  totalTax      Float
+  totalDiscount Float
+  roundedOff    Float
+  invoiceTotal  Float
+  total         Float
+  totalDue      Float
+  taxLines      Json?
+  status        FinancialStatus       @default(pending)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  supplier      User?                 @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  lineItems     PurchaseLineItem[]
+  transactions  PurchaseTransaction[]
 
   @@map("purchase")
 }
@@ -337,6 +338,7 @@ model PurchaseLineItem {
   barcode       String?
   price         Float
   taxRate       Int
+  kind          String   @default("purchase")
   quantity      Int
   totalDiscount Float
   totalTax      Float
@@ -369,12 +371,13 @@ model PurchaseTransaction {
   @@map("purchase_transactions")
 }
 
-enum SaleFinancialStatus {
+enum FinancialStatus {
   pending
   paid
   partialy_paid
-  partialy_refunded
   refunded
+  partialy_refunded
+  returned
 }
 
 enum TransactionKind {

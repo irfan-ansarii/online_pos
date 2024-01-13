@@ -6,17 +6,16 @@ const Page = async () => {
   const { data } = await getPayments();
 
   const initialValues = {
-    id: null,
     lineItems: [],
     taxType: "included",
     subtotal: 0,
     totalTax: 0,
     totalDiscount: 0,
-    lineItemsTotal: 0,
     total: 0,
+    invoiceTotal: 0,
     totalDue: 0,
     taxLines: [],
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
     saleType: "state",
     transactions: data.map((payment) => ({
       id: payment.id,

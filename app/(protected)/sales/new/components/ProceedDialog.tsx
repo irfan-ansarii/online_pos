@@ -44,7 +44,16 @@ const ProceedDialog = () => {
       acc += Math.abs(curr.amount || 0);
       return acc;
     }, 0);
-    form.setValue("totalDue", Math.abs(total) - received);
+
+    const dueAmount = total + (total < 0 ? received : -received);
+
+    if (dueAmount < 0) {
+      form.setValue("transactionKind", "refund");
+    } else {
+      form.setValue("transactionKind", "sale");
+    }
+
+    form.setValue("totalDue", received > Math.abs(total) ? total : dueAmount);
   };
 
   return (

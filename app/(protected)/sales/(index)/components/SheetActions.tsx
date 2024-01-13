@@ -1,15 +1,15 @@
 "use client";
 import React from "react";
-
+import Link from "next/link";
 import { Sale } from "@prisma/client";
 
 import { useSheetToggle } from "@/hooks/useSheet";
 
 import {
-  AlertTriangle,
   IndianRupee,
   Mail,
   MoreVertical,
+  PenSquare,
   Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,12 @@ export default function SheetActions({
         <DropdownMenuContent className="w-40" align="end">
           <DropdownMenuGroup>
             <DropdownMenuItem>
+              <Link href={`/sales/${sale.id}`} className="flex-1 inline-flex">
+                <PenSquare className="w-4 h-4 mr-2 " />
+                Edit
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
               <Printer className="w-4 h-4 mr-2" />
               Print Invoice
             </DropdownMenuItem>
@@ -61,18 +67,19 @@ export default function SheetActions({
               <Mail className="w-4 h-4 mr-2" />
               Send Invoice
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+
+            {}
             <DropdownMenuItem
               onSelect={toggleNew}
-              disabled={sale.totalDue <= 0}
+              disabled={sale.totalDue === 0}
             >
               <IndianRupee className="w-4 h-4 mr-2" />
-              Collect Payment
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-error">
-              <AlertTriangle className="w-4 h-4 mr-2 " />
-              Refund
+              {sale.totalDue !== 0
+                ? sale.totalDue < 0
+                  ? "Refund"
+                  : "Collect Payment"
+                : "Payment"}
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

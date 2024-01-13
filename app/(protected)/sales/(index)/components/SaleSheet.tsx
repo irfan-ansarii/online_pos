@@ -77,12 +77,21 @@ const SaleSheet = ({
                   <div className="font-medium">
                     {Numeral(field.total).format()}
                   </div>
-                  {field.quantity < 0 && (
+                  {field.quantity === 0 && (
                     <Badge
                       className="py-0 rounded-md uppercase"
                       variant="destructive"
                     >
-                      Return
+                      Removed
+                    </Badge>
+                  )}
+
+                  {field.kind === "return" && field.quantity !== 0 && (
+                    <Badge
+                      className="py-0 px-1.5 rounded-md uppercase"
+                      variant="destructive"
+                    >
+                      Returned
                     </Badge>
                   )}
                 </div>
@@ -131,19 +140,27 @@ const SaleSheet = ({
                           {format(transaction.createdAt, "dd MMM, yyyy")}
                         </div>
                       </div>
-                      <div className="ml-auto text-right">
-                        {Numeral(transaction.amount).format()}
-                      </div>
+                      {transaction.kind === "refund" ? (
+                        <div className="ml-auto text-right text-error">
+                          -{Numeral(transaction.amount).format()}
+                        </div>
+                      ) : (
+                        <div className="ml-auto text-right text-success">
+                          +{Numeral(transaction.amount).format()}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </CollapsibleContent>
             </Collapsible>
 
-            {sale.totalDue > 0 && (
+            {sale.totalDue !== 0 && (
               <div className="flex items-center p-2 mt-2 rounded-md bg-warning/20">
-                <div>Due</div>
-                <div className="ml-auto">{Numeral(sale.totalDue).format()}</div>
+                <div>{sale.totalDue < 0 ? "Refund Due" : "Payment Due"}</div>
+                <div className="ml-auto">
+                  {Numeral(Math.abs(sale.totalDue)).format()}
+                </div>
               </div>
             )}
           </div>

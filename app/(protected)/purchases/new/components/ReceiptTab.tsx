@@ -104,7 +104,7 @@ const ReceiptTab = ({ setActive }: { setActive: (tab: string) => void }) => {
         <Button
           className="w-full mt-10"
           type="button"
-          disabled={!form.getValues("supplierId")}
+          disabled={!form.getValues("title")}
           onClick={() => setActive("payment")}
         >
           Next

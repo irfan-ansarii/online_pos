@@ -14,7 +14,7 @@ import { useToggle } from "@uidotdev/usehooks";
 import { Card, CardContent } from "@/components/ui/card";
 import { AvatarGroup, AvatarItem } from "@/components/shared/avatar";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
@@ -135,11 +135,12 @@ const PurchaseCard = ({ purchase }: { purchase: any }) => {
       </PurchaseSheet>
 
       <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
-        <Button variant="secondary" size="icon">
-          <Link href={`/sales/123`}>
-            <PenSquare className="w-4 h-4" />
-          </Link>
-        </Button>
+        <Link
+          href={`/purchases/${purchase.id}`}
+          className={buttonVariants({ variant: "secondary", size: "icon" })}
+        >
+          <PenSquare className="w-4 h-4" />
+        </Link>
 
         {/* delete alert */}
         <AlertDialog open={openDelete} onOpenChange={toggleDelete}>

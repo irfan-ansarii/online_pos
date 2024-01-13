@@ -44,7 +44,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
       return;
     }
     append({
-      itemId: null,
+      kind: "sale",
       productId: product.id,
       variantId: variant.id,
       title: product.title,
@@ -77,7 +77,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
     const { price = 0, quantity = 0, totalDiscount = 0, taxRate } = lineItem;
 
     const beforeDiscount = parseFloat(price) * parseFloat(quantity);
-    const lineTotal = beforeDiscount - totalDiscount;
+    const lineTotal = beforeDiscount - totalDiscount * quantity;
 
     const includedTax = lineTotal - lineTotal / (1 + taxRate / 100);
     const excludedTax = lineTotal * (taxRate / 100);

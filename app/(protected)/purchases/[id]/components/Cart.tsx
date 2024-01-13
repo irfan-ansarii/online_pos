@@ -56,14 +56,17 @@ const Cart = ({
    */
   const handleMinus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
-    const currentQuantity = fields[index].quantity;
+    const { quantity, originalQuantity } = fields[index];
 
-    if (currentQuantity === 1) {
+    if (originalQuantity) {
+      form.setValue(`lineItems.${index}.quantity`, Math.max(0, quantity - 1));
+    } else if (quantity === 1) {
       remove(index);
       return;
+    } else {
+      form.setValue(`lineItems.${index}.quantity`, quantity - 1);
     }
 
-    form.setValue(`lineItems.${index}.quantity`, currentQuantity - 1);
     // handle update
     handleUpdate(index);
   };
@@ -75,11 +78,30 @@ const Cart = ({
    */
   const handlePlus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
-    const currentQuantity = fields[index].quantity;
-    if (currentQuantity === -1) {
+    const { quantity } = fields[index];
+
+    if (quantity === -1) {
       form.setValue(`lineItems.${index}.quantity`, 1);
     } else {
-      form.setValue(`lineItems.${index}.quantity`, currentQuantity + 1);
+      form.setValue(`lineItems.${index}.quantity`, quantity + 1);
+    }
+    // handle update
+    handleUpdate(index);
+  };
+
+  /**
+   * handle remove item
+   * @param index
+   */
+  const handleRemove = (index: number) => {
+    const lineItem = form.getValues(`lineItems.${index}`);
+
+    const { originalQuantity } = lineItem;
+    if (originalQuantity) {
+      form.setValue(`lineItems.${index}.quantity`, 0);
+    } else {
+      remove(index);
+      return;
     }
     // handle update
     handleUpdate(index);
@@ -91,7 +113,7 @@ const Cart = ({
    */
   const handleReturn = (index: number) => {
     const lineItem = form.getValues(`lineItems.${index}`);
-    const kind = lineItem.kind === "purchase" ? "return" : "purchase";
+    const kind = lineItem.kind === "sale" ? "return" : "sale";
     form.setValue(`lineItems.${index}.kind`, kind);
 
     // handle update
@@ -102,20 +124,23 @@ const Cart = ({
    * update cart values on line items changes
    */
   React.useEffect(() => {
-    const purchaseType = form.getValues(`purchaseType`);
+    const saleType = form.getValues(`saleType`);
     const result = watch.reduce(
       (acc: any, curr: any) => {
         if (curr.kind === "return") {
           acc.subtotal -= curr.beforeDiscount;
-          acc.totalDiscount -= Number(curr.totalDiscount || 0);
+          acc.totalDiscount -=
+            Number(curr.totalDiscount) * Number(curr.quantity);
           acc.totalTax -= curr.totalTax;
           acc.invoiceTotal -= curr.total;
         } else {
           acc.subtotal += curr.beforeDiscount;
-          acc.totalDiscount += Number(curr.totalDiscount || 0);
+          acc.totalDiscount +=
+            Number(curr.totalDiscount) * Number(curr.quantity);
           acc.totalTax += curr.totalTax;
           acc.invoiceTotal += curr.total;
         }
+
         return acc;
       },
       {
@@ -134,7 +159,8 @@ const Cart = ({
       { title: "CGST", amount: parseFloat((result.totalTax / 2).toFixed(2)) },
       { title: "SGST", amount: parseFloat((result.totalTax / 2).toFixed(2)) },
     ];
-    if (purchaseType === "inter_state") {
+
+    if (saleType === "inter_state") {
       result.taxLines = [
         { title: "IGST", amount: parseFloat(result.totalTax.toFixed(2)) },
       ];
@@ -165,11 +191,12 @@ const Cart = ({
                   lineTotal,
                   kind,
                   variantTitle,
+                  originalQuantity,
                 }: any,
                 i: number
               ) => (
                 <AccordionItem
-                  key={`${id}`}
+                  key={id}
                   value={`lineItem-${i}`}
                   className="border-b-0 py-1.5 first:pt-0 last:pb-0 relative snap-start"
                 >
@@ -195,7 +222,9 @@ const Cart = ({
 
                             <Badge
                               className="shrink-0 px-0 py-0 min-w-[5rem] ml-auto"
-                              variant="secondary"
+                              variant={
+                                quantity < 0 ? "destructive" : "secondary"
+                              }
                             >
                               <Button
                                 onClick={(e) => handleMinus(e, i)}
@@ -280,10 +309,10 @@ const Cart = ({
                             )}
                           />
                         </div>
-
                         <Button
                           variant="secondary"
                           className="flex-1"
+                          disabled={quantity === 0}
                           onClick={() => handleReturn(i)}
                         >
                           <PackageMinus className="w-4 h-4 mr-2" /> Return
@@ -291,7 +320,8 @@ const Cart = ({
                         <Button
                           variant="destructive"
                           className="flex-1 bg-destructive/30"
-                          onClick={() => remove(i)}
+                          onClick={() => handleRemove(i)}
+                          disabled={quantity === 0 && originalQuantity}
                         >
                           <Trash2 className="w-4 h-4 mr-2" /> Remove
                         </Button>

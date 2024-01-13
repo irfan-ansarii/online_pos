@@ -172,7 +172,7 @@ export async function getSession() {
       cookies().set("_auth_token", "", {
         expires: Date.now(),
       });
-      redirect("/login");
+      throw new Error("Unauthorized");
     }
 
     const user = await prisma.user.findUnique({

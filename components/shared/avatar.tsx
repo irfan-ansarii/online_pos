@@ -61,7 +61,7 @@ export const AvatarItem = ({
   height?: number;
 }) => {
   return (
-    <Avatar className={cn("w-10 h-10 border-2", className)}>
+    <Avatar className={cn("w-10 h-10 border-2 hover:z-10", className)}>
       <AvatarImage src={src} asChild className="object-cover">
         <Image src={src} alt={src} width={width} height={height} />
       </AvatarImage>

@@ -77,6 +77,23 @@ const PurchaseSheet = ({
                   <div className="font-medium">
                     {Numeral(field.total).format()}
                   </div>
+                  {field.quantity === 0 && (
+                    <Badge
+                      className="py-0 rounded-md uppercase"
+                      variant="destructive"
+                    >
+                      Removed
+                    </Badge>
+                  )}
+
+                  {field.kind === "return" && field.quantity !== 0 && (
+                    <Badge
+                      className="py-0 px-1.5 rounded-md uppercase "
+                      variant="destructive"
+                    >
+                      Returned
+                    </Badge>
+                  )}
                 </div>
               </div>
             ))}

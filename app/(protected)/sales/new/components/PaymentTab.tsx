@@ -62,11 +62,6 @@ const PaymentTab = ({
     updateDue();
   }, [transactions, form.watch("lineItems")]);
 
-  const applyStoreCredit = () => {
-    form.setValue("transactions.2.name", "code");
-    form.setValue("transactions.2.label", "Store Credit");
-    form.setValue("transactions.2.amount", 500);
-  };
   /**
    * hanlde form submit
    * @param values
@@ -125,19 +120,17 @@ const PaymentTab = ({
               </div>
             </div>
             <div className={`border p-3 space-y-1 rounded-md text-center`}>
-              <div className="font-medium text-xs uppercase">{"due"}</div>
+              <div className="font-medium text-xs uppercase">
+                {form.watch("total") < 0 ? "refund" : "due"}
+              </div>
               <div className="font-medium text-lg">
-                {Numeral(form.watch("totalDue")).format()}
+                {Numeral(Math.abs(form.watch("totalDue"))).format()}
               </div>
             </div>
           </div>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto scrollbox">
-          <Accordion
-            type="single"
-            className="w-full space-y-2"
-            onValueChange={(v) => console.log(v)}
-          >
+          <Accordion type="single" className="w-full space-y-2">
             {transactions?.map((item: any, i: number) => (
               <FormField
                 key={`${item.id}`}
@@ -175,7 +168,7 @@ const PaymentTab = ({
         </div>
 
         {/* store credit */}
-        <div className="rounded-md border flex p-2 items-center">
+        {/* <div className="rounded-md border flex p-2 items-center">
           <div className="space-y-0.5">
             <div className="font-medium">Store Credit</div>
             <div>
@@ -184,14 +177,9 @@ const PaymentTab = ({
             </div>
           </div>
           <div className="ml-auto">
-            <Badge
-              className="rounded-md cursor-pointer"
-              onClick={() => applyStoreCredit()}
-            >
-              Apply
-            </Badge>
+            <Badge className="rounded-md cursor-pointer">Apply</Badge>
           </div>
-        </div>
+        </div> */}
 
         <Button className="w-full mt-8" type="submit" onClick={handleNext}>
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create"}

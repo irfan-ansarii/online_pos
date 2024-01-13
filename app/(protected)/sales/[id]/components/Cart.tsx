@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/form";
 
 import ProceedDialog from "./ProceedDialog";
-import Popover from "./Popover";
+import Popover from "../../new/components/Popover";
 import { AvatarItem } from "@/components/shared/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -56,14 +56,17 @@ const Cart = ({
    */
   const handleMinus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
-    const currentQuantity = fields[index].quantity;
+    const { quantity, originalQuantity } = fields[index];
 
-    if (currentQuantity === 1) {
+    if (originalQuantity) {
+      form.setValue(`lineItems.${index}.quantity`, Math.max(0, quantity - 1));
+    } else if (quantity === 1) {
       remove(index);
       return;
+    } else {
+      form.setValue(`lineItems.${index}.quantity`, quantity - 1);
     }
 
-    form.setValue(`lineItems.${index}.quantity`, currentQuantity - 1);
     // handle update
     handleUpdate(index);
   };
@@ -75,11 +78,30 @@ const Cart = ({
    */
   const handlePlus = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
-    const currentQuantity = fields[index].quantity;
-    if (currentQuantity === -1) {
+    const { quantity } = fields[index];
+
+    if (quantity === -1) {
       form.setValue(`lineItems.${index}.quantity`, 1);
     } else {
-      form.setValue(`lineItems.${index}.quantity`, currentQuantity + 1);
+      form.setValue(`lineItems.${index}.quantity`, quantity + 1);
+    }
+    // handle update
+    handleUpdate(index);
+  };
+
+  /**
+   * handle remove item
+   * @param index
+   */
+  const handleRemove = (index: number) => {
+    const lineItem = form.getValues(`lineItems.${index}`);
+
+    const { originalQuantity } = lineItem;
+    if (originalQuantity) {
+      form.setValue(`lineItems.${index}.quantity`, 0);
+    } else {
+      remove(index);
+      return;
     }
     // handle update
     handleUpdate(index);
@@ -91,15 +113,10 @@ const Cart = ({
    */
   const handleReturn = (index: number) => {
     const lineItem = form.getValues(`lineItems.${index}`);
-    const quantity =
-      lineItem.quantity > 0 ? -lineItem.quantity : Math.abs(lineItem.quantity);
-    const discount =
-      lineItem.quantity > 0
-        ? -lineItem.totalDiscount
-        : Math.abs(lineItem.totalDiscount);
+    const kind = lineItem.kind === "sale" ? "return" : "sale";
+    form.setValue(`lineItems.${index}.kind`, kind);
 
-    form.setValue(`lineItems.${index}.quantity`, quantity);
-    form.setValue(`lineItems.${index}.totalDiscount`, discount);
+    // handle update
     handleUpdate(index);
   };
 
@@ -110,10 +127,19 @@ const Cart = ({
     const saleType = form.getValues(`saleType`);
     const result = watch.reduce(
       (acc: any, curr: any) => {
-        acc.subtotal += curr.beforeDiscount;
-        acc.totalDiscount += Number(curr.totalDiscount || 0);
-        acc.totalTax += curr.totalTax;
-        acc.invoiceTotal += curr.total;
+        if (curr.kind === "return") {
+          acc.subtotal -= curr.beforeDiscount;
+          acc.totalDiscount -=
+            Number(curr.totalDiscount) * Number(curr.quantity);
+          acc.totalTax -= curr.totalTax;
+          acc.invoiceTotal -= curr.total;
+        } else {
+          acc.subtotal += curr.beforeDiscount;
+          acc.totalDiscount +=
+            Number(curr.totalDiscount) * Number(curr.quantity);
+          acc.totalTax += curr.totalTax;
+          acc.invoiceTotal += curr.total;
+        }
 
         return acc;
       },
@@ -163,8 +189,9 @@ const Cart = ({
                   title,
                   beforeDiscount,
                   lineTotal,
-                  total,
+                  kind,
                   variantTitle,
+                  originalQuantity,
                 }: any,
                 i: number
               ) => (
@@ -228,7 +255,9 @@ const Cart = ({
                               Numeral(beforeDiscount).format()}
                           </div>
 
-                          <div className={lineTotal < 0 ? "text-error" : ""}>
+                          <div
+                            className={kind === "return" ? "text-error" : ""}
+                          >
                             {Numeral(lineTotal).format()}
                           </div>
                         </div>
@@ -280,10 +309,10 @@ const Cart = ({
                             )}
                           />
                         </div>
-
                         <Button
                           variant="secondary"
                           className="flex-1"
+                          disabled={quantity === 0}
                           onClick={() => handleReturn(i)}
                         >
                           <PackageMinus className="w-4 h-4 mr-2" /> Return
@@ -291,7 +320,8 @@ const Cart = ({
                         <Button
                           variant="destructive"
                           className="flex-1 bg-destructive/30"
-                          onClick={() => remove(i)}
+                          onClick={() => handleRemove(i)}
+                          disabled={quantity === 0 && originalQuantity}
                         >
                           <Trash2 className="w-4 h-4 mr-2" /> Remove
                         </Button>

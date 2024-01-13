@@ -92,15 +92,10 @@ const Cart = ({
    */
   const handleReturn = (index: number) => {
     const lineItem = form.getValues(`lineItems.${index}`);
-    const quantity =
-      lineItem.quantity > 0 ? -lineItem.quantity : Math.abs(lineItem.quantity);
-    const discount =
-      lineItem.quantity > 0
-        ? -lineItem.totalDiscount
-        : Math.abs(lineItem.totalDiscount);
+    const kind = lineItem.kind === "sale" ? "return" : "sale";
+    form.setValue(`lineItems.${index}.kind`, kind);
 
-    form.setValue(`lineItems.${index}.quantity`, quantity);
-    form.setValue(`lineItems.${index}.totalDiscount`, discount);
+    // handle update
     handleUpdate(index);
   };
 
@@ -111,11 +106,17 @@ const Cart = ({
     const saleType = form.getValues(`saleType`);
     const result = watch.reduce(
       (acc: any, curr: any) => {
-        acc.subtotal += curr.beforeDiscount;
-        acc.totalDiscount += Number(curr.totalDiscount || 0);
-        acc.totalTax += curr.totalTax;
-        acc.invoiceTotal += curr.total;
-
+        if (curr.kind === "return") {
+          acc.subtotal -= curr.beforeDiscount;
+          acc.totalDiscount -= Number(curr.totalDiscount || 0);
+          acc.totalTax -= curr.totalTax;
+          acc.invoiceTotal -= curr.total;
+        } else {
+          acc.subtotal += curr.beforeDiscount;
+          acc.totalDiscount += Number(curr.totalDiscount || 0);
+          acc.totalTax += curr.totalTax;
+          acc.invoiceTotal += curr.total;
+        }
         return acc;
       },
       {
@@ -131,11 +132,13 @@ const Cart = ({
     result.total = invoiceTotal + result.roundedOff;
 
     result.taxLines = [
-      { title: "CGST", amount: result.totalTax / 2 },
-      { title: "SGST", amount: result.totalTax / 2 },
+      { title: "CGST", amount: parseFloat((result.totalTax / 2).toFixed(2)) },
+      { title: "SGST", amount: parseFloat((result.totalTax / 2).toFixed(2)) },
     ];
     if (saleType === "inter_state") {
-      result.taxLines = [{ title: "IGST", amount: result.totalTax }];
+      result.taxLines = [
+        { title: "IGST", amount: parseFloat(result.totalTax.toFixed(2)) },
+      ];
     }
 
     Object.entries(result).map(([key, value]) => {
@@ -161,7 +164,7 @@ const Cart = ({
                   title,
                   beforeDiscount,
                   lineTotal,
-                  total,
+                  kind,
                   variantTitle,
                 }: any,
                 i: number
@@ -193,9 +196,7 @@ const Cart = ({
 
                             <Badge
                               className="shrink-0 px-0 py-0 min-w-[5rem] ml-auto"
-                              variant={
-                                quantity < 0 ? "destructive" : "secondary"
-                              }
+                              variant="secondary"
                             >
                               <Button
                                 onClick={(e) => handleMinus(e, i)}
@@ -226,7 +227,9 @@ const Cart = ({
                               Numeral(beforeDiscount).format()}
                           </div>
 
-                          <div className={lineTotal < 0 ? "text-error" : ""}>
+                          <div
+                            className={kind === "return" ? "text-error" : ""}
+                          >
                             {Numeral(lineTotal).format()}
                           </div>
                         </div>

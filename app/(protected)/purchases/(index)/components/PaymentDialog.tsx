@@ -186,11 +186,11 @@ const PaymentDialog = ({ sale }: { sale: Sale }) => {
               </Accordion>
             </div>
             <DialogFooter className="flex justify-between md:justify-end gap-4">
-              <DialogCancel className="flex-1 md:flex-none">
+              <DialogCancel className="flex 1 md:flex-none">
                 Cancel
               </DialogCancel>
 
-              <Button className="flex-1 md:flex-none md:w-28" type="submit">
+              <Button className="flex 1 md:flex-none md:w-28" type="submit">
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (

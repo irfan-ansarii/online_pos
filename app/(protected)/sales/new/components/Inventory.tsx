@@ -2,7 +2,7 @@
 import React from "react";
 import Numeral from "numeral";
 import { useState, useRef, useCallback } from "react";
-import { ScanLine, Search } from "lucide-react";
+import { Plus, ScanLine, Search } from "lucide-react";
 
 import { useInventory } from "@/hooks/useInventory";
 
@@ -14,6 +14,8 @@ import ProductLoading from "@/components/shared/product-loading";
 import ErrorBox from "@/components/shared/error-box";
 import EmptyBox from "@/components/shared/empty-box";
 import { AvatarItem } from "@/components/shared/avatar";
+import { Button } from "@/components/ui/button";
+import CustomProduct from "./CustomProduct";
 
 export type Option = Record<string, any>;
 
@@ -88,7 +90,16 @@ const Inventory = ({
             value={searchTerm || ""}
           />
 
-          <span className="pointer-events-none absolute right-0 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
+          <CustomProduct>
+            <Button
+              size="icon"
+              variant="secondary"
+              className="absolute right-0 inset-y-0"
+            >
+              <Plus className="w-5 h-5" />
+            </Button>
+          </CustomProduct>
+          <span className="pointer-events-none absolute right-10 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
             <ScanLine className="w-5 h-5" />
           </span>
         </div>

@@ -66,16 +66,15 @@ const PaymentTab = ({
    * @param values
    */
   const onSubmit = async (values: any) => {
-    values.roundedOff = Math.ceil(values.total) - values.total;
-    values.total = Math.ceil(values.total);
+    const { transactions, createdAt } = values;
 
     // transactions
-    values.transactions = values.transactions
+    values.transactions = transactions
       ?.filter((transaction: any) => Number(transaction.amount) !== 0)
       .map((txn: any) => {
         return {
           ...txn,
-          createdAt: values.createdAt,
+          createdAt,
         };
       });
 
@@ -130,13 +129,10 @@ const PaymentTab = ({
           </div>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto scrollbox">
-          <Accordion
-            type="single"
-            className="w-full space-y-2"
-            onValueChange={(v) => console.log(v)}
-          >
+          <Accordion type="single" className="w-full space-y-2">
             {transactions?.map((item: any, i: number) => (
               <AccordionItem
+                key={item.id}
                 value={`${item.id}`}
                 className="px-3 rounded-md border hover:bg-accent transition duration-300 data-[state=open]:bg-accent"
               >

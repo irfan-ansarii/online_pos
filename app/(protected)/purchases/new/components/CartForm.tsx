@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 
-import Inventory from "../../../sales/new/components/Inventory";
+import Inventory from "@/app/(protected)/sales/new/components/Inventory";
 import Cart from "./Cart";
 
 const CartForm = ({ initialValues }: { initialValues: any }) => {
@@ -44,13 +44,13 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
       return;
     }
     append({
+      kind: "purchase",
       productId: product.id,
       variantId: variant.id,
       title: product.title,
       variantTitle: variant.title,
       sku: variant.sku,
       barcode: variant.barcode,
-      stock: stock,
       imageSrc: product?.image?.src,
       price: variant.purchasePrice,
       taxRate: variant.taxRate,
@@ -114,10 +114,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
     <Form {...form}>
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 lg:col-span-6 xl:col-span-7 2xl:col-span-8 bg-background">
-          <Inventory
-            onSelect={onLineItemClick}
-            displayPrice={"purchasePrice"}
-          />
+          <Inventory onSelect={onLineItemClick} displayPrice="purchasePrice" />
         </div>
 
         {/* render on desktop */}

@@ -32,7 +32,7 @@ export async function getAdjustments(params: ParamsProps) {
 
     const filters: Prisma.AdjustmentWhereInput = {
       AND: [
-        { locationId: Number(1) },
+        { locationId: session.location.id },
         {
           OR: [
             { product: { title: { contains: search, mode: "insensitive" } } },

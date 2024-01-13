@@ -4,12 +4,13 @@ import prisma from "@/lib/prisma";
 import {
   LineItem,
   Prisma,
-  SaleFinancialStatus,
+  FinancialStatus,
   TransactionKind,
 } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 import { updateInventory } from "./inventory-actions";
+import { createAdjustment } from "./adjustment-actions";
 
 interface ParamsProps {
   [key: string]: string;
@@ -38,7 +39,7 @@ export async function getSales(params: ParamsProps) {
     const filters: Prisma.SaleWhereInput = {
       AND: [
         { locationId: { equals: session.location.id } },
-        { status: { equals: status as SaleFinancialStatus } },
+        { status: { equals: status as FinancialStatus } },
         {
           OR: [{ title: { contains: search, mode: "insensitive" } }],
         },
@@ -126,9 +127,10 @@ export async function createSale(values: any) {
       title: lineItem.title,
       variantTitle: lineItem.variantTitle,
       sku: lineItem.sku,
-      barcode: `${lineItem.barcode}`,
+      barcode: lineItem.barcode,
       price: Number(lineItem.price),
       taxRate: Number(lineItem.taxRate),
+      kind: lineItem.kind,
       quantity: Number(lineItem.quantity),
       totalDiscount: Number(lineItem.totalDiscount),
       totalTax: Number(lineItem.totalTax),
@@ -150,12 +152,11 @@ export async function createSale(values: any) {
         subtotal: parseFloat(subtotal.toFixed(2)),
         totalTax: parseFloat(totalTax.toFixed(2)),
         totalDiscount: parseFloat(totalDiscount.toFixed(2)),
-        invoiceTotal,
+        invoiceTotal: parseFloat(invoiceTotal.toFixed(2)),
         roundedOff: parseFloat(roundedOff.toFixed(2)),
         total: parseFloat(total.toFixed(2)),
         totalDue: parseFloat(totalDue.toFixed(2)),
         taxLines,
-        lineItemsTotal,
         status,
         // create line items
         lineItems: {
@@ -166,17 +167,6 @@ export async function createSale(values: any) {
       },
     });
 
-    // update inventory
-    const updateData = lineItems.map((item: LineItem) => ({
-      variantId: item.variantId,
-      quantity: Math.sign(item.quantity) * -Math.abs(item.quantity),
-    }));
-
-    await updateInventory({ data: updateData });
-
-    // update transactions
-    await createTransactions({ saleId: sale.id, data: transactions });
-
     // update sale
     const updated = await prisma.sale.update({
       where: { id: sale.id },
@@ -184,6 +174,47 @@ export async function createSale(values: any) {
         title: `GN${sale.id}` /** prefix =* saleid *= suffix */,
       },
     });
+
+    // create adjustments and update inventory
+    const updateData = lineItems.reduce(
+      (accumulator: any, item: LineItem) => {
+        const newItem = {
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.kind === "return" ? item.quantity : -item.quantity,
+        };
+        if (newItem.quantity === 0) {
+          return accumulator;
+        }
+        if (item.kind === "return") {
+          accumulator.returnItems.push(newItem);
+        } else {
+          accumulator.saleItems.push(newItem);
+        }
+
+        return accumulator;
+      },
+      { returnItems: [], saleItems: [] }
+    );
+
+    // create sale items
+    await createAdjustment({
+      lineItems: updateData.saleItems,
+      locationId: session.location.id,
+      reason: "Sold",
+      notes: updated.title,
+    });
+
+    // create return items
+    await createAdjustment({
+      lineItems: updateData.returnItems,
+      locationId: session.location.id,
+      reason: "Sale return",
+      notes: updated.title,
+    });
+
+    // update transactions
+    await createTransactions({ saleId: sale.id, data: transactions });
 
     // return response
     return { data: updated, message: "created" };
@@ -200,7 +231,6 @@ export async function createSale(values: any) {
  * @param values
  * @returns
  */
-// TODO
 export async function updateSale(values: any) {
   try {
     const session = await auth();
@@ -229,16 +259,17 @@ export async function updateSale(values: any) {
       status,
     } = values;
 
-    const results = await prisma.lineItem.findMany({
+    const sale = await prisma.sale.findUnique({
       where: {
-        saleId: id,
+        id,
       },
     });
 
+    if (!sale) {
+      throw new Error("Not found");
+    }
+
     const prismaTransactions = [];
-    const lineItemsToUpdate = [];
-    const lineItemsToCreate = [];
-    const lineItemsToDelete = [];
 
     prismaTransactions.push(
       prisma.sale.update({
@@ -251,123 +282,125 @@ export async function updateSale(values: any) {
           subtotal: parseFloat(subtotal.toFixed(2)),
           totalTax: parseFloat(totalTax.toFixed(2)),
           totalDiscount: parseFloat(totalDiscount.toFixed(2)),
-          invoiceTotal,
+          invoiceTotal: parseFloat(invoiceTotal.toFixed(2)),
           roundedOff: parseFloat(roundedOff.toFixed(2)),
           total: parseFloat(total.toFixed(2)),
           totalDue: parseFloat(totalDue.toFixed(2)),
           taxLines,
-          lineItemsTotal,
           status,
         },
         where: {
-          id,
+          id: id,
         },
       })
     );
 
-    for (const item of lineItems) {
-      // update line item if exists
-
-      const index = results.findIndex((result) => result.id === item.itemId);
-      const quantity = -2 - item.quantity;
-      if (index !== -1) {
-        //update if already exists
-        lineItemsToUpdate.push({
-          ...item,
-          quantity: quantity,
-        });
-      } else {
-        // create if not found
-        lineItemsToCreate.push({
-          ...item,
-          saleId: id,
-          quantity: item.quantity,
-        });
-      }
-    }
-
-    // delete line items which are not linked
-    for (const result of results) {
-      const index = lineItems.findIndex(
-        (item: any) => item.itemId === result.id
-      );
-      if (index === -1) {
-        lineItemsToDelete.push({
-          ...result,
-        });
-      }
-    }
-
-    const inventoryToUpdate = [
-      ...lineItemsToCreate,
-      ...lineItemsToUpdate,
-      ...lineItemsToDelete,
-    ].map((item) => ({
-      variantId: item.variantId,
-      quantity: item.quantity,
-    }));
-    console.log(inventoryToUpdate);
-
-    if (lineItemsToUpdate.length > 0) {
+    for (const lineItem of lineItems) {
       prismaTransactions.push(
-        prisma.lineItem.updateMany({
-          data: lineItemsToUpdate.map((update) => ({
-            price: parseFloat(update.price),
-            quantity: parseFloat(update.quantity),
-            totalDiscount: parseFloat(update.totalDiscount),
-            totalTax: parseFloat(update.totalTax),
-            total: parseFloat(update.total),
-            taxLines: update.taxLines,
-          })),
+        prisma.lineItem.upsert({
           where: {
-            id: { in: lineItemsToUpdate.map((update) => update.id) },
+            id: lineItem.itemId || 0,
+          },
+          create: {
+            saleId: id,
+            locationId: session.location.id,
+            title: lineItem.title,
+            variantTitle: lineItem.variantTitle,
+            sku: lineItem.sku,
+            barcode: lineItem.barcode,
+            price: Number(lineItem.price),
+            taxRate: Number(lineItem.taxRate),
+            kind: lineItem.kind,
+            quantity: Number(lineItem.quantity),
+            totalDiscount: Number(lineItem.totalDiscount),
+            totalTax: Number(lineItem.totalTax),
+            total: Number(lineItem.total),
+            taxLines: lineItem.taxLines,
+            productId: lineItem.productId,
+            variantId: lineItem.variantId,
+          },
+          update: {
+            price: Number(lineItem.price),
+            kind: lineItem.kind,
+            quantity: Number(lineItem.quantity),
+            totalDiscount: Number(lineItem.totalDiscount),
+            totalTax: Number(lineItem.totalTax),
+            total: Number(lineItem.total),
+            taxLines: lineItem.taxLines,
           },
         })
       );
     }
 
-    // Combine line item creation and deletion
-    if (lineItemsToCreate.length > 0) {
-      prismaTransactions.push(
-        prisma.lineItem.createMany({
-          data: lineItemsToCreate.map((create) => ({
-            saleId: id,
-            locationId: session.location.id,
-            title: create.title,
-            variantTitle: create.variantTitle,
-            sku: create.sku,
-            barcode: create.barcode,
-            price: parseFloat(create.price),
-            taxRate: parseFloat(create.taxRate),
-            quantity: parseFloat(create.quantity),
-            totalDiscount: parseFloat(create.totalDiscount),
-            totalTax: parseFloat(create.totalTax),
-            total: parseFloat(create.total),
-            taxLines: create.taxLines,
-            productId: create.productId,
-            variantId: create.variantId,
-          })),
-        })
-      );
+    // update inventory
+    const updateData = lineItems.reduce(
+      (accumulator: any, item: any) => {
+        const {
+          itemId,
+          kind,
+          originalKind,
+          quantity,
+          originalQuantity = 0,
+        } = item;
+
+        const newItem = {
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity:
+            item.kind === "return"
+              ? quantity - Number(originalQuantity || 0)
+              : -(quantity - Number(originalQuantity)),
+        };
+
+        const isKindChanged = itemId && kind !== originalKind;
+
+        if (isKindChanged) {
+          newItem.quantity = kind === "return" ? quantity : -quantity;
+        }
+        if (newItem.quantity === 0) {
+          return accumulator;
+        }
+        if (kind === "return") {
+          accumulator.returnItems.push(newItem);
+        } else {
+          accumulator.saleItems.push(newItem);
+        }
+
+        return accumulator;
+      },
+      { returnItems: [], saleItems: [] }
+    );
+
+    await prisma.$transaction(prismaTransactions);
+
+    // update sale items inventory
+    if (updateData.saleItems.length > 0) {
+      await createAdjustment({
+        lineItems: updateData.saleItems,
+        locationId: session.location.id,
+        reason: "Sold",
+        notes: sale.title,
+      });
     }
-    if (lineItemsToDelete.length > 0) {
-      prisma.lineItem.deleteMany({
-        where: {
-          id: { in: lineItemsToDelete.map((deleteItem) => deleteItem.id) },
-        },
+    // update return items inventory
+    if (updateData.returnItems.length > 0) {
+      await createAdjustment({
+        lineItems: updateData.returnItems,
+        locationId: session.location.id,
+        reason: "Sale return",
+        notes: sale.title,
       });
     }
 
-    await updateInventory({
-      data: inventoryToUpdate,
-    });
+    // update transactions
+    await createTransactions({ saleId: sale.id, data: transactions });
 
-    const [sale] = await prisma.$transaction(prismaTransactions);
     return {
       data: sale,
       message: "success",
     };
   } catch (error: any) {
+    console.log(error);
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }
@@ -512,7 +545,7 @@ export async function createTransactions({
     };
 
     // Update status based on transaction totals
-    let status: SaleFinancialStatus = "pending";
+    let status: FinancialStatus = "pending";
     let transactionKind: TransactionKind = "sale";
 
     const saleTotal = newTransactionTotal + totals.sale;

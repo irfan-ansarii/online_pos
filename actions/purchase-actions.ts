@@ -4,13 +4,13 @@ import prisma from "@/lib/prisma";
 import {
   LineItem,
   Prisma,
-  SaleFinancialStatus,
-  Transaction,
+  FinancialStatus,
   TransactionKind,
 } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 import { updateInventory } from "./inventory-actions";
+import { createAdjustment } from "./adjustment-actions";
 
 interface ParamsProps {
   [key: string]: string;
@@ -39,7 +39,7 @@ export async function getPurchases(params: ParamsProps) {
     const filters: Prisma.PurchaseWhereInput = {
       AND: [
         { locationId: { equals: session.location.id } },
-        { status: { equals: status as SaleFinancialStatus } },
+        { status: { equals: status as FinancialStatus } },
         {
           OR: [{ title: { contains: search, mode: "insensitive" } }],
         },
@@ -112,10 +112,10 @@ export async function createPurchase(values: any) {
       totalDiscount,
       total,
       roundedOff,
+      invoiceTotal,
       totalDue,
       taxLines,
       lineItems,
-      lineItemsTotal,
       transactions,
       status,
     } = values;
@@ -123,6 +123,7 @@ export async function createPurchase(values: any) {
     const lineItemsToCreate = lineItems.map((lineItem: LineItem) => ({
       locationId: session.location.id,
       title: lineItem.title,
+      kind: lineItem.kind,
       variantTitle: lineItem.variantTitle,
       sku: lineItem.sku,
       barcode: `${lineItem.barcode}`,
@@ -148,11 +149,11 @@ export async function createPurchase(values: any) {
         subtotal: parseFloat(subtotal.toFixed(2)),
         totalTax: parseFloat(totalTax.toFixed(2)),
         totalDiscount: parseFloat(totalDiscount.toFixed(2)),
+        invoiceTotal: parseFloat(invoiceTotal.toFixed(2)),
         roundedOff: parseFloat(roundedOff.toFixed(2)),
         total: parseFloat(total.toFixed(2)),
         totalDue: parseFloat(totalDue.toFixed(2)),
         taxLines,
-        lineItemsTotal,
         status,
         // create line items
         lineItems: {
@@ -163,20 +164,49 @@ export async function createPurchase(values: any) {
       },
     });
 
-    // update inventory
-    const updateData = lineItems.map((item: LineItem) => ({
-      variantId: item.variantId,
-      quantity: item.quantity,
-    }));
+    // create adjustments and update inventory
+    const updateData = lineItems.reduce(
+      (accumulator: any, item: LineItem) => {
+        const newItem = {
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.kind === "return" ? -item.quantity : item.quantity,
+        };
+        if (newItem.quantity === 0) {
+          return accumulator;
+        }
 
-    await updateInventory({ data: updateData });
+        if (item.kind === "return") {
+          accumulator.returnItems.push(newItem);
+        } else {
+          accumulator.purchaseItems.push(newItem);
+        }
 
-    // update transactions
-    await createTransactions({ saleId: purchase.id, data: transactions });
+        return accumulator;
+      },
+      { returnItems: [], purchaseItems: [] }
+    );
+
+    // create purchase items
+    await createAdjustment({
+      lineItems: updateData.purchaseItems,
+      locationId: session.location.id,
+      reason: "Received",
+      notes: purchase.title,
+    });
+
+    // create return items
+    await createAdjustment({
+      lineItems: updateData.returnItems,
+      locationId: session.location.id,
+      reason: "Purchase return",
+      notes: purchase.title,
+    });
 
     // return response
     return { data: purchase, message: "created" };
   } catch (error: any) {
+    console.log(error);
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }
@@ -189,8 +219,7 @@ export async function createPurchase(values: any) {
  * @param values
  * @returns
  */
-// TODO
-export async function updateSale(values: any) {
+export async function updatePurchase(values: any) {
   try {
     const session = await auth();
     if (!session || typeof session === "string") {
@@ -364,7 +393,7 @@ export async function createTransactions({
     };
 
     // Update status based on transaction totals
-    let status: SaleFinancialStatus = "pending";
+    let status: FinancialStatus = "pending";
     let transactionKind: TransactionKind = "sale";
 
     const saleTotal = newTransactionTotal + totals.sale;
