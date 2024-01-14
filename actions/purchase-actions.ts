@@ -164,49 +164,30 @@ export async function createPurchase(values: any) {
       },
     });
 
-    // create adjustments and update inventory
-    const updateData = lineItems.reduce(
-      (accumulator: any, item: LineItem) => {
-        const newItem = {
-          productId: item.productId,
-          variantId: item.variantId,
-          quantity: item.kind === "return" ? -item.quantity : item.quantity,
-        };
-        if (newItem.quantity === 0) {
-          return accumulator;
-        }
+    // organize stock adjustment data
+    const updateData = lineItems.reduce((acc: any, item: LineItem) => {
+      const newItem = {
+        locationId: session.location.id,
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.kind === "return" ? -item.quantity : item.quantity,
+        reason: "",
+        notes: purchase.title,
+      };
+      newItem.reason = newItem.quantity > 0 ? "received" : "purchase return";
+      if (newItem.quantity !== 0 && newItem.productId) {
+        acc.push(newItem);
+      }
 
-        if (item.kind === "return") {
-          accumulator.returnItems.push(newItem);
-        } else {
-          accumulator.purchaseItems.push(newItem);
-        }
+      return acc;
+    }, []);
 
-        return accumulator;
-      },
-      { returnItems: [], purchaseItems: [] }
-    );
+    // create stock adjustment
+    await createAdjustment(updateData);
+    // !TODO
 
-    // create purchase items
-    await createAdjustment({
-      lineItems: updateData.purchaseItems,
-      locationId: session.location.id,
-      reason: "Received",
-      notes: purchase.title,
-    });
-
-    // create return items
-    await createAdjustment({
-      lineItems: updateData.returnItems,
-      locationId: session.location.id,
-      reason: "Purchase return",
-      notes: purchase.title,
-    });
-
-    // return response
     return { data: purchase, message: "created" };
   } catch (error: any) {
-    console.log(error);
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }

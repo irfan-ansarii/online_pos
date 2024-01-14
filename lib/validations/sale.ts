@@ -4,6 +4,22 @@ const number = z.any().refine((val) => !isNaN(Number(val)), {
   message: "Enter a valid number",
 });
 
+export const customItemValidation = z.object({
+  title: z.string().nonempty({ message: "Required" }),
+  price: z
+    .any()
+    .refine((val) => val, { message: "Required" })
+    .refine((val) => !isNaN(Number(val)), {
+      message: "Enter a valid number",
+    }),
+  taxRate: z
+    .any()
+    .refine((val) => val, { message: "Required" })
+    .refine((val) => !isNaN(Number(val)), {
+      message: "Enter a valid number",
+    }),
+});
+
 export const saleValidation = z
   .object({
     customerId: z.number(),
@@ -106,13 +122,13 @@ export const editSaleValidation = z
     createdAt: z.date(),
     lineItems: z
       .object({
-        itemId: z.number(),
+        itemId: z.union([z.null(), z.number()]),
         kind: z.enum(["sale", "return"]),
-        productId: z.number(),
-        variantId: z.number(),
+        productId: z.any(),
+        variantId: z.any(),
         title: z.string(),
         variantTitle: z.string().optional(),
-        sku: z.string(),
+        sku: z.any(),
         barcode: z.any(),
         stock: z.any(),
         imageSrc: z.any(),

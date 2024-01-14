@@ -117,6 +117,7 @@ const Cart = ({
           acc.totalTax += curr.totalTax;
           acc.invoiceTotal += curr.total;
         }
+
         return acc;
       },
       {

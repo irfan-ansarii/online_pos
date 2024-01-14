@@ -99,22 +99,22 @@ export async function createAdjustment(values: any) {
       throw new Error("Unauthorized");
     }
 
-    const { lineItems, reason, notes = "", locationId } = values;
+    const locationId = values[0].locationId;
 
     // create adjustment
     const response = await prisma.adjustment.createMany({
-      data: lineItems.map((item: any) => ({
-        locationId: locationId || session.location.id,
+      data: values.map((item: any) => ({
+        locationId: item.locationId || session.location.id,
         productId: Number(item.productId),
         variantId: Number(item.variantId),
         quantity: Number(item.quantity),
-        reason,
-        notes,
+        reason: item.reason,
+        notes: item.notes,
       })),
     });
 
     // update inventory
-    const updateData = lineItems.map((item: any) => ({
+    const updateData = values.map((item: any) => ({
       variantId: Number(item.variantId),
       quantity: Number(item.quantity),
     }));

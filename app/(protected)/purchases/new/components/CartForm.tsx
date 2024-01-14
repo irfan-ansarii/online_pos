@@ -34,7 +34,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
 
     const index = fields.findIndex((item) => item.variantId == variantId);
 
-    if (index >= 0) {
+    if (index !== -1) {
       const { quantity = 0 } = fields[index];
 
       form.setValue(`lineItems.${index}.quantity`, Number(quantity) + 1);

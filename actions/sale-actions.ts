@@ -117,7 +117,6 @@ export async function createSale(values: any) {
       totalDue,
       taxLines,
       lineItems,
-      lineItemsTotal,
       transactions,
       status,
     } = values;
@@ -176,42 +175,25 @@ export async function createSale(values: any) {
     });
 
     // create adjustments and update inventory
-    const updateData = lineItems.reduce(
-      (accumulator: any, item: LineItem) => {
-        const newItem = {
-          productId: item.productId,
-          variantId: item.variantId,
-          quantity: item.kind === "return" ? item.quantity : -item.quantity,
-        };
-        if (newItem.quantity === 0) {
-          return accumulator;
-        }
-        if (item.kind === "return") {
-          accumulator.returnItems.push(newItem);
-        } else {
-          accumulator.saleItems.push(newItem);
-        }
+    const updateData = lineItems.reduce((acc: any, item: LineItem) => {
+      const newItem = {
+        locationId: session.location.id,
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.kind === "return" ? item.quantity : -item.quantity,
+        reason: "",
+        notes: updated.title,
+      };
+      newItem.reason = newItem.quantity > 0 ? "sale return" : "sold";
+      if (newItem.quantity !== 0) {
+        acc.push(newItem);
+      }
 
-        return accumulator;
-      },
-      { returnItems: [], saleItems: [] }
-    );
+      return acc;
+    }, []);
 
     // create sale items
-    await createAdjustment({
-      lineItems: updateData.saleItems,
-      locationId: session.location.id,
-      reason: "Sold",
-      notes: updated.title,
-    });
-
-    // create return items
-    await createAdjustment({
-      lineItems: updateData.returnItems,
-      locationId: session.location.id,
-      reason: "Sale return",
-      notes: updated.title,
-    });
+    await createAdjustment(updateData);
 
     // update transactions
     await createTransactions({ saleId: sale.id, data: transactions });
@@ -254,7 +236,6 @@ export async function updateSale(values: any) {
       totalDue,
       taxLines,
       lineItems,
-      lineItemsTotal,
       transactions,
       status,
     } = values;
@@ -333,64 +314,47 @@ export async function updateSale(values: any) {
     }
 
     // update inventory
-    const updateData = lineItems.reduce(
-      (accumulator: any, item: any) => {
-        const {
-          itemId,
-          kind,
-          originalKind,
-          quantity,
-          originalQuantity = 0,
-        } = item;
+    const updateData = lineItems.reduce((acc: any, item: any) => {
+      const {
+        itemId,
+        kind,
+        originalKind,
+        quantity,
+        originalQuantity = 0,
+      } = item;
 
-        const newItem = {
-          productId: item.productId,
-          variantId: item.variantId,
-          quantity:
-            item.kind === "return"
-              ? quantity - Number(originalQuantity || 0)
-              : -(quantity - Number(originalQuantity)),
-        };
+      let tempQuantity = -(quantity - Number(originalQuantity || 0));
+      if (item.kind === "return") {
+        tempQuantity = quantity - Number(originalQuantity || 0);
+      }
 
-        const isKindChanged = itemId && kind !== originalKind;
+      const newItem = {
+        locationId: session.location.id,
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: tempQuantity,
+        reason: "",
+        notes: sale.title,
+      };
 
-        if (isKindChanged) {
-          newItem.quantity = kind === "return" ? quantity : -quantity;
-        }
-        if (newItem.quantity === 0) {
-          return accumulator;
-        }
-        if (kind === "return") {
-          accumulator.returnItems.push(newItem);
-        } else {
-          accumulator.saleItems.push(newItem);
-        }
+      const isKindChanged = itemId && kind !== originalKind;
 
-        return accumulator;
-      },
-      { returnItems: [], saleItems: [] }
-    );
+      if (isKindChanged) {
+        newItem.quantity = kind === "return" ? quantity : -quantity;
+      }
+      if (newItem.quantity !== 0) {
+        newItem.reason = newItem.quantity > 0 ? "sale return" : "sold";
+        acc.push(newItem);
+      }
+
+      return acc;
+    }, []);
 
     await prisma.$transaction(prismaTransactions);
 
     // update sale items inventory
-    if (updateData.saleItems.length > 0) {
-      await createAdjustment({
-        lineItems: updateData.saleItems,
-        locationId: session.location.id,
-        reason: "Sold",
-        notes: sale.title,
-      });
-    }
-    // update return items inventory
-    if (updateData.returnItems.length > 0) {
-      await createAdjustment({
-        lineItems: updateData.returnItems,
-        locationId: session.location.id,
-        reason: "Sale return",
-        notes: sale.title,
-      });
-    }
+
+    await createAdjustment(updateData);
 
     // update transactions
     await createTransactions({ saleId: sale.id, data: transactions });
@@ -400,7 +364,6 @@ export async function updateSale(values: any) {
       message: "success",
     };
   } catch (error: any) {
-    console.log(error);
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }

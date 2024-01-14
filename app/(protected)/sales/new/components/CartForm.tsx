@@ -30,11 +30,11 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
   });
 
   const onLineItemClick = (selected: any) => {
-    const { product, variant, stock, barcode, variantId } = selected;
+    const { product, variant, stock, barcode, variantId, productId } = selected;
 
     const index = fields.findIndex((item) => item.variantId == variantId);
 
-    if (index >= 0) {
+    if (index !== -1) {
       const { quantity = 0 } = fields[index];
 
       form.setValue(`lineItems.${index}.quantity`, Number(quantity) + 1);
@@ -43,10 +43,11 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
 
       return;
     }
+
     append({
       kind: "sale",
-      productId: product.id,
-      variantId: variant.id,
+      productId: productId,
+      variantId: variantId,
       title: product.title,
       variantTitle: variant.title,
       sku: variant.sku,
@@ -58,6 +59,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
       quantity: 1,
       totalDiscount: 0,
     });
+
     handleUpdate(fields.length);
   };
 

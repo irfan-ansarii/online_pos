@@ -90,7 +90,7 @@ const Inventory = ({
             value={searchTerm || ""}
           />
 
-          <CustomProduct>
+          <CustomProduct onSelect={onSelect}>
             <Button
               size="icon"
               variant="secondary"
