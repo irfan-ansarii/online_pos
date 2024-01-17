@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { Sale } from "@prisma/client";
+import { Payment, Sale } from "@prisma/client";
 
 import { useSheetToggle } from "@/hooks/useSheet";
 
@@ -26,9 +26,11 @@ import PaymentDialog from "./PaymentDialog";
 
 export default function SheetActions({
   sale,
+  payments,
   toggle,
 }: {
   sale: Sale;
+  payments: Payment[];
   toggle: () => void;
 }) {
   const [newOpen, toggleNew] = useSheetToggle("new");
@@ -69,24 +71,20 @@ export default function SheetActions({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 
-            {}
             <DropdownMenuItem
               onSelect={toggleNew}
               disabled={sale.totalDue === 0}
             >
               <IndianRupee className="w-4 h-4 mr-2" />
-              {sale.totalDue !== 0
-                ? sale.totalDue < 0
-                  ? "Refund"
-                  : "Collect Payment"
-                : "Payment"}
+
+              {sale.totalDue < 0 ? "Refund" : "Collect Payment"}
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
 
       {/* collect payment dialog */}
-      {newOpen && <PaymentDialog sale={sale} />}
+      {newOpen && <PaymentDialog sale={sale} payments={payments} />}
     </>
   );
 }

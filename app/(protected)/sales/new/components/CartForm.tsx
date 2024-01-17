@@ -30,9 +30,9 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
   });
 
   const onLineItemClick = (selected: any) => {
-    const { product, variant, stock, barcode, variantId, productId } = selected;
+    const { product, variant, stock, barcode, variantId } = selected;
 
-    const index = fields.findIndex((item) => item.variantId == variantId);
+    const index = fields.findIndex((item) => item.barcode == barcode);
 
     if (index !== -1) {
       const { quantity = 0 } = fields[index];
@@ -46,7 +46,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
 
     append({
       kind: "sale",
-      productId: productId,
+      productId: product.id,
       variantId: variantId,
       title: product.title,
       variantTitle: variant.title,

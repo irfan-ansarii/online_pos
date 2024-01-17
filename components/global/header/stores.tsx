@@ -65,11 +65,13 @@ const Stores = ({
           variant="secondary"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="md:w-[200px] justify-between"
         >
           <span className="inline-flex items-center">
-            <Store className="w-4 h-4 mr-2" />
-            {session?.location?.name || "Select Store"}
+            <Store className="w-4 h-4" />
+            <span className="hidden md:inline-block ml-2">
+              {session?.location?.name || "Select Store"}
+            </span>
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

@@ -3,7 +3,7 @@ import React from "react";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { editSaleValidation } from "@/lib/validations/sale";
+import { editPurchaseValidation } from "@/lib/validations/purchase";
 
 import { useForm, useFieldArray } from "react-hook-form";
 
@@ -14,12 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 
-import Inventory from "./Inventory";
+import Inventory from "../../../sales/new/components/Inventory";
 import Cart from "./Cart";
 
 const CartForm = ({ initialValues }: { initialValues: any }) => {
-  const form = useForm<z.infer<typeof editSaleValidation>>({
-    resolver: zodResolver(editSaleValidation),
+  const form = useForm<z.infer<typeof editPurchaseValidation>>({
+    resolver: zodResolver(editPurchaseValidation),
     mode: "onChange",
     defaultValues: initialValues,
   });
@@ -30,9 +30,9 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
   });
 
   const onLineItemClick = (selected: any) => {
-    const { product, variant, stock, barcode, variantId } = selected;
+    const { product, variant, barcode, variantId } = selected;
 
-    const index = fields.findIndex((item) => item.variantId == variantId);
+    const index = fields.findIndex((item) => item.barcode == barcode);
 
     if (index >= 0) {
       const { quantity = 0 } = fields[index];
@@ -44,15 +44,14 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
       return;
     }
     append({
-      itemId: 0,
-      kind: "sale",
+      itemId: null,
+      kind: "purchase",
       productId: product.id,
-      variantId: variant.id,
+      variantId: variantId,
       title: product.title,
       variantTitle: variant.title,
       sku: variant.sku,
       barcode: variant.barcode,
-      stock: stock,
       imageSrc: product?.image?.src,
       price: variant.salePrice,
       taxRate: variant.taxRate,
@@ -75,7 +74,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
   const handleUpdate = (index: number) => {
     const lineItem = form.getValues(`lineItems.${index}`);
     const taxType = form.getValues("taxType");
-    const saleType = form.getValues("saleType");
+    const saleType = form.getValues("purchaseType");
 
     const { price = 0, quantity = 0, totalDiscount = 0, taxRate } = lineItem;
 

@@ -1,13 +1,15 @@
 import * as z from "zod";
 import React from "react";
 import Numeral from "numeral";
-import { Sale } from "@prisma/client";
+import { Payment, Sale } from "@prisma/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { collectPayementValidation } from "@/lib/validations/sale";
+import { collectPayementValidation } from "@/lib/validations/purchase";
+import { createTransactions } from "@/actions/purchase-actions";
 
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useSheetToggle } from "@/hooks/useSheet";
+import { useForm, useWatch } from "react-hook-form";
 
 import { Loader2 } from "lucide-react";
 import {
@@ -33,23 +35,34 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm, useWatch } from "react-hook-form";
-import { usePayments } from "@/hooks/usePayments";
-import { Button } from "@/components/ui/button";
-import { createTransactions } from "@/actions/sale-actions";
 
-const PaymentDialog = ({ sale }: { sale: Sale }) => {
+import { Button } from "@/components/ui/button";
+
+const PaymentDialog = ({
+  purchase,
+  payments,
+}: {
+  purchase: Sale;
+  payments: Payment[];
+}) => {
   const [open, toggle] = useSheetToggle("new");
   const [loading, setLoading] = React.useState(false);
 
-  const { payments } = usePayments();
   const router = useRouter();
   const form = useForm<z.infer<typeof collectPayementValidation>>({
     resolver: zodResolver(collectPayementValidation),
+    mode: "onChange",
     defaultValues: {
-      totalDue: sale.totalDue,
-      saleId: sale.id,
-      transactions: [],
+      total: purchase.totalDue,
+      totalDue: purchase.totalDue,
+      purchaseId: purchase.id,
+      kind: purchase.totalDue < 0 ? "refund" : "purchase",
+      transactions: payments.map((pay) => ({
+        id: pay.id,
+        name: pay.name,
+        label: pay.label,
+        amount: "0",
+      })),
     },
   });
 
@@ -60,15 +73,18 @@ const PaymentDialog = ({ sale }: { sale: Sale }) => {
   const onSubmit = async (
     values: z.infer<typeof collectPayementValidation>
   ) => {
-    const { saleId, transactions } = values;
+    const { purchaseId, transactions } = values;
 
+    const transactionsData = transactions.filter(
+      (txn) => !isNaN(parseFloat(txn.amount)) && parseFloat(txn.amount) > 0
+    );
     try {
       setLoading(true);
-      await createTransactions({ saleId, transactions });
+      await createTransactions({ purchaseId, data: transactionsData });
 
       toast({
         variant: "success",
-        title: "Payment collected successfully",
+        title: "Payment updated",
       });
 
       router.refresh();
@@ -83,15 +99,21 @@ const PaymentDialog = ({ sale }: { sale: Sale }) => {
     }
   };
 
-  const received = React.useMemo(() => {
-    if (!transactions || transactions.length < 1) {
-      return 0;
-    }
-    const total = transactions.reduce((acc: any, curr: any) => {
-      const t = acc + Number(curr.amount);
-      return t;
+  React.useEffect(() => {
+    const total = form.getValues("total");
+    const transactions = form.getValues("transactions");
+
+    const received = transactions?.reduce((acc: any, curr: any) => {
+      acc += Number(curr.amount || 0);
+      return acc;
     }, 0);
-    return total;
+
+    form.setValue(
+      "totalDue",
+      received > Math.abs(total)
+        ? total
+        : total + (total < 0 ? received : -received)
+    );
   }, [transactions]);
 
   return (
@@ -108,89 +130,82 @@ const PaymentDialog = ({ sale }: { sale: Sale }) => {
 
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div className="border p-3 space-y-1 rounded-md text-center">
-                <div className="font-medium text-xs uppercase">TOTAL due</div>
+                <div className="font-medium text-muted-foreground">Total</div>
                 <div className="font-medium text-lg">
-                  {Numeral(form.watch("totalDue")).format()}
+                  {Numeral(form.watch("total")).format()}
                 </div>
               </div>
               <div className={`border p-3 space-y-1 rounded-md text-center`}>
-                <div className="font-medium text-xs uppercase">Received</div>
+                <div className="font-medium text-muted-foreground">
+                  {purchase.total < 0 ? "Refund" : "Due"}
+                </div>
                 <div className="font-medium text-lg">
-                  {Numeral(received).format()}
+                  {Numeral(Math.abs(form.watch("totalDue"))).format()}
                 </div>
               </div>
             </div>
 
             <div className="overflow-y-auto relative scrollbox snap-y snap-mandatory h-80">
               <Accordion type="single" className="w-full space-y-2">
-                {payments?.data?.map((item: any, i: number) => (
-                  <>
-                    <Input
-                      {...form.register(`transactions.${i}.name`)}
-                      className="hidden"
-                      defaultValue={item.name}
-                    />
-                    <Input
-                      {...form.register(`transactions.${i}.label`)}
-                      className="hidden"
-                      defaultValue={item.label}
-                    />
+                {transactions?.map((item: any, i: number) => (
+                  <AccordionItem
+                    key={item.id}
+                    value={`${item.id}`}
+                    className="px-3 rounded-md border hover:bg-accent transition duration-300 data-[state=open]:bg-accent"
+                  >
+                    <AccordionTrigger asChild>
+                      <FormLabel className="flex w-full cursor-pointer">
+                        {item.label}
 
-                    <Input
-                      {...form.register(`transactions.${i}.kind`)}
-                      defaultValue="sale"
-                      className="hidden"
-                    />
-
-                    <FormField
-                      key={`${item.id}`}
-                      control={form.control}
-                      name={`transactions.${i}.amount`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <AccordionItem
-                            value={`${item.id}`}
-                            className="px-3 rounded-md border hover:bg-accent transition duration-300 data-[state=open]:bg-accent"
-                          >
-                            <AccordionTrigger>
-                              <FormLabel className="flex w-full cursor-pointer">
-                                {item.label}
-
-                                {parseFloat(
-                                  form.watch(`transactions.${i}.amount`) || 0
-                                ) > 0 && (
-                                  <span className="ml-auto text-muted-foreground">
-                                    {Numeral(
-                                      form.watch(`transactions.${i}.amount`)
-                                    ).format()}
-                                  </span>
-                                )}
-                              </FormLabel>
-                            </AccordionTrigger>
-                            <FormControl>
-                              <AccordionContent className="overflow-visible">
+                        <span className="ml-auto text-muted-foreground">
+                          {Numeral(
+                            form.watch(`transactions.${i}.amount`)
+                          ).format()}
+                        </span>
+                      </FormLabel>
+                    </AccordionTrigger>
+                    <AccordionContent className="overflow-visible">
+                      <div className="space-y-2">
+                        <FormField
+                          control={form.control}
+                          name={`transactions.${i}.amount`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input className="bg-accent" {...field} />
+                              </FormControl>
+                              <FormMessage className="mb-2 -mt-1" />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`transactions.${i}.refrenceNumber`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
                                 <Input
                                   className="bg-accent"
                                   {...field}
-                                  defaultValue="0"
+                                  placeholder="Refrence number"
                                 />
-                              </AccordionContent>
-                            </FormControl>
-                            <FormMessage />
-                          </AccordionItem>
-                        </FormItem>
-                      )}
-                    />
-                  </>
+                              </FormControl>
+                              <FormMessage className="mb-2 -mt-1" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
                 ))}
               </Accordion>
             </div>
             <DialogFooter className="flex justify-between md:justify-end gap-4">
-              <DialogCancel className="flex 1 md:flex-none">
+              <DialogCancel className="flex-1 md:flex-none">
                 Cancel
               </DialogCancel>
 
-              <Button className="flex 1 md:flex-none md:w-28" type="submit">
+              <Button className="flex-1 md:flex-none md:w-28" type="submit">
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (

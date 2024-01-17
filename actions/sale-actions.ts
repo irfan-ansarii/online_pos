@@ -60,7 +60,11 @@ export async function getSales(params: ParamsProps) {
       ],
       where: filters,
       include: {
-        transactions: true,
+        transactions: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
         lineItems: { include: { product: { include: { image: true } } } },
         employee: true,
         customer: true,
@@ -185,7 +189,7 @@ export async function createSale(values: any) {
         notes: updated.title,
       };
       newItem.reason = newItem.quantity > 0 ? "sale return" : "sold";
-      if (newItem.quantity !== 0) {
+      if (newItem.quantity !== 0 && item.productId) {
         acc.push(newItem);
       }
 
@@ -193,7 +197,9 @@ export async function createSale(values: any) {
     }, []);
 
     // create sale items
-    await createAdjustment(updateData);
+    if (updateData.length > 0) {
+      await createAdjustment(updateData);
+    }
 
     // update transactions
     await createTransactions({ saleId: sale.id, data: transactions });
@@ -342,7 +348,7 @@ export async function updateSale(values: any) {
       if (isKindChanged) {
         newItem.quantity = kind === "return" ? quantity : -quantity;
       }
-      if (newItem.quantity !== 0) {
+      if (newItem.quantity !== 0 && item.productId) {
         newItem.reason = newItem.quantity > 0 ? "sale return" : "sold";
         acc.push(newItem);
       }
@@ -353,8 +359,9 @@ export async function updateSale(values: any) {
     await prisma.$transaction(prismaTransactions);
 
     // update sale items inventory
-
-    await createAdjustment(updateData);
+    if (updateData.length > 0) {
+      await createAdjustment(updateData);
+    }
 
     // update transactions
     await createTransactions({ saleId: sale.id, data: transactions });
@@ -462,9 +469,12 @@ export async function deleteSale(id: number) {
 }
 
 /**
- * create transactions
- * @param param
- * @returns
+ * Creates transactions for a given sale, updating its status and adding new transactions.
+ * @param {Object} params - Parameters for creating transactions.
+ * @param {number} params.saleId - ID of the sale.
+ * @param {Array} params.data - Array of transaction data to be created.
+ * @returns {Object} - Object containing updated data and a message.
+ * @throws {Error} - Throws an error if unauthorized, sale not found, or an internal server error occurs.
  */
 export async function createTransactions({
   saleId,
@@ -474,74 +484,64 @@ export async function createTransactions({
   data: any[];
 }) {
   try {
+    // Authenticate the session
     const session = await auth();
 
+    // If session is invalid, throw an unauthorized error
     if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
+    // Retrieve sale information
     const sale = await prisma.sale.findUnique({
       where: { id: saleId },
     });
 
+    // If sale not found, throw an error
     if (!sale) {
-      throw new Error("Sale Not found");
+      throw new Error("Sale not found");
     }
 
-    // Calculate total amounts for new and existing transactions
-    const newTransactionTotal = data.reduce(
-      (acc, curr) => acc + Number(curr.amount),
-      0
-    );
-
-    const aggregatedTxn = await prisma.transaction.groupBy({
+    // Calculate total amounts for existing transactions (sale and refund)
+    const sum = await prisma.transaction.groupBy({
       by: ["kind"],
       _sum: { amount: true },
       where: { saleId: saleId, kind: { in: ["sale", "refund"] } },
     });
 
+    // Extract sale and refund totals
     const totals = {
-      sale:
-        aggregatedTxn.find((item) => item.kind === "sale")?._sum?.amount || 0,
-      refund:
-        aggregatedTxn.find((item) => item.kind === "refund")?._sum?.amount || 0,
+      sale: sum.find((item) => item.kind === "sale")?._sum?.amount || 0,
+      refund: sum.find((item) => item.kind === "refund")?._sum?.amount || 0,
     };
 
-    // Update status based on transaction totals
+    // Calculate total received amount from new transactions
+    const received = data.reduce((acc, curr) => {
+      acc += Number(curr.amount);
+      return acc;
+    }, 0);
+
+    // Calculate due amount based on existing and new transactions
+    const dueAmount = sale.total + Number(totals.refund) - totals.sale;
+
+    const finalDueAmount = dueAmount + (dueAmount < 0 ? received : -received);
+
+    // Determine the financial status based on due amount and sale total
     let status: FinancialStatus = "pending";
-    let transactionKind: TransactionKind = "sale";
 
-    const saleTotal = newTransactionTotal + totals.sale;
-    const refundTotal = newTransactionTotal + totals.refund;
-
-    if (sale.total < 0) {
-      transactionKind = "refund";
-      if (refundTotal > Math.abs(sale.total)) {
-        throw new Error("Refund amount must be less than total");
-      }
-
-      if (refundTotal === Math.abs(sale.total)) {
-        status = "refunded";
-      } else if (refundTotal < Math.abs(sale.total) && refundTotal > 0) {
-        status = "partialy_refunded";
-      }
-    } else {
-      if (saleTotal > Math.abs(sale.total)) {
-        throw new Error("Payment amount must be less than total");
-      }
-
-      if (saleTotal === Math.abs(sale.total)) {
-        status = "paid";
-      } else if (saleTotal < Math.abs(sale.total) && saleTotal > 0) {
-        status = "partialy_paid";
-      }
+    if (finalDueAmount === 0) {
+      status = sale.total < 0 ? "refunded" : "paid";
+    } else if (finalDueAmount !== 0 && finalDueAmount !== sale.total) {
+      status = sale.total < 0 ? "partialy_refunded" : "partialy_paid";
     }
 
+    let transactionKind = dueAmount < 0 ? "refund" : "sale";
+
     // Update sale status and create new transactions
-    const [saleTxn, transactionTxn] = await prisma.$transaction([
+    const [updated] = await prisma.$transaction([
       prisma.sale.update({
         where: { id: saleId },
-        data: { status: status },
+        data: { status: status, totalDue: finalDueAmount },
       }),
       prisma.transaction.createMany({
         data: data.map((txn) => ({
@@ -554,14 +554,17 @@ export async function createTransactions({
       }),
     ]);
 
+    // Return the updated data and a success message
     return {
-      data: { sale: saleTxn, transactions: transactionTxn },
+      data: updated,
       message: "created",
     };
   } catch (error: any) {
+    // Handle Prisma client known request errors separately
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       throw new Error("Internal server error");
     }
+    // Throw other errors
     throw new Error(error.message);
   }
 }

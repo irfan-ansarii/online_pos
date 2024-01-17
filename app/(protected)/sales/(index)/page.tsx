@@ -5,6 +5,7 @@ import EmptyBox from "@/components/shared/empty-box";
 import SaleCard from "./components/SaleCard";
 import Pagination from "@/components/shared/pagination";
 import { Sale } from "@prisma/client";
+import { getPayments } from "@/actions/payments-actions";
 
 interface SearchParamsProps {
   [key: string]: string;
@@ -21,6 +22,7 @@ export default async function CustomerPage({
   searchParams: SearchParamsProps;
 }) {
   const { data, pagination }: ResponseProps = await getSales(searchParams);
+  const { data: payments } = await getPayments({ type: "sale" });
 
   if (!data || data.length === 0) {
     return <EmptyBox />;
@@ -30,7 +32,7 @@ export default async function CustomerPage({
     <>
       <div className="grid grid-cols-1 md:gap-2">
         {data?.map((sale) => (
-          <SaleCard sale={sale} key={sale.id} />
+          <SaleCard sale={sale} key={sale.id} payments={payments} />
         ))}
       </div>
 

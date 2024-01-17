@@ -146,7 +146,7 @@ const Cart = ({
       form.setValue(key, value);
     });
   }, [watch]);
-
+  console.log(watch);
   return (
     <div className="flex flex-col h-full overflow-hidden relative">
       {!fields || fields.length === 0 ? (

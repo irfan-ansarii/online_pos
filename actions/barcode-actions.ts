@@ -98,20 +98,15 @@ export async function getBarcodes(params: ParamsProps) {
  * @param values
  * @returns
  */
-export async function createBarcode(values: {
-  lineItems: { [key: string]: string | number }[];
-}) {
+export async function createBarcode(values: []) {
   try {
     const session = await auth();
     if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
-
-    const { lineItems } = values;
-
     // create adjustment
     const response = await prisma.label.createMany({
-      data: lineItems.map((item: any) => ({
+      data: values.map((item: any) => ({
         locationId: session.location.id,
         productId: item.productId,
         variantId: item.variantId,

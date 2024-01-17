@@ -28,11 +28,11 @@ export const saleValidation = z
     lineItems: z
       .object({
         kind: z.enum(["sale", "return"]).default("sale"),
-        productId: z.number(),
-        variantId: z.number(),
+        productId: z.any(),
+        variantId: z.any(),
         title: z.string(),
-        variantTitle: z.string().optional(),
-        sku: z.string(),
+        variantTitle: z.any(),
+        sku: z.any(),
         barcode: z.any(),
         stock: z.any(),
         imageSrc: z.any(),
@@ -197,12 +197,12 @@ export const editSaleValidation = z
     if (received > Math.abs(tempDue) || received < 0) {
       for (let i = 0; i < transactions.length; i++) {
         const { amount } = transactions[i];
-        let msg = "Amount must be less than due";
+        let msg = "Amount must not be greater than due";
         if (received < 0) {
           msg = "Amount must be greater than 0";
         }
         if (total < 0) {
-          msg = "Amount must be less than refund";
+          msg = "Amount must not be greater than refund";
         }
 
         if (amount !== 0) {
@@ -218,31 +218,44 @@ export const editSaleValidation = z
 
 export const collectPayementValidation = z
   .object({
+    total: z.number(),
     totalDue: z.number(),
     saleId: z.number(),
+    kind: z.string(),
     transactions: z
       .object({
         name: z.string(),
         label: z.string(),
-        kind: z.string(),
-        amount: number,
+        amount: number.default(0),
       })
       .array(),
   })
   .superRefine((val, ctx) => {
-    const { totalDue, transactions } = val;
-    const total = transactions.reduce((acc, curr) => {
-      const amount = acc + Number(curr.amount);
-      return amount;
+    const { total, transactions } = val;
+
+    const received = transactions.reduce((acc, curr) => {
+      acc += Number(curr.amount);
+      return acc;
     }, 0);
 
-    if (total > totalDue) {
+    if (received > Math.abs(total) || received < 0) {
       for (let i = 0; i < transactions.length; i++) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Value should be less than due",
-          path: [`transactions.${i}.amount`],
-        });
+        const { amount } = transactions[i];
+        let msg = "Amount must not be greater than due";
+        if (received < 0) {
+          msg = "Amount must be greater than 0";
+        }
+        if (total < 0) {
+          msg = "Amount must not be greater than refund";
+        }
+
+        if (amount !== 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: msg,
+            path: [`transactions.${i}.amount`],
+          });
+        }
       }
     }
   });

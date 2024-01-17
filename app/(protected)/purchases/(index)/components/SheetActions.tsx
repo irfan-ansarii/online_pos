@@ -5,13 +5,7 @@ import { Sale } from "@prisma/client";
 
 import { useSheetToggle } from "@/hooks/useSheet";
 
-import {
-  AlertTriangle,
-  IndianRupee,
-  Mail,
-  MoreVertical,
-  Printer,
-} from "lucide-react";
+import { IndianRupee, Mail, MoreVertical, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,12 +15,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import PaymentDialog from "./PaymentDialog";
 
 export default function SheetActions({
-  sale,
+  payments,
+  purchase,
   toggle,
 }: {
-  sale: Sale;
+  payments: any;
+  purchase: Sale;
   toggle: () => void;
 }) {
   const [newOpen, toggleNew] = useSheetToggle("new");
@@ -59,22 +56,22 @@ export default function SheetActions({
               <Mail className="w-4 h-4 mr-2" />
               Send Invoice
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={toggleNew}
-              disabled={sale.totalDue <= 0}
-            >
-              <IndianRupee className="w-4 h-4 mr-2" />
-              Collect Payment
-            </DropdownMenuItem>
 
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-error">
-              <AlertTriangle className="w-4 h-4 mr-2 " />
-              Refund
+            <DropdownMenuItem
+              onSelect={toggleNew}
+              disabled={purchase.totalDue === 0}
+            >
+              <IndianRupee className="w-4 h-4 mr-2" />
+
+              {purchase.totalDue < 0 ? "Refund" : "Payment"}
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* collect payment dialog */}
+      {newOpen && <PaymentDialog purchase={purchase} payments={payments} />}
     </>
   );
 }

@@ -69,7 +69,7 @@ const Inventory = ({
   };
   React.useEffect(() => {
     //@ts-ignore
-    ref.current.focus();
+    ref?.current?.focus();
   }, []);
 
   return (

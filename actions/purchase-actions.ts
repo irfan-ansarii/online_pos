@@ -1,16 +1,12 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import {
-  LineItem,
-  Prisma,
-  FinancialStatus,
-  TransactionKind,
-} from "@prisma/client";
+import { LineItem, Prisma, FinancialStatus } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 import { updateInventory } from "./inventory-actions";
 import { createAdjustment } from "./adjustment-actions";
+import { createBarcode } from "./barcode-actions";
 
 interface ParamsProps {
   [key: string]: string;
@@ -60,7 +56,9 @@ export async function getPurchases(params: ParamsProps) {
       ],
       where: filters,
       include: {
-        transactions: true,
+        transactions: {
+          orderBy: { createdAt: "desc" },
+        },
         lineItems: { include: { product: { include: { image: true } } } },
         supplier: true,
       },
@@ -126,7 +124,7 @@ export async function createPurchase(values: any) {
       kind: lineItem.kind,
       variantTitle: lineItem.variantTitle,
       sku: lineItem.sku,
-      barcode: `${lineItem.barcode}`,
+      barcode: lineItem.barcode,
       price: Number(lineItem.price),
       taxRate: Number(lineItem.taxRate),
       quantity: Number(lineItem.quantity),
@@ -174,7 +172,7 @@ export async function createPurchase(values: any) {
         reason: "",
         notes: purchase.title,
       };
-      newItem.reason = newItem.quantity > 0 ? "received" : "purchase return";
+      newItem.reason = newItem.quantity < 0 ? "purchase return" : "received";
       if (newItem.quantity !== 0 && newItem.productId) {
         acc.push(newItem);
       }
@@ -182,9 +180,38 @@ export async function createPurchase(values: any) {
       return acc;
     }, []);
 
+    // organize barcode data
+    const barcodeData = lineItems.reduce((acc: any, item: LineItem) => {
+      const newItem = {
+        locationId: session.location.id,
+        productId: item.productId,
+        quantity: Number(item.quantity),
+      };
+
+      if (newItem.quantity !== 0 && newItem.productId && newItem.quantity > 0) {
+        acc.push(newItem);
+      }
+
+      return acc;
+    }, []);
+
     // create stock adjustment
-    await createAdjustment(updateData);
-    // !TODO
+    if (updateData.length > 0) {
+      await createAdjustment(updateData);
+    }
+
+    // create barcode items
+    if (barcodeData.length > 0) {
+      await createBarcode(barcodeData);
+    }
+
+    // create transactions
+    if (transactions.length > 0) {
+      await createTransactions({
+        purchaseId: purchase.id,
+        data: transactions,
+      });
+    }
 
     return { data: purchase, message: "created" };
   } catch (error: any) {
@@ -328,106 +355,100 @@ export async function deletePurchase(id: number) {
 }
 
 /**
- * create transactions
- * @param param
- * @returns
+ * Creates transactions for a given purchase, updating its status and adding new transactions.
+ * @param {Object} params - Parameters for creating transactions.
+ * @param {number} params.purchaseId - ID of the purchase.
+ * @param {Array} params.data - Array of transaction data to be created.
+ * @returns {Object} - Object containing updated data and a message.
+ * @throws {Error} - Throws an error if unauthorized, purchase not found, or an internal server error occurs.
  */
 export async function createTransactions({
-  saleId,
+  purchaseId,
   data,
 }: {
-  saleId: number;
+  purchaseId: number;
   data: any[];
 }) {
   try {
+    // Authenticate the session
     const session = await auth();
 
+    // If session is invalid, throw an unauthorized error
     if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
-    const sale = await prisma.sale.findUnique({
-      where: { id: saleId },
+    // Retrieve purchase information
+    const purchase = await prisma.purchase.findUnique({
+      where: { id: purchaseId },
     });
 
-    if (!sale) {
+    // If purchase not found, throw an error
+    if (!purchase) {
       throw new Error("Purchase not found");
     }
 
-    // Calculate total amounts for new and existing transactions
-    const newTransactionTotal = data.reduce(
-      (acc, curr) => acc + Number(curr.amount),
-      0
-    );
-
-    const aggregatedTxn = await prisma.transaction.groupBy({
+    // Calculate total amounts for existing transactions (purchase and refund)
+    const sum = await prisma.purchaseTransaction.groupBy({
       by: ["kind"],
       _sum: { amount: true },
-      where: { saleId: saleId, kind: { in: ["sale", "refund"] } },
+      where: { purchaseId: purchaseId, kind: { in: ["purchase", "refund"] } },
     });
 
+    // Extract purchase and refund totals
     const totals = {
-      sale:
-        aggregatedTxn.find((item) => item.kind === "sale")?._sum?.amount || 0,
-      refund:
-        aggregatedTxn.find((item) => item.kind === "refund")?._sum?.amount || 0,
+      purchase: sum.find((item) => item.kind === "purchase")?._sum?.amount || 0,
+      refund: sum.find((item) => item.kind === "refund")?._sum?.amount || 0,
     };
 
-    // Update status based on transaction totals
+    // Calculate total received amount from new transactions
+    const received = data.reduce((acc, curr) => {
+      acc += Number(curr.amount);
+      return acc;
+    }, 0);
+
+    // Calculate due amount based on existing and new transactions
+    const dueAmount = purchase.total + Number(totals.refund) - totals.purchase;
+    const finalDueAmount = dueAmount + (dueAmount < 0 ? received : -received);
+
+    // Determine the financial status based on due amount and purchase total
     let status: FinancialStatus = "pending";
-    let transactionKind: TransactionKind = "sale";
 
-    const saleTotal = newTransactionTotal + totals.sale;
-    const refundTotal = newTransactionTotal + totals.refund;
-
-    if (sale.total < 0) {
-      transactionKind = "refund";
-      if (refundTotal > Math.abs(sale.total)) {
-        throw new Error("Refund amount must be less than total");
-      }
-
-      if (refundTotal === Math.abs(sale.total)) {
-        status = "refunded";
-      } else if (refundTotal < Math.abs(sale.total) && refundTotal > 0) {
-        status = "partialy_refunded";
-      }
-    } else {
-      if (saleTotal > Math.abs(sale.total)) {
-        throw new Error("Payment amount must be less than total");
-      }
-
-      if (saleTotal === Math.abs(sale.total)) {
-        status = "paid";
-      } else if (saleTotal < Math.abs(sale.total) && saleTotal > 0) {
-        status = "partialy_paid";
-      }
+    if (finalDueAmount === 0) {
+      status = purchase.total < 0 ? "refunded" : "paid";
+    } else if (finalDueAmount !== 0 && finalDueAmount !== purchase.total) {
+      status = purchase.total < 0 ? "partialy_refunded" : "partialy_paid";
     }
 
+    let transactionKind = dueAmount < 0 ? "refund" : "purchase";
+
     // Update sale status and create new transactions
-    const [saleTxn, transactionTxn] = await prisma.$transaction([
-      prisma.sale.update({
-        where: { id: saleId },
-        data: { status: status },
+    const [updated] = await prisma.$transaction([
+      prisma.purchase.update({
+        where: { id: purchaseId },
+        data: { status: status, totalDue: finalDueAmount },
       }),
-      prisma.transaction.createMany({
+      prisma.purchaseTransaction.createMany({
         data: data.map((txn) => ({
           ...txn,
           amount: Number(txn.amount),
           kind: transactionKind,
-          saleId,
+          purchaseId,
           locationId: session.location.id,
         })),
       }),
     ]);
 
+    // Return the updated data and a success message
     return {
-      data: { sale: saleTxn, transactions: transactionTxn },
+      data: updated,
       message: "created",
     };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       throw new Error("Internal server error");
     }
+
     throw new Error(error.message);
   }
 }

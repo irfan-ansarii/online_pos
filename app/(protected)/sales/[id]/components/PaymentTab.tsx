@@ -67,24 +67,18 @@ const PaymentTab = ({
    * @param values
    */
   const onSubmit = async (values: any) => {
-    const { transactionKind, transactions, createdAt } = values;
+    const { transactions } = values;
     // transactions
-    values.transactions = transactions
-      ?.filter((transaction: any) => Number(transaction.amount) > 0)
-      .map((txn: any) => {
-        return {
-          ...txn,
-          kind: transactionKind,
-          createdAt,
-        };
-      });
+    values.transactions = transactions?.filter(
+      (transaction: any) => Number(transaction.amount) > 0
+    );
 
     try {
       setLoading(true);
       await updateSale(values);
       toast({
         variant: "success",
-        title: "Sale created successfully",
+        title: "Sale created",
       });
 
       setActive("completed");
@@ -116,13 +110,13 @@ const PaymentTab = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="border p-3 space-y-1 rounded-md text-center">
-              <div className="font-medium text-xs uppercase">TOTAL</div>
+              <div className="font-medium text-muted-foreground">TOTAL</div>
               <div className="font-medium text-lg">
                 {Numeral(form.watch("total")).format()}
               </div>
             </div>
             <div className={`border p-3 space-y-1 rounded-md text-center`}>
-              <div className="font-medium text-xs uppercase">
+              <div className="font-medium text-muted-foregroun">
                 {form.watch("transactionKind") === "sale" ? "Due" : "Refund"}
               </div>
               <div className="font-medium text-lg">

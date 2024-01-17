@@ -2,9 +2,9 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { mutate } from "swr";
+import { updatePurchase } from "@/actions/purchase-actions";
 
 import Numeral from "numeral";
-import { updateSale } from "@/actions/sale-actions";
 
 import { ArrowLeft, Loader2 } from "lucide-react";
 
@@ -67,24 +67,18 @@ const PaymentTab = ({
    * @param values
    */
   const onSubmit = async (values: any) => {
-    const { transactionKind, transactions, createdAt } = values;
+    const { transactions, createdAt } = values;
     // transactions
-    values.transactions = transactions
-      ?.filter((transaction: any) => Number(transaction.amount) > 0)
-      .map((txn: any) => {
-        return {
-          ...txn,
-          kind: transactionKind,
-          createdAt,
-        };
-      });
+    values.transactions = transactions?.filter(
+      (transaction: any) => Number(transaction.amount) > 0
+    );
 
     try {
       setLoading(true);
-      await updateSale(values);
+      await updatePurchase(values);
       toast({
         variant: "success",
-        title: "Sale created successfully",
+        title: "Purchase updated",
       });
 
       setActive("completed");
@@ -123,7 +117,9 @@ const PaymentTab = ({
             </div>
             <div className={`border p-3 space-y-1 rounded-md text-center`}>
               <div className="font-medium text-xs uppercase">
-                {form.watch("transactionKind") === "sale" ? "Due" : "Refund"}
+                {form.watch("transactionKind") === "purchase"
+                  ? "Due"
+                  : "Refund"}
               </div>
               <div className="font-medium text-lg">
                 {Numeral(Math.abs(form.watch("totalDue"))).format()}

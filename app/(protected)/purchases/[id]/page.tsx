@@ -1,33 +1,33 @@
 import React from "react";
-import { getSale } from "@/actions/sale-actions";
+import { getPurchase } from "@/actions/purchase-actions";
 
 import EditForm from "./components/CartForm";
 import { getPayments } from "@/actions/payments-actions";
 
 const page = async ({ params }: { params: { id: number } }) => {
   const { id } = params;
-  const { data } = await getSale(id);
-  const { data: transactions } = await getPayments();
+  const { data } = await getPurchase(id);
+  const { data: transactions } = await getPayments({ type: "purchase" });
 
-  const { sale, refund } = data.transactions.reduce(
+  const { purchase, refund } = data.transactions.reduce(
     (acc, curr) => {
       if (curr.kind === "refund") {
         acc.refund += Number(curr.amount);
       } else {
-        acc.sale += Number(curr.amount);
+        acc.purchase += Number(curr.amount);
       }
       return acc;
     },
     {
-      sale: 0,
+      purchase: 0,
       refund: 0,
     }
   );
 
   const initialValues = {
     id: data.id,
-    customerId: data.customerId,
-    employeeId: data.employeeId,
+    title: data.title,
+    supplierId: data.supplierId,
     lineItems: data.lineItems.map((item) => ({
       itemId: item.id,
       kind: item.kind,
@@ -49,21 +49,20 @@ const page = async ({ params }: { params: { id: number } }) => {
       stock: 0,
       imageSrc: item.product?.image?.src,
     })),
-    saleType: data.saleType,
+    purchaseType: data.purchaseType,
     taxType: data.taxType,
     subtotal: data.subtotal,
     totalTax: data.totalTax,
     totalDiscount: data.totalDiscount,
-    lineItemsTotal: data.lineItemsTotal,
     total: data.total,
     totalDue: data.totalDue,
     invoiceTotal: data.invoiceTotal,
-    totalPaid: sale,
+    totalPaid: purchase,
     totalRefund: refund,
-    transactionKind: data.total + Number(refund) - sale < 0 ? "refund" : "sale",
+    transactionKind:
+      data.total + Number(refund) - purchase < 0 ? "refund" : "purchase",
     taxLines: data.taxLines,
     createdAt: new Date(data.createdAt),
-
     transactions: transactions.map((payment) => ({
       id: payment.id,
       name: payment.name,

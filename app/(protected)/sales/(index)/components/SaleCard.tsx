@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { Payment } from "@prisma/client";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import format from "date-fns/format";
@@ -30,7 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 
-const SaleCard = ({ sale }: { sale: any }) => {
+const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
   const [openDelete, toggleDelete] = useToggle();
   const [loading, setLoading] = React.useState(false);
 
@@ -82,7 +83,7 @@ const SaleCard = ({ sale }: { sale: any }) => {
   };
   return (
     <Card className="hover:bg-accent group relative cursor-pointer">
-      <SaleSheet sale={sale}>
+      <SaleSheet sale={sale} payments={payments}>
         <CardContent className="grid grid-cols-8 gap-3 items-center">
           <div className="flex gap-3 col-span-4">
             <div className="border-r pr-4 text-center shrink-0">
@@ -161,7 +162,7 @@ const SaleCard = ({ sale }: { sale: any }) => {
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={onDelete}
-                className="w-28 bg-destructive text-destructive-foreground hover:bg-destructive/80"
+                className="min-w-[6rem] bg-destructive text-destructive-foreground hover:bg-destructive/80"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

@@ -165,7 +165,7 @@ const ProductCard = ({ product }: { product: any }) => {
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={onDelete}
-                className="w-28 bg-destructive text-destructive-foreground hover:bg-destructive/80"
+                className="min-w-[6rem] bg-destructive text-destructive-foreground hover:bg-destructive/80"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

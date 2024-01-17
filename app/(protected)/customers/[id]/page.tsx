@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import MobileHeader from "@/components/shared/mobile-header";
 import Profile from "./components/Profile";
 import Analytics from "./components/Analytics";
 import OrderItem from "./components/OrderItem";
@@ -27,8 +26,6 @@ const Page = async ({ params }: { params: { id: string } }) => {
 
   return (
     <>
-      <MobileHeader title={data?.firstName} showSearch={false} />
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6 order-2 md:order-1">
           <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">

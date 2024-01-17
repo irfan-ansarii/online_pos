@@ -11,11 +11,11 @@ const Navigation = () => {
     return active ? true : false;
   };
   return (
-    <ul className="flex gap-4 h-full justify-between">
+    <ul className="flex gap-4 h-full justify-between flex-1 md:flex-none">
       {PRODUCT_PATHS.map((path) => (
         <li className="h-full flex relative group items-center" key={path.id}>
           <Link href={path.path} className="inline-flex h-full items-center">
-            {path.label} (10)
+            {path.label}
           </Link>
           <span
             className={`absolute transition duration-300 group-hover:opacity-100 inset-x-0 bottom-0 h-1 bg-primary rounded-t-md ${

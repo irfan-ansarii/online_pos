@@ -1,206 +1,82 @@
 "use client";
 import React from "react";
-
-import { Check, ListFilter, X } from "lucide-react";
-
+import {
+  PopoverContent,
+  PopoverTrigger,
+  Popover,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, ArrowUpDown, ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandSeparator,
-} from "@/components/ui/command";
-import { useQueryParams } from "@/hooks/useQueryParams";
-import { cn } from "@/lib/utils";
-import { useSuppliers } from "@/hooks/useSuppliers";
-import { useCustomers } from "@/hooks/useCustomers";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
-const status = [
-  {
-    value: "pending",
-    label: "Due",
-  },
-  {
-    value: "paid",
-    label: "Paid",
-  },
-  {
-    value: "partialy_paid",
-    label: "Partialy Paid",
-  },
+const sortingtrigger = (
+  <Button size="icon" variant="ghost" className="bg-secondary">
+    <ArrowUpDown className="w-4 h-4" />
+  </Button>
+);
 
-  {
-    value: "refunded",
-    label: "Refunded",
-  },
-  {
-    value: "partialy_refunded",
-    label: "Partialy Refunded",
-  },
-  {
-    value: "returned",
-    label: "Returned",
-  },
-];
-const Filters = () => {
-  const { queryParams, setQueryParams } = useQueryParams();
-  const { customers } = useCustomers({ search: "" });
+const filtertrigger = (
+  <Button size="icon" variant="ghost" className="bg-secondary">
+    <ListFilter className="w-4 h-4" />
+  </Button>
+);
 
+export const Sorting = () => {
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary">
-            <ListFilter className="w-4 h-4 mr-2" />
-            Filters
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[200px]">
-          <DropdownMenuGroup>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Employee</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="p-0">
-                <Command>
-                  <CommandInput placeholder="Search..." />
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup className="h-44 overflow-y-auto">
-                    {customers?.data?.map((supplier) => (
-                      <CommandItem
-                        key={supplier.id}
-                        value={`${supplier.id}`}
-                        onSelect={(value) => {
-                          setQueryParams({ employee: value });
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            queryParams.employee == supplier.id
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
+    <Popover>
+      <PopoverTrigger asChild>{sortingtrigger}</PopoverTrigger>
+      <PopoverContent className="w-40 bg-background p-3">
+        <h4 className="font-semibold leading-none">Sort</h4>
+        <Separator className="my-3" />
 
-                        {supplier?.firstName}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                  <CommandSeparator />
-                  <CommandGroup>
-                    <CommandItem
-                      onSelect={() => {
-                        setQueryParams({ employee: null });
-                      }}
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      Clear
-                    </CommandItem>
-                  </CommandGroup>
-                </Command>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Customer</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <Command>
-                  <CommandInput placeholder="Search..." />
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup className="h-44 overflow-y-auto">
-                    {customers?.data?.map((supplier) => (
-                      <CommandItem
-                        key={supplier.id}
-                        value={`${supplier.id}`}
-                        onSelect={(value) => {
-                          setQueryParams({ customer: value });
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            queryParams.customer == supplier.id
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
+        <RadioGroup defaultValue="comfortable">
+          <RadioGroupItem
+            value="comfortable"
+            id="r2"
+            className="peer sr-only"
+          />
+          <Label
+            htmlFor="r2"
+            className="peer-data-[state=checked]:border-primary inline-flex items-center"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" /> Ascending
+          </Label>
 
-                        {supplier?.firstName}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                  <CommandSeparator />
-                  <CommandGroup>
-                    <CommandItem
-                      onSelect={() => {
-                        setQueryParams({ customer: null });
-                      }}
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      Clear
-                    </CommandItem>
-                  </CommandGroup>
-                </Command>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <Command>
-                  <CommandInput placeholder="Search..." />
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup>
-                    {status.map((st) => (
-                      <CommandItem
-                        key={st.value}
-                        value={st.value}
-                        onSelect={(currentValue) => {
-                          setQueryParams({ status: currentValue });
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            queryParams.status === st.value
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-
-                        {st.label}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                  <CommandSeparator />
-                  <CommandGroup>
-                    <CommandItem
-                      onSelect={() => {
-                        setQueryParams({ status: null });
-                      }}
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      Clear
-                    </CommandItem>
-                  </CommandGroup>
-                </Command>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+          <RadioGroupItem value="compact" id="r3" />
+          <Label htmlFor="r3">Descending</Label>
+        </RadioGroup>
+      </PopoverContent>
+    </Popover>
   );
 };
 
-export default Filters;
+export const Filter = () => {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>{filtertrigger}</PopoverTrigger>
+      <PopoverContent className="w-52 bg-background p-3">
+        <h4 className="font-semibold leading-none">Sort</h4>
+        <Separator className="my-3" />
+
+        <RadioGroup defaultValue="comfortable">
+          <RadioGroupItem
+            value="comfortable"
+            id="r2"
+            className="peer sr-only"
+          />
+          <Label
+            htmlFor="r2"
+            className="peer-data-[state=checked]:border-primary inline-flex items-center"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" /> Ascending
+          </Label>
+
+          <RadioGroupItem value="compact" id="r3" />
+          <Label htmlFor="r3">Descending</Label>
+        </RadioGroup>
+      </PopoverContent>
+    </Popover>
+  );
+};

@@ -44,9 +44,8 @@ const CustomProduct = ({
 
   const onSubmit = (values: z.infer<typeof customItemValidation>) => {
     const item = {
-      product: { productId: null, title: values.title },
-      productId: null,
-      variantId: generateId(),
+      product: { id: null, title: values.title },
+      variantId: null,
       variant: {
         title: null,
         salePrice: Number(values.price),

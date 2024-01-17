@@ -18,4 +18,6 @@ export const store = atom<{ [key: string]: Boolean }>({
   sheet: false,
   editSheet: false,
   deleteSheet: false,
+  sorting: false,
+  filter: false,
 });

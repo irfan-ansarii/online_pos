@@ -3,7 +3,6 @@
 import prisma from "@/lib/prisma";
 import { Payment, Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
-import { PAGE_SIZE } from "@/config/app";
 
 interface ParamsProps {
   [key: string]: string;
@@ -14,7 +13,7 @@ interface ParamsProps {
  * @param params
  * @returns
  */
-export async function getPayments() {
+export async function getPayments(params?: ParamsProps) {
   try {
     const session = await auth();
 
@@ -26,6 +25,14 @@ export async function getPayments() {
     const payments = await prisma.payment.findMany({
       orderBy: {
         position: "asc",
+      },
+      where: {
+        OR: [
+          {
+            type: { contains: params?.type },
+          },
+          { type: { contains: "all" } },
+        ],
       },
     });
 

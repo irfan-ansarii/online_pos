@@ -1,10 +1,9 @@
-import Header from "./components/header";
+import Header from "@/components/global/header";
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <div className="md:hidden">
-        <Header />
-      </div>
+      <Header />
       <main className="grow md:p-4">{children}</main>
     </>
   );

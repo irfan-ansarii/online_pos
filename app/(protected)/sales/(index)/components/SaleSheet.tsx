@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Transaction } from "@prisma/client";
+import { Payment, Transaction } from "@prisma/client";
 import { format } from "date-fns";
 import Numeral from "numeral";
 
@@ -28,9 +28,11 @@ import SheetActions from "./SheetActions";
 const SaleSheet = ({
   children,
   sale,
+  payments,
 }: {
   sale: any;
   children: React.ReactNode;
+  payments: Payment[];
 }) => {
   const [open, toggle] = useToggle();
 
@@ -43,7 +45,7 @@ const SaleSheet = ({
             <div className="flex justify-between items-center gap-2">
               <SheetTitle>{sale.title}</SheetTitle>
 
-              <SheetActions sale={sale} toggle={toggle} />
+              <SheetActions sale={sale} toggle={toggle} payments={payments} />
             </div>
           </SheetHeader>
           <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">

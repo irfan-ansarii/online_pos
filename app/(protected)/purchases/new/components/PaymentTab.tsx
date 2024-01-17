@@ -85,7 +85,6 @@ const PaymentTab = ({
         variant: "success",
         title: "Purchase created successfully",
       });
-
       form.reset();
       toggle();
     } catch (error: any) {

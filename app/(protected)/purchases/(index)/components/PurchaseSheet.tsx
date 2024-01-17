@@ -28,9 +28,11 @@ import SheetActions from "./SheetActions";
 const PurchaseSheet = ({
   children,
   purchase,
+  payments,
 }: {
   purchase: any;
   children: React.ReactNode;
+  payments: any;
 }) => {
   const [open, toggle] = useToggle();
 
@@ -43,7 +45,11 @@ const PurchaseSheet = ({
             <div className="flex justify-between items-center gap-2">
               <SheetTitle>{purchase.title}</SheetTitle>
 
-              <SheetActions sale={purchase} toggle={toggle} />
+              <SheetActions
+                purchase={purchase}
+                toggle={toggle}
+                payments={payments}
+              />
             </div>
           </SheetHeader>
           <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
@@ -143,9 +149,15 @@ const PurchaseSheet = ({
                           {format(transaction.createdAt, "dd MMM, yyyy")}
                         </div>
                       </div>
-                      <div className="ml-auto text-right">
-                        {Numeral(transaction.amount).format()}
-                      </div>
+                      {transaction.kind === "refund" ? (
+                        <div className="ml-auto text-right text-success">
+                          +{Numeral(transaction.amount).format()}
+                        </div>
+                      ) : (
+                        <div className="ml-auto text-right text-error">
+                          -{Numeral(transaction.amount).format()}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

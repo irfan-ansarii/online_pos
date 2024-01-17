@@ -30,7 +30,13 @@ import {
 
 import PurchaseSheet from "./PurchaseSheet";
 
-const PurchaseCard = ({ purchase }: { purchase: any }) => {
+const PurchaseCard = ({
+  purchase,
+  payments,
+}: {
+  purchase: any;
+  payments: any;
+}) => {
   const [openDelete, toggleDelete] = useToggle();
   const [loading, setLoading] = useToggle(false);
 
@@ -39,7 +45,7 @@ const PurchaseCard = ({ purchase }: { purchase: any }) => {
   const status: { [key: string]: any } = {
     pending: {
       className: "bg-warning hover:bg-warning text-white",
-      text: "due",
+      text: "pending",
     },
     paid: {
       className: "bg-success hover:bg-success text-white",
@@ -50,11 +56,11 @@ const PurchaseCard = ({ purchase }: { purchase: any }) => {
       text: "Partial",
     },
     partialy_refunded: {
-      className: "bg-info hover:bg-info text-white",
+      className: "bg-purple-600 hover:bg-purple-600 text-white",
       text: "Partial",
     },
     refunded: {
-      className: "bg-destructive hover:bg-destructive text-white",
+      className: "text-error",
       text: "Refunded",
     },
   };
@@ -84,7 +90,7 @@ const PurchaseCard = ({ purchase }: { purchase: any }) => {
 
   return (
     <Card className="hover:bg-accent group relative cursor-pointer">
-      <PurchaseSheet purchase={purchase}>
+      <PurchaseSheet purchase={purchase} payments={payments}>
         <CardContent className="grid grid-cols-8 gap-3 items-center">
           <div className="flex gap-3 col-span-4">
             <div className="border-r pr-4 text-center shrink-0">
@@ -161,7 +167,7 @@ const PurchaseCard = ({ purchase }: { purchase: any }) => {
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={onDelete}
-                className="w-28 bg-destructive text-destructive-foreground hover:bg-destructive/80"
+                className="min-w-[6rem] bg-destructive text-destructive-foreground hover:bg-destructive/80"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

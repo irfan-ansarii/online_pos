@@ -199,35 +199,47 @@ export const editPurchaseValidation = z
     }
   });
 
-//! fix this
-
 export const collectPayementValidation = z
   .object({
+    total: z.number(),
     totalDue: z.number(),
-    saleId: z.number(),
+    purchaseId: z.number(),
+    kind: z.string(),
     transactions: z
       .object({
         name: z.string(),
         label: z.string(),
-        kind: z.string(),
+        refrenceNumber: z.string(),
         amount: number,
       })
       .array(),
   })
   .superRefine((val, ctx) => {
-    const { totalDue, transactions } = val;
-    const total = transactions.reduce((acc, curr) => {
+    const { total, transactions } = val;
+
+    const received = transactions.reduce((acc, curr) => {
       const amount = acc + Number(curr.amount);
       return amount;
     }, 0);
 
-    if (total > totalDue) {
+    if (received > Math.abs(total) || received < 0) {
       for (let i = 0; i < transactions.length; i++) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Value should be less than due",
-          path: [`transactions.${i}.amount`],
-        });
+        const { amount } = transactions[i];
+        let msg = "Amount must not be greater than due";
+        if (received < 0) {
+          msg = "Amount must be greater than 0";
+        }
+        if (total < 0) {
+          msg = "Amount must not be greater than refund";
+        }
+
+        if (amount !== 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: msg,
+            path: [`transactions.${i}.amount`],
+          });
+        }
       }
     }
   });
