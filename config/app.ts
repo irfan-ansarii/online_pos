@@ -26,9 +26,9 @@ export const MENU_ITEMS = [
     icon: Inbox,
   },
   {
-    key: "purchases",
-    label: "Purchases",
-    href: "/purchases",
+    key: "purchase",
+    label: "Purchase",
+    href: "/purchase",
     icon: ShoppingBag,
   },
   {
@@ -36,6 +36,26 @@ export const MENU_ITEMS = [
     label: "Products",
     href: "/products",
     icon: Tag,
+    children: [
+      {
+        key: "transfers",
+        label: "Transfers",
+        href: "/transfers",
+        icon: Tag,
+      },
+      {
+        key: "adjustments",
+        label: "Adjustments",
+        href: "/adjustments",
+        icon: Tag,
+      },
+      {
+        key: "barcodes",
+        label: "Barcodes",
+        href: "/barcodes",
+        icon: Tag,
+      },
+    ],
   },
 
   {

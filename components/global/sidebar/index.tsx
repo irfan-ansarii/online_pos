@@ -2,16 +2,18 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+
+import { MENU_ITEMS } from "@/config/app";
+
 import { usePathname } from "next/navigation";
 import { ThemeCustomizer } from "@/components/theme/theme-customizer";
 
-import { MENU_ITEMS } from "@/config/app";
 import { Separator } from "@/components/ui/separator";
 import Customizer from "@/components/global/sidebar/customizer";
 import ThemeSwitcher from "@/components/global/sidebar/theme-switcher";
 import SearchPanel from "@/components/global/sidebar/search-panel";
 
-import { cn } from "@/lib/utils";
 function Sidebar() {
   const pathname = usePathname();
   const [loading, setLoading] = React.useState(true);

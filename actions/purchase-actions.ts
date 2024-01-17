@@ -184,6 +184,7 @@ export async function createPurchase(values: any) {
     const barcodeData = lineItems.reduce((acc: any, item: LineItem) => {
       const newItem = {
         locationId: session.location.id,
+        variantId: item.variantId,
         productId: item.productId,
         quantity: Number(item.quantity),
       };

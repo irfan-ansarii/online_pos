@@ -37,7 +37,7 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-background p-4 outline-none shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+  "fixed z-50 gap-4 px-4 pb-4 bg-background outline-none shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
   {
     variants: {
       side: {
@@ -81,13 +81,19 @@ const SheetHeader = ({
   children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex text-left mb-4", className)} {...props}>
-    <div className="grow">{children}</div>
+  <div
+    className={cn(
+      "flex text-left shrink-0 mb-4 items-center h-[60px] border-b -mx-4 px-4 md:mx-0 md:px-0",
+      className
+    )}
+    {...props}
+  >
     <SheetPrimitive.Close className="shrink-0 rounded-sm  ring-offset-background transition-opacity focus:outline-none focus:ring-0 focus:ring-ring focus:ring-offset-0 disabled:pointer-events-none data-[state=open]:bg-secondary">
-      <X className="h-5 w-5" />
-
+      <ArrowLeft className="h-5 w-5 mr-2 md:hidden" />
+      <X className="h-5 w-5 mr-2 hidden md:inline-flex" />
       <span className="sr-only">Close</span>
     </SheetPrimitive.Close>
+    <div className="grow">{children}</div>
   </div>
 );
 SheetHeader.displayName = "SheetHeader";

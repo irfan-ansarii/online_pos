@@ -142,7 +142,7 @@ const PurchaseCard = ({
 
       <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
         <Link
-          href={`/purchases/${purchase.id}`}
+          href={`/purchase/${purchase.id}`}
           className={buttonVariants({ variant: "secondary", size: "icon" })}
         >
           <PenSquare className="w-4 h-4" />
@@ -159,8 +159,8 @@ const PurchaseCard = ({
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action will permanently remove the sale and restock the
-                products from the system and cannot be undone.
+                This action will permanently remove the selected record and
+                restock the products from the system and cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

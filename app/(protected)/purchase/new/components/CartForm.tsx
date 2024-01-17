@@ -30,9 +30,9 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
   });
 
   const onLineItemClick = (selected: any) => {
-    const { product, variant, barcode, variantId } = selected;
+    const { product, variant, variantId } = selected;
 
-    const index = fields.findIndex((item) => item.barcode == barcode);
+    const index = fields.findIndex((item) => item.barcode == variant.barcode);
 
     if (index !== -1) {
       const { quantity = 0 } = fields[index];

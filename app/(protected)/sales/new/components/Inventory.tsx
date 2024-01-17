@@ -73,17 +73,17 @@ const Inventory = ({
   }, []);
 
   return (
-    <div>
-      <div className="flex items-center h-[61px] border-b sticky top-0 z-50 bg-background mb-4">
+    <>
+      <div className="flex items-center h-[61px] -mt-[61px] md:mt-0 border-b sticky top-0 z-50 bg-background mb-4">
         <div className="relative grow">
-          <span className="pointer-events-none absolute left-0 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
+          <span className="pointer-events-none absolute left-0 inset-y-0 h-full flex items-center justify-center text-muted-foreground">
             <Search className="w-5 h-5" />
           </span>
 
           <Input
             ref={ref}
             type="text"
-            className="bg-transparent rounded-none border-none pl-10 focus-visible:ring-transparent"
+            className="bg-transparent rounded-none border-none pl-8 focus-visible:ring-transparent"
             placeholder="Search..."
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -157,7 +157,7 @@ const Inventory = ({
           </Card>
         ))}
       </div>
-    </div>
+    </>
   );
 };
 export default Inventory;
