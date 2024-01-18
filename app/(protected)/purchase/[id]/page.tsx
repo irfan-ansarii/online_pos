@@ -67,6 +67,7 @@ const page = async ({ params }: { params: { id: number } }) => {
       id: payment.id,
       name: payment.name,
       label: payment.label,
+      refrenceNumber: "",
       amount: "0",
     })),
   };

@@ -83,7 +83,7 @@ const PaymentTab = ({
       await createPurchase(values);
       toast({
         variant: "success",
-        title: "Purchase created successfully",
+        title: "Purchase created",
       });
       form.reset();
       toggle();

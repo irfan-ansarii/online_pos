@@ -65,6 +65,12 @@ export const MENU_ITEMS = [
     icon: Users,
   },
   {
+    key: "suppliers",
+    label: "Suppliers",
+    href: "/suppliers",
+    icon: Users,
+  },
+  {
     key: "reports",
     label: "Reports",
     href: "/reports",

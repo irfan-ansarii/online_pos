@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/form";
 
 import { useFormContext } from "react-hook-form";
-import { useCustomers } from "@/hooks/useCustomers";
+import { useSuppliers } from "@/hooks/useSuppliers";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,11 +30,7 @@ const SupplierTab = ({ setActive }: { setActive: (tab: string) => void }) => {
   const [search, setSearch] = React.useState("");
   const form = useFormContext();
 
-  const {
-    customers: suppliers,
-    isLoading,
-    mutate,
-  } = useCustomers({
+  const { suppliers, isLoading, mutate } = useSuppliers({
     search,
   });
 

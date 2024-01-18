@@ -81,8 +81,7 @@ const PaymentTab = ({
         title: "Purchase updated",
       });
 
-      setActive("completed");
-      router.refresh();
+      router.push("/purchase");
     } catch (error: any) {
       toast({
         variant: "error",

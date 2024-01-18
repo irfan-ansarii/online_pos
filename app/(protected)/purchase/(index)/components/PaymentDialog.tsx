@@ -61,6 +61,7 @@ const PaymentDialog = ({
         id: pay.id,
         name: pay.name,
         label: pay.label,
+        refrenceNumber: "",
         amount: "0",
       })),
     },
@@ -137,7 +138,7 @@ const PaymentDialog = ({
               </div>
               <div className={`border p-3 space-y-1 rounded-md text-center`}>
                 <div className="font-medium text-muted-foreground">
-                  {purchase.total < 0 ? "Refund" : "Due"}
+                  {form.watch("total") < 0 ? "Refund" : "Due"}
                 </div>
                 <div className="font-medium text-lg">
                   {Numeral(Math.abs(form.watch("totalDue"))).format()}

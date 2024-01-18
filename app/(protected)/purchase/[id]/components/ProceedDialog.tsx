@@ -6,7 +6,7 @@ import { PROCEED_PURCHASES_TABS } from "@/config/app";
 import { useFormContext } from "react-hook-form";
 import { useSheetToggle } from "@/hooks/useSheet";
 
-const SupplierTab = lazy(() => import("./SupplierTab"));
+const SupplierTab = lazy(() => import("../../new/components/SupplierTab"));
 const PaymentTab = lazy(() => import("./PaymentTab"));
 const ReceiptTab = lazy(() => import("../../new/components/ReceiptTab"));
 

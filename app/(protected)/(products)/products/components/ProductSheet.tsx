@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import AdjustmentDialog from "./AdjustmentDialog";
+import { AvatarItem } from "@/components/shared/avatar";
 
 const ProductSheet = ({ product }: any) => {
   const { title, variants } = product;
-
+  console.log(product);
   return (
     <SheetContent className="md:max-w-lg">
       <div className="flex flex-col h-full">
@@ -18,9 +19,25 @@ const ProductSheet = ({ product }: any) => {
           <SheetTitle>{title}</SheetTitle>
         </SheetHeader>
 
-        <div className="relative flex-1 max-h-full overflow-y-auto scrollbox -mx-4">
+        <div className="relative flex-1 max-h-full overflow-y-auto scrollbox x-4">
+          <div className="flex gap-4 mb-4">
+            <AvatarItem
+              src={product?.image?.src}
+              className="w-32 h-32 rounded-md"
+            />
+            <div className="space-y-2">
+              <div className="text-lg font-semibold truncate">
+                {product.title}
+              </div>
+              <Badge className="rounded-md uppercase">{product.status}</Badge>
+            </div>
+          </div>
+
           {variants?.map((variant: any) => (
-            <div className="overflow-hidden border-b" key={variant.id}>
+            <div
+              className="overflow-hidden border rounded-md mb-4 last:mb-0"
+              key={variant.id}
+            >
               <div className="grid grid-cols-4 gap-2 px-6 py-2 items-center bg-accent">
                 <div className="font-medium">
                   <div>{variant.title}</div>

@@ -49,7 +49,7 @@ export default function SheetActions({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size="icon" variant="ghost" className="mr-2">
+          <Button size="icon" variant="ghost">
             <MoreVertical className="w-5 h-5" />
           </Button>
         </DropdownMenuTrigger>

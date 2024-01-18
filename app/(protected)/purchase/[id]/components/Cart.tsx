@@ -113,7 +113,7 @@ const Cart = ({
    */
   const handleReturn = (index: number) => {
     const lineItem = form.getValues(`lineItems.${index}`);
-    const kind = lineItem.kind === "sale" ? "return" : "sale";
+    const kind = lineItem.kind === "purchase" ? "return" : "purchase";
     form.setValue(`lineItems.${index}.kind`, kind);
 
     // handle update
@@ -124,7 +124,7 @@ const Cart = ({
    * update cart values on line items changes
    */
   React.useEffect(() => {
-    const saleType = form.getValues(`saleType`);
+    const purchaseType = form.getValues(`purchaseType`);
     const result = watch.reduce(
       (acc: any, curr: any) => {
         if (curr.kind === "return") {
@@ -160,7 +160,7 @@ const Cart = ({
       { title: "SGST", amount: parseFloat((result.totalTax / 2).toFixed(2)) },
     ];
 
-    if (saleType === "inter_state") {
+    if (purchaseType === "inter_state") {
       result.taxLines = [
         { title: "IGST", amount: parseFloat(result.totalTax.toFixed(2)) },
       ];

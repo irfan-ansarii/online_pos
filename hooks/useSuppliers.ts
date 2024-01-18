@@ -12,7 +12,7 @@ export const useSuppliers = (params: Props) => {
   });
 
   return {
-    customers: data,
+    suppliers: data,
     isLoading,
     isError: error,
     mutate,

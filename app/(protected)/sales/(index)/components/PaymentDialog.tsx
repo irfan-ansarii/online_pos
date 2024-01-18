@@ -137,7 +137,7 @@ const PaymentDialog = ({
               </div>
               <div className={`border p-3 space-y-1 rounded-md text-center`}>
                 <div className="font-medium text-muted-foreground">
-                  {sale.total < 0 ? "Refund" : "Due"}
+                  {form.watch("total") < 0 ? "Refund" : "Due"}
                 </div>
                 <div className="font-medium text-lg">
                   {Numeral(Math.abs(form.watch("totalDue"))).format()}

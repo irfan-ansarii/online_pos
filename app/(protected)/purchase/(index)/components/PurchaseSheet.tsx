@@ -150,12 +150,12 @@ const PurchaseSheet = ({
                         </div>
                       </div>
                       {transaction.kind === "refund" ? (
-                        <div className="ml-auto text-right text-success">
-                          +{Numeral(transaction.amount).format()}
-                        </div>
-                      ) : (
                         <div className="ml-auto text-right text-error">
                           -{Numeral(transaction.amount).format()}
+                        </div>
+                      ) : (
+                        <div className="ml-auto text-right text-success">
+                          +{Numeral(transaction.amount).format()}
                         </div>
                       )}
                     </div>
@@ -164,11 +164,13 @@ const PurchaseSheet = ({
               </CollapsibleContent>
             </Collapsible>
 
-            {purchase.totalDue > 0 && (
+            {purchase.totalDue !== 0 && (
               <div className="flex items-center p-2 mt-2 rounded-md bg-warning/20">
-                <div>Due</div>
+                <div>
+                  {purchase.totalDue < 0 ? "Refund Due" : "Payment Due"}
+                </div>
                 <div className="ml-auto">
-                  {Numeral(purchase.totalDue).format()}
+                  {Numeral(Math.abs(purchase.totalDue)).format()}
                 </div>
               </div>
             )}

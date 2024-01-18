@@ -39,9 +39,9 @@ const SaleSheet = ({
   return (
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="md:max-w-lg !pt-2">
+      <SheetContent className="md:max-w-lg">
         <div className="flex flex-col h-full ">
-          <SheetHeader className="mb-4">
+          <SheetHeader>
             <div className="flex justify-between items-center gap-2">
               <SheetTitle>{sale.title}</SheetTitle>
 

@@ -2,10 +2,10 @@ import React from "react";
 import { format } from "date-fns";
 import { User } from "@prisma/client";
 
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, User as UserIcon } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 import UserSheet from "./UserSheet";
@@ -16,9 +16,10 @@ const UserCard = ({ user }: { user: User }) => {
       <UserSheet user={user}>
         <CardContent className="grid grid-cols-8 gap-3 items-center relative">
           <div className="flex gap-3 items-center col-span-4 md:col-span-3">
-            <Avatar className="border-2">
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
+            <Avatar className="border-2 text-muted-foreground">
+              <AvatarFallback>
+                <UserIcon className="w-5 h-5" />
+              </AvatarFallback>
             </Avatar>
             <div className="space-y-0.5">
               <div className="font-medium">{`${user.firstName} ${user.lastName}`}</div>

@@ -235,24 +235,148 @@ export async function updatePurchase(values: any) {
       throw new Error("Unauthorized");
     }
 
-    const { id, firstName, lastName, role, status, locationId } = values;
+    const {
+      id,
+      supplierId,
+      createdAt,
+      purchaseType,
+      taxType,
+      subtotal,
+      totalTax,
+      totalDiscount,
+      invoiceTotal,
+      total,
+      roundedOff,
+      totalDue,
+      taxLines,
+      lineItems,
+      transactions,
+      status,
+    } = values;
 
-    if (session.role !== "admin") {
-      throw new Error("Access Denied");
-    }
-
-    const user = await prisma.user.update({
-      where: { id: Number(id) },
-      data: {
-        firstName,
-        lastName,
-        role,
-        status,
-        locationId: Number(locationId),
+    const purchase = await prisma.purchase.findUnique({
+      where: {
+        id,
       },
     });
 
-    return { data: user, message: "updated" };
+    if (!purchase) {
+      throw new Error("Not found");
+    }
+
+    const prismaTransactions = [];
+
+    prismaTransactions.push(
+      prisma.purchase.update({
+        data: {
+          supplierId,
+          createdAt,
+          purchaseType,
+          taxType,
+          subtotal: parseFloat(subtotal.toFixed(2)),
+          totalTax: parseFloat(totalTax.toFixed(2)),
+          totalDiscount: parseFloat(totalDiscount.toFixed(2)),
+          invoiceTotal: parseFloat(invoiceTotal.toFixed(2)),
+          roundedOff: parseFloat(roundedOff.toFixed(2)),
+          total: parseFloat(total.toFixed(2)),
+          totalDue: parseFloat(totalDue.toFixed(2)),
+          taxLines,
+          status,
+        },
+        where: {
+          id: id,
+        },
+      })
+    );
+
+    for (const lineItem of lineItems) {
+      prismaTransactions.push(
+        prisma.purchaseLineItem.upsert({
+          where: {
+            id: lineItem.itemId || 0,
+          },
+          create: {
+            purchaseId: id,
+            locationId: session.location.id,
+            title: lineItem.title,
+            variantTitle: lineItem.variantTitle,
+            sku: lineItem.sku,
+            barcode: lineItem.barcode,
+            price: Number(lineItem.price),
+            taxRate: Number(lineItem.taxRate),
+            kind: lineItem.kind,
+            quantity: Number(lineItem.quantity),
+            totalDiscount: Number(lineItem.totalDiscount),
+            totalTax: Number(lineItem.totalTax),
+            total: Number(lineItem.total),
+            taxLines: lineItem.taxLines,
+            productId: lineItem.productId,
+            variantId: lineItem.variantId,
+          },
+          update: {
+            price: Number(lineItem.price),
+            kind: lineItem.kind,
+            quantity: Number(lineItem.quantity),
+            totalDiscount: Number(lineItem.totalDiscount),
+            totalTax: Number(lineItem.totalTax),
+            total: Number(lineItem.total),
+            taxLines: lineItem.taxLines,
+          },
+        })
+      );
+    }
+
+    // update inventory
+    const updateData = lineItems.reduce((acc: any, item: any) => {
+      const {
+        itemId,
+        kind,
+        originalKind,
+        quantity,
+        originalQuantity = 0,
+      } = item;
+
+      let tempQuantity = quantity - Number(originalQuantity || 0);
+      if (item.kind === "return") {
+        tempQuantity = -(quantity - Number(originalQuantity || 0));
+      }
+
+      const newItem = {
+        locationId: session.location.id,
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: tempQuantity,
+        reason: "",
+        notes: purchase.title,
+      };
+
+      const isKindChanged = itemId && kind !== originalKind;
+
+      if (isKindChanged) {
+        newItem.quantity = kind === "return" ? -quantity : quantity;
+      }
+      if (newItem.quantity !== 0 && item.productId) {
+        newItem.reason = newItem.quantity > 0 ? "received" : "purchase return";
+        acc.push(newItem);
+      }
+
+      return acc;
+    }, []);
+
+    await prisma.$transaction(prismaTransactions);
+
+    // update sale items inventory
+    if (updateData.length > 0) {
+      await createAdjustment(updateData);
+    }
+
+    // update transactions
+    await createTransactions({ purchaseId: purchase.id, data: transactions });
+
+    return {
+      data: purchase,
+      message: "success",
+    };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
