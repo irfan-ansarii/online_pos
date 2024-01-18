@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 import {
@@ -55,73 +56,93 @@ const Variants = () => {
   }, [options]);
 
   return (
-    <div>
+    <div className="space-y-4">
+      {variants.length > 0 && (
+        <div className="text-lg font-semibold text-muted-foreground">
+          Variants
+        </div>
+      )}
       {variants.map((_, index) => (
         <div
-          className="grid grid-cols-2 gap-4 py-4 last:pb-0"
+          className="rounded-md border overflow-hidden"
           key={`variant-${index}`}
         >
-          <div className="col-span-2 inline-flex items-center truncate font-medium">
-            <Badge variant="secondary" className="w-full rounded-md py-2">
-              {form.watch(`variants.${index}.title`)}
-            </Badge>
+          <Badge
+            variant="secondary"
+            className="w-full rounded-none p-3 bg-accent"
+          >
+            {form.watch(`variants.${index}.title`)}
+          </Badge>
+
+          <div className="p-4 grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name={`variants.${index}.purchasePrice`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Purchase Price</FormLabel>
+                  <FormControl>
+                    <Input placeholder="0.00" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name={`variants.${index}.salePrice`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sale Price</FormLabel>
+                  <FormControl>
+                    <Input placeholder="0.00" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name={`variants.${index}.sku`}
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>SKU</FormLabel>
+                  <FormControl>
+                    <Input placeholder="ABC1234" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`variants.${index}.hsn`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>HSN Code</FormLabel>
+                  <FormControl>
+                    <Input placeholder="610400" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`variants.${index}.taxRate`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tax Rate</FormLabel>
+                  <FormControl>
+                    <Input placeholder="0" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-
-          <FormField
-            control={form.control}
-            name={`variants.${index}.purchasePrice`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Purchase Price</FormLabel>
-                <FormControl>
-                  <Input placeholder="0.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name={`variants.${index}.salePrice`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sale Price</FormLabel>
-                <FormControl>
-                  <Input placeholder="0.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            rules={{ required: "Required" }}
-            name={`variants.${index}.taxRate`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tax Rate</FormLabel>
-                <FormControl>
-                  <Input placeholder="0" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name={`variants.${index}.sku`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>SKU</FormLabel>
-                <FormControl>
-                  <Input placeholder="ABC1234" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
       ))}
     </div>

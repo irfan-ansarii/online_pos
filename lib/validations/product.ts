@@ -30,6 +30,7 @@ export const productValidation = z
         purchasePrice: z.any(),
         salePrice: z.any(),
         sku: z.string().optional(),
+        hsn: z.string().length(6),
         taxRate: z.any(),
       })
       .array()
@@ -37,6 +38,7 @@ export const productValidation = z
     purchasePrice: z.any(),
     salePrice: z.any(),
     sku: z.any(),
+    hsn: z.any(),
     taxRate: z.any(),
   })
   .superRefine((data, ctx) => {

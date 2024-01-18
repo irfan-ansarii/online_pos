@@ -3,8 +3,7 @@ import React from "react";
 import { deleteProduct } from "@/actions/product-actions";
 import Numeral from "numeral";
 
-import { Loader2, Trash2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, PenSquare, Trash2 } from "lucide-react";
 
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -20,13 +19,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AvatarItem } from "@/components/shared/avatar";
+import { Card, CardContent } from "@/components/ui/card";
 import ProductSheet from "./ProductSheet";
-import EditSheet from "./EditSheet";
+import EditSheet from "./edit/EditSheet";
 
 import { useToggle } from "@uidotdev/usehooks";
-
 import { toast } from "@/components/ui/use-toast";
-import { AvatarItem } from "@/components/shared/avatar";
 
 interface BadgeProps {
   [key: string]: string;
@@ -34,7 +33,8 @@ interface BadgeProps {
 
 const ProductCard = ({ product }: { product: any }) => {
   const [open, toggle] = useToggle();
-  const [openDelete, toggleDelete] = useToggle();
+  const [openDelete, toggleDelete] = useToggle(false);
+
   const [loading, setLoading] = React.useState(false);
 
   const priceRange = React.useMemo(() => {
@@ -96,7 +96,7 @@ const ProductCard = ({ product }: { product: any }) => {
     }
   };
   return (
-    <Card className="relative group hover:bg-accent overflow-hidden">
+    <Card className="relative group hover:bg-accent overflow-hidden cursor-pointer">
       <Sheet open={open} onOpenChange={toggle}>
         <SheetTrigger asChild>
           <CardContent className="grid grid-cols-7 items-center gap-2">
@@ -145,7 +145,7 @@ const ProductCard = ({ product }: { product: any }) => {
       </Sheet>
 
       <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
-        <EditSheet />
+        <EditSheet product={product} />
 
         <AlertDialog open={openDelete} onOpenChange={toggleDelete}>
           <AlertDialogTrigger asChild>

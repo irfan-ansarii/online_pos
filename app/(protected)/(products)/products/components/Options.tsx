@@ -51,6 +51,7 @@ const Options = () => {
 
   return (
     <>
+      <div className="text-lg font-semibold text-muted-foreground">Options</div>
       {fields.map((item, index) => (
         <li key={item.id} className="flex flex-col gap-4">
           <div className="flex gap-2">
