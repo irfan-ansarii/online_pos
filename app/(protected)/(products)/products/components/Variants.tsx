@@ -31,40 +31,72 @@ const Variants = () => {
     name: "variants",
   });
 
+  const watchVariants = useWatch({
+    name: "variants",
+    control: form.control,
+  });
+
   function generateVariants(options: [{ name: string; values: string[] }]) {
-    remove();
+    const hasAllOptions = options.every(
+      (opt) => opt.name && opt.values.length > 0
+    );
+    if (!hasAllOptions) return null;
+
+    const generatedVariants: any[] = [];
+
     function generate(current: string[], index: number) {
       if (index === options.length) {
         const option = current.map((value, i) => ({
           name: options[i].name,
           value,
         }));
+
         const title = current.join("/");
-        // const index = variants.findIndex((v: any) => v.title === title);
-        // if (index !== -1) {
-        //   update(index, {
-        //     ...variants[index],
-        //     title,
-        //     option,
-        //   });
-        // } else {
-        //   append({ title: title, option }, { shouldFocus: false });
-        // }
-        append({ title: title, option }, { shouldFocus: false });
-        return;
+        generatedVariants.push({
+          title,
+          option,
+        });
       }
-      if (options[index].name) {
-        for (const value of options[index].values) {
+      if (options[index]?.name) {
+        for (const value of options[index]?.values) {
           generate([...current, value], index + 1);
         }
       }
     }
 
     generate([], 0);
+    return generatedVariants;
   }
 
+  const updateVariants = (generated: any) => {
+    if (!generated) return;
+
+    for (let i = variants.length - 1; i >= 0; i--) {
+      //@ts-ignore
+      const { title } = variants[i];
+      const index = generated.findIndex((v: any) => v.title === title);
+      if (index === -1) {
+        remove(i);
+      }
+    }
+
+    // update
+    const exsitingVariants = form.watch("variants");
+    for (const variant of generated) {
+      const index = exsitingVariants.findIndex(
+        (v: any) => v.title === variant.title
+      );
+      if (index !== -1) {
+        update(index, { ...exsitingVariants[index], ...variant });
+      } else {
+        append({ ...variant }, { shouldFocus: false });
+      }
+    }
+  };
+
   React.useEffect(() => {
-    generateVariants(options);
+    const generated = generateVariants(options);
+    updateVariants(generated);
   }, [options]);
 
   return (
@@ -74,15 +106,13 @@ const Variants = () => {
           Variants
         </div>
       )}
-      {variants.map((_, index) => (
-        <div
-          className="rounded-md border overflow-hidden"
-          key={`variant-${index}`}
-        >
+      {variants.map((field, index) => (
+        <div className="rounded-md border overflow-hidden" key={field.id}>
           <Badge
             variant="secondary"
             className="w-full rounded-none p-3 bg-accent"
           >
+            <span className="mr-2">{index + 1}.</span>
             {form.watch(`variants.${index}.title`)}
           </Badge>
 

@@ -35,42 +35,63 @@ const Variants = () => {
     const hasAllOptions = options.every(
       (opt) => opt.name && opt.values.length > 0
     );
-    if (!hasAllOptions) return;
+    if (!hasAllOptions) return null;
 
-    remove();
+    const generatedVariants: any[] = [];
+
     function generate(current: string[], index: number) {
-      console.log("current:", current, "index: ", index);
       if (index === options.length) {
         const option = current.map((value, i) => ({
           name: options[i].name,
           value,
         }));
-        const title = current.join("/");
-        const index = variants.findIndex((v: any) => v.title === title);
-        if (index !== -1) {
-          update(index, {
-            ...variants[index],
-            title,
-            option,
-          });
-        } else {
-          append({ title: title, option }, { shouldFocus: false });
-        }
 
-        return;
+        const title = current.join("/");
+        generatedVariants.push({
+          title,
+          option,
+        });
       }
-      if (options[index].name) {
-        for (const value of options[index].values) {
+      if (options[index]?.name) {
+        for (const value of options[index]?.values) {
           generate([...current, value], index + 1);
         }
       }
     }
 
     generate([], 0);
+    return generatedVariants;
   }
 
+  const updateVariants = (generated: any) => {
+    if (!generated) return;
+
+    for (let i = variants.length - 1; i >= 0; i--) {
+      //@ts-ignore
+      const { title } = variants[i];
+      const index = generated.findIndex((v: any) => v.title === title);
+      if (index === -1) {
+        remove(i);
+      }
+    }
+
+    // update
+    const exsitingVariants = form.watch("variants");
+    for (const variant of generated) {
+      const index = exsitingVariants.findIndex(
+        (v: any) => v.title === variant.title
+      );
+      if (index !== -1) {
+        update(index, { ...exsitingVariants[index], ...variant });
+      } else {
+        append({ ...variant }, { shouldFocus: false });
+      }
+    }
+  };
+
   React.useEffect(() => {
-    generateVariants(options);
+    const generated = generateVariants(options);
+    updateVariants(generated);
   }, [options]);
 
   return (
