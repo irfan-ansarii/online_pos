@@ -32,25 +32,31 @@ const Variants = () => {
   });
 
   function generateVariants(options: [{ name: string; values: string[] }]) {
+    const hasAllOptions = options.every(
+      (opt) => opt.name && opt.values.length > 0
+    );
+    if (!hasAllOptions) return;
+
     remove();
     function generate(current: string[], index: number) {
+      console.log("current:", current, "index: ", index);
       if (index === options.length) {
         const option = current.map((value, i) => ({
           name: options[i].name,
           value,
         }));
         const title = current.join("/");
-        // const index = variants.findIndex((v: any) => v.title === title);
-        // if (index !== -1) {
-        //   update(index, {
-        //     ...variants[index],
-        //     title,
-        //     option,
-        //   });
-        // } else {
-        //   append({ title: title, option }, { shouldFocus: false });
-        // }
-        append({ title: title, option }, { shouldFocus: false });
+        const index = variants.findIndex((v: any) => v.title === title);
+        if (index !== -1) {
+          update(index, {
+            ...variants[index],
+            title,
+            option,
+          });
+        } else {
+          append({ title: title, option }, { shouldFocus: false });
+        }
+
         return;
       }
       if (options[index].name) {
@@ -74,7 +80,7 @@ const Variants = () => {
           Variants
         </div>
       )}
-      {variants.map((_, index) => (
+      {variants.map((variant: any, index) => (
         <div
           className="rounded-md border overflow-hidden"
           key={`variant-${index}`}
@@ -84,6 +90,7 @@ const Variants = () => {
             className="w-full rounded-none p-3 bg-accent"
           >
             {form.watch(`variants.${index}.title`)}
+            {!variant?.itemId && <Badge className="ml-auto">New</Badge>}
           </Badge>
 
           <div className="p-4 grid grid-cols-2 gap-4">

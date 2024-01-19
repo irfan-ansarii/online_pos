@@ -1,7 +1,9 @@
 "use client";
 import React from "react";
-import { Product } from "@prisma/client";
-import { ImagePlus, PenSquare } from "lucide-react";
+import * as z from "zod";
+import { Product, File, Variant } from "@prisma/client";
+import { editProductValidation } from "@/lib/validations/product";
+import { Check, ImagePlus, PenSquare } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -26,14 +28,45 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import MediaLibrary from "@/components/media-library/media-library";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Options from "./Options";
+import Variants from "./Variants";
 
-const EditSheet = ({ product }: { product: Product }) => {
+interface EditProductProps extends Product {
+  image: File;
+  variants: Variant[];
+}
+
+const EditSheet = ({ product }: { product: EditProductProps }) => {
   const [open, toggle] = useToggle();
-  const form = useForm({
-    defaultValues: {},
+  const form = useForm<z.infer<typeof editProductValidation>>({
+    defaultValues: {
+      id: product.id,
+      title: product.title,
+      description: product.description,
+      imageId: product.imageId || undefined,
+      imageSrc: product.image?.src,
+      type: product.type,
+      status: product.status,
+      options: product.options,
+      variants: product.variants.map((v) => ({
+        itemId: v.id,
+        title: v.title,
+        option: v.option,
+        purchasePrice: v.purchasePrice,
+        salePrice: v.salePrice,
+        sku: v.sku,
+        hsn: v.hsn,
+        taxRate: v.taxRate,
+      })),
+      purchasePrice: product.variants[0].purchasePrice,
+      salePrice: product.variants[0].salePrice,
+      sku: product.variants[0].sku,
+      hsn: product.variants[0].hsn,
+      taxRate: product.variants[0].taxRate,
+    },
   });
 
-  const onSubmit = (values: any) => {
+  const onSubmit = (values: z.infer<typeof editProductValidation>) => {
     console.log(values);
   };
 
@@ -138,7 +171,7 @@ const EditSheet = ({ product }: { product: Product }) => {
                                 className="peer sr-only"
                               />
                             </FormControl>
-                            <FormLabel className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                            <FormLabel className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent  peer-data-[state=checked]:border-primary ">
                               Simple
                             </FormLabel>
                           </FormItem>
@@ -149,7 +182,7 @@ const EditSheet = ({ product }: { product: Product }) => {
                                 className="peer sr-only"
                               />
                             </FormControl>
-                            <FormLabel className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                            <FormLabel className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent  peer-data-[state=checked]:border-primary">
                               Variable
                             </FormLabel>
                           </FormItem>
@@ -162,10 +195,10 @@ const EditSheet = ({ product }: { product: Product }) => {
 
                 {form.watch("type") === "variable" ? (
                   <>
-                    {/* <ul className="flex flex-col gap-4">
+                    <ul className="flex flex-col gap-4">
                       <Options />
                     </ul>
-                    <Variants /> */}
+                    <Variants />
                   </>
                 ) : (
                   <div className="grid grid-cols-1 gap-4">
@@ -238,6 +271,9 @@ const EditSheet = ({ product }: { product: Product }) => {
                 )}
               </div>
             </div>
+            <Button type="submit" className="flex shrink-0">
+              Update
+            </Button>
           </form>
         </Form>
       </SheetContent>
