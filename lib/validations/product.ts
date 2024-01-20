@@ -3,12 +3,13 @@ import * as z from "zod";
 export const productValidation = z
   .object({
     imageId: z.number().refine((id) => id, {
-      message: "Image is required",
+      message: "Required",
     }),
-    title: z.string().nonempty({ message: "Title is required" }),
-    description: z.string().nonempty({ message: "Description is required" }),
+    imageSrc: z.any(),
+    title: z.string().nonempty({ message: "Required" }),
+    description: z.string().nonempty({ message: "Required" }),
     type: z.enum(["simple", "variable"]),
-    status: z.enum(["active", "archived", "trash"]),
+    status: z.enum(["active", "archived", "trash"]).default("active"),
     options: z
       .object({
         name: z.string(),
@@ -30,7 +31,7 @@ export const productValidation = z
         purchasePrice: z.any(),
         salePrice: z.any(),
         sku: z.string().optional(),
-        hsn: z.string().length(6),
+        hsn: z.any(),
         taxRate: z.any(),
       })
       .array()
@@ -42,82 +43,7 @@ export const productValidation = z
     taxRate: z.any(),
   })
   .superRefine((data, ctx) => {
-    const { purchasePrice, salePrice, taxRate, sku, type, variants, options } =
-      data;
-    if (type === "simple") {
-      if (!purchasePrice || isNaN(Number(purchasePrice))) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Enter valid number",
-          path: ["purchasePrice"],
-        });
-      }
-
-      if (!salePrice || isNaN(Number(salePrice))) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Enter valid number",
-          path: ["salePrice"],
-        });
-      }
-      if (!taxRate || isNaN(Number(taxRate))) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Enter valid number",
-          path: ["taxRate"],
-        });
-      }
-    } else if (type === "variable") {
-      options?.forEach((option, i) => {
-        if (!option.name) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Option name is required",
-            path: [`options.${i}.name`],
-          });
-        }
-        if (!option.values || option.values.length <= 0) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Option value is required",
-            path: [`options.${i}.value`],
-          });
-        }
-      });
-
-      if (!variants || variants.length <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Variants are required",
-          path: ["options", "variants"],
-        });
-      }
-
-      variants?.forEach((variant, i) => {
-        const { purchasePrice, salePrice, taxRate } = variant;
-        if (!purchasePrice || isNaN(Number(purchasePrice))) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Enter valid purchase price",
-            path: [`variants.${i}.purchasePrice`],
-          });
-        }
-        if (!salePrice || isNaN(Number(salePrice))) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Enter valid sale price",
-            path: [`variants.${i}.salePrice`],
-          });
-        }
-        if (!taxRate || isNaN(Number(taxRate))) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Enter valid tax rate",
-            path: [`variants.${i}.taxRate`],
-          });
-        }
-      });
-    }
+    validate(data, ctx);
   });
 
 export const editProductValidation = z
@@ -140,14 +66,8 @@ export const editProductValidation = z
       .optional(),
     variants: z
       .object({
-        itemId: z.number(),
-        option: z
-          .object({
-            name: z.string(),
-            value: z.string(),
-          })
-          .array()
-          .nullable(),
+        itemId: z.any(),
+        option: z.any(),
         title: z.string(),
         purchasePrice: z.any(),
         salePrice: z.any(),
@@ -157,6 +77,9 @@ export const editProductValidation = z
       })
       .array()
       .optional(),
+    option: z.any(),
+    itemId: z.any(),
+    variantTitle: z.any(),
     purchasePrice: z.any(),
     salePrice: z.any(),
     sku: z.any(),
@@ -164,84 +87,101 @@ export const editProductValidation = z
     taxRate: z.any(),
   })
   .superRefine((data, ctx) => {
-    const { purchasePrice, salePrice, taxRate, sku, type, variants, options } =
-      data;
-    if (type === "simple") {
+    validate(data, ctx);
+  });
+
+const validate = (data: any, ctx: z.RefinementCtx) => {
+  const { purchasePrice, salePrice, taxRate, type, variants, hsn, options } =
+    data;
+  if (type === "simple") {
+    if (!purchasePrice || isNaN(Number(purchasePrice))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enter valid number",
+        path: ["purchasePrice"],
+      });
+    }
+
+    if (!salePrice || isNaN(Number(salePrice))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enter valid number",
+        path: ["salePrice"],
+      });
+    }
+    if (!taxRate || isNaN(Number(taxRate))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enter valid number",
+        path: ["taxRate"],
+      });
+    }
+    if (!hsn) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Required",
+        path: ["hsn"],
+      });
+    }
+  } else if (type === "variable") {
+    options?.forEach((option: any, i: number) => {
+      if (!option.name) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Option name is required",
+          path: [`options.${i}.name`],
+        });
+      }
+      if (!option.values || option.values.length <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Option value is required",
+          path: [`options.${i}.value`],
+        });
+      }
+    });
+
+    if (!variants || variants.length <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Variants are required",
+        path: ["options", "variants"],
+      });
+    }
+
+    variants?.forEach((variant: any, i: number) => {
+      const { purchasePrice, salePrice, taxRate, hsn } = variant;
       if (!purchasePrice || isNaN(Number(purchasePrice))) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Enter valid number",
-          path: ["purchasePrice"],
+          path: [`variants.${i}.purchasePrice`],
         });
       }
-
       if (!salePrice || isNaN(Number(salePrice))) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Enter valid number",
-          path: ["salePrice"],
+          path: [`variants.${i}.salePrice`],
         });
       }
       if (!taxRate || isNaN(Number(taxRate))) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Enter valid number",
-          path: ["taxRate"],
+          path: [`variants.${i}.taxRate`],
         });
       }
-    } else if (type === "variable") {
-      options?.forEach((option, i) => {
-        if (!option.name) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Option name is required",
-            path: [`options.${i}.name`],
-          });
-        }
-        if (!option.values || option.values.length <= 0) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Option value is required",
-            path: [`options.${i}.value`],
-          });
-        }
-      });
-
-      if (!variants || variants.length <= 0) {
+      if (!hsn) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Variants are required",
-          path: ["options", "variants"],
+          message: "Required",
+          path: [`variants.${i}.hsn`],
         });
       }
-
-      variants?.forEach((variant, i) => {
-        const { purchasePrice, salePrice, taxRate } = variant;
-        if (!purchasePrice || isNaN(Number(purchasePrice))) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Enter valid purchase price",
-            path: [`variants.${i}.purchasePrice`],
-          });
-        }
-        if (!salePrice || isNaN(Number(salePrice))) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Enter valid sale price",
-            path: [`variants.${i}.salePrice`],
-          });
-        }
-        if (!taxRate || isNaN(Number(taxRate))) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Enter valid tax rate",
-            path: [`variants.${i}.taxRate`],
-          });
-        }
-      });
-    }
-  });
-
+    });
+  }
+};
 export const transferValidation = z.object({
   toId: z.string().nonempty(),
   lineItems: z

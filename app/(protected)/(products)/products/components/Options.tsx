@@ -24,6 +24,7 @@ const Options = () => {
   const setValues = (value: string, index: number) => {
     if (!value) return;
     const values = form.getValues(`options.${index}.values`);
+
     if (values.includes(value)) {
       form.setError(`options.${index}.value`, {
         type: "custom",
@@ -31,6 +32,7 @@ const Options = () => {
       });
       return;
     }
+    form.clearErrors(`options.${index}.value`);
     form.setValue(`options.${index}.values`, [...values, value]);
     form.setValue(`options.${index}.value`, "");
     form.setFocus(`options.${index}.value`);
@@ -118,7 +120,7 @@ const Options = () => {
 
             <div className="flex gap-2 flex-wrap">
               {form
-                .getValues(`options.${index}.values`)
+                .watch(`options.${index}.values`)
                 .map((item: string, i: number) => (
                   <Badge
                     className="pr-1 py-1 gap-2 overflow-hidden justify-between"

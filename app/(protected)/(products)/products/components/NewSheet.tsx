@@ -18,6 +18,13 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Form,
   FormControl,
   FormField,
@@ -38,21 +45,21 @@ import MediaLibrary from "@/components/media-library/media-library";
 const NewSheet = () => {
   const [open, toggle] = useSheetToggle("newSheet");
   const router = useRouter();
-  const [preview, setPreview] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof productValidation>>({
     resolver: zodResolver(productValidation),
+    mode: "onChange",
     defaultValues: {
       status: "active",
       title: "",
       description: "",
       type: "simple",
-      purchasePrice: 0,
-      salePrice: 0,
+      purchasePrice: "",
+      salePrice: "",
       sku: "",
       hsn: "",
-      taxRate: 0,
+      taxRate: "",
       options: [{ name: "", values: [], value: "" }],
       variants: [],
     },
@@ -78,11 +85,10 @@ const NewSheet = () => {
       await createProduct(values);
       toast({
         variant: "success",
-        title: "Product created successfully!",
+        title: "Product created",
       });
       form.reset();
       toggle();
-      setPreview("");
       router.refresh();
     } catch (error: any) {
       toast({
@@ -95,8 +101,9 @@ const NewSheet = () => {
   };
 
   const onSelect = (file: any) => {
-    setPreview(file.src);
+    form.setValue("imageSrc", file.src);
     form.setValue("imageId", file.id);
+    form.clearErrors("imageId");
   };
 
   return (
@@ -131,7 +138,7 @@ const NewSheet = () => {
                       <Avatar className="w-full h-full">
                         <AvatarImage
                           className="w-full h-full object-contain"
-                          src={preview}
+                          src={form.watch("imageSrc")}
                         ></AvatarImage>
                         <AvatarFallback className="bg-transparent">
                           <ImagePlus className="w-10 h-10" />
@@ -145,6 +152,32 @@ const NewSheet = () => {
                     )}
                   </div>
                 </MediaLibrary>
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a verified email to display" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -230,7 +263,7 @@ const NewSheet = () => {
                         <FormItem>
                           <FormLabel>Purchase Price</FormLabel>
                           <FormControl>
-                            <Input placeholder="0.00" {...field} />
+                            <Input placeholder="0" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -243,7 +276,7 @@ const NewSheet = () => {
                         <FormItem>
                           <FormLabel>Sale Price</FormLabel>
                           <FormControl>
-                            <Input placeholder="0.00" {...field} />
+                            <Input placeholder="0" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -269,7 +302,7 @@ const NewSheet = () => {
                         <FormItem>
                           <FormLabel>HSN Code</FormLabel>
                           <FormControl>
-                            <Input placeholder="6104" {...field} />
+                            <Input placeholder="610400" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

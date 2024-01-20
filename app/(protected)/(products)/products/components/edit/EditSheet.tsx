@@ -3,14 +3,23 @@ import React from "react";
 import * as z from "zod";
 import { Product, File, Variant } from "@prisma/client";
 import { editProductValidation } from "@/lib/validations/product";
-import { Check, ImagePlus, PenSquare } from "lucide-react";
+import { updateProduct } from "@/actions/product-actions";
+import { ImagePlus, Loader2, PenSquare } from "lucide-react";
 import {
   Sheet,
   SheetContent,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -30,6 +39,8 @@ import MediaLibrary from "@/components/media-library/media-library";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Options from "./Options";
 import Variants from "./Variants";
+import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 interface EditProductProps extends Product {
   image: File;
@@ -38,16 +49,20 @@ interface EditProductProps extends Product {
 
 const EditSheet = ({ product }: { product: EditProductProps }) => {
   const [open, toggle] = useToggle();
+  const router = useRouter();
+  const [loading, setLoading] = useToggle();
   const form = useForm<z.infer<typeof editProductValidation>>({
     defaultValues: {
       id: product.id,
       title: product.title,
       description: product.description,
       imageId: product.imageId || undefined,
-      imageSrc: product.image?.src,
+      imageSrc: product?.image?.src,
       type: product.type,
       status: product.status,
+      //@ts-ignore
       options: product.options,
+      //@ts-ignore
       variants: product.variants.map((v) => ({
         itemId: v.id,
         title: v.title,
@@ -58,6 +73,9 @@ const EditSheet = ({ product }: { product: EditProductProps }) => {
         hsn: v.hsn,
         taxRate: v.taxRate,
       })),
+      itemId: product.variants[0].id,
+      variantTitle: product.variants[0].title,
+      option: product.variants[0].option,
       purchasePrice: product.variants[0].purchasePrice,
       salePrice: product.variants[0].salePrice,
       sku: product.variants[0].sku,
@@ -66,13 +84,48 @@ const EditSheet = ({ product }: { product: EditProductProps }) => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof editProductValidation>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof editProductValidation>) => {
+    if (values.type === "simple") {
+      values.variants = [
+        {
+          itemId: values.itemId,
+          option: null,
+          title: "Default",
+          purchasePrice: Number(values.purchasePrice),
+          salePrice: Number(values.purchasePrice),
+          sku: values.sku,
+          hsn: values.hsn,
+          taxRate: Number(values.taxRate),
+        },
+      ];
+    }
+
+    try {
+      setLoading(true);
+      await updateProduct(values);
+      toast({
+        variant: "success",
+        title: "Product updated",
+      });
+      form.reset();
+      toggle();
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        variant: "error",
+        title: error?.response?.data?.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const onSelect = (selected: any) => {
-    console.log("selected", selected);
+  const onSelect = (file: any) => {
+    form.setValue("imageSrc", file.src);
+    form.setValue("imageId", file.id);
+    form.clearErrors("imageId");
   };
+
   return (
     <Sheet open={open} onOpenChange={toggle}>
       <SheetTrigger asChild>
@@ -119,11 +172,38 @@ const EditSheet = ({ product }: { product: EditProductProps }) => {
                     </div>
                     {form.formState.errors?.imageId?.message && (
                       <p className="text-sm font-medium text-destructive mt-2">
-                        Image is required
+                        Required
                       </p>
                     )}
                   </div>
                 </MediaLibrary>
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a verified email to display" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                          <SelectItem value="trash">Trash</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -271,9 +351,15 @@ const EditSheet = ({ product }: { product: EditProductProps }) => {
                 )}
               </div>
             </div>
-            <Button type="submit" className="flex shrink-0">
-              Update
-            </Button>
+            <SheetFooter className="pt-2">
+              <Button className="w-full" type="submit">
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Update"
+                )}
+              </Button>
+            </SheetFooter>
           </form>
         </Form>
       </SheetContent>

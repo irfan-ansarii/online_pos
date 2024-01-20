@@ -147,7 +147,7 @@ export async function createProduct(values: any) {
       const barcode = `GN${`${id}`.padStart(6, "0")}`;
 
       await prisma.variant.update({
-        data: { sku: sku ? sku : barcode, barcode },
+        data: { sku: sku || barcode, barcode },
         where: {
           id: id,
         },
@@ -169,34 +169,102 @@ export async function createProduct(values: any) {
  * @param values
  * @returns
  */
-// TODO
+
 export async function updateProduct(values: any) {
   try {
     const session = await auth();
-    if (!session) {
+    if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
-    const { id, firstName, lastName, role, status, locationId } = values;
+    const { id, imageId, title, description, type, status, variants, options } =
+      values;
 
-    // @ts-ignore: Unreachable code error
-    if (session.role !== "admin") {
-      throw new Error("Access Denied");
-    }
-
-    const user = await prisma.user.update({
-      where: { id: Number(id) },
-      data: {
-        firstName,
-        lastName,
-        role,
-        status,
-        locationId: Number(locationId),
-      },
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { variants: true },
     });
 
-    return { data: user, message: "updated" };
+    if (!product) {
+      throw new Error("Not found");
+    }
+    // get all locations
+    const locations = await prisma.location.findMany();
+
+    const inventoryToCreate = locations.map((location) => ({
+      location: { connect: { id: location.id } },
+      stock: 0,
+    }));
+
+    const prismaTransactions = [];
+    const itemsToDelete = [];
+
+    // get id of the variants to be deleted
+    for (const variant of product.variants) {
+      const index = variants.findIndex((v: any) => v.itemId === variant.id);
+      if (index === -1) itemsToDelete.push(variant.id);
+    }
+
+    // update product
+    prismaTransactions.push(
+      prisma.product.update({
+        where: { id },
+        data: {
+          title,
+          description,
+          type,
+          status,
+          options: options || undefined,
+          image: { connect: { id: imageId } },
+        },
+        include: { variants: true },
+      })
+    );
+    // delete variants
+    prismaTransactions.push(
+      prisma.variant.deleteMany({
+        where: {
+          id: { in: itemsToDelete },
+        },
+      })
+    );
+
+    // create or update variants
+    for (const variant of variants) {
+      prismaTransactions.push(
+        prisma.variant.upsert({
+          where: { id: variant.itemId || -1 },
+          update: {
+            title: variant.title,
+            option: variant.option,
+            sku: variant.sku,
+            hsn: variant.hsn,
+            purchasePrice: Number(variant.purchasePrice),
+            salePrice: Number(variant.salePrice),
+            taxRate: Number(variant.taxRate),
+          },
+          create: {
+            productId: id,
+            title: variant.title,
+            option: variant.option,
+            sku: variant.sku,
+            hsn: variant.hsn,
+            purchasePrice: Number(variant.purchasePrice),
+            salePrice: Number(variant.salePrice),
+            taxRate: Number(variant.taxRate),
+            inventory: {
+              create: inventoryToCreate,
+            },
+          },
+        })
+      );
+    }
+
+    const [updatedProduct] = await prisma.$transaction(prismaTransactions);
+
+    return { data: updatedProduct, message: "updated" };
   } catch (error: any) {
+    console.log(error);
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }

@@ -23,24 +23,20 @@ const Variants = () => {
 
   const {
     fields: variants,
-    append,
-    update,
+    insert,
     remove,
   } = useFieldArray({
     control: form.control,
     name: "variants",
   });
 
-  const watchVariants = useWatch({
-    name: "variants",
-    control: form.control,
-  });
-
   function generateVariants(options: [{ name: string; values: string[] }]) {
-    const hasAllOptions = options.every(
-      (opt) => opt.name && opt.values.length > 0
-    );
-    if (!hasAllOptions) return null;
+    if (options && options.length > 1) {
+      const hasAllOptions = options.every(
+        (opt) => opt.name && opt.values.length > 0
+      );
+      if (!hasAllOptions) return null;
+    }
 
     const generatedVariants: any[] = [];
 
@@ -56,9 +52,9 @@ const Variants = () => {
           title,
           option,
         });
-      }
-      if (options[index]?.name) {
-        for (const value of options[index]?.values) {
+      } else {
+        const { values } = options[index];
+        for (const value of values) {
           generate([...current, value], index + 1);
         }
       }
@@ -71,26 +67,34 @@ const Variants = () => {
   const updateVariants = (generated: any) => {
     if (!generated) return;
 
+    const existingVariants = form.watch("variants");
+
     for (let i = variants.length - 1; i >= 0; i--) {
       //@ts-ignore
       const { title } = variants[i];
       const index = generated.findIndex((v: any) => v.title === title);
-      if (index === -1) {
-        remove(i);
-      }
+      if (index === -1) remove(i);
     }
 
-    // update
-    const exsitingVariants = form.watch("variants");
-    for (const variant of generated) {
-      const index = exsitingVariants.findIndex(
+    for (let i = 0; i < generated.length; i++) {
+      const variant = generated[i];
+      const index = existingVariants.findIndex(
         (v: any) => v.title === variant.title
       );
-      if (index !== -1) {
-        update(index, { ...exsitingVariants[index], ...variant });
-      } else {
-        append({ ...variant }, { shouldFocus: false });
-      }
+
+      if (index === -1)
+        insert(
+          i,
+          {
+            ...variant,
+            purchasePrice: "",
+            salePrice: "",
+            sku: "",
+            hsn: "",
+            taxRate: "",
+          },
+          { shouldFocus: false }
+        );
     }
   };
 
@@ -124,7 +128,7 @@ const Variants = () => {
                 <FormItem>
                   <FormLabel>Purchase Price</FormLabel>
                   <FormControl>
-                    <Input placeholder="0.00" {...field} />
+                    <Input placeholder="0" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -138,7 +142,7 @@ const Variants = () => {
                 <FormItem>
                   <FormLabel>Sale Price</FormLabel>
                   <FormControl>
-                    <Input placeholder="0.00" {...field} />
+                    <Input placeholder="0" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
