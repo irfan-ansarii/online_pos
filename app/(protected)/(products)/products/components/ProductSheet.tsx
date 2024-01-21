@@ -11,7 +11,13 @@ import { AvatarItem } from "@/components/shared/avatar";
 
 const ProductSheet = ({ product }: any) => {
   const { title, variants } = product;
-  console.log(product);
+
+  const statusBadgeVariant: any = {
+    active: "default",
+    archived: "secondary",
+    trash: "destructive",
+  };
+
   return (
     <SheetContent className="md:max-w-lg">
       <div className="flex flex-col h-full">
@@ -29,7 +35,12 @@ const ProductSheet = ({ product }: any) => {
               <div className="text-lg font-semibold truncate">
                 {product.title}
               </div>
-              <Badge className="rounded-md uppercase">{product.status}</Badge>
+              <Badge
+                className="rounded-md uppercase"
+                variant={statusBadgeVariant[product.status]}
+              >
+                {product.status}
+              </Badge>
             </div>
           </div>
 
@@ -40,10 +51,8 @@ const ProductSheet = ({ product }: any) => {
             >
               <div className="grid grid-cols-4 gap-2 px-6 py-2 items-center bg-accent">
                 <div className="font-medium">
-                  <div>{variant.title}</div>
-                  <Badge className="py-0" variant="secondary">
-                    {variant.barcode}
-                  </Badge>
+                  <Badge className="rounded-md">{variant.title}</Badge>
+                  <div>{variant.barcode}</div>
                 </div>
                 <div className="text-right">
                   {Numeral(variant.purchasePrice).format()}
@@ -58,7 +67,7 @@ const ProductSheet = ({ product }: any) => {
 
               <div className="divide-y px-6">
                 {variant?.inventory?.map((inventory: any) => (
-                  <div className="flex py-2 items-center">
+                  <div className="flex py-2 items-center" key={inventory.id}>
                     <div className="text-muted-foreground mr-2">
                       <MapPin className="w-3.5 h-3.5" />
                     </div>

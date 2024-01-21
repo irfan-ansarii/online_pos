@@ -172,7 +172,7 @@ export async function createPurchase(values: any) {
         reason: "",
         notes: purchase.title,
       };
-      newItem.reason = newItem.quantity < 0 ? "purchase return" : "received";
+      newItem.reason = newItem.quantity < 0 ? "return" : "received";
       if (newItem.quantity !== 0 && newItem.productId) {
         acc.push(newItem);
       }
@@ -356,7 +356,7 @@ export async function updatePurchase(values: any) {
         newItem.quantity = kind === "return" ? -quantity : quantity;
       }
       if (newItem.quantity !== 0 && item.productId) {
-        newItem.reason = newItem.quantity > 0 ? "received" : "purchase return";
+        newItem.reason = newItem.quantity > 0 ? "received" : "return";
         acc.push(newItem);
       }
 

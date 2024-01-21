@@ -41,6 +41,7 @@ import Options from "./Options";
 import Variants from "./Variants";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface EditProductProps extends Product {
   image: File;
@@ -52,6 +53,7 @@ const EditSheet = ({ product }: { product: EditProductProps }) => {
   const router = useRouter();
   const [loading, setLoading] = useToggle();
   const form = useForm<z.infer<typeof editProductValidation>>({
+    resolver: zodResolver(editProductValidation),
     defaultValues: {
       id: product.id,
       title: product.title,
@@ -107,7 +109,7 @@ const EditSheet = ({ product }: { product: EditProductProps }) => {
         variant: "success",
         title: "Product updated",
       });
-      form.reset();
+
       toggle();
       router.refresh();
     } catch (error: any) {

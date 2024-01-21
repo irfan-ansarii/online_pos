@@ -262,6 +262,21 @@ export async function updateProduct(values: any) {
 
     const [updatedProduct] = await prisma.$transaction(prismaTransactions);
 
+    // @ts-ignore
+    for (const variant of updatedProduct?.variants) {
+      const { id, sku, barcode } = variant;
+
+      if (!barcode) {
+        const generatedBarcode = `GN${`${id}`.padStart(6, "0")}`;
+        await prisma.variant.update({
+          data: { sku: sku || generatedBarcode, barcode: generatedBarcode },
+          where: {
+            id: id,
+          },
+        });
+      }
+    }
+
     return { data: updatedProduct, message: "updated" };
   } catch (error: any) {
     console.log(error);

@@ -7,9 +7,11 @@ import { cn } from "@/lib/utils";
 import { MENU_ITEMS } from "@/config/app";
 
 import { usePathname } from "next/navigation";
+
 import { ThemeCustomizer } from "@/components/theme/theme-customizer";
 
 import { Separator } from "@/components/ui/separator";
+
 import Customizer from "@/components/global/sidebar/customizer";
 import ThemeSwitcher from "@/components/global/sidebar/theme-switcher";
 import SearchPanel from "@/components/global/sidebar/search-panel";
@@ -48,9 +50,12 @@ function Sidebar() {
               const Icon = el.icon;
               return (
                 <li
-                  className="rounded-md overflow-hidden"
+                  className="rounded-md overflow-hidden relative"
                   key={`${el.key}-${i}`}
                 >
+                  <span className="absolute inset-y-0 right-4 text-muted-foreground inline-flex items-center text-[10px]">
+                    {i + 1}
+                  </span>
                   <Link
                     href={el.href}
                     className={cn(

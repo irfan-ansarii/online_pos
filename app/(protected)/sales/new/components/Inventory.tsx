@@ -129,14 +129,14 @@ const Inventory = ({
             className="rounded-md cursor-pointer relative overflow-hidden"
             onClick={() => handleSelectOption(item)}
           >
-            <Badge
-              className={`top-2 left-2 absolute z-10 ${
-                item.stock > 0 ? "bg-success" : "bg-destructive"
-              }`}
-              variant="secondary"
-            >
-              {item.stock}
-            </Badge>
+            {item.variant.title?.toLowerCase() !== "default" && (
+              <Badge
+                className={`top-2 left-2 absolute z-[12]`}
+                variant="secondary"
+              >
+                {item.variant.title}
+              </Badge>
+            )}
             <CardContent className="p-0">
               <AvatarItem
                 src={item?.product?.image?.src}
@@ -150,8 +150,18 @@ const Inventory = ({
               <div className="leading-tight truncate font-medium">
                 {item.product.title}
               </div>
-              <div className="leading-tight font-medium text-muted-foreground">
-                {Numeral(item.variant[displayPrice]).format()}
+              <div className="flex justify-between items-end">
+                <div className="leading-tight font-medium text-muted-foreground">
+                  {Numeral(item.variant[displayPrice]).format()}
+                </div>
+                <Badge
+                  className={`z-[12] py-0 ${
+                    item.stock > 0 ? "bg-success" : "bg-destructive"
+                  }`}
+                  variant="secondary"
+                >
+                  {item.stock}
+                </Badge>
               </div>
             </div>
           </Card>

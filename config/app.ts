@@ -10,8 +10,11 @@ import {
   Mail,
   MessageCircle,
   Printer,
+  ArrowLeftRight,
+  ArrowUpDown,
+  Scan,
 } from "lucide-react";
-
+import { Barcode } from "@/components/global/sidebar/barcode-icon";
 export const MENU_ITEMS = [
   {
     key: "dashboard",
@@ -36,28 +39,25 @@ export const MENU_ITEMS = [
     label: "Products",
     href: "/products",
     icon: Tag,
-    children: [
-      {
-        key: "transfers",
-        label: "Transfers",
-        href: "/transfers",
-        icon: Tag,
-      },
-      {
-        key: "adjustments",
-        label: "Adjustments",
-        href: "/adjustments",
-        icon: Tag,
-      },
-      {
-        key: "barcodes",
-        label: "Barcodes",
-        href: "/barcodes",
-        icon: Tag,
-      },
-    ],
   },
-
+  {
+    key: "transfers",
+    label: "Transfers",
+    href: "/transfers",
+    icon: ArrowLeftRight,
+  },
+  {
+    key: "adjustments",
+    label: "Adjustments",
+    href: "/adjustments",
+    icon: ArrowUpDown,
+  },
+  {
+    key: "barcodes",
+    label: "Barcodes",
+    href: "/barcodes",
+    icon: Barcode,
+  },
   {
     key: "customers",
     label: "Customers",

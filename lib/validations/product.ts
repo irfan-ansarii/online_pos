@@ -72,7 +72,7 @@ export const editProductValidation = z
         purchasePrice: z.any(),
         salePrice: z.any(),
         sku: z.string().optional(),
-        hsn: z.string().length(6),
+        hsn: z.string(),
         taxRate: z.any(),
       })
       .array()

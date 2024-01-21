@@ -201,3 +201,32 @@ export async function getUser(id: number) {
     throw new Error(error.message);
   }
 }
+
+/**
+ * delete user
+ * @param id
+ * @returns
+ */
+export async function deleteUser(id: number) {
+  try {
+    const session = await auth();
+    if (!session || typeof session === "string") {
+      throw new Error("Unauthorized");
+    }
+
+    const user = await prisma.user.delete({
+      where: { id: Number(id) },
+    });
+
+    if (!user) {
+      throw new Error("Not found");
+    }
+
+    return { data: user, message: "success" };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+}
