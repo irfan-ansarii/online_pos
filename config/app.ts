@@ -12,9 +12,9 @@ import {
   Printer,
   ArrowLeftRight,
   ArrowUpDown,
-  Scan,
+  ScanLine,
 } from "lucide-react";
-import { Barcode } from "@/components/global/sidebar/barcode-icon";
+
 export const MENU_ITEMS = [
   {
     key: "dashboard",
@@ -56,7 +56,7 @@ export const MENU_ITEMS = [
     key: "barcodes",
     label: "Barcodes",
     href: "/barcodes",
-    icon: Barcode,
+    icon: ScanLine,
   },
   {
     key: "customers",

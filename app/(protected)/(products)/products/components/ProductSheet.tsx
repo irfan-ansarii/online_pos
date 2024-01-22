@@ -30,6 +30,8 @@ const ProductSheet = ({ product }: any) => {
             <AvatarItem
               src={product?.image?.src}
               className="w-32 h-32 rounded-md"
+              width={200}
+              height={200}
             />
             <div className="space-y-2">
               <div className="text-lg font-semibold truncate">

@@ -216,14 +216,14 @@ export const adjustmentValidation = z.object({
       sku: z.any().optional(),
       barcode: z.any().optional(),
       quantity: z
-        .union([z.string(), z.number()])
+        .any()
         .refine((n: any) => !isNaN(n), { message: "Enter valid number" }),
       imageSrc: z.any(),
     })
     .array()
     .min(1),
-  reason: z.string().min(1, { message: "Required" }),
-  note: z.any(),
+  reason: z.string().nonempty({ message: "Required" }),
+  notes: z.string().nonempty({ message: "Required" }),
 });
 
 export const barcodeValidation = z.object({

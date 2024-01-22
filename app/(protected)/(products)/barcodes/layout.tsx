@@ -2,12 +2,13 @@ import React from "react";
 import CreateButton from "../components/create-button";
 import NewSheet from "./components/NewSheet";
 import SearchBar from "@/components/shared/search-bar";
+import Actions from "./components/Actions";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <SearchBar>
-        {/* sort and filters */}
+        <Actions />
         <CreateButton className="hidden md:flex ml-auto" />
       </SearchBar>
       <div className="md:p-6 flex-1 flex flex-col gap-6">{children}</div>

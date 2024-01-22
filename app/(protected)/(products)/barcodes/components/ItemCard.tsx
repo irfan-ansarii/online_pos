@@ -7,15 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import ItemDialog from "./ItemDialog";
 import { AvatarItem } from "@/components/shared/avatar";
 
-type BadgeClass = {
-  [key: string]: string;
-};
-
 const ItemCard = ({ item }: { item: any }) => {
-  const badgeClass: BadgeClass = {
-    pending: "text-warning",
-    printed: "text-muted-foreground",
-    cancelled: "text-destructive",
+  const badgeClass: { [key: string]: string } = {
+    pending: "bg-warning hover:bg-warning",
+    printed: "bg-success hover:bg-success",
+    cancelled: "bg-error hover:bg-error",
   };
 
   return (

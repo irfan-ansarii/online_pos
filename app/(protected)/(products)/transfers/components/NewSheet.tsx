@@ -75,7 +75,9 @@ const NewSheet = () => {
   const onSelect = (value: Option) => {
     const items = form.getValues("lineItems");
 
-    const index = items.findIndex((item) => item.itemId === value.itemId);
+    const index = items.findIndex(
+      (item) => item.barcode === value.variant.barcode
+    );
 
     if (index !== -1) {
       lineItems.update(index, {
@@ -233,8 +235,14 @@ const NewSheet = () => {
 
                 <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
                   {lineItems.fields.map(
-                    ({ title, variantTitle, imageSrc, quantity }, i) => (
-                      <div className="flex rounded-md border p-2 pr-0 items-center snap-start">
+                    (
+                      { itemId, title, variantTitle, imageSrc, quantity },
+                      i
+                    ) => (
+                      <div
+                        className="flex rounded-md border p-2 pr-0 items-center snap-start"
+                        key={itemId}
+                      >
                         <div className="flex gap-3 items-center col-span-2">
                           <AvatarItem src={imageSrc} />
                           <div className="space-y-0.5 truncate">

@@ -53,9 +53,6 @@ function Sidebar() {
                   className="rounded-md overflow-hidden relative"
                   key={`${el.key}-${i}`}
                 >
-                  <span className="absolute inset-y-0 right-4 text-muted-foreground inline-flex items-center text-[10px]">
-                    {i + 1}
-                  </span>
                   <Link
                     href={el.href}
                     className={cn(

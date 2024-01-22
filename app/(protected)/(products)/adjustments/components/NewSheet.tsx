@@ -11,7 +11,7 @@ import { adjustmentValidation } from "@/lib/validations/product";
 import { useSheetToggle } from "@/hooks/useSheet";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
-import { useSession } from "@/hooks/useSession";
+import { useRouter } from "next/navigation";
 
 import {
   Sheet,
@@ -48,15 +48,13 @@ type Option = Record<string, any>;
 const NewSheet = () => {
   const [loading, setLoading] = React.useState(false);
   const [open, toggle] = useSheetToggle("newSheet");
-
-  const { session } = useSession();
+  const router = useRouter();
   const form = useForm<z.infer<typeof adjustmentValidation>>({
     resolver: zodResolver(adjustmentValidation),
     defaultValues: {
-      locationId: session?.location?.id,
       lineItems: [],
       reason: "Correction",
-      note: "",
+      notes: "",
     },
   });
 
@@ -109,15 +107,26 @@ const NewSheet = () => {
   };
 
   const onSubmit = async (values: z.infer<typeof adjustmentValidation>) => {
+    const { reason, notes } = values;
+    const formValues = values.lineItems.map((item) => ({
+      locationId: undefined,
+      productId: Number(item.productId),
+      variantId: Number(item.variantId),
+      quantity: Number(item.quantity),
+      reason: reason,
+      notes: notes,
+    }));
+
     try {
       setLoading(true);
-      await createAdjustment(values);
+      await createAdjustment(formValues);
       toast({
         variant: "success",
         title: "Stock adjusted successfully.",
       });
       toggle();
       form.reset();
+      router.refresh();
     } catch (error: any) {
       toast({
         variant: "error",
@@ -163,9 +172,7 @@ const NewSheet = () => {
                       <SelectItem value="Correction">Correction</SelectItem>
                       <SelectItem value="Damaged">Damaged</SelectItem>
                       <SelectItem value="Received">Received</SelectItem>
-                      <SelectItem value="Return restock">
-                        Return restock
-                      </SelectItem>
+                      <SelectItem value="return">Return</SelectItem>
                       <SelectItem value="Theft or loss">
                         Theft or loss
                       </SelectItem>
@@ -181,10 +188,10 @@ const NewSheet = () => {
 
             <FormField
               control={form.control}
-              name="note"
+              name="notes"
               render={({ field }) => (
                 <FormItem className="mb-6">
-                  <FormLabel>Note</FormLabel>
+                  <FormLabel>Notes</FormLabel>
 
                   <FormControl>
                     <Textarea {...field} />

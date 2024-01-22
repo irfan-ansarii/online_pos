@@ -8,6 +8,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
     <>
       <SearchBar>
         {/* sort and filters */}
+
         <CreateButton className="hidden md:flex ml-auto" />
       </SearchBar>
       <div className="md:p-6 flex-1 flex flex-col gap-6">{children}</div>
