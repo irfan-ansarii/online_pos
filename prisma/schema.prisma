@@ -226,6 +226,7 @@ model Sale {
   total           Float
   totalDue        Float
   taxLines        Json?
+  invoiceUrl      String?
   status          FinancialStatus @default(pending)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -370,6 +371,13 @@ model PurchaseTransaction {
   purchase       Purchase                @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
 
   @@map("purchase_transactions")
+}
+
+model Options {
+  id         Int    @id @default(autoincrement())
+  locationId Int
+  key        String
+  value      String @db.Text
 }
 
 enum FinancialStatus {
