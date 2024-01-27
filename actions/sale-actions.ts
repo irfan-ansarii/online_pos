@@ -1,16 +1,12 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import {
-  LineItem,
-  Prisma,
-  FinancialStatus,
-  TransactionKind,
-} from "@prisma/client";
+import { LineItem, Prisma, FinancialStatus } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 import { updateInventory } from "./inventory-actions";
 import { createAdjustment } from "./adjustment-actions";
+import { createSalePDF } from "./create-sale-pdf";
 
 interface ParamsProps {
   [key: string]: string;
@@ -171,10 +167,12 @@ export async function createSale(values: any) {
     });
 
     // update sale
+    const title = `GN${sale.id}`;
     const updated = await prisma.sale.update({
       where: { id: sale.id },
       data: {
-        title: `GN${sale.id}` /** prefix =* saleid *= suffix */,
+        title,
+        invoiceUrl: `/files/sale/${title}.pdf`,
       },
     });
 
@@ -204,6 +202,8 @@ export async function createSale(values: any) {
     // update transactions
     await createTransactions({ saleId: sale.id, data: transactions });
 
+    // create pdf
+    await createSalePDF(sale.id);
     // return response
     return { data: updated, message: "created" };
   } catch (error: any) {
@@ -366,6 +366,8 @@ export async function updateSale(values: any) {
     // update transactions
     await createTransactions({ saleId: sale.id, data: transactions });
 
+    // create pdf
+    await createSalePDF(sale.id);
     return {
       data: sale,
       message: "success",
