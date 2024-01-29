@@ -1,77 +1,168 @@
 "use server";
-
-import prisma from "@/lib/prisma";
-import { LineItem, Sale } from "@prisma/client";
-import { TextOptionsLight, jsPDF } from "jspdf";
-import { format } from "date-fns";
+import fs from "fs";
 //@ts-ignore
 import bwipjs from "bwip-js";
+import jsPDF from "jspdf";
 import sharp from "sharp";
-import fs from "fs";
+import { getBarcodes } from "./barcode-actions";
 
-export async function printBarcode() {
-  const filePath = `public/files/label.pdf`;
+/**
+ *
+ * @returns
+ */
+async function generateBarcodeList() {
+  const list: any[] = [];
 
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: [115, 175],
-  });
+  let page: number | undefined = 1;
+
+  do {
+    const { data, pagination } = await getBarcodes({
+      page: page.toString(),
+      status: "pending",
+    });
+
+    data.forEach((label) => {
+      const labelItem = {
+        barcode: label?.variant?.barcode || "GN547647",
+        sku: label.variant.sku,
+        option: label.variant.option || [],
+        title: label.product.title,
+        price: label.variant.purchasePrice,
+      };
+
+      for (let i = 0; i < label.quantity; i++) {
+        list.push(labelItem);
+      }
+    });
+
+    page = page === pagination.pageCount ? undefined : page + 1;
+  } while (page !== undefined);
+
+  return list;
+}
+
+/**
+ *
+ * @param doc
+ * @param barcodeOptions
+ * @param code
+ * @param x
+ * @param y
+ * @returns
+ */
+async function renderBarcode(
+  doc: jsPDF,
+  options: any,
+  labelItem: any,
+  x: number,
+  y: number
+) {
+  const { width, margin, gap, columns } = options;
+  const { barcode, sku, title, price, option } = labelItem;
+  console.log(barcode);
+  doc.setFontSize(6);
+  doc.setFont("helvetica", "normal");
 
   const barcodeOptions = {
     bcid: "code128",
-    text: "GN6475675",
+    text: barcode || sku || "gdhgdf",
     scale: 5,
-    textxalign: "center",
     height: 10,
   };
+  // console.log(labelItem);
 
-  let y = 5;
+  const generatedBarcode = await bwipjs.toBuffer(barcodeOptions);
 
-  for (let i = 0; i < 6; i++) {
-    const barcode = await bwipjs.toBuffer(barcodeOptions);
-    doc.setFont("helvetica", "normal");
-    const { width, height } = await sharp(barcode).metadata();
+  const barcodeWidth = (width - margin.left - margin.right) / columns;
 
-    const code = "GN005463";
-    let x = 5;
-    doc.addImage(barcode, 5, y, 50, 10);
-    doc.setFontSize(6);
+  doc.addImage(generatedBarcode, x, y, barcodeWidth, 8);
 
-    const totalWidth = Array.from(code).reduce((acc, curr) => {
-      const { w } = doc.getTextDimensions(curr);
-      return (acc += w);
-    }, 0);
+  y += 10;
 
-    const space = (50 - totalWidth) / (code.length - 1);
+  // draw barcode characters
+  let charX = x;
+  const totalWidth = Array.from(barcode).reduce((acc, curr) => {
+    const { w } = doc.getTextDimensions(curr);
+    acc += w;
+    return acc;
+  }, 0);
 
-    Array.from(code).forEach((item) => {
-      const { w } = doc.getTextDimensions(item);
-      doc.text(item, x, y + 12);
+  const space = (barcodeWidth - totalWidth) / (barcode.length - 1);
 
-      x += w + space;
-    });
+  Array.from(barcode).forEach((item) => {
+    const { w } = doc.getTextDimensions(item);
+    doc.text(item, charX, y);
+    charX += w + space;
+  });
+  y += 4;
+  doc.setFontSize(8);
 
-    doc.setFontSize(8);
-    y += 13;
+  doc.setFont("helvetica", "bold");
+  doc.text(title, x, y);
+  doc.setFont("helvetica", "normal");
+  y += 3.5;
+  doc.text("Size:", x, y);
+  doc.text("S", x + 14, y);
+  y += 3.5;
+  doc.text("Color:", x, y);
+  doc.text("S", x + 14, y);
 
-    doc.setFont("helvetica", "bold");
-    doc.text("Khushboo peplum shararafghdf dg set...", 5, y + 4);
-    doc.setFont("helvetica", "normal");
-    doc.text("Size:", 5, y + 7.5);
-    doc.text("Color:", 5, y + 11);
-    doc.text("S", 14, y + 7.5);
-    doc.text("Green", 14, y + 11);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  const priceWidth = doc.getTextWidth(price?.toFixed(2));
+  x += barcodeWidth - priceWidth;
 
-    doc.text("INR 1,290.00", 35, y + 10.5);
+  doc.text(price?.toFixed(2), x, y);
 
-    y += 16;
+  return y;
+}
+
+/**
+ *
+ */
+export async function printBarcode() {
+  const filePath = `public/files/label.pdf`;
+  const options = {
+    width: 150,
+    height: 25,
+    columns: 3,
+    margin: {
+      top: 2,
+      right: 2,
+      bottom: 2,
+      left: 2,
+    },
+  };
+  const doc = new jsPDF({
+    orientation: "l",
+    unit: "mm",
+    format: [options.width, options.height],
+  });
+
+  const barcodeList = await generateBarcodeList();
+
+  let yOffset = options.margin.left;
+  let j = 0;
+
+  for (let j = 0; j < barcodeList.length; j += options.columns) {
+    if (j > 0) {
+      doc.addPage();
+    }
+
+    for (let i = 0; i < options.columns; i++) {
+      const labelIndex = j + i;
+
+      if (labelIndex < barcodeList.length) {
+        const labelItem = barcodeList[labelIndex];
+        const x = i * (options.width / options.columns);
+        console.log(x);
+        await renderBarcode(doc, options, labelItem, x, options.margin.top);
+      }
+    }
   }
 
-  const byte = doc.output("arraybuffer");
+  const byte = await doc.output("arraybuffer");
   const buffer = Buffer.from(byte);
 
-  fs.writeFileSync(filePath, buffer);
+  await fs.writeFileSync(filePath, buffer);
 }

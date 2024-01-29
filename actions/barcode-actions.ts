@@ -22,7 +22,7 @@ export async function getBarcodes(params: ParamsProps) {
     }
 
     // destructure params
-    const { page, search } = params;
+    const { page, search, status } = params;
 
     // pagination
     const currentPage = parseInt(page, 10) || 1;
@@ -32,6 +32,7 @@ export async function getBarcodes(params: ParamsProps) {
     const filters: Prisma.LabelWhereInput = {
       AND: [
         { locationId: Number(session?.location.id) },
+        { status: status },
         {
           OR: [
             {
@@ -82,7 +83,7 @@ export async function getBarcodes(params: ParamsProps) {
         page: currentPage,
         pageSize: PAGE_SIZE,
         pageCount: Math.ceil(pages / PAGE_SIZE),
-        total,
+        total: pages,
       },
     };
   } catch (error: any) {
