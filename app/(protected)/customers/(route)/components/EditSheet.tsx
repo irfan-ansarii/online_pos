@@ -151,13 +151,26 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
               </div>
 
               {addresses.fields.map((field, i) => (
-                <div key={field.id} className="space-y-6 border-b !mb-4">
+                <div key={field.id} className="space-y-4 border-b !mb-4">
                   <FormField
                     control={form.control}
                     name={`addresses.${i}.company`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Company</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`addresses.${i}.gstin`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>GSTIN</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -198,7 +211,7 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
                       name={`addresses.${i}.zip`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Zip</FormLabel>
+                          <FormLabel>PIN Code</FormLabel>
                           <FormControl
                             onChange={(e) => {
                               field.onChange(e);
@@ -282,6 +295,8 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
                   e.preventDefault();
                   addresses.append({
                     id: -1,
+                    company: "",
+                    gstin: "",
                     address: "",
                     address2: "",
                     zip: "",

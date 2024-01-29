@@ -89,7 +89,9 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
               <FormItem>
                 <FormControl>
                   <RadioGroup
-                    onValueChange={field.onChange}
+                    onValueChange={(e) => {
+                      field.onChange(e);
+                    }}
                     defaultValue={field.value}
                     className="flex flex-col gap-1"
                   >

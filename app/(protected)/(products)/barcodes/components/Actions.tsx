@@ -3,7 +3,7 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
-import { createSalePDF } from "@/actions/create-sale-pdf";
+import { printBarcode } from "@/actions/print-barcode";
 
 const Actions = () => {
   // Example usage
@@ -21,8 +21,7 @@ const Actions = () => {
   const totalAmount = items.reduce((total, item) => total + item.price, 0);
 
   const create = async () => {
-    await createSalePDF(83);
-    console.log("created");
+    printBarcode();
   };
   return (
     <>

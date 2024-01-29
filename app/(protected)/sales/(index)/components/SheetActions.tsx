@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { Payment, Sale } from "@prisma/client";
-
+import { printSaleInvoice } from "@/actions/print-sale-invoice";
 import { useSheetToggle } from "@/hooks/useSheet";
 
 import {
@@ -12,6 +12,7 @@ import {
   PenSquare,
   Printer,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,8 +37,9 @@ export default function SheetActions({
   const [newOpen, toggleNew] = useSheetToggle("new");
 
   // handle print invoice action
-  const handlePrint = () => {
-    console.log("handleprint");
+  const handlePrint = async () => {
+    const res = await printSaleInvoice(sale.id);
+    if (window) window.open(res, "_blank");
   };
 
   // handle send invoice action
@@ -61,7 +63,7 @@ export default function SheetActions({
                 Edit
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handlePrint}>
               <Printer className="w-4 h-4 mr-2" />
               Print Invoice
             </DropdownMenuItem>

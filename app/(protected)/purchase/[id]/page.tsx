@@ -38,6 +38,7 @@ const page = async ({ params }: { params: { id: number } }) => {
       title: item.title,
       variantTitle: item.variantTitle,
       sku: item.sku,
+      hsn: item.hsn,
       barcode: item.barcode,
       price: Number(item.price),
       taxRate: Number(item.taxRate),

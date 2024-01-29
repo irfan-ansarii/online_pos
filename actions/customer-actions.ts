@@ -156,6 +156,7 @@ export async function createCustomer(values: CustomerProps) {
         addresses: {
           create: addresses?.map((add: Address) => ({
             company: add.company,
+            gstin: add.gstin,
             address: add.address,
             address2: add.address2,
             city: add.city,
@@ -282,6 +283,7 @@ export async function updateCustomer(values: any) {
             },
             update: {
               company: add.company,
+              gstin: add.gstin,
               address: add.address,
               address2: add.address2,
               city: add.city,

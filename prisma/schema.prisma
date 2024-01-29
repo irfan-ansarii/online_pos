@@ -43,6 +43,7 @@ model Address {
   state      String?
   zip        String?
   country    String?
+  gstin      String?
   createdAt  DateTime  @default(now())
   updatedaAt DateTime  @updatedAt
   userId     Int?
@@ -245,6 +246,7 @@ model LineItem {
   title         String
   variantTitle  String?
   sku           String?
+  hsn           String?
   barcode       String?
   price         Float
   taxRate       Int
@@ -337,6 +339,7 @@ model PurchaseLineItem {
   title         String
   variantTitle  String?
   sku           String?
+  hsn           String?
   barcode       String?
   price         Float
   taxRate       Int

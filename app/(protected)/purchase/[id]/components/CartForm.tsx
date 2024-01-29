@@ -51,6 +51,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
       title: product.title,
       variantTitle: variant.title,
       sku: variant.sku,
+      hsn: variant.hsn,
       barcode: variant.barcode,
       imageSrc: product?.image?.src,
       price: variant.salePrice,
