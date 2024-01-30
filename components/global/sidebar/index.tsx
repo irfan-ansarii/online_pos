@@ -11,23 +11,28 @@ import { usePathname } from "next/navigation";
 import { ThemeCustomizer } from "@/components/theme/theme-customizer";
 
 import { Separator } from "@/components/ui/separator";
-import { Accordion } from "@/components/ui/accordion";
-
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import Customizer from "@/components/global/sidebar/customizer";
 import ThemeSwitcher from "@/components/global/sidebar/theme-switcher";
 import SearchPanel from "@/components/global/sidebar/search-panel";
-import MenuItem from "./menu-item";
+import { ChevronRight } from "lucide-react";
 
 function Sidebar() {
   const [active, setActive] = React.useState("");
   const pathname = usePathname();
   const [loading, setLoading] = React.useState(true);
 
-  const isActive = (current: any) => {
+  const isActive = (current: string) => {
     const splitted = pathname.split("/").find((p) => p);
     const active =
       current === pathname ||
-      (pathname.length > 1 && current.startsWith(`/${splitted}`));
+      (pathname.length > 1 && current?.startsWith(`/${splitted}`));
+
     return active ? true : false;
   };
 
@@ -35,12 +40,41 @@ function Sidebar() {
     setLoading(false);
   }, []);
 
+  React.useEffect(() => {
+    MENU_ITEMS.forEach((item) => {
+      const { children } = item;
+      if (pathname === item.href) {
+        setActive(item.href);
+      } else if (Array.isArray(children)) {
+        children.forEach((child) => {
+          if (pathname === child.href) {
+            setActive(item.href);
+          }
+        });
+      }
+    });
+  }, [pathname]);
+
   return (
     <div className="top-0 z-30 hidden h-screen w-full bg-accent shrink-0 sticky md:block">
       <div className="flex flex-col px-4 h-full">
         <div className="shrink-0 -mx-4">
           <div className="h-[60px] flex items-center justify-center">
-            <Image src="/logo.png" width={200} height={60} alt="logo"></Image>
+            <Image
+              src="/assets/logo.png"
+              width={200}
+              height={60}
+              alt="logo"
+              className="sm:hidden lg:inline-block"
+            ></Image>
+
+            <Image
+              src="/assets/favicon.png"
+              width={60}
+              height={60}
+              alt="logo"
+              className="hidden sm:inline-block lg:hidden"
+            ></Image>
           </div>
         </div>
         <div className="py-4">
@@ -48,17 +82,49 @@ function Sidebar() {
         </div>
 
         <div className="relative flex-1 max-h-full overflow-y-auto scrollbox -mx-x px-x">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion
+            type="single"
+            collapsible
+            className="w-full"
+            value={active}
+          >
             <ul className="flex flex-col gap-3">
-              {MENU_ITEMS.map((item, i) => (
-                <MenuItem
-                  label={item.label}
-                  href={item.href}
-                  icon={item.icon}
-                  isActive={isActive}
-                  children={item.children}
-                />
-              ))}
+              {MENU_ITEMS.map((item, i) => {
+                const { label, href, icon, children } = item;
+                const Icon = icon;
+                return (
+                  <li className="rounded-md" key={item.key}>
+                    <AccordionItem value={href} className="border-none">
+                      <AccordionTrigger asChild>
+                        <MenuLink
+                          label={label}
+                          href={href}
+                          Icon={Icon}
+                          isActive={isActive}
+                          showChevron={children && children.length > 0}
+                          chevronClassName={active === href ? "rotate-90" : ""}
+                        />
+                      </AccordionTrigger>
+                      {Array.isArray(children) && children.length > 0 && (
+                        <AccordionContent className="[&>div]:pb-0 [&>div]:pt-3 [&>div]:flex [&>div]:flex-col [&>div]:gap-3">
+                          {children?.map((childItem: any) => {
+                            const Icon = childItem.icon;
+                            return (
+                              <MenuLink
+                                key={childItem.href}
+                                label={childItem.label}
+                                href={childItem.href}
+                                Icon={Icon}
+                                isActive={isActive}
+                              />
+                            );
+                          })}
+                        </AccordionContent>
+                      )}
+                    </AccordionItem>
+                  </li>
+                );
+              })}
             </ul>
           </Accordion>
         </div>
@@ -82,3 +148,37 @@ function Sidebar() {
 }
 
 export default Sidebar;
+
+const MenuLink = ({
+  label,
+  href,
+  Icon,
+  isActive,
+  showChevron,
+  chevronClassName,
+}) => {
+  return (
+    <Link
+      href={`${href}`}
+      className={cn(
+        `rounded-md w-full px-2 group md:justify-center lg:px-4 lg:justify-start py-3 lg:py-2.5 flex gap-3 transition duration-500 items-center text-sm font-medium text-foreground hover:bg-secondary  ${
+          isActive(href)
+            ? "bg-primary hover:bg-primary text-primary-foreground"
+            : ""
+        }`
+      )}
+    >
+      {Icon && <Icon className="w-5 h-5" />}
+      <span className="md:hidden lg:inline-flex">{label}</span>
+      <span className="lg:hidden invisible group-hover:visible absolute left-[calc(100%+10px)] transition duration-500 bg-background text-foreground border p-2 rounded-md max-w-max">
+        {label}
+      </span>
+
+      {showChevron && (
+        <ChevronRight
+          className={`w-5 h-5 ml-auto -mr-2 hidden lg:inline-flex ${chevronClassName}`}
+        />
+      )}
+    </Link>
+  );
+};

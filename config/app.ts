@@ -43,17 +43,20 @@ export const MENU_ITEMS = [
       {
         id: 2,
         label: "Transfers",
-        path: "/transfers",
+        href: "/transfers",
+        icon: ArrowLeftRight,
       },
       {
         id: 3,
         label: "Adjustments",
-        path: "/adjustments",
+        href: "/adjustments",
+        icon: ArrowUpDown,
       },
       {
         id: 4,
         label: "Barcodes",
-        path: "/barcodes",
+        href: "/barcodes",
+        icon: ScanLine,
       },
     ],
   },
