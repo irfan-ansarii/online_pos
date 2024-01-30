@@ -3,7 +3,7 @@ import React from "react";
 import { ArrowLeft, Check, Mail, Phone, Plus, Search } from "lucide-react";
 
 import LoadingSmall from "@/components/shared/loading-sm";
-import AddCustomerSheet from "../../../customers/(route)/components/AddCustomerSheet";
+import AddCustomerSheet from "../../../contacts/(route)/components/AddContactSheet";
 import { TabsContent } from "@/components/ui/tabs";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 

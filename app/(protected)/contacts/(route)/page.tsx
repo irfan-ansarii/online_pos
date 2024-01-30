@@ -5,7 +5,7 @@ import { getCustomers } from "@/actions/customer-actions";
 
 import EmptyBox from "@/components/shared/empty-box";
 
-import CustomerCard from "./components/CustomerCard";
+import CustomerCard from "./components/ContactCard";
 import Pagination from "@/components/shared/pagination";
 
 interface SearchParamsProps {

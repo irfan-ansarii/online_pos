@@ -11,12 +11,15 @@ import { usePathname } from "next/navigation";
 import { ThemeCustomizer } from "@/components/theme/theme-customizer";
 
 import { Separator } from "@/components/ui/separator";
+import { Accordion } from "@/components/ui/accordion";
 
 import Customizer from "@/components/global/sidebar/customizer";
 import ThemeSwitcher from "@/components/global/sidebar/theme-switcher";
 import SearchPanel from "@/components/global/sidebar/search-panel";
+import MenuItem from "./menu-item";
 
 function Sidebar() {
+  const [active, setActive] = React.useState("");
   const pathname = usePathname();
   const [loading, setLoading] = React.useState(true);
 
@@ -45,34 +48,19 @@ function Sidebar() {
         </div>
 
         <div className="relative flex-1 max-h-full overflow-y-auto scrollbox -mx-x px-x">
-          <ul className="flex flex-col gap-3">
-            {MENU_ITEMS.map((el, i) => {
-              const Icon = el.icon;
-              return (
-                <li
-                  className="rounded-md overflow-hidden relative"
-                  key={`${el.key}-${i}`}
-                >
-                  <Link
-                    href={el.href}
-                    className={cn(
-                      `px-2 group md:justify-center lg:px-4 lg:justify-start py-3 lg:py-2.5 flex gap-3 transition duration-500 items-center text-sm font-medium text-foreground hover:bg-secondary dark:hover:bg-secondary/50  ${
-                        isActive(el.href)
-                          ? "bg-secondary dark:bg-secondary/50  text-primary"
-                          : ""
-                      }`
-                    )}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="md:hidden lg:inline-flex">{el.label}</span>
-                    <span className="lg:hidden invisible group-hover:visible absolute left-[calc(100%+10px)] transition duration-500 bg-background text-foreground border p-2 rounded-md max-w-max">
-                      {el.label}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <Accordion type="single" collapsible className="w-full">
+            <ul className="flex flex-col gap-3">
+              {MENU_ITEMS.map((item, i) => (
+                <MenuItem
+                  label={item.label}
+                  href={item.href}
+                  icon={item.icon}
+                  isActive={isActive}
+                  children={item.children}
+                />
+              ))}
+            </ul>
+          </Accordion>
         </div>
 
         <div className="mt-4">

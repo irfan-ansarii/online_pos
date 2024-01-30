@@ -1,28 +1,26 @@
 "use client";
 import React from "react";
-import * as z from "zod";
-// @ts-expect-error
+// @ts-ignore
 import query from "india-pincode-search";
+import * as z from "zod";
 
-import { updateCustomer } from "@/actions/customer-actions";
+import { createCustomer } from "@/actions/customer-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerValidation } from "@/lib/validations/customer";
 
-import { Loader2, PenSquare, PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle } from "lucide-react";
 
-import { useToggle } from "@uidotdev/usehooks";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 
 import {
   Sheet,
   SheetTrigger,
-  SheetContent,
-  SheetFooter,
   SheetHeader,
+  SheetContent,
   SheetTitle,
+  SheetFooter,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -32,19 +30,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-const CustomerSheet = ({ customer }: { customer: any }) => {
-  const [open, toggle] = useToggle(false);
-  const [loading, toggleLoading] = useToggle(false);
+const AddContactSheet = ({
+  children,
+  onSuccess,
+}: {
+  children: React.ReactNode;
+  onSuccess?: (value: any) => void;
+}) => {
+  const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   const form = useForm<z.infer<typeof customerValidation>>({
     resolver: zodResolver(customerValidation),
     defaultValues: {
-      id: customer.id,
-      firstName: customer.firstName,
-      lastName: customer.lastName,
-      phone: customer.phone || "",
-      email: customer.email || "",
-      addresses: customer.addresses,
+      firstName: "",
+      lastName: "",
+      phone: "",
+      email: "",
+      addresses: [],
     },
   });
 
@@ -55,30 +59,30 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
 
   const onSubmit = async (values: z.infer<typeof customerValidation>) => {
     try {
-      toggleLoading();
-      await updateCustomer(values);
+      setLoading(true);
+      //@ts-ignore
+      const response = await createCustomer(values);
       toast({
         variant: "success",
-        title: "Updated successfully",
+        title: "Customer created",
       });
       form.reset();
+      onSuccess && onSuccess(response.data);
+      setOpen(false);
     } catch (error: any) {
       toast({
         variant: "error",
-        title: error.message || "Something went wrong",
+        title: error.message,
       });
     } finally {
-      toggleLoading();
+      setLoading(false);
     }
   };
 
   return (
-    <Sheet open={open} onOpenChange={toggle}>
-      <SheetTrigger asChild>
-        <Button variant="secondary" size="icon" className="">
-          <PenSquare className="w-4 h-4" />
-        </Button>
-      </SheetTrigger>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>{children}</SheetTrigger>
+
       <SheetContent className="md:max-w-lg">
         <Form {...form}>
           <form
@@ -88,9 +92,8 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
             {loading && (
               <div className="absolute inset-0 bg-transparent z-20"></div>
             )}
-
             <SheetHeader>
-              <SheetTitle className="text-lg">Edit customer</SheetTitle>
+              <SheetTitle className="text-lg">Create customer</SheetTitle>
             </SheetHeader>
 
             <div className="relative flex-1 max-h-full -mx-6 px-6 overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
@@ -151,13 +154,26 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
               </div>
 
               {addresses.fields.map((field, i) => (
-                <div key={field.id} className="space-y-6 border-b !mb-4">
+                <div key={field.id} className="space-y-4 border-b !mb-4">
                   <FormField
                     control={form.control}
                     name={`addresses.${i}.company`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Company</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`addresses.${i}.gstin`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>GSTIN</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -203,7 +219,7 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
                             onChange={(e) => {
                               field.onChange(e);
 
-                              // @ts-ignore
+                              //@ts-ignore
                               const value = e.target.value;
                               const res = query.search(value);
 
@@ -260,6 +276,7 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -267,7 +284,6 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
                   <Button
                     className="w-full border-dashed !mt-2 !mb-4"
                     variant="link"
-                    type="button"
                     onClick={() => addresses.remove(i)}
                   >
                     Remove
@@ -277,11 +293,12 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
               <Button
                 className="w-full"
                 variant="secondary"
-                type="button"
+                type="submit"
                 onClick={(e) => {
                   e.preventDefault();
                   addresses.append({
-                    id: -1,
+                    company: "",
+                    gstin: "",
                     address: "",
                     address2: "",
                     zip: "",
@@ -298,7 +315,7 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
             <SheetFooter className="md:justify-between pt-4">
               <Button className="w-full" type="submit">
                 {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-apin" />
                 ) : (
                   "Save"
                 )}
@@ -311,4 +328,4 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
   );
 };
 
-export default CustomerSheet;
+export default AddContactSheet;

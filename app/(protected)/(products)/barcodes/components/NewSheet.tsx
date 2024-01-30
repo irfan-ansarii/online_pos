@@ -92,9 +92,11 @@ const NewSheet = () => {
   };
 
   const onSubmit = async (values: z.infer<typeof barcodeValidation>) => {
+    const { lineItems } = values;
+
     try {
       setLoading(false);
-      await createBarcode(values);
+      await createBarcode(lineItems);
       toast({
         variant: "success",
         title: "Added to list",

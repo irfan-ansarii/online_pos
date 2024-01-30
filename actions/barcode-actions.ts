@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { LabelStatus, Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 
@@ -24,6 +24,8 @@ export async function getBarcodes(params: ParamsProps) {
     // destructure params
     const { page, search, status } = params;
 
+    const parsedStatus: LabelStatus = status as LabelStatus;
+
     // pagination
     const currentPage = parseInt(page, 10) || 1;
 
@@ -32,7 +34,9 @@ export async function getBarcodes(params: ParamsProps) {
     const filters: Prisma.LabelWhereInput = {
       AND: [
         { locationId: Number(session?.location.id) },
-        { status: status },
+        {
+          status: parsedStatus,
+        },
         {
           OR: [
             {
@@ -99,7 +103,18 @@ export async function getBarcodes(params: ParamsProps) {
  * @param values
  * @returns
  */
-export async function createBarcode(values: []) {
+interface CreateProps {
+  productId: number;
+  variantId: number;
+  quantity: string | number;
+  itemId: number;
+  title?: string | undefined;
+  variantTitle?: any;
+  sku?: any;
+  barcode?: any;
+  imageSrc?: any;
+}
+export async function createBarcode(values: CreateProps[]) {
   try {
     const session = await auth();
     if (!session || typeof session === "string") {
@@ -133,6 +148,7 @@ export async function createBarcode(values: []) {
 export async function updateBarcode(values: any) {
   try {
     const session = await auth();
+
     if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
@@ -150,33 +166,6 @@ export async function updateBarcode(values: any) {
 
     // return response
     return { data: response, message: "updated" };
-  } catch (error: any) {
-    if (error instanceof Prisma.PrismaClientInitializationError) {
-      throw new Error("Internal server error");
-    }
-    throw new Error(error.message);
-  }
-}
-
-/**
- * print barcodes
- * @returns
- */
-export async function printBarcodes() {
-  try {
-    const session = await auth();
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
-    // find adjustment
-    const response = await prisma.label.findMany({
-      where: { status: "pending" },
-    });
-
-    // return response
-
-    return { data: response, message: "success" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");

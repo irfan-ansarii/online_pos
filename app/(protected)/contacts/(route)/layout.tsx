@@ -2,7 +2,7 @@ import React from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import AddCustomerSheet from "./components/AddCustomerSheet";
+import AddCustomerSheet from "./components/AddContactSheet";
 import SearchBar from "@/components/shared/search-bar";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
@@ -10,12 +10,10 @@ const layout = ({ children }: { children: React.ReactNode }) => {
     <>
       <SearchBar>
         <AddCustomerSheet>
-          <AddCustomerSheet>
-            <Button className="hidden md:flex">
-              <Plus className="w-5 h-5 mr-2" />
-              Create New
-            </Button>
-          </AddCustomerSheet>
+          <Button className="hidden md:flex">
+            <Plus className="w-5 h-5 mr-2" />
+            Create New
+          </Button>
         </AddCustomerSheet>
       </SearchBar>
 

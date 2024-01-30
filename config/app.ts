@@ -39,37 +39,32 @@ export const MENU_ITEMS = [
     label: "Products",
     href: "/products",
     icon: Tag,
+    children: [
+      {
+        id: 2,
+        label: "Transfers",
+        path: "/transfers",
+      },
+      {
+        id: 3,
+        label: "Adjustments",
+        path: "/adjustments",
+      },
+      {
+        id: 4,
+        label: "Barcodes",
+        path: "/barcodes",
+      },
+    ],
   },
+
   {
-    key: "transfers",
-    label: "Transfers",
-    href: "/transfers",
-    icon: ArrowLeftRight,
-  },
-  {
-    key: "adjustments",
-    label: "Adjustments",
-    href: "/adjustments",
-    icon: ArrowUpDown,
-  },
-  {
-    key: "barcodes",
-    label: "Barcodes",
-    href: "/barcodes",
-    icon: ScanLine,
-  },
-  {
-    key: "customers",
-    label: "Customers",
-    href: "/customers",
+    key: "contacts",
+    label: "Contacts",
+    href: "/contacts",
     icon: Users,
   },
-  {
-    key: "suppliers",
-    label: "Suppliers",
-    href: "/suppliers",
-    icon: Users,
-  },
+
   {
     key: "reports",
     label: "Reports",
@@ -87,29 +82,6 @@ export const MENU_ITEMS = [
     label: "Settings",
     href: "/settings",
     icon: Settings,
-  },
-];
-
-export const PRODUCT_PATHS = [
-  {
-    id: 1,
-    label: "Products",
-    path: "/products",
-  },
-  {
-    id: 2,
-    label: "Transfers",
-    path: "/transfers",
-  },
-  {
-    id: 3,
-    label: "Adjustments",
-    path: "/adjustments",
-  },
-  {
-    id: 4,
-    label: "Barcodes",
-    path: "/barcodes",
   },
 ];
 

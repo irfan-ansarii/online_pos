@@ -4,9 +4,11 @@ import * as z from "zod";
 import { updateBarcode } from "@/actions/barcode-actions";
 import { editBarcodeValidation } from "@/lib/validations/product";
 import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+
 import { useForm } from "react-hook-form";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { useToggle } from "@uidotdev/usehooks";
+import { useRouter } from "next/navigation";
 
 import {
   DialogContent,
@@ -44,7 +46,8 @@ const ItemDialog = ({
 }) => {
   const [open, toggle] = useToggle();
   const [loading, toggleLoading] = useToggle();
-  const { toast } = useToast();
+
+  const router = useRouter();
   const form = useForm<z.infer<typeof editBarcodeValidation>>({
     resolver: zodResolver(editBarcodeValidation),
     defaultValues: {
@@ -74,6 +77,7 @@ const ItemDialog = ({
         title: "Updated successfully.",
       });
       form.reset();
+      router.refresh();
       toggle();
     } catch (error: any) {
       toast({

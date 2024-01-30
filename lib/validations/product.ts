@@ -235,7 +235,7 @@ export const barcodeValidation = z.object({
       title: z.string().optional(),
       variantTitle: z.any().optional(),
       sku: z.any().optional(),
-      barcode: z.number(),
+      barcode: z.any(),
       quantity: z
         .union([z.string(), z.number()])
         .refine((n: any) => !isNaN(n), { message: "Enter valid number" }),
