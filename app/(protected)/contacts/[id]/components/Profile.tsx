@@ -1,8 +1,9 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { User } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 const Profile = ({ customer }: { customer: any }) => {
   return (
     <Card className="rounded-none md:rounded-md order-1">
@@ -25,7 +26,7 @@ const Profile = ({ customer }: { customer: any }) => {
         </CardHeader>
         <Separator className="mb-6" />
         <CardTitle className="text-base mb-6 text-muted-foreground">
-          Contact Information
+          General
         </CardTitle>
 
         <div className="space-y-2 mb-6">
@@ -46,16 +47,18 @@ const Profile = ({ customer }: { customer: any }) => {
           {customer?.addresses?.map((address: any) => (
             <div key={address.id}>
               <div>
-                {address.company}
+                {address.company && address.company}
                 <br />
-                {address.address}
+                {address.gst && address.gst}
                 <br />
-                {address.address2}
-                {address.city}
-                {address.city}
-                {address.zip}
+                {address.address && address.address}
                 <br />
-                {address.country}
+                {address.address2 && address.address2address.address2}
+                {address.city && address.city}
+                {address.state && address.state}
+                {address.zip && address.zip}
+                <br />
+                {address.country && address.country}
               </div>
             </div>
           ))}

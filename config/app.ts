@@ -13,6 +13,8 @@ import {
   ArrowLeftRight,
   ArrowUpDown,
   ScanLine,
+  MoreVertical,
+  Minus,
 } from "lucide-react";
 
 export const MENU_ITEMS = [
@@ -41,22 +43,28 @@ export const MENU_ITEMS = [
     icon: Tag,
     children: [
       {
+        id: 1,
+        label: "All Products",
+        href: "/products",
+        icon: Minus,
+      },
+      {
         id: 2,
         label: "Transfers",
         href: "/transfers",
-        icon: ArrowLeftRight,
+        icon: Minus,
       },
       {
         id: 3,
         label: "Adjustments",
         href: "/adjustments",
-        icon: ArrowUpDown,
+        icon: Minus,
       },
       {
         id: 4,
         label: "Barcodes",
         href: "/barcodes",
-        icon: ScanLine,
+        icon: Minus,
       },
     ],
   },

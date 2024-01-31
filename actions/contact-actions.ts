@@ -1,13 +1,13 @@
 "use server";
 import prisma from "@/lib/prisma";
-import { Address, Prisma, User } from "@prisma/client";
+import { Address, Prisma, User, UserRole } from "@prisma/client";
 
 import { sanitize } from "@/lib/sanitize-user";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
 
 /**
- * get customers
+ * get contacts
  * @param req
  * @returns
  */
@@ -15,22 +15,23 @@ import { PAGE_SIZE } from "@/config/app";
 interface ParamsProps {
   [key: string]: string;
 }
-export async function getCustomers(params: ParamsProps) {
+export async function getContacts(params: ParamsProps) {
   try {
     const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
 
-    const { page, search } = params;
-
+    const { page, search, role } = params;
+    const parsedRole = role as UserRole;
     const currentPage = parseInt(page, 10) || 1;
 
     const offset = (currentPage - 1) * PAGE_SIZE;
 
     const filters: Prisma.UserWhereInput = {
       AND: [
-        { role: { equals: "customer" } },
+        { role: { equals: parsedRole } },
+        { role: { equals: parsedRole } },
         {
           OR: [
             { firstName: { contains: search, mode: "insensitive" } },
@@ -53,13 +54,9 @@ export async function getCustomers(params: ParamsProps) {
         ...filters,
       },
       include: {
-        _count: {
-          select: { customerSale: true },
-        },
-        customerSale: {
-          select: { total: true },
-        },
         addresses: true,
+        customerSale: true,
+        purchase: true,
       },
     });
 
@@ -73,34 +70,42 @@ export async function getCustomers(params: ParamsProps) {
       },
     });
 
-    const [customers, total] = await prisma.$transaction([
+    const [contacts, total] = await prisma.$transaction([
       usersTransaction,
       totalTransaction,
     ]);
 
-    const transformed =
-      customers?.map((user) => {
-        const sanitized = sanitize(user);
+    const sanitized =
+      contacts?.map((user) => {
+        let orderTotal = 0;
 
-        const orderTotal = user.customerSale.reduce((acc, cur) => {
-          return acc + Number(cur.total || 0);
-        }, 0);
+        if (user.role === "customer") {
+          orderTotal = user.customerSale.reduce((acc, cur) => {
+            return acc + Number(cur.total || 0);
+          }, 0);
+        } else {
+          orderTotal = user?.purchase?.reduce((acc, cur) => {
+            return acc + Number(cur.total || 0);
+          }, 0);
+        }
 
         return {
-          ...sanitized,
-          customer: null,
-          orders: {
-            _count: { total: user._count.customerSale },
-            _sum: {
-              total: orderTotal,
-            },
-          },
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+          status: user.status,
+          role: user.role,
+          createdAt: user.createdAt,
+          updatedaAt: user.updatedaAt,
           addresses: user.addresses,
+          _sum: orderTotal,
         };
       }) || [];
 
     return {
-      data: transformed,
+      data: sanitized,
       pagination: {
         page: currentPage,
         pageSize: PAGE_SIZE,
@@ -117,21 +122,21 @@ export async function getCustomers(params: ParamsProps) {
 }
 
 /**
- * create customer
+ * create contact
  * @param req
  * @returns
  */
 interface CustomerProps extends User {
   addresses?: Address[];
 }
-export async function createCustomer(values: CustomerProps) {
+export async function createContact(values: CustomerProps) {
   try {
     const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
 
-    const { firstName, lastName, phone, email, addresses } = values;
+    const { firstName, lastName, phone, role, email, addresses } = values;
 
     // check if user already exists
     const user = await prisma.user.findFirst({
@@ -151,7 +156,7 @@ export async function createCustomer(values: CustomerProps) {
         lastName,
         phone,
         email,
-        role: "customer",
+        role,
         status: "active",
         addresses: {
           create: addresses?.map((add: Address) => ({
@@ -179,23 +184,32 @@ export async function createCustomer(values: CustomerProps) {
 }
 
 /**
- * get customer and analytics
+ * get contact and analytics
  * @param id
  * @returns
  */
-export async function getCustomer(id: number | string) {
+export async function getContact(id: number | string) {
   try {
     const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
     }
 
-    const customer = await prisma.user.findFirst({
+    const user = await prisma.user.findFirst({
       where: {
-        AND: [{ id: Number(id) }, { role: "customer" }],
+        AND: [{ id: Number(id) }],
       },
       include: {
         customerSale: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            _count: {
+              select: { lineItems: true },
+            },
+          },
+          take: 5,
+        },
+        purchase: {
           orderBy: { createdAt: "desc" },
           include: {
             _count: {
@@ -209,33 +223,58 @@ export async function getCustomer(id: number | string) {
       },
     });
 
-    if (!customer) {
-      return { data: null };
+    if (!user) {
+      throw new Error("Not found");
     }
 
-    const total = await prisma.sale.aggregate({
-      where: {
-        customerId: customer.id,
-      },
-      _sum: {
-        total: true,
-      },
-      _avg: {
-        total: true,
-      },
-      _count: {
-        total: true,
-      },
-    });
+    let total = {};
 
-    const sanitized = sanitize(customer);
+    if (user.role === "supplier") {
+      total = await prisma.purchase.aggregate({
+        where: {
+          supplierId: user.id,
+        },
+        _sum: {
+          total: true,
+        },
+        _avg: {
+          total: true,
+        },
+        _count: {
+          total: true,
+        },
+      });
+    } else {
+      total = await prisma.sale.aggregate({
+        where: {
+          customerId: user.id,
+        },
+        _sum: {
+          total: true,
+        },
+        _avg: {
+          total: true,
+        },
+        _count: {
+          total: true,
+        },
+      });
+    }
+
     const transformed = {
-      ...sanitized,
-      sales: customer?.customerSale,
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      status: user.status,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedaAt: user.updatedaAt,
+      sales: user.role === "supplier" ? user.purchase : user.customerSale,
+      addresses: [],
       ...total,
     };
-
-    delete transformed.customerSale;
 
     return { data: transformed, message: "success" };
   } catch (error: any) {
@@ -247,19 +286,20 @@ export async function getCustomer(id: number | string) {
 }
 
 /**
- * update customer
+ * update contact
  * @param req
  * @param param1
  * @returns
  */
-export async function updateCustomer(values: any) {
+export async function updateContact(values: any) {
   try {
     const session = await auth();
     if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
 
-    const { id, firstName, lastName, phone, email, addresses } = values;
+    const { id, firstName, lastName, role, status, phone, email, addresses } =
+      values;
 
     const user = await prisma.user.findUnique({
       where: { id: Number(id) },
@@ -275,6 +315,8 @@ export async function updateCustomer(values: any) {
         firstName,
         lastName,
         phone,
+        role,
+        status,
         email,
         addresses: {
           upsert: addresses?.map((add: any) => ({

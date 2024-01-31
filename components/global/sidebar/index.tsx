@@ -40,20 +40,20 @@ function Sidebar() {
     setLoading(false);
   }, []);
 
-  React.useEffect(() => {
-    MENU_ITEMS.forEach((item) => {
-      const { children } = item;
-      if (pathname === item.href) {
-        setActive(item.href);
-      } else if (Array.isArray(children)) {
-        children.forEach((child) => {
-          if (pathname === child.href) {
-            setActive(item.href);
-          }
-        });
-      }
-    });
-  }, [pathname]);
+  // React.useEffect(() => {
+  //   MENU_ITEMS.forEach((item) => {
+  //     const { children } = item;
+  //     if (pathname === item.href) {
+  //       setActive(item.href);
+  //     } else if (Array.isArray(children)) {
+  //       children.forEach((child) => {
+  //         if (pathname === child.href) {
+  //           setActive(item.href);
+  //         }
+  //       });
+  //     }
+  //   });
+  // }, [pathname]);
 
   return (
     <div className="top-0 z-30 hidden h-screen w-full bg-accent shrink-0 sticky md:block">
@@ -82,30 +82,38 @@ function Sidebar() {
         </div>
 
         <div className="relative flex-1 max-h-full overflow-y-auto scrollbox -mx-x px-x">
-          <Accordion
-            type="single"
-            collapsible
-            className="w-full"
-            value={active}
-          >
+          <Accordion type="single" collapsible className="w-full">
             <ul className="flex flex-col gap-3">
               {MENU_ITEMS.map((item, i) => {
                 const { label, href, icon, children } = item;
                 const Icon = icon;
                 return (
                   <li className="rounded-md" key={item.key}>
-                    <AccordionItem value={href} className="border-none">
-                      <AccordionTrigger asChild>
-                        <MenuLink
-                          label={label}
-                          href={href}
-                          Icon={Icon}
-                          isActive={isActive}
-                          showChevron={children && children.length > 0}
-                          chevronClassName={active === href ? "rotate-90" : ""}
-                        />
-                      </AccordionTrigger>
-                      {Array.isArray(children) && children.length > 0 && (
+                    {Array.isArray(item.children) &&
+                    item.children.length > 0 ? (
+                      <AccordionItem value={href} className="border-none">
+                        <AccordionTrigger asChild>
+                          <div
+                            className={cn(
+                              `rounded-md w-full [&[data-state=open]>svg]:rotate-90 transition duration-500 cursor-pointer px-2 group md:justify-center lg:px-4 lg:justify-start !py-3 lg:py-2.5 flex gap-3 transition duration-500 items-center text-sm font-medium text-foreground hover:bg-secondary  ${
+                                isActive(href) ? "bg-secondary" : ""
+                              }`
+                            )}
+                          >
+                            <span>
+                              <Icon className="w-5 h-5 " />
+                            </span>
+
+                            <span className="md:hidden lg:inline-flex">
+                              {label}
+                            </span>
+                            <span className="lg:hidden invisible group-hover:visible absolute left-[calc(100%+10px)] transition duration-500 bg-background text-foreground border p-2 rounded-md max-w-max">
+                              {label}
+                            </span>
+                            <ChevronRight className="w-5 h-5 -mr-2 ml-auto sm:hidden lg:inline-flex transition" />
+                          </div>
+                        </AccordionTrigger>
+
                         <AccordionContent className="[&>div]:pb-0 [&>div]:pt-3 [&>div]:flex [&>div]:flex-col [&>div]:gap-3">
                           {children?.map((childItem: any) => {
                             const Icon = childItem.icon;
@@ -120,8 +128,15 @@ function Sidebar() {
                             );
                           })}
                         </AccordionContent>
-                      )}
-                    </AccordionItem>
+                      </AccordionItem>
+                    ) : (
+                      <MenuLink
+                        label={label}
+                        href={href}
+                        Icon={Icon}
+                        isActive={isActive}
+                      />
+                    )}
                   </li>
                 );
               })}
@@ -149,14 +164,7 @@ function Sidebar() {
 
 export default Sidebar;
 
-const MenuLink = ({
-  label,
-  href,
-  Icon,
-  isActive,
-  showChevron,
-  chevronClassName,
-}) => {
+const MenuLink = ({ label, href, Icon, isActive }) => {
   return (
     <Link
       href={`${href}`}
@@ -168,17 +176,11 @@ const MenuLink = ({
         }`
       )}
     >
-      {Icon && <Icon className="w-5 h-5" />}
+      <Icon className="w-5 h-5" />
       <span className="md:hidden lg:inline-flex">{label}</span>
       <span className="lg:hidden invisible group-hover:visible absolute left-[calc(100%+10px)] transition duration-500 bg-background text-foreground border p-2 rounded-md max-w-max">
         {label}
       </span>
-
-      {showChevron && (
-        <ChevronRight
-          className={`w-5 h-5 ml-auto -mr-2 hidden lg:inline-flex ${chevronClassName}`}
-        />
-      )}
     </Link>
   );
 };

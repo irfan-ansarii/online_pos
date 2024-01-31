@@ -4,9 +4,9 @@ import * as z from "zod";
 // @ts-expect-error
 import query from "india-pincode-search";
 
-import { updateCustomer } from "@/actions/customer-actions";
+import { updateContact } from "@/actions/contact-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { customerValidation } from "@/lib/validations/customer";
+import { contactValidation } from "@/lib/validations/contact";
 
 import { Loader2, PenSquare, PlusCircle } from "lucide-react";
 
@@ -31,20 +31,31 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 
-const CustomerSheet = ({ customer }: { customer: any }) => {
+const contactSheet = ({ contact }: { contact: any }) => {
   const [open, toggle] = useToggle(false);
   const [loading, toggleLoading] = useToggle(false);
-  const form = useForm<z.infer<typeof customerValidation>>({
-    resolver: zodResolver(customerValidation),
+
+  const form = useForm<z.infer<typeof contactValidation>>({
+    resolver: zodResolver(contactValidation),
     defaultValues: {
-      id: customer.id,
-      firstName: customer.firstName,
-      lastName: customer.lastName,
-      phone: customer.phone || "",
-      email: customer.email || "",
-      addresses: customer.addresses,
+      id: contact.id,
+      firstName: contact.firstName,
+      lastName: contact.lastName,
+      phone: contact.phone || "",
+      email: contact.email || "",
+      role: contact.role || "",
+      status: contact.status || "",
+      addresses: contact.addresses,
     },
   });
 
@@ -53,10 +64,10 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
     control: form.control,
   });
 
-  const onSubmit = async (values: z.infer<typeof customerValidation>) => {
+  const onSubmit = async (values: z.infer<typeof contactValidation>) => {
     try {
       toggleLoading();
-      await updateCustomer(values);
+      await updateContact(values);
       toast({
         variant: "success",
         title: "Updated successfully",
@@ -90,7 +101,7 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
             )}
 
             <SheetHeader>
-              <SheetTitle className="text-lg">Edit customer</SheetTitle>
+              <SheetTitle className="text-lg">Edit Contact</SheetTitle>
             </SheetHeader>
 
             <div className="relative flex-1 max-h-full -mx-6 px-6 overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
@@ -148,6 +159,70 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
                     </FormItem>
                   )}
                 />
+
+                <div className="col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="grid grid-cols-2 gap-4"
+                          >
+                            <FormItem className="relative space-y-0">
+                              <FormControl className="absolute right-3 top-1/2 -translate-y-1/2">
+                                <RadioGroupItem value="customer" />
+                              </FormControl>
+                              <FormLabel className="flex font-normal p-3 border rounded-md cursor-pointer">
+                                Customer
+                              </FormLabel>
+                            </FormItem>
+
+                            <FormItem className="relative space-y-0">
+                              <FormControl className="absolute right-3 top-1/2 -translate-y-1/2">
+                                <RadioGroupItem value="supplier" />
+                              </FormControl>
+                              <FormLabel className="flex font-normal p-3 border rounded-md cursor-pointer">
+                                Supplier
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="blocked">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               {addresses.fields.map((field, i) => (
@@ -326,4 +401,4 @@ const CustomerSheet = ({ customer }: { customer: any }) => {
   );
 };
 
-export default CustomerSheet;
+export default contactSheet;

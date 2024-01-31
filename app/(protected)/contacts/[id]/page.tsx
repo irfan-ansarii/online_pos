@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import Numeral from "numeral";
 import { format } from "date-fns";
-import { getCustomer } from "@/actions/customer-actions";
+import { getContact } from "@/actions/contact-actions";
 
 import { Inbox, IndianRupee, Percent, CalendarDays } from "lucide-react";
 
@@ -22,37 +22,37 @@ import OrderItem from "./components/OrderItem";
 
 const Page = async ({ params }: { params: { id: string } }) => {
   const { id } = params;
-  const { data } = await getCustomer(id);
-
+  const { data }: any = await getContact(id);
+  const isSupplier = data.role === "supplier";
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6 order-2 md:order-1">
           <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
             <Analytics
-              title="Total orders"
-              value={data?._count?.total || "0.00"}
+              title={isSupplier ? "Total purchase" : "Total sale"}
+              value={Numeral(data?._count?.total).format()}
               icon={<Inbox className="w-5 h-5" />}
               className="bg-success"
             />
             <Analytics
-              title="Total spent"
+              title={"Amount"}
               value={Numeral(data?._sum?.total).format()}
               icon={<IndianRupee className="w-5 h-5" />}
               className="bg-pink-600"
             />
             <Analytics
-              title="Avarage order value"
+              title="Avarage"
               value={Numeral(data?._avg?.total).format()}
               icon={<Percent className="w-5 h-5" />}
               className="bg-violet-600"
             />
             <Analytics
-              title="Last visit"
+              title={isSupplier ? "Last purchase" : "Last sale"}
               value={
                 data?.sales?.[0]?.createdAt
                   ? format(data?.sales?.[0]?.createdAt, "dd MMM, yy")
-                  : "N/A"
+                  : "-"
               }
               icon={<CalendarDays className="w-5 h-5" />}
               className="bg-blue-600"
@@ -61,7 +61,9 @@ const Page = async ({ params }: { params: { id: string } }) => {
 
           <Card className="pb-4">
             <CardHeader>
-              <CardTitle className="text-base">Recent Purchases</CardTitle>
+              <CardTitle className="text-base">
+                Recent {isSupplier ? "Purchase" : "Sale"}
+              </CardTitle>
               <CardDescription>
                 Lorem ipsum dolor sit, amet consectetur adipisicing elit.
               </CardDescription>
@@ -72,7 +74,7 @@ const Page = async ({ params }: { params: { id: string } }) => {
               ))}
             </CardContent>
             <Link
-              href={`/sales?customer=${data?.id}`}
+              href={`/${isSupplier ? `purchase` : "sale"}?search=${data.email}`}
               className="text-center block"
             >
               <Button variant="link">View All</Button>

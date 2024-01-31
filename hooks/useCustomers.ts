@@ -1,4 +1,4 @@
-import { getCustomers } from "@/actions/customer-actions";
+import { getCustomers } from "@/actions/contact-actions";
 import useSWR from "swr";
 
 interface Props {

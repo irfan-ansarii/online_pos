@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Prisma, User, UserRole } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { sanitize } from "@/lib/sanitize-user";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";

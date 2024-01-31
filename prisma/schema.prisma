@@ -29,7 +29,7 @@ model User {
   customerSale     Sale[]     @relation("customerSale")
   employeeSale     Sale[]     @relation("employeeSale")
   location         Location?  @relation(fields: [locationId], references: [id], onDelete: SetNull)
-  Purchase         Purchase[]
+  purchase         Purchase[]
 
   @@map("users")
 }

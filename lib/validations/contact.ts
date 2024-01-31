@@ -2,12 +2,14 @@ import * as z from "zod";
 // @ts-ignore
 import query from "india-pincode-search";
 
-export const customerValidation = z.object({
+export const contactValidation = z.object({
   id: z.number().optional(),
   firstName: z.string().min(1, "Required"),
   lastName: z.string().min(1, "Required"),
   phone: z.string().regex(/^\d{10}$/, { message: "Enter valid phone number" }),
   email: z.union([z.string().email(), z.literal("")]),
+  status: z.enum(["active", "blocked"]),
+  role: z.enum(["customer", "supplier"]),
   addresses: z.array(
     z.object({
       id: z.number().optional(),

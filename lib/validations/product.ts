@@ -71,8 +71,8 @@ export const editProductValidation = z
         title: z.string(),
         purchasePrice: z.any(),
         salePrice: z.any(),
-        sku: z.string().optional(),
-        hsn: z.string(),
+        sku: z.any(),
+        hsn: z.any(),
         taxRate: z.any(),
       })
       .array()
@@ -93,6 +93,7 @@ export const editProductValidation = z
 const validate = (data: any, ctx: z.RefinementCtx) => {
   const { purchasePrice, salePrice, taxRate, type, variants, hsn, options } =
     data;
+
   if (type === "simple") {
     if (!purchasePrice || isNaN(Number(purchasePrice))) {
       ctx.addIssue({

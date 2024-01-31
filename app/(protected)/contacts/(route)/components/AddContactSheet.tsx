@@ -4,9 +4,9 @@ import React from "react";
 import query from "india-pincode-search";
 import * as z from "zod";
 
-import { createCustomer } from "@/actions/customer-actions";
+import { createContact } from "@/actions/contact-actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { customerValidation } from "@/lib/validations/customer";
+import { contactValidation } from "@/lib/validations/contact";
 
 import { Loader2, PlusCircle } from "lucide-react";
 
@@ -31,23 +31,28 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const AddContactSheet = ({
   children,
   onSuccess,
+  role,
 }: {
   children: React.ReactNode;
   onSuccess?: (value: any) => void;
+  role?: "customer" | "supplier";
 }) => {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const form = useForm<z.infer<typeof customerValidation>>({
-    resolver: zodResolver(customerValidation),
+  const form = useForm<z.infer<typeof contactValidation>>({
+    resolver: zodResolver(contactValidation),
     defaultValues: {
       firstName: "",
       lastName: "",
       phone: "",
       email: "",
+      role: role,
+      status: "active",
       addresses: [],
     },
   });
@@ -57,14 +62,14 @@ const AddContactSheet = ({
     control: form.control,
   });
 
-  const onSubmit = async (values: z.infer<typeof customerValidation>) => {
+  const onSubmit = async (values: z.infer<typeof contactValidation>) => {
     try {
       setLoading(true);
       //@ts-ignore
-      const response = await createCustomer(values);
+      const response = await createContact(values);
       toast({
         variant: "success",
-        title: "Customer created",
+        title: "Contact created",
       });
       form.reset();
       onSuccess && onSuccess(response.data);
@@ -93,7 +98,7 @@ const AddContactSheet = ({
               <div className="absolute inset-0 bg-transparent z-20"></div>
             )}
             <SheetHeader>
-              <SheetTitle className="text-lg">Create customer</SheetTitle>
+              <SheetTitle className="text-lg">Create Contact</SheetTitle>
             </SheetHeader>
 
             <div className="relative flex-1 max-h-full -mx-6 px-6 overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
@@ -151,6 +156,42 @@ const AddContactSheet = ({
                     </FormItem>
                   )}
                 />
+                <div className="col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="grid grid-cols-2 gap-4"
+                          >
+                            <FormItem className="relative space-y-0">
+                              <FormControl className="absolute right-3 top-1/2 -translate-y-1/2">
+                                <RadioGroupItem value="customer" />
+                              </FormControl>
+                              <FormLabel className="flex font-normal p-3 border rounded-md cursor-pointer">
+                                Customer
+                              </FormLabel>
+                            </FormItem>
+
+                            <FormItem className="relative space-y-0">
+                              <FormControl className="absolute right-3 top-1/2 -translate-y-1/2">
+                                <RadioGroupItem value="supplier" />
+                              </FormControl>
+                              <FormLabel className="flex font-normal p-3 border rounded-md cursor-pointer">
+                                Supplier
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               {addresses.fields.map((field, i) => (
