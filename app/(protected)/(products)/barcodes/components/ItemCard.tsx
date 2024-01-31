@@ -42,7 +42,7 @@ const ItemCard = ({ item }: { item: any }) => {
               }`}
               variant="secondary"
             >
-              <Printer className="w-4 h-4" />
+              <Printer className="w-3.5 h-3.5" />
               <span>{item.status}</span>
             </Badge>
 

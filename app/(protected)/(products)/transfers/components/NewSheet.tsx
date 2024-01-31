@@ -11,7 +11,6 @@ import { transferValidation } from "@/lib/validations/product";
 
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
-import { useAtom } from "jotai";
 import { useSheetToggle } from "@/hooks/useSheet";
 import {
   Sheet,
@@ -43,18 +42,16 @@ import { Badge } from "@/components/ui/badge";
 import { AvatarItem } from "@/components/shared/avatar";
 import { createTransfer } from "@/actions/transfer-actions";
 import { useLocations } from "@/hooks/useLocations";
-import { useSession } from "@/hooks/useSession";
 
 type Option = Record<string, any>;
 interface ClickProps {
   e: React.MouseEvent<HTMLElement>;
   index: number;
 }
-const NewSheet = () => {
+const NewSheet = ({ session }: any) => {
   const router = useRouter();
   const { locations } = useLocations();
   const [loading, setLoading] = React.useState(false);
-  const { session } = useSession();
   const [open, toggle] = useSheetToggle("newSheet");
 
   const form = useForm<z.infer<typeof transferValidation>>({
@@ -64,6 +61,7 @@ const NewSheet = () => {
       lineItems: [],
       totalItems: undefined,
       totalAmount: undefined,
+      status: "completed",
     },
   });
 
@@ -157,7 +155,7 @@ const NewSheet = () => {
     } catch (error: any) {
       toast({
         variant: "error",
-        title: error.message,
+        title: error.message || "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -170,7 +168,7 @@ const NewSheet = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
-            className="flex flex-col h-full relative"
+            className="flex flex-col gap-4 h-full relative"
           >
             <SheetHeader>
               <SheetTitle>New Transfer</SheetTitle>
@@ -180,144 +178,130 @@ const NewSheet = () => {
               <div className="absolute w-full h-full top-0 left-0 z-20"></div>
             )}
 
-            {loading ? (
-              <div className="flex flex-col h-full items-center justify-center">
-                <Loader2 className="w-10 h-10 animate-spin" />
-              </div>
-            ) : (
-              <>
-                <div className="pb-4 space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="toId"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Destination</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Destination" />
-                            </SelectTrigger>
-                          </FormControl>
+            <div className="pb-4 space-y-4">
+              <FormField
+                control={form.control}
+                name="toId"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Destination</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Destination" />
+                        </SelectTrigger>
+                      </FormControl>
 
-                          <SelectContent>
-                            {locations?.data.map((location: Option) =>
-                              session?.locationId === location.id ? null : (
-                                <SelectItem
-                                  value={`${location.id}`}
-                                  key={location.id}
-                                >
-                                  {location.name}
-                                </SelectItem>
-                              )
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="flex flex-col gap-2 mb-1">
-                  <FormLabel>Products</FormLabel>
-                  <AutoComplete
-                    onSelect={onSelect}
-                    error={
-                      form.formState.errors.lineItems
-                        ? "Product required"
-                        : null
-                    }
-                  />
-                </div>
+                      <SelectContent>
+                        {locations?.data.map((location: Option) => {
+                          if (session.locationId !== location.id)
+                            return (
+                              <SelectItem
+                                value={`${location.id}`}
+                                key={location.id}
+                              >
+                                {location.name}
+                              </SelectItem>
+                            );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex flex-col gap-2 mb-1">
+              <FormLabel>Products</FormLabel>
+              <AutoComplete
+                onSelect={onSelect}
+                error={
+                  form.formState.errors.lineItems ? "Product required" : null
+                }
+              />
+            </div>
 
-                <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
-                  {lineItems.fields.map(
-                    (
-                      { itemId, title, variantTitle, imageSrc, quantity },
-                      i
-                    ) => (
-                      <div
-                        className="flex rounded-md border p-2 pr-0 items-center snap-start"
-                        key={itemId}
-                      >
-                        <div className="flex gap-3 items-center col-span-2">
-                          <AvatarItem src={imageSrc} />
-                          <div className="space-y-0.5 truncate">
-                            <div className="font-semibold truncate">
-                              {title}
-                            </div>
-                            {variantTitle && (
-                              <Badge className="py-.5" variant="secondary">
-                                {variantTitle}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="ml-auto flex items-center gap-6">
-                          <div className="flex items-center w-20 justify-between">
-                            <Button
-                              onClick={(e) => handleMinus({ e, index: i })}
-                              size="icon"
-                              variant="secondary"
-                              className="rounded-full w-6 h-6"
-                            >
-                              <Minus className="w-4 h-4" />
-                            </Button>
-                            <span className="flex-1 truncate text-center block">
-                              {quantity}
-                            </span>
-                            <Button
-                              size="icon"
-                              onClick={(e) => handlePlus({ e, index: i })}
-                              variant="secondary"
-                              className="rounded-full w-6 h-6"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </Button>
-                          </div>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="opacity-50 hover:opacity-100 hover:bg-background transition"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              lineItems.remove(i);
-                            }}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
+            <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
+              {lineItems.fields.map(
+                ({ itemId, title, variantTitle, imageSrc, quantity }, i) => (
+                  <div
+                    className="flex rounded-md border p-2 pr-0 items-center snap-start"
+                    key={itemId}
+                  >
+                    <div className="flex gap-3 items-center col-span-2">
+                      <AvatarItem src={imageSrc} />
+                      <div className="space-y-0.5 truncate">
+                        <div className="font-semibold truncate">{title}</div>
+                        {variantTitle && (
+                          <Badge className="py-.5" variant="secondary">
+                            {variantTitle}
+                          </Badge>
+                        )}
                       </div>
-                    )
-                  )}
-                </div>
-                <Separator className="h-0.5" />
-                <SheetFooter className="pt-2 flex-col">
-                  <div className="flex">
-                    <div>Items</div>
-                    <div className="ml-auto">{form.watch("totalItems")}</div>
-                  </div>
-                  <div className="flex">
-                    <div>Amount</div>
-                    <div className="ml-auto">
-                      {Numeral(form.watch("totalAmount")).format()}
+                    </div>
+
+                    <div className="ml-auto flex items-center gap-6">
+                      <div className="flex items-center w-20 justify-between">
+                        <Button
+                          onClick={(e) => handleMinus({ e, index: i })}
+                          size="icon"
+                          variant="secondary"
+                          className="rounded-full w-6 h-6"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="flex-1 truncate text-center block">
+                          {quantity}
+                        </span>
+                        <Button
+                          size="icon"
+                          onClick={(e) => handlePlus({ e, index: i })}
+                          variant="secondary"
+                          className="rounded-full w-6 h-6"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="opacity-50 hover:opacity-100 hover:bg-background transition"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          lineItems.remove(i);
+                        }}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
+                )
+              )}
+            </div>
+            <Separator className="h-0.5" />
+            <SheetFooter className="pt-2 flex-col">
+              <div className="flex">
+                <div>Items</div>
+                <div className="ml-auto">{form.watch("totalItems")}</div>
+              </div>
+              <div className="flex">
+                <div>Amount</div>
+                <div className="ml-auto">
+                  {Numeral(form.watch("totalAmount")).format()}
+                </div>
+              </div>
 
-                  <Button className="w-full" type="submit">
-                    {loading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      "Save"
-                    )}
-                  </Button>
-                </SheetFooter>
-              </>
-            )}
+              <Button className="w-full" type="submit">
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </SheetFooter>
           </form>
         </Form>
       </SheetContent>

@@ -52,7 +52,7 @@ const ItemCard = ({ adjustment }: { adjustment: Props }) => {
             variant="secondary"
             className="rounded-md gap-2 py-1 hidden md:inline-flex"
           >
-            <span className="uppercase">{adjustment.reason}</span>
+            <span className="capitalize">{adjustment.reason}</span>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="w-4 h-4 text-muted-foreground " />

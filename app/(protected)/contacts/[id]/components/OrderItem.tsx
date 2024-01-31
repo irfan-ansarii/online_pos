@@ -6,7 +6,7 @@ import Numeral from "numeral";
 
 import { Badge } from "@/components/ui/badge";
 
-const Orders = ({ order }: { order: any }) => {
+const Orders = ({ order, href }: { order: any; href: string }) => {
   const status: { [key: string]: any } = {
     pending: {
       className: "bg-warning hover:bg-warning text-white",
@@ -34,7 +34,7 @@ const Orders = ({ order }: { order: any }) => {
     <div className="grid grid-cols-5 gap-2 py-3 items-center">
       <div className="space-y-1 col-span-2">
         <Link
-          href={`/sales?id=${order.id}`}
+          href={href}
           className="text-sm font-medium leading-none underline"
         >
           {order?.title}
@@ -53,7 +53,10 @@ const Orders = ({ order }: { order: any }) => {
         <p>{Numeral(order.total).format()}</p>
 
         <Badge
-          className={cn(`rounded-md uppercase`, status[order.status].className)}
+          className={cn(
+            `rounded-md capitalize`,
+            status[order.status].className
+          )}
         >
           {status[order.status].text}
         </Badge>

@@ -203,6 +203,14 @@ export const transferValidation = z.object({
     .min(1),
   totalItems: z.number(),
   totalAmount: z.number(),
+  status: z.enum([
+    "completed",
+    "pending",
+    "accepted",
+    "rejected",
+    "partial",
+    "cancelled",
+  ]),
 });
 
 export const adjustmentValidation = z.object({
@@ -245,6 +253,7 @@ export const barcodeValidation = z.object({
     .array()
     .min(1),
 });
+
 export const editBarcodeValidation = z.object({
   id: z.number(),
   quantity: z

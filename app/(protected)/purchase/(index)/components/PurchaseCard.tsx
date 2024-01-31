@@ -130,7 +130,7 @@ const PurchaseCard = ({
             </div>
             <Badge
               variant="secondary"
-              className={`rounded-md uppercase w-20 justify-center truncate ${
+              className={`rounded-md capitalize w-20 justify-center truncate ${
                 status[purchase.status].className
               }`}
             >

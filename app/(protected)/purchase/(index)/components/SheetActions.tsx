@@ -1,11 +1,17 @@
 "use client";
 import React from "react";
-
+import Link from "next/link";
 import { Sale } from "@prisma/client";
 
 import { useSheetToggle } from "@/hooks/useSheet";
 
-import { IndianRupee, Mail, MoreVertical, Printer } from "lucide-react";
+import {
+  Download,
+  IndianRupee,
+  Mail,
+  MoreVertical,
+  PenSquare,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -49,8 +55,17 @@ export default function SheetActions({
         <DropdownMenuContent className="w-40" align="end">
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Printer className="w-4 h-4 mr-2" />
-              Print Invoice
+              <Link
+                href={`/purchase/${purchase.id}`}
+                className="flex-1 inline-flex"
+              >
+                <PenSquare className="w-4 h-4 mr-2 " />
+                Edit
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Download className="w-4 h-4 mr-2" />
+              Download
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Mail className="w-4 h-4 mr-2" />

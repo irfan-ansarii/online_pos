@@ -3,7 +3,7 @@ import React from "react";
 import { ArrowLeft, Check, Mail, Phone, Plus, Search } from "lucide-react";
 
 import LoadingSmall from "@/components/shared/loading-sm";
-import AddCustomerSheet from "../../../contacts/(route)/components/AddContactSheet";
+import AddContactSheet from "../../../contacts/(route)/components/AddContactSheet";
 import { TabsContent } from "@/components/ui/tabs";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 
 import { useFormContext } from "react-hook-form";
-import { useCustomers } from "@/hooks/useCustomers";
+import { useContacts } from "@/hooks/useContacts";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,10 +26,35 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
   const [search, setSearch] = React.useState("");
   const form = useFormContext();
 
-  const { customers, isLoading, mutate } = useCustomers({
+  const { contacts, isLoading, mutate } = useContacts({
     search,
+    role: "customer",
   });
 
+  const setCustomer = (id: any) => {
+    const customer = contacts?.data?.find((c) => c.id === Number(id));
+    const isAddress =
+      Array.isArray(customer?.addresses) && customer?.addresses?.length > 0;
+
+    let billing: any = {
+      name: `${customer?.firstName} ${customer?.lastName}`,
+      phone: customer?.phone,
+      email: customer?.email,
+    };
+    if (isAddress) {
+      const address = customer.addresses[0];
+      billing = {
+        ...billing,
+        name: address?.company || billing.name,
+        address: `${address?.address} ${address?.address2}`,
+        city: `${address?.address} ${address?.address2}`,
+        stats: `${address?.address} ${address?.address2}`,
+        pincode: `${address?.address} ${address?.address2}`,
+      };
+    }
+    form.setValue("billingAddress", billing);
+    form.setValue("shippingAddress", billing);
+  };
   return (
     <TabsContent
       value="customer"
@@ -58,12 +83,15 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <AddCustomerSheet
+          <AddContactSheet
             onSuccess={(value) => {
               mutate();
-              form.setValue("customerId", value.id);
-              setSearch(value.phone);
+              if (value.role === "customer") {
+                form.setValue("customerId", value.id);
+                setSearch(value.phone);
+              }
             }}
+            role="customer"
           >
             <Button
               variant="link"
@@ -72,13 +100,13 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
             >
               <Plus className="w-5 h-5" />
             </Button>
-          </AddCustomerSheet>
+          </AddContactSheet>
         </div>
 
         <div className="overflow-y-auto relative scrollbox flex-1">
           {isLoading && <LoadingSmall />}
 
-          {!isLoading && customers?.data?.length === 0 && (
+          {!isLoading && contacts?.data?.length === 0 && (
             <div className="text-center py-4">No results found.</div>
           )}
 
@@ -91,11 +119,12 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
                   <RadioGroup
                     onValueChange={(e) => {
                       field.onChange(e);
+                      setCustomer(e);
                     }}
                     defaultValue={field.value}
                     className="flex flex-col gap-1"
                   >
-                    {customers?.data?.map((customer) => (
+                    {contacts?.data?.map((customer: any) => (
                       <FormItem
                         className="space-y-0 relative"
                         key={customer.id}

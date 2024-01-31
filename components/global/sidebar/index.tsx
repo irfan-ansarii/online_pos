@@ -29,31 +29,45 @@ function Sidebar() {
 
   const isActive = (current: string) => {
     const splitted = pathname.split("/").find((p) => p);
+
     const active =
       current === pathname ||
       (pathname.length > 1 && current?.startsWith(`/${splitted}`));
 
-    return active ? true : false;
+    return active;
+  };
+
+  const isActiveTrigger = (current: string) => {
+    const splitted = pathname.split("/").find((p) => p);
+    const item = MENU_ITEMS.find((item) => item.href === current);
+    return (
+      item &&
+      item.children?.some(
+        (child) =>
+          child.href === pathname ||
+          (pathname.length > 1 && current?.startsWith(`/${splitted}`))
+      )
+    );
   };
 
   React.useEffect(() => {
     setLoading(false);
   }, []);
 
-  // React.useEffect(() => {
-  //   MENU_ITEMS.forEach((item) => {
-  //     const { children } = item;
-  //     if (pathname === item.href) {
-  //       setActive(item.href);
-  //     } else if (Array.isArray(children)) {
-  //       children.forEach((child) => {
-  //         if (pathname === child.href) {
-  //           setActive(item.href);
-  //         }
-  //       });
-  //     }
-  //   });
-  // }, [pathname]);
+  React.useEffect(() => {
+    MENU_ITEMS.forEach((item) => {
+      const { children } = item;
+      if (pathname === item.href) {
+        setActive(item.href);
+      } else if (Array.isArray(children)) {
+        children.forEach((child) => {
+          if (pathname === child.href) {
+            setActive(item.href);
+          }
+        });
+      }
+    });
+  }, [pathname]);
 
   return (
     <div className="top-0 z-30 hidden h-screen w-full bg-accent shrink-0 sticky md:block">
@@ -82,7 +96,13 @@ function Sidebar() {
         </div>
 
         <div className="relative flex-1 max-h-full overflow-y-auto scrollbox -mx-x px-x">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion
+            type="single"
+            collapsible
+            className="w-full"
+            value={active}
+            onValueChange={(value) => setActive(value)}
+          >
             <ul className="flex flex-col gap-3">
               {MENU_ITEMS.map((item, i) => {
                 const { label, href, icon, children } = item;
@@ -96,7 +116,7 @@ function Sidebar() {
                           <div
                             className={cn(
                               `rounded-md w-full [&[data-state=open]>svg]:rotate-90 transition duration-500 cursor-pointer px-2 group md:justify-center lg:px-4 lg:justify-start !py-3 lg:py-2.5 flex gap-3 transition duration-500 items-center text-sm font-medium text-foreground hover:bg-secondary  ${
-                                isActive(href) ? "bg-secondary" : ""
+                                isActiveTrigger(href) ? "bg-secondary" : ""
                               }`
                             )}
                           >
@@ -164,7 +184,17 @@ function Sidebar() {
 
 export default Sidebar;
 
-const MenuLink = ({ label, href, Icon, isActive }) => {
+const MenuLink = ({
+  label,
+  href,
+  Icon,
+  isActive,
+}: {
+  label: string;
+  href: string;
+  Icon: any;
+  isActive: (p: any) => boolean;
+}) => {
   return (
     <Link
       href={`${href}`}

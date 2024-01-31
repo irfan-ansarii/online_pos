@@ -70,7 +70,13 @@ const Page = async ({ params }: { params: { id: string } }) => {
             </CardHeader>
             <CardContent className="divide-y py-0">
               {data?.sales?.map((sale: any) => (
-                <OrderItem key={sale.id} order={sale} />
+                <OrderItem
+                  key={sale.id}
+                  order={sale}
+                  href={`/${isSupplier ? "purchase" : "sales"}?search=${
+                    sale.title
+                  }`}
+                />
               ))}
             </CardContent>
             <Link

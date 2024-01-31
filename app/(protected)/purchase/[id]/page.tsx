@@ -28,6 +28,8 @@ const page = async ({ params }: { params: { id: number } }) => {
     id: data.id,
     title: data.title,
     supplierId: data.supplierId,
+    billingAddress: data.billingAddress,
+    shippingAddress: data.shippingAddress,
     lineItems: data.lineItems.map((item) => ({
       itemId: item.id,
       kind: item.kind,

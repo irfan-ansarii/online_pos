@@ -27,6 +27,8 @@ const page = async ({ params }: { params: { id: number } }) => {
   const initialValues = {
     id: data.id,
     customerId: data.customerId,
+    billingAddress: data.billingAddress,
+    shippingAddress: data.shippingAddress,
     employeeId: data.employeeId,
     lineItems: data.lineItems.map((item) => ({
       itemId: item.id,
@@ -55,7 +57,6 @@ const page = async ({ params }: { params: { id: number } }) => {
     subtotal: data.subtotal,
     totalTax: data.totalTax,
     totalDiscount: data.totalDiscount,
-    lineItemsTotal: data.lineItemsTotal,
     total: data.total,
     totalDue: data.totalDue,
     invoiceTotal: data.invoiceTotal,

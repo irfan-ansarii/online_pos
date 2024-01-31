@@ -88,13 +88,14 @@ const EditSheet = ({ product }: { product: EditProductProps }) => {
 
   const onSubmit = async (values: z.infer<typeof editProductValidation>) => {
     if (values.type === "simple") {
+      values.options = undefined;
       values.variants = [
         {
           itemId: values.itemId,
           option: null,
           title: "Default",
           purchasePrice: Number(values.purchasePrice),
-          salePrice: Number(values.purchasePrice),
+          salePrice: Number(values.salePrice),
           sku: values.sku,
           hsn: values.hsn,
           taxRate: Number(values.taxRate),

@@ -184,7 +184,7 @@ export async function getSession() {
       },
     });
 
-    return { data: sanitize(user) };
+    return { data: sanitize(user), message: "success" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       throw new Error("Internal server error");

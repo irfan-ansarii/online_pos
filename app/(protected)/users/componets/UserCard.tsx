@@ -23,7 +23,9 @@ const UserCard = ({ user }: { user: User }) => {
             </Avatar>
             <div className="space-y-0.5">
               <div className="font-medium">{`${user.firstName} ${user.lastName}`}</div>
-              <Badge className="py-0 uppercase">{user.role}</Badge>
+              <Badge className="py-0 capitalize" variant="secondary">
+                {user.role}
+              </Badge>
             </div>
           </div>
           <div className="space-y-0.5 col-span-2">
@@ -66,7 +68,14 @@ const UserCard = ({ user }: { user: User }) => {
           </div>
 
           <div className="col-span-2 md:col-span-1 text-right">
-            <Badge className="uppercase" variant="secondary">
+            <Badge
+              className={`capitalize text-white rounded-md py-1 ${
+                user.status === "active"
+                  ? "bg-success hover:bg-succe"
+                  : "bg-error hover:bg-error"
+              }`}
+              variant="secondary"
+            >
               {user.status}
             </Badge>
           </div>

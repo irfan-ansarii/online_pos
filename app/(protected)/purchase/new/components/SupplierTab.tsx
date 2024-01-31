@@ -3,7 +3,7 @@ import React from "react";
 import { ArrowLeft, Check, Mail, Phone, Plus, Search } from "lucide-react";
 
 import LoadingSmall from "@/components/shared/loading-sm";
-import AddCustomerSheet from "../../../contacts/(route)/components/AddContactSheet";
+import AddContactSheet from "../../../contacts/(route)/components/AddContactSheet";
 import { TabsContent } from "@/components/ui/tabs";
 import {
   DialogHeader,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/form";
 
 import { useFormContext } from "react-hook-form";
-import { useSuppliers } from "@/hooks/useSuppliers";
+import { useContacts } from "@/hooks/useContacts";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,8 +30,9 @@ const SupplierTab = ({ setActive }: { setActive: (tab: string) => void }) => {
   const [search, setSearch] = React.useState("");
   const form = useFormContext();
 
-  const { suppliers, isLoading, mutate } = useSuppliers({
+  const { contacts, isLoading, mutate } = useContacts({
     search,
+    role: "supplier",
   });
 
   return (
@@ -61,12 +62,15 @@ const SupplierTab = ({ setActive }: { setActive: (tab: string) => void }) => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <AddCustomerSheet
+          <AddContactSheet
             onSuccess={(value) => {
               mutate();
-              form.setValue("customerId", value.id);
-              setSearch(value.phone);
+              if (value.role === "supplier") {
+                form.setValue("supplierId", value.id);
+                setSearch(value.phone);
+              }
             }}
+            role="supplier"
           >
             <Button
               variant="link"
@@ -75,13 +79,13 @@ const SupplierTab = ({ setActive }: { setActive: (tab: string) => void }) => {
             >
               <Plus className="w-5 h-5" />
             </Button>
-          </AddCustomerSheet>
+          </AddContactSheet>
         </div>
 
         <div className="overflow-y-auto relative scrollbox flex-1">
           {isLoading && <LoadingSmall />}
 
-          {!isLoading && suppliers?.data?.length === 0 && (
+          {!isLoading && contacts?.data?.length === 0 && (
             <div className="text-center py-4">No results found.</div>
           )}
 
@@ -96,12 +100,13 @@ const SupplierTab = ({ setActive }: { setActive: (tab: string) => void }) => {
                     defaultValue={field.value}
                     className="flex flex-col gap-1"
                   >
-                    {suppliers?.data?.map((supplier) => (
+                    {contacts?.data?.map((supplier) => (
                       <FormItem
                         className="space-y-0 relative"
                         key={supplier.id}
                       >
                         <FormControl className="peer sr-only">
+                          {/* @ts-ignore */}
                           <RadioGroupItem value={supplier.id} />
                         </FormControl>
                         <div className="absolute text-primary-foreground w-4 h-4 bg-primary top-1/2 -translate-y-1/2 right-3 rounded-full inline-flex items-center justify-center opacity-0 peer-data-[state=checked]:opacity-100">

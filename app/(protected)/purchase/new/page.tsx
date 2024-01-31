@@ -6,6 +6,8 @@ const Page = async () => {
   const { data } = await getPayments();
 
   const initialValues = {
+    billingAddress: "",
+    shippingAddress: "",
     lineItems: [],
     taxType: "included",
     subtotal: 0,

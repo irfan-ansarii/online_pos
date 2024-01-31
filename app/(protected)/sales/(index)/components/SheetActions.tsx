@@ -6,11 +6,11 @@ import { printSaleInvoice } from "@/actions/print-sale-invoice";
 import { useSheetToggle } from "@/hooks/useSheet";
 
 import {
+  Download,
   IndianRupee,
   Mail,
   MoreVertical,
   PenSquare,
-  Printer,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -64,8 +64,8 @@ export default function SheetActions({
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handlePrint}>
-              <Printer className="w-4 h-4 mr-2" />
-              Print Invoice
+              <Download className="w-4 h-4 mr-2" />
+              Download
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Mail className="w-4 h-4 mr-2" />

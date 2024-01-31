@@ -3,8 +3,8 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { PAGE_SIZE } from "@/config/app";
-import { Prisma } from "@prisma/client";
-import { updateInventory } from "./inventory-actions";
+import { LineItem, Prisma } from "@prisma/client";
+import { createAdjustment } from "./adjustment-actions";
 
 interface ParamsProps {
   [key: string]: string;
@@ -92,7 +92,7 @@ export async function createTransfer(values: any) {
       throw new Error("Unauthorized");
     }
 
-    const { toId, lineItems, totalItems, totalAmount } = values;
+    const { toId, lineItems, totalItems, totalAmount, status } = values;
 
     if (session.location.id === toId) {
       throw new Error("Source and destination cannot be same");
@@ -121,7 +121,7 @@ export async function createTransfer(values: any) {
       data: {
         toId: Number(toId),
         fromId: sourceId,
-        status: "pending",
+        status,
         totalItems,
         totalAmount,
         lineItems: {
@@ -130,19 +130,33 @@ export async function createTransfer(values: any) {
       },
     });
 
-    // reduce stock from source
-    const dec = lineItems.map((item: any) => ({
+    /** reduce stock from source */
+    const decreaseData = lineItems.map((item: LineItem) => ({
+      locationId: sourceId,
+      productId: item.productId,
       variantId: item.variantId,
       quantity: -Math.abs(item.quantity),
+      reason: "internal transfer",
+      notes: "",
     }));
-    await updateInventory({ data: dec, locationId: sourceId });
 
-    // increase stock at destination
-    const inc = lineItems.map((item: any) => ({
+    /** increase stock at destination */
+    const increaseData = lineItems.map((item: LineItem) => ({
+      locationId: Number(toId),
+      productId: item.productId,
       variantId: item.variantId,
       quantity: Number(item.quantity),
+      reason: "internal transfer",
+      notes: "",
     }));
-    await updateInventory({ data: inc, locationId: Number(toId) });
+
+    if (decreaseData.length > 0) {
+      await createAdjustment(decreaseData);
+    }
+
+    if (increaseData.length > 0) {
+      await createAdjustment(increaseData);
+    }
 
     // return response
     return { data: response, message: "created" };

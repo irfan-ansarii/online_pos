@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 
-import Loading from "@/components/shared/Loading";
 import { Badge } from "../ui/badge";
 import { AvatarItem } from "@/components/shared/avatar";
+import LoadingSmall from "./loading-sm";
 
 export type Option = Record<"value" | "label", string> & Record<string, string>;
 
@@ -75,7 +75,7 @@ const AutoComplete = ({
               {/* loading */}
               {isLoading && (
                 <CommandPrimitive.Loading>
-                  <Loading className="border-none" />
+                  <LoadingSmall />
                 </CommandPrimitive.Loading>
               )}
 

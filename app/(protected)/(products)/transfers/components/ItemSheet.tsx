@@ -10,49 +10,45 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
 import { AvatarItem } from "@/components/shared/avatar";
-import { Label } from "@/components/ui/label";
+import { Download, Upload } from "lucide-react";
 
 interface Props extends Transfer {
   lineItems: TransferLineItem[];
 }
 const ItemSheet = ({ transfer }: { transfer: Props }) => {
   const { session } = useSession();
+
+  const isReceived = session?.locationId === transfer.toId;
   return (
     <SheetContent className="md:max-w-lg">
       <div className="flex flex-col h-full">
         <SheetHeader>
-          <SheetTitle>Transfer</SheetTitle>
+          <SheetTitle className="flex">
+            <span>Transfer</span>
+            <Badge
+              variant="secondary"
+              className={`py-1 rounded-md ml-auto text-white ${
+                isReceived ? "bg-success" : "bg-warning"
+              }`}
+            >
+              {isReceived ? (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
+                  Received
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Sent
+                </>
+              )}
+            </Badge>
+          </SheetTitle>
         </SheetHeader>
-
-        <div className="pb-4 space-y-1.5">
-          <Label>
-            {session?.location?.id === transfer.fromId
-              ? "Destination"
-              : "Source"}
-          </Label>
-          {/* <Select defaultValue={`${destination.id}`}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select Destination" />
-            </SelectTrigger>
-
-            <SelectContent>
-              <SelectItem value={`${destination.id}`}>
-                {destination?.name}
-              </SelectItem>
-            </SelectContent>
-          </Select> */}
-        </div>
 
         <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
           {transfer.lineItems.map((field: any) => (

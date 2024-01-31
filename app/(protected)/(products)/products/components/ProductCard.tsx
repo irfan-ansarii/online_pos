@@ -131,7 +131,7 @@ const ProductCard = ({ product }: { product: any }) => {
             </div>
             <div className="hidden md:block text-right">
               <Badge
-                className={`uppercase rounded-md text-white mb-1 ${
+                className={`capitalize rounded-md text-white mb-1 ${
                   badgeClassName[product.status]
                 }`}
                 variant="secondary"

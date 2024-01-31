@@ -308,26 +308,28 @@ model Payment {
 }
 
 model Purchase {
-  id            Int                   @id @default(autoincrement())
-  locationId    Int
-  title         String
-  supplierId    Int?
-  purchaseType  String                @default("state")
-  subtotal      Float
-  taxType       String                @default("included")
-  totalTax      Float
-  totalDiscount Float
-  roundedOff    Float
-  invoiceTotal  Float
-  total         Float
-  totalDue      Float
-  taxLines      Json?
-  status        FinancialStatus       @default(pending)
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  supplier      User?                 @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  lineItems     PurchaseLineItem[]
-  transactions  PurchaseTransaction[]
+  id              Int                   @id @default(autoincrement())
+  locationId      Int
+  title           String
+  supplierId      Int?
+  billingAddress  Json?
+  shippingAddress Json?
+  purchaseType    String                @default("state")
+  subtotal        Float
+  taxType         String                @default("included")
+  totalTax        Float
+  totalDiscount   Float
+  roundedOff      Float
+  invoiceTotal    Float
+  total           Float
+  totalDue        Float
+  taxLines        Json?
+  status          FinancialStatus       @default(pending)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  supplier        User?                 @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  lineItems       PurchaseLineItem[]
+  transactions    PurchaseTransaction[]
 
   @@map("purchase")
 }
@@ -440,6 +442,7 @@ enum LabelStatus {
 }
 
 enum TransferStatus {
+  completed
   pending
   accepted
   rejected

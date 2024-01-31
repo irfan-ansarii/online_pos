@@ -67,6 +67,7 @@ const NewSheet = () => {
 
   const onSubmit = async (values: z.infer<typeof productValidation>) => {
     if (values.type === "simple") {
+      values.options = undefined;
       values.variants = [
         {
           option: null,

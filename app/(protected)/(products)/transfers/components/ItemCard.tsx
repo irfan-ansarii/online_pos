@@ -5,7 +5,7 @@ import Numeral from "numeral";
 import { Download, Upload } from "lucide-react";
 
 import { useToggle } from "@uidotdev/usehooks";
-
+import { useSession } from "@/hooks/useSession";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
@@ -22,19 +22,15 @@ export interface TransferStatus {
 
 const ItemCard = ({ transfer }: { transfer: any }) => {
   const [open, toggle] = useToggle();
+  const { session } = useSession();
 
-  const badge: TransferStatus = {
-    pending: "bg-info hover:bg-info",
-    completed: "bg-success hover:bg-success",
-    cancelled: "bg-destructive hover:bg-destructive",
-  };
-
+  const isReceived = session?.locationId === transfer.toId;
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
       <Sheet open={open} onOpenChange={toggle}>
         <SheetTrigger asChild>
           <CardContent className="grid grid-cols-6 items-center gap-2">
-            <div className="flex col-span-3 items-center gap-4">
+            <div className="flex col-span-4 items-center gap-4">
               <div className="border-r pr-4 text-center shrink-0">
                 <div className="text-lg leading-tight font-semibold">
                   {format(transfer.createdAt, "dd")}
@@ -54,25 +50,28 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
                 </AvatarGroup>
               </div>
             </div>
-            <div className="text-right hidden md:block">
+            <div className="text-right">
               <div>{Numeral(transfer.totalAmount).format()}</div>
             </div>
-            <div className="flex items-center gap-2 justify-end col-span-2 md:col-span-1">
-              {/* {transfer.toId === session?.locationId ? (
-                <Download className="w-5 h-5 text-success" />
-              ) : (
-                <Upload className="w-5 h-5 text-warning" />
-              )} */}
-              {/* <span>{destination?.name}</span> */}
-            </div>
-            <div className="text-right space-y-0.5 ml-auto truncate">
+
+            <div className="flex items-center gap-2 justify-end">
               <Badge
-                className={`uppercase rounded-md mb-1 text-white truncate ${
-                  badge[transfer.status?.toLowerCase()]
-                }`}
                 variant="secondary"
+                className={`py-1 rounded-md text-white ${
+                  isReceived ? "bg-success" : "bg-warning"
+                }`}
               >
-                {transfer.status}
+                {isReceived ? (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Received
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Sent
+                  </>
+                )}
               </Badge>
             </div>
           </CardContent>
