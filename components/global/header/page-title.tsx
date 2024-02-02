@@ -6,8 +6,12 @@ import { AlignLeft, ArrowLeft } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
+import Sidebar from "../sidebar";
+import { useToggle } from "@uidotdev/usehooks";
 
 const PageTitle = () => {
+  const [open, toggle] = useToggle(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -16,7 +20,12 @@ const PageTitle = () => {
   return (
     <>
       {path === "dashboard" ? (
-        <Button size="icon" variant="ghost" className="-ml-2 md:hidden">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="-ml-2 md:hidden"
+          onClick={() => toggle()}
+        >
           <AlignLeft className="w-6 h-6" />
         </Button>
       ) : (
@@ -34,6 +43,14 @@ const PageTitle = () => {
       )}
 
       {/* if path is dashbpard then render sidebar sheet */}
+      <Sheet open={open} onOpenChange={toggle}>
+        <SheetContent className="px-0">
+          {/* <div className="px-4">
+            <SheetHeader>Menu</SheetHeader>
+          </div> */}
+          <Sidebar />
+        </SheetContent>
+      </Sheet>
     </>
   );
 };

@@ -20,7 +20,9 @@ export default async function ProtectedLayout({
 
   return (
     <div className="items-start flex flex-col md:grid md:grid-cols-[80px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)] ">
-      <Sidebar />
+      <div className="hidden md:block h-full  bg-accent sticky">
+        <Sidebar />
+      </div>
       <div className="flex flex-col h-full min-h-screen w-full relative">
         <Header />
         <main className="flex-1 flex flex-col h-full">{children}</main>

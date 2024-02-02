@@ -119,7 +119,7 @@ export async function signup(values: {
     if (!email || !password) {
       throw new Error("Email and password is required");
     }
-    if (password! === confirmPassword) {
+    if (password !== confirmPassword) {
       throw new Error("Password do not match");
     }
 

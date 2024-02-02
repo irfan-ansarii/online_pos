@@ -38,7 +38,7 @@ const ProductSheet = ({ product }: any) => {
                 {product.title}
               </div>
               <Badge
-                className="rounded-md uppercase"
+                className="rounded-md capitalize"
                 variant={statusBadgeVariant[product.status]}
               >
                 {product.status}
@@ -53,7 +53,9 @@ const ProductSheet = ({ product }: any) => {
             >
               <div className="grid grid-cols-4 gap-2 px-6 py-2 items-center bg-accent">
                 <div className="font-medium">
-                  <Badge className="rounded-md">{variant.title}</Badge>
+                  {product.type !== "simple" && (
+                    <Badge className="rounded-md">{variant.title}</Badge>
+                  )}
                   <div>{variant.barcode}</div>
                 </div>
                 <div className="text-right">
@@ -79,9 +81,9 @@ const ProductSheet = ({ product }: any) => {
 
                       <AdjustmentDialog
                         data={{
+                          locationId: inventory.locationId,
                           productId: product.id,
                           variantId: variant.id,
-                          locationId: inventory.locationId,
                           quantity: 1,
                         }}
                       >

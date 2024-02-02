@@ -56,6 +56,7 @@ export async function getProducts(params: ParamsProps) {
               include: {
                 location: true,
               },
+              orderBy: { createdAt: "desc" },
             },
           },
         },

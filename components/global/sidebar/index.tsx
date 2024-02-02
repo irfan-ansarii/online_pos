@@ -70,7 +70,7 @@ function Sidebar() {
   }, [pathname]);
 
   return (
-    <div className="top-0 z-30 hidden h-screen w-full bg-accent shrink-0 sticky md:block">
+    <div className="top-0 z-30 h-screen w-full shrink-0 sticky">
       <div className="flex flex-col px-4 h-full">
         <div className="shrink-0 -mx-4">
           <div className="h-[60px] flex items-center justify-center">

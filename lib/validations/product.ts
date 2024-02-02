@@ -214,11 +214,11 @@ export const transferValidation = z.object({
 });
 
 export const adjustmentValidation = z.object({
-  locationId: z.number().optional(),
   lineItems: z
     .object({
       itemId: z.number(),
       productId: z.number(),
+      locationId: z.number().optional(),
       variantId: z.number(),
       title: z.any(),
       variantTitle: z.any(),

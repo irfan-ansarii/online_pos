@@ -6,7 +6,7 @@ import { createAdjustment } from "@/actions/adjustment-actions";
 
 import { useToggle } from "@uidotdev/usehooks";
 import { useForm } from "react-hook-form";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
 import { Loader2 } from "lucide-react";
@@ -50,25 +50,31 @@ function AdjustmentDialog({
   const [open, toggle] = useToggle();
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof adjustmentValidation>>({
     resolver: zodResolver(adjustmentValidation),
     defaultValues: {
-      locationId: undefined,
       lineItems: [{ ...data, itemId: data.productId }],
       reason: "Correction",
+      notes: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof adjustmentValidation>) => {
-    values.locationId = data.locationId;
+    const { reason, notes } = values;
+
+    const formValues = values.lineItems.map((item) => ({
+      ...item,
+      reason: reason,
+      notes: notes,
+    }));
+
     try {
       setLoading(true);
-      await createAdjustment(values);
+      await createAdjustment(formValues);
       toast({
         variant: "success",
-        title: "Stock adjusted successfully.",
+        title: "Stock updated",
       });
       form.reset();
       toggle();
@@ -153,7 +159,7 @@ function AdjustmentDialog({
             />
             <FormField
               control={form.control}
-              name="lineItems.0.note"
+              name="notes"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Note</FormLabel>

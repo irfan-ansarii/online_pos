@@ -127,6 +127,7 @@ export async function createAdjustment(values: any) {
     // return response
     return { data: response, message: "created" };
   } catch (error: any) {
+    console.log(error);
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }
