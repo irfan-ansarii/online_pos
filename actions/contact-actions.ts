@@ -138,10 +138,17 @@ export async function createContact(values: CustomerProps) {
 
     const { firstName, lastName, phone, role, email, addresses } = values;
 
+    const findFilter = [];
+    if (email && email.length > 0) {
+      findFilter.push({ email: { equals: email || undefined } });
+    }
+    if (phone && phone.length > 0) {
+      findFilter.push({ phone: { equals: phone } });
+    }
     // check if user already exists
     const user = await prisma.user.findFirst({
       where: {
-        OR: [{ email: { equals: email } }, { phone: { equals: phone } }],
+        OR: findFilter,
       },
     });
 
@@ -155,7 +162,7 @@ export async function createContact(values: CustomerProps) {
         firstName,
         lastName,
         phone,
-        email,
+        email: email || undefined,
         role,
         status: "active",
         addresses: {

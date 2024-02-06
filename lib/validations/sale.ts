@@ -23,6 +23,8 @@ export const customItemValidation = z.object({
 export const saleValidation = z
   .object({
     customerId: z.number(),
+    billingAddress: z.any(),
+    shippingAddress: z.any(),
     employeeId: z.number(),
     createdAt: z.date(),
     lineItems: z
@@ -119,6 +121,8 @@ export const editSaleValidation = z
   .object({
     id: z.number(),
     customerId: z.number(),
+    billingAddress: z.any(),
+    shippingAddress: z.any(),
     employeeId: z.number(),
     createdAt: z.date(),
     lineItems: z

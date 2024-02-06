@@ -11,6 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import UserSheet from "./UserSheet";
 
 const UserCard = ({ user }: { user: User }) => {
+  const badgeClassName =
+    user.status === "active"
+      ? "bg-success hover:bg-succe"
+      : "bg-error hover:bg-error";
+
   return (
     <Card className="hover:bg-accent">
       <UserSheet user={user}>
@@ -69,11 +74,7 @@ const UserCard = ({ user }: { user: User }) => {
 
           <div className="col-span-2 md:col-span-1 text-right">
             <Badge
-              className={`capitalize text-white rounded-md py-1 ${
-                user.status === "active"
-                  ? "bg-success hover:bg-succe"
-                  : "bg-error hover:bg-error"
-              }`}
+              className={`capitalize text-white rounded-md ${badgeClassName}`}
               variant="secondary"
             >
               {user.status}

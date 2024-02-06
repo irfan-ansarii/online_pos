@@ -72,7 +72,7 @@ const AddContactSheet = ({
         title: "Contact created",
       });
       form.reset();
-      onSuccess && onSuccess(response.data);
+      onSuccess && onSuccess(response?.data);
       setOpen(false);
     } catch (error: any) {
       toast({

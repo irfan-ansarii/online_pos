@@ -8,6 +8,8 @@ export const purchaseValidation = z
   .object({
     title: z.string().nonempty({ message: "Required" }),
     supplierId: z.number(),
+    billingAddress: z.any(),
+    shippingAddress: z.any(),
     createdAt: z.date(),
     lineItems: z
       .object({
@@ -104,6 +106,8 @@ export const editPurchaseValidation = z
     id: z.number(),
     title: z.string().nonempty({ message: "Required" }),
     supplierId: z.number(),
+    billingAddress: z.any(),
+    shippingAddress: z.any(),
     createdAt: z.date(),
     lineItems: z
       .object({

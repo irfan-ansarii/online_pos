@@ -102,6 +102,8 @@ export async function createPurchase(values: any) {
 
     const {
       supplierId,
+      billingAddress,
+      shippingAddress,
       title,
       createdAt,
       taxType,
@@ -143,6 +145,8 @@ export async function createPurchase(values: any) {
         locationId: session.location.id,
         title,
         supplierId,
+        billingAddress,
+        shippingAddress,
         createdAt,
         taxType,
         subtotal: parseFloat(subtotal.toFixed(2)),
@@ -239,6 +243,8 @@ export async function updatePurchase(values: any) {
     const {
       id,
       supplierId,
+      billingAddress,
+      shippingAddress,
       createdAt,
       purchaseType,
       taxType,
@@ -271,6 +277,8 @@ export async function updatePurchase(values: any) {
       prisma.purchase.update({
         data: {
           supplierId,
+          billingAddress,
+          shippingAddress,
           createdAt,
           purchaseType,
           taxType,

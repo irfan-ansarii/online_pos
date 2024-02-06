@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Numeral from "numeral";
+
 import { useState, useRef, useCallback } from "react";
 import { Plus, ScanLine, Search } from "lucide-react";
 
@@ -34,7 +35,10 @@ const Inventory = ({
 
   const handleSelectOption = useCallback(
     (selected: Option) => {
-      if (onSelect) onSelect(selected);
+      if (onSelect) {
+        onSelect(selected);
+        new Audio("/assets/sound/scanner.mp3").play();
+      }
     },
     [onSelect]
   );
@@ -52,9 +56,11 @@ const Inventory = ({
           }, 100);
         });
 
-        if (!isLoading && inventory && inventory.data) {
+        if (!isLoading && Array.isArray(inventory?.data)) {
           const index = inventory?.data?.findIndex(
-            (inv: any) => inv.variant.barcode === Number(searchTerm)
+            (inv: any) =>
+              inv.variant.barcode?.toLowerCase() ===
+              searchTerm.toLocaleLowerCase()
           );
 
           if (index >= 0) {

@@ -1,11 +1,9 @@
 "use client";
 import React from "react";
-import Link from "next/link";
 import Numeral from "numeral";
 import { deleteUser } from "@/actions/user-actions";
 import { toast } from "@/components/ui/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, MapPin, Trash2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,14 +31,13 @@ const contactCard = ({ contact, progress }: any) => {
 
   const progressClassName =
     progress < 0 ? "bg-error" : progress > 50 ? "bg-success" : "bg-info";
-  const getBadgeClass = (amount: number) => {
-    if (amount > 50000) return "bg-success hover:bg-success";
-    if (amount > 25000) return "bg-info hover:bg-info";
-    if (amount > 10000) return "bg-warning hover:bg-warning";
 
-    return "bg-destructive hover:bg-destructive";
-  };
+  const badgeClassName =
+    contact.status === "active"
+      ? "bg-success hover:bg-success"
+      : "bg-error hover:bg-error";
 
+  /** handle delete  */
   const onDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -83,7 +80,11 @@ const contactCard = ({ contact, progress }: any) => {
                 {contact.addresses?.[0]?.state}
               </span>
             </div>
-          ) : null}
+          ) : (
+            <span className="text-xs text-muted-foreground capitalize">
+              {contact.role}
+            </span>
+          )}
         </div>
         <div className="col-span-3">
           <div className="text-muted-foreground">{contact.phone}</div>
@@ -91,16 +92,14 @@ const contactCard = ({ contact, progress }: any) => {
         </div>
 
         <div className="col-span-2 text-right overflow-hidden">
-          <div className="flex justify-between text-xs font-medium uppercase">
-            <div className="mb-1">
-              {contact.role === "supplier" ? "Purchase" : "Sale"}
-            </div>
-            <div className="mb-1">{Numeral(contact._sum).format()}</div>
+          <div className="flex justify-between text-xs font-medium uppercase mb-2">
+            <div>{contact.role === "supplier" ? "Purchase" : "Sale"}</div>
+            <div>{Numeral(contact._sum).format()}</div>
           </div>
           <div className="w-full rounded-full h-3 bg-secondary overflow-hidden relative">
-            <span className="text-[10px] absolute left-2 top-[-4px] font-medium">
+            {/* <span className="text-[10px] absolute left-2 top-[-4px] font-medium">
               {Numeral(progress / 100).format("0%")}
-            </span>
+            </span> */}
             <div
               className={`bg-blue-600 h-3 rounded-full ${progressClassName}`}
               style={{ width: `${Math.abs(progress)}%` }}
@@ -110,12 +109,10 @@ const contactCard = ({ contact, progress }: any) => {
 
         <div className="col-span-2 text-right overflow-hidden">
           <Badge
-            className={`rounded-md uppercase truncate ${getBadgeClass(
-              contact.orders?._sum.total
-            )}`}
+            className={`rounded-md capitalize truncate ${badgeClassName}`}
             variant="secondary"
           >
-            ACTIVE
+            {contact.status}
           </Badge>
         </div>
       </CardContent>

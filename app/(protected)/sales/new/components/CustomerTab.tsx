@@ -41,20 +41,26 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
       phone: customer?.phone,
       email: customer?.email,
     };
+
     if (isAddress) {
       const address = customer.addresses[0];
       billing = {
         ...billing,
         name: address?.company || billing.name,
-        address: `${address?.address} ${address?.address2}`,
-        city: `${address?.address} ${address?.address2}`,
-        stats: `${address?.address} ${address?.address2}`,
-        pincode: `${address?.address} ${address?.address2}`,
+        address: `${address?.address} ${
+          address?.address2 ? address?.address2 : ""
+        }`,
+        city: address?.city,
+        state: address?.state,
+        pincode: address?.zip,
+        gstin: address?.gstin,
       };
     }
+
     form.setValue("billingAddress", billing);
     form.setValue("shippingAddress", billing);
   };
+
   return (
     <TabsContent
       value="customer"
@@ -85,11 +91,12 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
           />
           <AddContactSheet
             onSuccess={(value) => {
-              mutate();
               if (value.role === "customer") {
+                setCustomer(value);
                 form.setValue("customerId", value.id);
-                setSearch(value.phone);
+                setActive("payment");
               }
+              mutate();
             }}
             role="customer"
           >
@@ -142,10 +149,12 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
                               <Phone className="w-3 h-3 mr-1" />
                               {customer.phone}
                             </div>
-                            <div className="text-muted-foreground font-normal inline-flex items-center">
-                              <Mail className="w-3 h-3 mr-1" />
-                              {customer.email}
-                            </div>
+                            {customer.email && (
+                              <div className="text-muted-foreground font-normal inline-flex items-center">
+                                <Mail className="w-3 h-3 mr-1" />
+                                {customer.email}
+                              </div>
+                            )}
                           </div>
                         </FormLabel>
                       </FormItem>

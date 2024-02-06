@@ -35,6 +35,36 @@ const SupplierTab = ({ setActive }: { setActive: (tab: string) => void }) => {
     role: "supplier",
   });
 
+  const setSupplier = (id: any) => {
+    const customer = contacts?.data?.find((c) => c.id === Number(id));
+    const isAddress =
+      Array.isArray(customer?.addresses) && customer?.addresses?.length > 0;
+
+    let billing: any = {
+      name: `${customer?.firstName} ${customer?.lastName}`,
+      phone: customer?.phone,
+      email: customer?.email,
+    };
+
+    if (isAddress) {
+      const address = customer.addresses[0];
+      billing = {
+        ...billing,
+        name: address?.company || billing.name,
+        address: `${address?.address} ${
+          address?.address2 ? address?.address2 : ""
+        }`,
+        city: address?.city,
+        state: address?.state,
+        pincode: address?.zip,
+        gstin: address?.gstin,
+      };
+    }
+
+    form.setValue("billingAddress", billing);
+    form.setValue("shippingAddress", billing);
+  };
+
   return (
     <TabsContent
       value="supplier"
@@ -64,11 +94,12 @@ const SupplierTab = ({ setActive }: { setActive: (tab: string) => void }) => {
           />
           <AddContactSheet
             onSuccess={(value) => {
-              mutate();
               if (value.role === "supplier") {
+                setSupplier(value);
+                setActive("receipt");
                 form.setValue("supplierId", value.id);
-                setSearch(value.phone);
               }
+              mutate();
             }}
             role="supplier"
           >
@@ -96,7 +127,10 @@ const SupplierTab = ({ setActive }: { setActive: (tab: string) => void }) => {
               <FormItem>
                 <FormControl>
                   <RadioGroup
-                    onValueChange={field.onChange}
+                    onValueChange={(e) => {
+                      field.onChange(e);
+                      setSupplier(e);
+                    }}
                     defaultValue={field.value}
                     className="flex flex-col gap-1"
                   >

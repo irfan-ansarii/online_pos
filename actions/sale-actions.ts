@@ -118,6 +118,8 @@ export async function createSale(values: any) {
       lineItems,
       transactions,
       status,
+      billingAddress,
+      shippingAddress,
     } = values;
 
     const lineItemsToCreate = lineItems.map((lineItem: LineItem) => ({
@@ -145,6 +147,8 @@ export async function createSale(values: any) {
         locationId: session.location.id,
         title: "GN" /** random text   */,
         customerId,
+        billingAddress,
+        shippingAddress,
         employeeId,
         createdAt,
         taxType,
@@ -241,6 +245,8 @@ export async function updateSale(values: any) {
       lineItems,
       transactions,
       status,
+      billingAddress,
+      shippingAddress,
     } = values;
 
     const sale = await prisma.sale.findUnique({
@@ -259,6 +265,8 @@ export async function updateSale(values: any) {
       prisma.sale.update({
         data: {
           customerId,
+          billingAddress,
+          shippingAddress,
           employeeId,
           createdAt,
           saleType,

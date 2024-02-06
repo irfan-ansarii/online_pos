@@ -85,7 +85,7 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
     <Card className="hover:bg-accent group relative cursor-pointer">
       <SaleSheet sale={sale} payments={payments}>
         <CardContent className="grid grid-cols-8 gap-3 items-center">
-          <div className="flex gap-3 col-span-4">
+          <div className="flex gap-3 col-span-4 md:col-span-3">
             <div className="border-r pr-4 text-center shrink-0">
               <div className="text-lg leading-tight font-semibold">
                 {format(sale.createdAt, "dd")}
@@ -114,7 +114,7 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
             </span>
           </div>
 
-          <div className="hidden md:flex flex-col space-y-0.5">
+          <div className="hidden md:flex  col-span-2 flex-col space-y-0.5">
             <div className="font-medium">{sale?.customer?.firstName}</div>
             <div className="text-muted-foreground">{sale?.customer?.phone}</div>
           </div>
