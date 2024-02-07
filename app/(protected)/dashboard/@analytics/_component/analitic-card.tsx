@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Inbox } from "lucide-react";
 
 interface Props {
   title: string;
@@ -18,15 +18,18 @@ interface Props {
 const AnaliticCard = ({ title, value, icon }: Props) => {
   return (
     <Card className="border rounded-md">
-      <CardHeader>
-        <CardTitle className="text-sm font-medium mb-4">{title}</CardTitle>
-
-        <CardTitle>{value}</CardTitle>
-      </CardHeader>
-      <CardContent></CardContent>
+      <CardContent className="flex items-start">
+        <div>
+          <CardTitle>{value}</CardTitle>
+          <CardDescription>10</CardDescription>
+        </div>
+        <span className="ml-auto bg-red-500 p-3 rounded-full">
+          <Inbox className="w-4 h-4" />
+        </span>
+      </CardContent>
       <CardFooter>
         <CardDescription className="flex w-full items-center">
-          View <ArrowRight className="w-4 h-4 ml-auto" />
+          {title} <ArrowRight className="w-4 h-4 ml-auto" />
         </CardDescription>
       </CardFooter>
     </Card>

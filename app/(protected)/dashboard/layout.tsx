@@ -54,9 +54,9 @@ const Layout = ({
 
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Dues</CardTitle>
+              <CardTitle className="text-base">Employee Overview</CardTitle>
             </CardHeader>
-            <CardContent>{dues}</CardContent>
+            <CardContent>{employeeOverview}</CardContent>
           </Card>
 
           {/* row 5 */}
@@ -69,9 +69,9 @@ const Layout = ({
 
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Employee Overview</CardTitle>
+              <CardTitle className="text-base">Dues</CardTitle>
             </CardHeader>
-            <CardContent>{employeeOverview}</CardContent>
+            <CardContent>{dues}</CardContent>
           </Card>
 
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
