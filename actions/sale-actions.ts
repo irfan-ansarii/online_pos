@@ -189,7 +189,7 @@ export async function createSale(values: any) {
     const sale = await prisma.sale.create({
       data: {
         locationId: session.location.id,
-        title: "GN" /** random text   */,
+        title: "",
         customerId,
         billingAddress,
         shippingAddress,
