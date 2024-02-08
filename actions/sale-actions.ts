@@ -45,14 +45,10 @@ export async function getSales(params: ParamsProps) {
     const sales = await prisma.sale.findMany({
       skip: offset,
       take: PAGE_SIZE,
-      orderBy: [
-        {
-          id: "desc",
-        },
-        {
-          createdAt: "desc",
-        },
-      ],
+      orderBy: {
+        id: "desc",
+      },
+
       where: filters,
       include: {
         transactions: {
@@ -83,6 +79,54 @@ export async function getSales(params: ParamsProps) {
     };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+}
+
+/**
+ * get sale
+ * @param id
+ * @returns
+ */
+export async function getSale(id: number) {
+  try {
+    const session = await auth();
+
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    // find sale
+    const sale = await prisma.sale.findUnique({
+      where: {
+        id: Number(id),
+      },
+      include: {
+        transactions: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        lineItems: { include: { product: { include: { image: true } } } },
+        employee: true,
+        customer: true,
+      },
+    });
+
+    // if sale not found
+    if (!sale) {
+      throw new Error("Not found");
+    }
+
+    if (session.location.id !== sale.locationId) {
+      throw new Error("Permission denied");
+    }
+    // return response
+    return { data: sale, message: "success" };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }
     throw new Error(error.message);
@@ -376,45 +420,6 @@ export async function updateSale(values: any) {
       data: sale,
       message: "success",
     };
-  } catch (error: any) {
-    if (error instanceof Prisma.PrismaClientInitializationError) {
-      throw new Error("Internal server error");
-    }
-    throw new Error(error.message);
-  }
-}
-
-/**
- * get sale
- * @param id
- * @returns
- */
-export async function getSale(id: number) {
-  try {
-    const session = await auth();
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
-    // find product
-    const sale = await prisma.sale.findUnique({
-      where: {
-        id: Number(id),
-      },
-      include: {
-        transactions: true,
-        lineItems: { include: { product: { include: { image: true } } } },
-      },
-    });
-
-    // if product not found
-    if (!sale) {
-      throw new Error("Not found");
-    }
-
-    // return response
-    return { data: sale, message: "success" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");

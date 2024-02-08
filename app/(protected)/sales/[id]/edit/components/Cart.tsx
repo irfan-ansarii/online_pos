@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/form";
 
 import ProceedDialog from "./ProceedDialog";
-import Popover from "../../new/components/Popover";
+import Popover from "../../../new/components/Popover";
 import { AvatarItem } from "@/components/shared/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 

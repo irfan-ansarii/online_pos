@@ -5,8 +5,8 @@ import { Check, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useSheetToggle } from "@/hooks/useSheet";
 
-const EmployeeTab = lazy(() => import("../../new/components/EmployeeTab"));
-const CustomerTab = lazy(() => import("../../new/components/CustomerTab"));
+const EmployeeTab = lazy(() => import("../../../new/components/EmployeeTab"));
+const CustomerTab = lazy(() => import("../../../new/components/CustomerTab"));
 const PaymentTab = lazy(() => import("./PaymentTab"));
 
 import {

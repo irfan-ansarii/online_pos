@@ -137,7 +137,7 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
 
       <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
         <Link
-          href={`/sales/${sale.id}`}
+          href={`/sales/${sale.id}/edit`}
           className={buttonVariants({ variant: "secondary", size: "icon" })}
         >
           <PenSquare className="w-4 h-4" />

@@ -27,9 +27,9 @@ const Page = async () => {
     })),
   };
   return (
-    <main className="grow pb-4 px-1 md:p-4  md:mt-[-4.8rem]">
+    <div className="grow pb-4 px-1 md:p-4  md:mt-[-4.8rem]">
       <CartForm initialValues={initialValues} />
-    </main>
+    </div>
   );
 };
 

@@ -1,35 +1,35 @@
 import React from "react";
-import { getPurchase } from "@/actions/purchase-actions";
+import { getSale } from "@/actions/sale-actions";
 
 import EditForm from "./components/CartForm";
 import { getPayments } from "@/actions/payments-actions";
 
 const page = async ({ params }: { params: { id: number } }) => {
   const { id } = params;
-  const { data } = await getPurchase(id);
-  const { data: transactions } = await getPayments({ type: "purchase" });
+  const { data } = await getSale(id);
+  const { data: transactions } = await getPayments();
 
-  const { purchase, refund } = data.transactions.reduce(
+  const { sale, refund } = data.transactions.reduce(
     (acc, curr) => {
       if (curr.kind === "refund") {
         acc.refund += Number(curr.amount);
       } else {
-        acc.purchase += Number(curr.amount);
+        acc.sale += Number(curr.amount);
       }
       return acc;
     },
     {
-      purchase: 0,
+      sale: 0,
       refund: 0,
     }
   );
 
   const initialValues = {
     id: data.id,
-    title: data.title,
-    supplierId: data.supplierId,
+    customerId: data.customerId,
     billingAddress: data.billingAddress,
     shippingAddress: data.shippingAddress,
+    employeeId: data.employeeId,
     lineItems: data.lineItems.map((item) => ({
       itemId: item.id,
       kind: item.kind,
@@ -52,7 +52,7 @@ const page = async ({ params }: { params: { id: number } }) => {
       stock: 0,
       imageSrc: item.product?.image?.src,
     })),
-    purchaseType: data.purchaseType,
+    saleType: data.saleType,
     taxType: data.taxType,
     subtotal: data.subtotal,
     totalTax: data.totalTax,
@@ -60,17 +60,16 @@ const page = async ({ params }: { params: { id: number } }) => {
     total: data.total,
     totalDue: data.totalDue,
     invoiceTotal: data.invoiceTotal,
-    totalPaid: purchase,
+    totalPaid: sale,
     totalRefund: refund,
-    transactionKind:
-      data.total + Number(refund) - purchase < 0 ? "refund" : "purchase",
+    transactionKind: data.total + Number(refund) - sale < 0 ? "refund" : "sale",
     taxLines: data.taxLines,
     createdAt: new Date(data.createdAt),
+
     transactions: transactions.map((payment) => ({
       id: payment.id,
       name: payment.name,
       label: payment.label,
-      refrenceNumber: "",
       amount: "0",
     })),
   };
