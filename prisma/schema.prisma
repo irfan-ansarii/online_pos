@@ -378,6 +378,15 @@ model PurchaseTransaction {
   @@map("purchase_transactions")
 }
 
+model Shipping {
+  id Int @id @default(autoincrement())
+}
+
+model ShippingEvent {
+  id   Int @id @default(autoincrement())
+  name
+}
+
 model Options {
   id         Int    @id @default(autoincrement())
   locationId Int

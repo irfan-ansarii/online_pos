@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { Sale } from "@prisma/client";
-
+import { getPurchaseInvoice } from "@/actions/get-purchase-invoice";
 import { useSheetToggle } from "@/hooks/useSheet";
 
 import {
@@ -44,6 +44,10 @@ export default function SheetActions({
     console.log("send invoice");
   };
 
+  const handleClick = async () => {
+    const response = await getPurchaseInvoice(purchase.id);
+    window.open(response, "_blank");
+  };
   return (
     <>
       <DropdownMenu>
@@ -63,7 +67,7 @@ export default function SheetActions({
                 Edit
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleClick}>
               <Download className="w-4 h-4 mr-2" />
               Download
             </DropdownMenuItem>

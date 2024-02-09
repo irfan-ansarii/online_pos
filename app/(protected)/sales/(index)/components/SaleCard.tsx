@@ -38,23 +38,23 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
   const router = useRouter();
   const status: { [key: string]: any } = {
     pending: {
-      className: "bg-warning hover:bg-warning text-white",
+      className: "bg-warning hover:bg-warning",
       text: "due",
     },
     paid: {
-      className: "bg-success hover:bg-success text-white",
+      className: "bg-success hover:bg-success",
       text: "paid",
     },
     partialy_paid: {
-      className: "bg-info hover:bg-info text-white",
+      className: "bg-info hover:bg-info",
       text: "Partial",
     },
     partialy_refunded: {
-      className: "bg-info hover:bg-info text-white",
+      className: "bg-info hover:bg-info",
       text: "Partial",
     },
     refunded: {
-      className: "bg-destructive hover:bg-destructive text-white",
+      className: "bg-destructive hover:bg-destructive",
       text: "Refunded",
     },
   };
@@ -83,57 +83,70 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
   };
   return (
     <Card className="hover:bg-accent group relative cursor-pointer">
-      <SaleSheet sale={sale} payments={payments}>
-        <CardContent className="grid grid-cols-8 gap-3 items-center">
-          <div className="flex gap-3 col-span-4 md:col-span-3">
-            <div className="border-r pr-4 text-center shrink-0">
-              <div className="text-lg leading-tight font-semibold">
-                {format(sale.createdAt, "dd")}
-              </div>
-              <div className="leading-tight text-xs text-muted-foreground">
-                {format(sale.createdAt, "MMM yy")}
-              </div>
+      <CardContent className="grid grid-cols-8 gap-3 items-center">
+        <div className="flex gap-3 col-span-4 md:col-span-3">
+          <div className="border-r pr-4 text-center shrink-0">
+            <div className="text-lg leading-tight font-semibold">
+              {format(sale.createdAt, "dd")}
             </div>
-
-            <div className="flex -space-x-2 truncate">
-              <AvatarGroup maxCount={2}>
-                {sale?.lineItems?.map((lineItem: any) => (
-                  <AvatarItem
-                    key={lineItem.id}
-                    src={lineItem?.product?.image?.src}
-                  />
-                ))}
-              </AvatarGroup>
+            <div className="leading-tight text-xs text-muted-foreground">
+              {format(sale.createdAt, "MMM yy")}
             </div>
           </div>
 
-          <div className="block col-span-2 space-y-0.5">
+          <div className="flex -space-x-2 truncate">
+            <AvatarGroup maxCount={2}>
+              {sale?.lineItems?.map((lineItem: any) => (
+                <AvatarItem
+                  key={lineItem.id}
+                  src={lineItem?.product?.image?.src}
+                />
+              ))}
+            </AvatarGroup>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 col-span-4 md:col-span-5 items-center">
+          <div className="block  space-y-0.5">
             <div className="font-medium uppercase">{sale.title}</div>
             <span className="text-muted-foreground">
               {sale?.employee?.firstName}
             </span>
           </div>
 
-          <div className="hidden md:flex  col-span-2 flex-col space-y-0.5">
+          <div className="hidden md:block space-y-0.5">
             <div className="font-medium">{sale?.customer?.firstName}</div>
             <div className="text-muted-foreground">{sale?.customer?.phone}</div>
           </div>
-          <div className="col-span-2 md:col-span-1 space-y-0.5  text-right">
+
+          <div className="text-right space-y-0.5 hidden md:block">
+            <div className="text-xs text-muted-foreground">12-05-2023</div>
+            <Badge
+              variant="secondary"
+              className={cn(
+                `rounded-md capitalize w-20 justify-center truncate bg-success text-white`
+              )}
+            >
+              Delivered
+            </Badge>
+          </div>
+
+          <div className="space-y-0.5 col-span-3 md:col-span-1 text-right">
             <div className={`font-semibold`}>
               {Numeral(sale.total).format()}
             </div>
             <Badge
               variant="secondary"
               className={cn(
-                `rounded-md capitalize w-20 justify-center truncate`,
+                `rounded-md capitalize w-20 justify-center truncate text-white`,
                 status[sale.status].className
               )}
             >
               {status[sale.status].text}
             </Badge>
           </div>
-        </CardContent>
-      </SaleSheet>
+        </div>
+      </CardContent>
 
       <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
         <Link

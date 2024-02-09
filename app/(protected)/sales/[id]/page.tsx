@@ -1,39 +1,29 @@
 import React from "react";
 import { getSale } from "@/actions/sale-actions";
-
-import {
-  Card,
-  CardHeader,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  CardTitle,
-} from "@/components/ui/card";
+import { getPayments } from "@/actions/payments-actions";
+import Actions from "./components/actions";
+import { Card, CardHeader, CardFooter, CardTitle } from "@/components/ui/card";
 import {
   AlertOctagon,
   BadgeCheck,
-  ChevronDown,
   Clock,
   Download,
   PenSquare,
-  Truck,
+  X,
+  XCircle,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import Numeral from "numeral";
+
 import { Button } from "@/components/ui/button";
-import { AvatarItem } from "@/components/shared/avatar";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { format } from "date-fns";
-import { Transaction } from "@prisma/client";
-import { Input } from "@/components/ui/input";
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import LineItem from "./components/line-item";
 import CustomerCard from "./components/customer-card";
 import NotesCard from "./components/notes-card";
 import TotalCard from "./components/total-card";
+import ShippingDialog from "./components/shipping-dialog";
 interface Props {
   params: {
     id: string;
@@ -44,16 +34,11 @@ const SalePage = async ({ params: { id } }: Props) => {
   const parsedId = parseInt(id);
 
   const { data: sale } = await getSale(parsedId);
-
+  const { data: payments } = await getPayments({ type: "sale" });
   return (
     <div className="grow">
       {/* header */}
-      <div className="relative border-b bg-background">
-        <div className="h-[50px] md:h-[60px] flex w-full items-center px-4 md:px-6 relative bg-background">
-          <div className="text-lg font-semibold">{sale.title}</div>
-        </div>
-      </div>
-
+      <Actions sale={sale} payments={payments} />
       {/* content */}
       <div className="p-4 gap-4 md:p-6">
         <div className="grid grid-cols-3 gap-4 md:gap-6">
@@ -66,7 +51,6 @@ const SalePage = async ({ params: { id } }: Props) => {
                     Processing
                     <Clock className="w-4 h-4 ml-2 text-warning" />
                   </CardTitle>
-                  <Input className="bg-secondary" placeholder="Search..." />
                 </CardHeader>
 
                 <div className="p-4 pt-0 space-y-2">
@@ -75,7 +59,7 @@ const SalePage = async ({ params: { id } }: Props) => {
                   ))}
                 </div>
                 <CardFooter>
-                  <Button className="flex w-full">Ship Now</Button>
+                  <ShippingDialog></ShippingDialog>
                 </CardFooter>
               </Card>
 
@@ -98,22 +82,37 @@ const SalePage = async ({ params: { id } }: Props) => {
                         657574536474
                       </a>
                     </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-muted-foreground"
-                    >
-                      <PenSquare className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-muted-foreground"
-                    >
-                      <Download className="w-5 h-5" />
-                    </Button>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Button size="icon" variant="ghost">
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs">
+                        Download Label
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Button size="icon" variant="ghost">
+                          <PenSquare className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs">
+                        Edit Tracking
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Button size="icon" variant="ghost">
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs">
+                        Cancel
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
-                  <Input className="bg-secondary" placeholder="Search..." />
                 </CardHeader>
 
                 <div className="space-y-2 p-4 pt-0">
@@ -162,7 +161,6 @@ const SalePage = async ({ params: { id } }: Props) => {
                       <Download className="w-5 h-5" />
                     </Button>
                   </div>
-                  <Input className="bg-secondary" placeholder="Search..." />
                 </CardHeader>
 
                 <div className="p-4 pt-0 space-y-2">
