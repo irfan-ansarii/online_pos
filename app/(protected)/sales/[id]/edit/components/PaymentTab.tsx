@@ -78,7 +78,7 @@ const PaymentTab = ({
       await updateSale(values);
       toast({
         variant: "success",
-        title: "Sale created",
+        title: "Sale updated successfully",
       });
 
       setActive("completed");

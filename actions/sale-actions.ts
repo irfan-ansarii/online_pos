@@ -220,7 +220,6 @@ export async function createSale(values: any) {
       where: { id: sale.id },
       data: {
         title,
-        invoiceUrl: `/files/sale/${title}.pdf`,
       },
     });
 
@@ -380,6 +379,7 @@ export async function updateSale(values: any) {
       } = item;
 
       let tempQuantity = -(quantity - Number(originalQuantity || 0));
+
       if (item.kind === "return") {
         tempQuantity = quantity - Number(originalQuantity || 0);
       }
@@ -481,11 +481,11 @@ export async function deleteSale(id: number) {
 
 /**
  * Creates transactions for a given sale, updating its status and adding new transactions.
- * @param {Object} params - Parameters for creating transactions.
- * @param {number} params.saleId - ID of the sale.
- * @param {Array} params.data - Array of transaction data to be created.
- * @returns {Object} - Object containing updated data and a message.
- * @throws {Error} - Throws an error if unauthorized, sale not found, or an internal server error occurs.
+ * @param {Object} params
+ * @param {number} params.saleId
+ * @param {Array} params.data
+ * @returns {Object}
+ * @throws {Error}
  */
 export async function createTransactions({
   saleId,

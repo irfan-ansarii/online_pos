@@ -5,10 +5,7 @@ import { AvatarItem } from "@/components/shared/avatar";
 
 const LineItem = ({ field }: { field: any }) => {
   return (
-    <div
-      className="flex px-3 py-2 items-center rounded-md border"
-      key={field?.id}
-    >
+    <div className="flex py-2 items-center " key={field?.id}>
       <AvatarItem src={field?.product?.image?.src} />
 
       <div className="space-y-0.5 truncate flex-1 mx-3">

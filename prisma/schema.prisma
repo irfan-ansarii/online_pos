@@ -226,8 +226,7 @@ model Sale {
   invoiceTotal    Float
   total           Float
   totalDue        Float
-  taxLines        Json?
-  invoiceUrl      String?
+  taxLines        Json
   status          FinancialStatus @default(pending)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -235,35 +234,38 @@ model Sale {
   customer        User?           @relation("customerSale", fields: [customerId], references: [id], onDelete: SetNull)
   employee        User?           @relation("employeeSale", fields: [employeeId], references: [id], onDelete: SetNull)
   transactions    Transaction[]
+  shipments       Shipment[]
 
   @@map("sales")
 }
 
 model LineItem {
-  id            Int      @id @default(autoincrement())
-  locationId    Int
-  saleId        Int
-  title         String
-  variantTitle  String?
-  sku           String?
-  hsn           String?
-  barcode       String?
-  price         Float
-  taxRate       Int
-  kind          String   @default("sale") // sale|return
-  quantity      Int
-  totalDiscount Float
-  totalTax      Float
-  total         Float
-  status        String?  @default("sold") // sold, return
-  taxLines      Json
-  productId     Int?
-  variantId     Int?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  sale          Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  product       Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-  variant       Variant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  id               Int                @id @default(autoincrement())
+  locationId       Int
+  saleId           Int
+  productId        Int?
+  variantId        Int?
+  title            String
+  variantTitle     String?
+  sku              String?
+  hsn              String?
+  barcode          String?
+  originalPrice    Decimal?
+  price            Float
+  taxRate          Int
+  kind             String             @default("sale") // sale|return
+  quantity         Int
+  shippingQuantity Int?
+  totalDiscount    Float
+  totalTax         Float
+  total            Float
+  taxLines         Json
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  sale             Sale               @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product          Product?           @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variant          Variant?           @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  shipmentLineItem ShipmentLineItem[]
 
   @@map("line_items")
 }
@@ -343,6 +345,7 @@ model PurchaseLineItem {
   sku           String?
   hsn           String?
   barcode       String?
+  originalPrice Decimal?
   price         Float
   taxRate       Int
   kind          String   @default("purchase")
@@ -378,14 +381,57 @@ model PurchaseTransaction {
   @@map("purchase_transactions")
 }
 
-model Shipping {
-  id Int @id @default(autoincrement())
+// ==================== ONLINE =====================
+
+model Shipment {
+  id          Int       @id @default(autoincrement())
+  orderId     Int
+  kind        String // forward | return
+  carrier     String?
+  awb         String?
+  trackingUrl String?
+  labelUrl    String?
+  charges     Decimal   @default(0)
+  status      String // shipment status
+  deliveryAt  DateTime?
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  order            Sale               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  shipmentEvents   ShipmentEvent[]
+  shipmentLineItem ShipmentLineItem[]
+
+  @@map("shipments")
 }
 
-model ShippingEvent {
-  id   Int @id @default(autoincrement())
-  name
+model ShipmentLineItem {
+  id         Int      @id @default(autoincrement())
+  shipmentId Int
+  lineItemId Int
+  productId  Int?
+  variantId  Int?
+  quantity   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  lineItem   LineItem @relation(fields: [lineItemId], references: [id], onDelete: Cascade)
 }
+
+model ShipmentEvent {
+  id         Int      @id @default(autoincrement())
+  shipmentId Int
+  status     String // shipment status
+  location   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@map("shipment_events")
+}
+
+// ==================== ONLINE =====================
 
 model Options {
   id         Int    @id @default(autoincrement())
