@@ -119,12 +119,54 @@ export async function getSale(id: number) {
     if (!sale) {
       throw new Error("Not found");
     }
-
+    // if accessing unauthorised data
     if (session.location.id !== sale.locationId) {
       throw new Error("Permission denied");
     }
+
+    // get pending line items
+    const processingLineItems = sale?.lineItems.filter(
+      (item) => item.shippingQuantity > 0 && item.needShipping
+    );
+
+    // get shipments
+    const shipments = await prisma.shipment.findMany({
+      where: { orderId: Number(id) },
+      include: { shipmentLineItems: true },
+    });
+
+    for (const shipment of shipments) {
+      const { shipmentLineItems } = shipment;
+
+      const updatedLineItems = shipmentLineItems.map((shipmentLineItem) => {
+        // find shipment line item in sale line item
+        const originalLineItem = sale.lineItems.find(
+          (item) => item.id === shipmentLineItem.lineItemId
+        );
+
+        return {
+          ...originalLineItem,
+          quantity: shipmentLineItem.quantity,
+        };
+      });
+
+      // @ts-ignore
+      shipment.shipmentLineItems = updatedLineItems;
+    }
+
+    // filter line items
+    sale.lineItems = sale?.lineItems.filter((item) => !item.needShipping);
+
+    if (processingLineItems.length > 0) {
+      shipments.unshift({
+        status: "processing",
+        //@ts-ignore
+        shipmentLineItems: processingLineItems,
+      });
+    }
+
     // return response
-    return { data: sale, message: "success" };
+    return { data: { ...sale, shipments }, message: "success" };
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
@@ -164,6 +206,7 @@ export async function createSale(values: any) {
       status,
       billingAddress,
       shippingAddress,
+      notes,
     } = values;
 
     const lineItemsToCreate = lineItems.map((lineItem: LineItem) => ({
@@ -205,6 +248,7 @@ export async function createSale(values: any) {
         totalDue: parseFloat(totalDue.toFixed(2)),
         taxLines,
         status,
+        notes,
         // create line items
         lineItems: {
           createMany: {
@@ -290,6 +334,7 @@ export async function updateSale(values: any) {
       status,
       billingAddress,
       shippingAddress,
+      notes,
     } = values;
 
     const sale = await prisma.sale.findUnique({
@@ -323,6 +368,7 @@ export async function updateSale(values: any) {
           totalDue: parseFloat(totalDue.toFixed(2)),
           taxLines,
           status,
+          notes,
         },
         where: {
           id: id,
@@ -415,6 +461,67 @@ export async function updateSale(values: any) {
 
     // update transactions
     await createTransactions({ saleId: sale.id, data: transactions });
+
+    return {
+      data: sale,
+      message: "success",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+}
+
+/**
+ * update note
+ * @param param0
+ * @returns
+ */
+export async function updateNotes(saleId: number, notes: string) {
+  try {
+    const session = await auth();
+    if (!session || typeof session === "string") {
+      throw new Error("Unauthorized");
+    }
+    const sale = await prisma.sale.update({
+      where: { id: saleId },
+      data: {
+        notes,
+      },
+    });
+
+    return {
+      data: sale,
+      message: "success",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+}
+
+/**
+ *
+ * @param param0
+ * @returns
+ */
+export async function updateCustomer(saleId, values) {
+  try {
+    const session = await auth();
+    if (!session || typeof session === "string") {
+      throw new Error("Unauthorized");
+    }
+    const {} = values;
+    const sale = await prisma.sale.update({
+      where: { id: saleId },
+      data: {
+        notes: "",
+      },
+    });
 
     return {
       data: sale,

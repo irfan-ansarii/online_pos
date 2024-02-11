@@ -228,6 +228,8 @@ model Sale {
   totalDue        Float
   taxLines        Json
   status          FinancialStatus @default(pending)
+  shippingStatus  String?
+  notes           String?         @db.Text
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   lineItems       LineItem[]
@@ -255,7 +257,8 @@ model LineItem {
   taxRate          Int
   kind             String             @default("sale") // sale|return
   quantity         Int
-  shippingQuantity Int?
+  needShipping     Boolean            @default(false)
+  shippingQuantity Int                @default(0)
   totalDiscount    Float
   totalTax         Float
   total            Float
@@ -384,38 +387,48 @@ model PurchaseTransaction {
 // ==================== ONLINE =====================
 
 model Shipment {
-  id          Int       @id @default(autoincrement())
-  orderId     Int
-  kind        String // forward | return
-  carrier     String?
-  awb         String?
-  trackingUrl String?
-  labelUrl    String?
-  charges     Decimal   @default(0)
-  status      String // shipment status
-  deliveryAt  DateTime?
-  cancelledAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id            Int       @id @default(autoincrement())
+  orderId       Int
+  kind          String // forward | return
+  carrier       String?
+  awb           String?
+  trackingUrl   String?
+  labelUrl      String?
+  subtotal      Float     @default(0)
+  totalDiscount Float     @default(0)
+  charges       Float     @default(0)
+  total         Float     @default(0)
+  status        String // shipment status
+  deliveryAt    DateTime?
+  cancelledAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  order            Sale               @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  shipmentEvents   ShipmentEvent[]
-  shipmentLineItem ShipmentLineItem[]
+  order             Sale               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  shipmentEvents    ShipmentEvent[]
+  shipmentLineItems ShipmentLineItem[]
 
   @@map("shipments")
 }
 
 model ShipmentLineItem {
-  id         Int      @id @default(autoincrement())
-  shipmentId Int
-  lineItemId Int
-  productId  Int?
-  variantId  Int?
-  quantity   Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
-  lineItem   LineItem @relation(fields: [lineItemId], references: [id], onDelete: Cascade)
+  id            Int   @id @default(autoincrement())
+  shipmentId    Int
+  lineItemId    Int
+  productId     Int?
+  variantId     Int?
+  price         Float
+  quantity      Int
+  totalDiscount Float
+  totalTax      Float
+  total         Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  shipment  Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  lineItem  LineItem @relation(fields: [lineItemId], references: [id], onDelete: Cascade)
+
+  @@map("shipment_line_items")
 }
 
 model ShipmentEvent {

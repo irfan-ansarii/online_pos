@@ -20,10 +20,8 @@ const CustomerCard = ({ sale }: any) => {
         </div>
       </CardContent>
       <CardContent>
-        <div className="flex justify-between mb-1">
-          <CardTitle className="text-base">Shipping Address</CardTitle>
-          <PenSquare className="w-4 h-4 text-muted-foreground" />
-        </div>
+        <CardTitle className="text-base mb-2">Shipping Address</CardTitle>
+
         <div className="text-muted-foreground">
           <div> {shippingAddress?.name}</div>
           <div> {shippingAddress?.address}</div>
@@ -41,10 +39,8 @@ const CustomerCard = ({ sale }: any) => {
         </div>
       </CardContent>
       <CardContent>
-        <div className="flex justify-between mb-1">
-          <CardTitle className="text-base">Billing Address</CardTitle>
-          <PenSquare className="w-4 h-4 text-muted-foreground" />
-        </div>
+        <CardTitle className="text-base mb-2">Billing Address</CardTitle>
+
         <div className="text-muted-foreground">
           <div> {shippingAddress?.name}</div>
           <div> {shippingAddress?.address}</div>
