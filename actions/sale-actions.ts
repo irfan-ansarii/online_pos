@@ -206,7 +206,6 @@ export async function createSale(values: any) {
       status,
       billingAddress,
       shippingAddress,
-      notes,
     } = values;
 
     const lineItemsToCreate = lineItems.map((lineItem: LineItem) => ({
@@ -248,7 +247,7 @@ export async function createSale(values: any) {
         totalDue: parseFloat(totalDue.toFixed(2)),
         taxLines,
         status,
-        notes,
+
         // create line items
         lineItems: {
           createMany: {
@@ -334,7 +333,6 @@ export async function updateSale(values: any) {
       status,
       billingAddress,
       shippingAddress,
-      notes,
     } = values;
 
     const sale = await prisma.sale.findUnique({
@@ -368,7 +366,6 @@ export async function updateSale(values: any) {
           totalDue: parseFloat(totalDue.toFixed(2)),
           taxLines,
           status,
-          notes,
         },
         where: {
           id: id,
@@ -479,16 +476,23 @@ export async function updateSale(values: any) {
  * @param param0
  * @returns
  */
-export async function updateNotes(saleId: number, notes: string) {
+export async function updateNotes(values: {
+  saleId: number;
+  notes: string;
+  tags: string[];
+}) {
   try {
     const session = await auth();
     if (!session || typeof session === "string") {
       throw new Error("Unauthorized");
     }
+    const { saleId, notes, tags } = values;
+
     const sale = await prisma.sale.update({
       where: { id: saleId },
       data: {
         notes,
+        tags,
       },
     });
 
@@ -506,10 +510,11 @@ export async function updateNotes(saleId: number, notes: string) {
 
 /**
  *
- * @param param0
+ * @param saleId @number
+ * @param values @any
  * @returns
  */
-export async function updateCustomer(saleId, values) {
+export async function updateCustomer(saleId: number, values: any) {
   try {
     const session = await auth();
     if (!session || typeof session === "string") {

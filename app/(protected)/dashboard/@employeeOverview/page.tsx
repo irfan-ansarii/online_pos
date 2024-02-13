@@ -4,8 +4,8 @@ import React from "react";
 const EmployeePage = () => {
   return (
     <div className="space-y-4">
-      {[...Array(4)].map(() => (
-        <div>
+      {[...Array(4)].map((_, i) => (
+        <div key={i}>
           <div className="flex justify-between mb-1">
             <span className="">Flowbite</span>
             <span className="text-sm font-medium">45%</span>

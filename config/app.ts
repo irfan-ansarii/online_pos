@@ -10,10 +10,6 @@ import {
   Mail,
   MessageCircle,
   Printer,
-  ArrowLeftRight,
-  ArrowUpDown,
-  ScanLine,
-  MoreVertical,
   Minus,
 } from "lucide-react";
 
@@ -21,7 +17,7 @@ export const MENU_ITEMS = [
   {
     key: "dashboard",
     label: "Dashboard",
-    href: "/dashboard",
+    href: `/dashboard`,
     icon: LayoutDashboard,
   },
   {
@@ -124,3 +120,42 @@ export const INVOICE_OPTIONS = [
 ];
 
 export const PROCEED_PURCHASES_TABS = ["supplier", "receipt", "payment"];
+
+export const COURIERS = [
+  {
+    name: "Shiproket",
+    url: "https://goldysnestt.shiprocket.co/tracking/",
+  },
+  {
+    name: "Bluedart",
+    url: "https://www.bluedart.com/",
+  },
+  {
+    name: "Trackon Courier",
+    url: "https://trackon.in/",
+  },
+  {
+    name: "DTDC",
+    url: "https://www.dtdc.in/tracking.asp/",
+  },
+  {
+    name: "DHL",
+    url: "https://www.dhl.com/in-en/home/tracking.html",
+  },
+  {
+    name: "Fedex",
+    url: "https://www.fedex.com/en-in/tracking.html",
+  },
+  {
+    name: "UPS",
+    url: "https://www.ups.com/track",
+  },
+  {
+    name: "Other",
+    url: "",
+  },
+];
+
+export const forwardStatuses = ["123"];
+
+export const reverseStatuses = ["return initiated"];

@@ -1,22 +1,25 @@
 import { NextResponse, NextRequest } from "next/server";
+import { auth } from "./lib/auth";
 
 export async function middleware(req: NextRequest) {
-  // const res = NextResponse.next();
-  // const path = req.nextUrl.pathname;
-  // const token = req.cookies.get("_auth_token")?.value || "";
-  // const isPublicPath =
-  //   path === "/login" || path === "/signup" || path === "/recover-password";
-  // if (isPublicPath && token) {
-  //   return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
+  const res = NextResponse.next();
+  const path = req.nextUrl.pathname;
+
+  const isPublicPath =
+    path === "/login" ||
+    path === "/signup" ||
+    path === "/recover-password" ||
+    path === "/";
+
+  const session = await auth();
+
+  // if (!isPublicPath && !session) {
+  //   return NextResponse.redirect(new URL(`/login?`, req.nextUrl));
   // }
-  // if (!isPublicPath && !token) {
-  //   return NextResponse.redirect(
-  //     new URL(`/login?redirect=${path}`, req.nextUrl)
-  //   );
-  // }
-  // return res;
+
+  return res;
 }
 
-// export const config = {
-//   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-// };
+export const config = {
+  matcher: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+};

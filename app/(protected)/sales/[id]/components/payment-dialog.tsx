@@ -125,7 +125,9 @@ const PaymentDialog = ({
             className="flex flex-col"
           >
             <DialogHeader className="text-left pb-6">
-              <DialogTitle>Collect Payment</DialogTitle>
+              <DialogTitle>
+                {form.watch("total") < 0 ? "Refund" : "Collect"} Payment
+              </DialogTitle>
             </DialogHeader>
 
             <div className="grid grid-cols-2 gap-3 mb-4">

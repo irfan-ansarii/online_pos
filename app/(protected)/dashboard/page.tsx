@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { redirect } from "next/navigation";
 
 const formatDate = (date: Date) => format(date, "yyyy-MM-dd");
 
@@ -43,8 +44,12 @@ interface Props {
     period: string;
   };
 }
-const DashboardPage = ({ searchParams }: Props) => {
+const DashboardPage = async ({ searchParams }: Props) => {
   const active = periods.find((p) => p.href === searchParams.period);
+
+  if (!searchParams.period) {
+    redirect(`/dashboard?period=${periods[2].href}`);
+  }
 
   return (
     <div className="grid grid-cols-2 w-full col-span-12">

@@ -3,6 +3,16 @@ import Numeral from "numeral";
 import { Card, CardFooter, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 const TotalCard = ({ sale }: any) => {
+  const badge = {
+    classsName:
+      sale.totalDue === 0
+        ? "bg-success hover:bg-success"
+        : sale.totalDue < 0
+        ? "bg-error hover:bg-error"
+        : "bg-warning hover:bg-warning",
+    text: sale.totalDue === 0 ? "Paid" : sale.totalDue < 0 ? "Overpaid" : "Due",
+    value: Math.abs(sale.totalDue || sale.total),
+  };
   return (
     <Card className="rounded-md border overflow-hidden">
       <CardContent>
@@ -39,31 +49,13 @@ const TotalCard = ({ sale }: any) => {
         </div>
 
         <div className="border-b-2 border-dashed my-2" />
-        <div className="space-y-1">
-          <div className="flex">
-            Shipping
-            <span className="ml-auto">-{Numeral(0).format()}</span>
-          </div>
-          <div className="flex">
-            {sale.totalDue !== 0
-              ? sale.totalDue < 0
-                ? "Overpaid"
-                : "Due"
-              : "Paid"}
-            <span className="ml-auto">
-              {Numeral(
-                Math.abs(sale.totalDue !== 0 ? sale.totalDue : sale.total)
-              ).format()}
-            </span>
-          </div>
-        </div>
       </CardContent>
       <CardFooter>
-        <Badge className="flex rounded-md py-2 w-full">
-          Revenue
-          <div className="ml-auto">
-            {Numeral(sale.total - sale.totalDue - 0).format()}
-          </div>
+        <Badge
+          className={`flex rounded-md py-2 w-full text-white ${badge.classsName}`}
+        >
+          {badge.text}
+          <div className="ml-auto">{Numeral(badge.value).format()}</div>
         </Badge>
       </CardFooter>
     </Card>

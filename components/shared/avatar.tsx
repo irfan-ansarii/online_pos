@@ -29,7 +29,12 @@ export const AvatarGroup: FC<BadgeProps> = ({ maxCount = 4, children }) => {
   if (maxCount && maxCount < numOfChildren) {
     childrenShow.push(
       <Popover key={avatarId}>
-        <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
+        <PopoverTrigger
+          asChild
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <Avatar className="w-10 h-10 border-2 select-none cursor-default">
             <AvatarFallback className="text-muted-foreground">
               {`+${numOfChildren - maxCount}`}

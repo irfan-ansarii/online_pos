@@ -2,10 +2,11 @@
 import React from "react";
 import Link from "next/link";
 import { Payment, Sale } from "@prisma/client";
-import { printSaleInvoice } from "@/actions/print-sale-invoice";
-import { useSheetToggle } from "@/hooks/useSheet";
+import { printSaleInvoice } from "@/actions/labels/print-sale-invoice";
 
-import { Download, IndianRupee, Mail, PenSquare } from "lucide-react";
+import { useSheetToggle } from "@/hooks/useSheet";
+import { toast } from "@/components/ui/use-toast";
+import { Download, IndianRupee, Loader2, Mail, PenSquare } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -17,11 +18,22 @@ import PaymentDialog from "./payment-dialog";
 
 const Actions = ({ sale, payments }: { sale: Sale; payments: Payment[] }) => {
   const [newOpen, toggleNew] = useSheetToggle("new");
+  const [printing, setPrinting] = React.useState(false);
 
-  // handle print invoice action
   const handlePrint = async () => {
-    const res = await printSaleInvoice(sale.id);
-    if (window) window.open(res, "_blank");
+    try {
+      setPrinting(true);
+
+      const res = await printSaleInvoice(sale.id);
+      if (window) window.open(res, "_blank");
+    } catch (error) {
+      toast({
+        title: "Something went wrong!",
+        variant: "error",
+      });
+    } finally {
+      setPrinting(false);
+    }
   };
 
   // handle send invoice action
@@ -52,8 +64,17 @@ const Actions = ({ sale, payments }: { sale: Sale; payments: Payment[] }) => {
 
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
-              <Button onClick={handlePrint} variant="ghost" size="icon">
-                <Download className="w-4 h-4" />
+              <Button
+                onClick={handlePrint}
+                variant="ghost"
+                size="icon"
+                disabled={printing}
+              >
+                {printing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
               </Button>
             </TooltipTrigger>
             <TooltipContent>Download Invoice</TooltipContent>
@@ -71,7 +92,7 @@ const Actions = ({ sale, payments }: { sale: Sale; payments: Payment[] }) => {
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
               <Button
-                onSelect={toggleNew}
+                onClick={toggleNew}
                 disabled={sale.totalDue === 0}
                 variant="ghost"
                 size="icon"

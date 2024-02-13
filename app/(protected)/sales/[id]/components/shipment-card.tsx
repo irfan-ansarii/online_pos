@@ -1,5 +1,8 @@
+"use client";
 import React from "react";
-import { Download, PenSquare, X } from "lucide-react";
+import { Shipment, ShipmentLineItem } from "@prisma/client";
+
+import { Download, PenSquare } from "lucide-react";
 
 import {
   Card,
@@ -13,11 +16,12 @@ import {
   Tooltip,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import LineItem from "./line-item";
-import { Shipment, ShipmentLineItem } from "@prisma/client";
+import ShippingDialog from "./shipping-dialog";
 
 interface Props extends Shipment {
   shipmentLineItems: ShipmentLineItem[];
@@ -32,8 +36,8 @@ const ShipmentCard = ({ shipment }: { shipment: Props }) => {
 
   return (
     <Card className="border rounded-md">
-      <CardHeader className="py-2 border-b space-y-0 divide-y">
-        <div className="flex items-center pb-2">
+      <CardHeader className="border-b space-y-0 divide-y">
+        <div className="flex items-center">
           {/* title */}
           {shipment.status && (
             <>
@@ -82,16 +86,6 @@ const ShipmentCard = ({ shipment }: { shipment: Props }) => {
                 </TooltipContent>
               </Tooltip>
             )}
-
-            {/* cancel shipment */}
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Button size="icon" variant="ghost">
-                  <X className="w-4 h-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="text-xs">Cancel</TooltipContent>
-            </Tooltip>
           </div>
         </div>
 
@@ -110,7 +104,7 @@ const ShipmentCard = ({ shipment }: { shipment: Props }) => {
             ) : (
               <span>{shipment.awb}</span>
             )}
-            {shipment.charges > -10 && <span>{shipment.charges}</span>}
+            {shipment.charges && <span>{shipment.charges}</span>}
             <div className="ml-auto">
               EDD: || Delivered
               {shipment.deliveryAt?.toISOString()}
@@ -126,27 +120,10 @@ const ShipmentCard = ({ shipment }: { shipment: Props }) => {
       </CardContent>
 
       <CardFooter>
-        {shipment.status === "processing" ? (
-          <Button className="flex w-full">Ship Now</Button>
-        ) : (
-          <Button className="flex w-full" variant="destructive">
-            Create Return
-          </Button>
-        )}
+        <ShippingDialog lineItems={shipmentLineItems} />
       </CardFooter>
     </Card>
   );
 };
 
 export default ShipmentCard;
-
-const ShipmentAction = (status: String) => {
-  switch (status) {
-    case "processing":
-      return (
-        <Button className="flex w-full" variant="destructive">
-          Ship Now
-        </Button>
-      );
-  }
-};

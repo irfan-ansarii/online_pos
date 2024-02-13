@@ -1,22 +1,32 @@
 import React from "react";
 import { PenSquare } from "lucide-react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import CustomerDialog from "./customer-dialog";
 
 const CustomerCard = ({ sale }: any) => {
-  const { id, customerId, billingAddress, shippingAddress } = sale;
+  const { id, customerId, billingAddress, shippingAddress, customer } = sale;
 
   return (
     <Card className="border rounded-md">
       <CardContent>
         <div className="flex justify-between mb-1">
           <CardTitle className="text-base">Customer</CardTitle>
-          <PenSquare className="w-4 h-4 text-muted-foreground" />
+          {/* <CustomerDialog
+            saleId={sale.id}
+            customer={{
+              id: sale.customerId,
+              billingAddress: sale.billingAddress,
+              shippingAddress: sale.shippingAddress,
+            }}
+          /> */}
         </div>
 
         <div className="text-muted-forreground">
-          <div> {shippingAddress?.name}</div>
-          <div> {shippingAddress?.phone}</div>
-          <div> {shippingAddress?.email}</div>
+          <div>
+            {customer?.firstName} {customer?.lastName}
+          </div>
+          <div> {customer?.phone}</div>
+          <div> {customer?.email}</div>
         </div>
       </CardContent>
       <CardContent>

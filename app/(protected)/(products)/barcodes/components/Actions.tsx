@@ -3,7 +3,7 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
-import { printBarcode } from "@/actions/print-barcode";
+import { printBarcode } from "@/actions/labels/print-barcode";
 
 const Actions = () => {
   // Example usage

@@ -101,6 +101,7 @@ function truncateText(text: string, width: number, actualWidth: number) {
 
   return truncatedText;
 }
+
 /**
  * create template
  */
@@ -123,7 +124,7 @@ async function createTemplate(
   drawCompanyDetails(doc, options);
 
   //@ts-ignore
-  drawCustomerDetails(doc, sale.customer, options);
+  drawCustomerDetails(doc, sale, options);
 
   drawInvoiceDetails(doc, { title: sale.title, date: sale.createdAt }, options);
 
@@ -158,7 +159,7 @@ async function drawHeader(doc: jsPDF, title: string, options: Options) {
   doc.addImage(barcode, width - (right + 40), 18, 40, 10);
 
   try {
-    const logo = fs.readFileSync("public/assets/logo.jpg");
+    const logo = fs.readFileSync("public/assets/logo.png");
 
     const metadata = await sharp(logo).metadata();
 
@@ -185,6 +186,81 @@ async function drawHeader(doc: jsPDF, title: string, options: Options) {
     size: 15,
     color: headingColor,
   });
+}
+
+/**
+ * draw company details
+ * @param {*} doc
+ */
+function drawCompanyDetails(doc: jsPDF, options: Options) {
+  const { left } = options;
+
+  const addresses = [
+    "Goldy's Nestt",
+    "M-12, Greater Kailash - 1",
+    "New Delhi - 110048",
+    "GSTIN: 07AAQPK9016Q1ZW",
+  ];
+
+  drawText(doc, "Sold By:", left, 35, {
+    weight: "bold",
+    color: headingColor,
+  });
+
+  let y = 40;
+  addresses.forEach((address) => {
+    drawText(doc, address, left, y, {});
+    y += 3.5;
+  });
+}
+
+/**
+ * draw customer details
+ * @param {*} doc
+ */
+function drawCustomerDetails(doc: jsPDF, sale: any, options: Options) {
+  const { left, right, width } = options;
+  const x = (38 / 100) * (width - (left + right));
+
+  const { billingAddress = [], shippingAddress = [] } = sale;
+
+  drawText(doc, "Billed To:", x, 35, {
+    weight: "bold",
+    color: headingColor,
+  });
+
+  let y = 40;
+
+  for (const address of billingAddress) {
+    if (typeof address === "string" && address.length > 0) {
+      drawText(doc, address, x, y, {});
+      y += 3.5;
+    }
+  }
+}
+
+/**
+ * draw invoice details
+ * @param {*} doc
+ */
+function drawInvoiceDetails(doc: jsPDF, invoice: any, options: Options) {
+  const { left, width, right } = options;
+  const { title, date } = invoice;
+  const x = (38 / 100) * (width - (left + right)) * 2;
+
+  drawText(doc, "Invoice Number:", x, 35, {
+    weight: "bold",
+    color: headingColor,
+  });
+
+  drawText(doc, title, x, 39, {});
+
+  drawText(doc, "Invoice Date:", x, 45, {
+    weight: "bold",
+    color: headingColor,
+  });
+
+  drawText(doc, format(date, "dd-MM-yyyy hh:mm:ss a"), x, 49, {});
 }
 
 /**
@@ -220,7 +296,7 @@ async function drawFooter(doc: jsPDF, options: Options) {
   x = left;
   const footerText = [
     { text: "For Goldy's Nestt", url: "" },
-    { text: "+91-9871640395", url: "tel:+91-9871640395" },
+    { text: "+91-9871640395", url: "tel:+919871640395" },
     {
       text: "saleshelp@goldysnestt.com",
       url: "mailto:saleshelp@goldysnestt.com",
@@ -244,82 +320,6 @@ async function drawFooter(doc: jsPDF, options: Options) {
 
     x += w + space;
   });
-}
-
-/**
- * draw company details
- * @param {*} doc
- */
-function drawCompanyDetails(doc: jsPDF, options: Options) {
-  const { left } = options;
-  const addresses = [
-    "Goldy's Nestt",
-    "M-12, Greater Kailash - 1",
-    "New Delhi - 110048",
-    "GSTIN: 07AAQPK9016Q1ZW",
-  ];
-
-  drawText(doc, "Sold By:", left, 35, {
-    weight: "bold",
-    color: headingColor,
-  });
-  let y = 40;
-  addresses.forEach((address) => {
-    drawText(doc, address, left, y, {});
-    y += 3.5;
-  });
-}
-
-/**
- * draw customer details
- * @param {*} doc
- */
-function drawCustomerDetails(doc: jsPDF, customer: any, options: Options) {
-  const { left, right, width } = options;
-  const x = (38 / 100) * (width - (left + right));
-
-  const { firstName, lastName, phone, email } = customer;
-
-  const billing = [
-    `${firstName}${lastName ? ` ${lastName}` : ""}`,
-    phone,
-    email,
-  ];
-
-  drawText(doc, "Billed To:", x, 35, {
-    weight: "bold",
-    color: headingColor,
-  });
-
-  let y = 40;
-  billing.forEach((address) => {
-    drawText(doc, address, x, y, {});
-    y += 3.5;
-  });
-}
-
-/**
- * draw invoice details
- * @param {*} doc
- */
-function drawInvoiceDetails(doc: jsPDF, invoice: any, options: Options) {
-  const { left, width, right } = options;
-  const { title, date } = invoice;
-  const x = (38 / 100) * (width - (left + right)) * 2;
-
-  drawText(doc, "Invoice Number:", x, 35, {
-    weight: "bold",
-    color: headingColor,
-  });
-
-  drawText(doc, title, x, 39, {});
-
-  drawText(doc, "Invoice Date:", x, 45, {
-    weight: "bold",
-    color: headingColor,
-  });
-
-  drawText(doc, format(date, "dd-MM-yyyy hh:mm:ss a"), x, 49, {});
 }
 
 /**
@@ -465,8 +465,14 @@ function drawTableTotal(doc: jsPDF, data: Sale, options: Options) {
  * create invoice
  * @param {*} saleId
  */
+let loading = false;
 export async function printSaleInvoice(saleId: number) {
+  if (loading) {
+    console.log("loading");
+    return;
+  }
   try {
+    loading = true;
     const options = {
       width: 148,
       height: 210,
@@ -484,7 +490,7 @@ export async function printSaleInvoice(saleId: number) {
 
     if (!sale) return;
 
-    const filePath = `public/files/sale/${sale.title}.pdf`;
+    const filePath = `public/files/sale/${sale.id}.pdf`;
 
     const doc = new jsPDF({
       orientation: "portrait",
@@ -562,8 +568,10 @@ export async function printSaleInvoice(saleId: number) {
 
     fs.writeFileSync(filePath, buffer);
 
-    return `/files/sale/${sale.title}.pdf`;
+    return filePath.replace("public", "");
   } catch (error: any) {
     throw new Error(error.message);
+  } finally {
+    loading = false;
   }
 }

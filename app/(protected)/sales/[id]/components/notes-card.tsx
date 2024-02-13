@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import NotesDialog from "./notes-dialog";
+import { Badge } from "@/components/ui/badge";
 
 const NotesCard = ({ sale }: any) => {
   const [open, toggle] = useToggle(false);
+
   return (
     <Card className="border rounded-md">
       <CardHeader className="pb-0">
@@ -35,6 +37,17 @@ const NotesCard = ({ sale }: any) => {
         <CardDescription className="whitespace-pre-wrap">
           {sale.notes}
         </CardDescription>
+        <div className="flex gap-2 flex-wrap mt-4">
+          {sale?.tags?.map((tag: string, i: number) => (
+            <Badge
+              variant="secondary"
+              className="py-1 capitalize"
+              key={`${tag}-${i}`}
+            >
+              {tag}
+            </Badge>
+          ))}
+        </div>
       </CardContent>
 
       {open && (
@@ -43,6 +56,7 @@ const NotesCard = ({ sale }: any) => {
           toggle={toggle}
           saleId={sale.id}
           notes={sale.notes}
+          tags={sale.tags}
         />
       )}
     </Card>

@@ -12,20 +12,21 @@ import { ArrowRight, Inbox } from "lucide-react";
 
 interface Props {
   title: string;
-  value: string | number;
-  icon?: React.ReactNode;
+  href: string;
+  text: string | number;
+  subText?: string | number;
+  icon: React.ReactNode;
 }
-const AnaliticCard = ({ title, value, icon }: Props) => {
+const AnaliticCard = ({ title, href, text, subText, icon }: Props) => {
   return (
     <Card className="border rounded-md">
       <CardContent className="flex items-start">
         <div>
-          <CardTitle>{value}</CardTitle>
-          <CardDescription>10</CardDescription>
+          <CardTitle className="mb-2">{text}</CardTitle>
+          <CardDescription>{subText}</CardDescription>
         </div>
-        <span className="ml-auto bg-red-500 p-3 rounded-full">
-          <Inbox className="w-4 h-4" />
-        </span>
+
+        {icon}
       </CardContent>
       <CardFooter>
         <CardDescription className="flex w-full items-center">

@@ -1,6 +1,6 @@
 import React from "react";
 
-const SettingPage = () => {
+const ReportPage = () => {
   return (
     <div className="p-4 md:p-6">
       <div className="w-40 h-20 mx-auto mt-20">
@@ -10,4 +10,4 @@ const SettingPage = () => {
   );
 };
 
-export default SettingPage;
+export default ReportPage;

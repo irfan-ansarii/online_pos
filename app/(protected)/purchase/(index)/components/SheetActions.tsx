@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { Sale } from "@prisma/client";
-import { getPurchaseInvoice } from "@/actions/get-purchase-invoice";
+import { getPurchaseInvoice } from "@/actions/labels/get-purchase-invoice";
 import { useSheetToggle } from "@/hooks/useSheet";
 
 import {

@@ -4,7 +4,7 @@ import fs from "fs";
 //@ts-ignore
 import bwipjs from "bwip-js";
 import jsPDF from "jspdf";
-import { getBarcodes } from "./barcode-actions";
+import { getBarcodes } from "../barcode-actions";
 import { JsonValue } from "@prisma/client/runtime/library";
 
 interface LabelItem {

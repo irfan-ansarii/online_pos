@@ -2,10 +2,10 @@
 
 import React from "react";
 
-import NextTopLoader from "nextjs-toploader";
+import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ThemeProviderProps } from "next-themes/dist/types";
 
@@ -18,8 +18,12 @@ export function Provider({ children, ...props }: ThemeProviderProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <NextTopLoader color="#da2576" />
-
+      <ProgressBar
+        height="2px"
+        color="#fffd00"
+        options={{ showSpinner: false }}
+        shallowRouting
+      />
       <NextThemesProvider {...props}>
         <Toaster />
         <TooltipProvider>{children}</TooltipProvider>

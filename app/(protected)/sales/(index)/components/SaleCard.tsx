@@ -17,7 +17,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AvatarGroup, AvatarItem } from "@/components/shared/avatar";
 
-import SaleSheet from "./SaleSheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +35,7 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
   const [loading, setLoading] = React.useState(false);
 
   const router = useRouter();
+
   const status: { [key: string]: any } = {
     pending: {
       className: "bg-warning hover:bg-warning",
@@ -83,7 +83,10 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
   };
   return (
     <Card className="hover:bg-accent group relative cursor-pointer">
-      <CardContent className="grid grid-cols-8 gap-3 items-center">
+      <CardContent
+        className="grid grid-cols-8 gap-3 items-center"
+        onClick={() => router.push(`/sales/${sale.id}`)}
+      >
         <div className="flex gap-3 col-span-4 md:col-span-3">
           <div className="border-r pr-4 text-center shrink-0">
             <div className="text-lg leading-tight font-semibold">
@@ -106,7 +109,11 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 col-span-4 md:col-span-5 items-center">
+        <div
+          className={`grid ${
+            sale.shippingStatus ? "grid-cols-3 md:grid-cols-4" : "grid-cols-3"
+          } col-span-4 md:col-span-5  items-center`}
+        >
           <div className="block  space-y-0.5">
             <div className="font-medium uppercase">{sale.title}</div>
             <span className="text-muted-foreground">
@@ -119,19 +126,20 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
             <div className="text-muted-foreground">{sale?.customer?.phone}</div>
           </div>
 
-          <div className="text-right space-y-0.5 hidden md:block">
-            <div className="text-xs text-muted-foreground">12-05-2023</div>
-            <Badge
-              variant="secondary"
-              className={cn(
-                `rounded-md capitalize w-20 justify-center truncate bg-success text-white`
-              )}
-            >
-              Delivered
-            </Badge>
-          </div>
-
-          <div className="space-y-0.5 col-span-3 md:col-span-1 text-right">
+          {sale.shippingStatus && (
+            <div className="text-right space-y-0.5 hidden md:block">
+              <div className="text-xs text-muted-foreground">12-05-2023</div>
+              <Badge
+                variant="secondary"
+                className={cn(
+                  `rounded-md capitalize w-20 justify-center truncate bg-success text-white`
+                )}
+              >
+                {sale.shippingStatus}
+              </Badge>
+            </div>
+          )}
+          <div className="space-y-0.5 col-span-2 md:col-span-1 text-right">
             <div className={`font-semibold`}>
               {Numeral(sale.total).format()}
             </div>
