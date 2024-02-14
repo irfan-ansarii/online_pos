@@ -4,6 +4,7 @@ import React from "react";
 import {
   Bar,
   BarChart,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -12,51 +13,31 @@ import {
 
 const data = [
   {
-    name: "Jan",
+    name: "12 Mar",
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Feb",
+    name: "13",
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Mar",
+    name: "14",
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Apr",
+    name: "15",
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "May",
+    name: "16",
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Jun",
+    name: "17",
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Jul",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Aug",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Sep",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Oct",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Nov",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Dec",
+    name: "18",
     total: Math.floor(Math.random() * 5000) + 1000,
   },
 ];
@@ -96,7 +77,7 @@ const OverviewPage = () => {
     );
   return (
     <ResponsiveContainer width="100%" height={320}>
-      <BarChart data={data}>
+      <BarChart data={data} margin={{ left: -16, bottom: -6 }}>
         <XAxis
           dataKey="name"
           fontSize={12}
@@ -111,11 +92,12 @@ const OverviewPage = () => {
           tickFormatter={(value) => `${value}`}
         />
         {/* <Tooltip cursor={false} /> */}
+        <Legend />
         <Bar
           dataKey="total"
-          fill="currentColor"
+          stroke="#ff6b6b"
+          fill="#ff6b6b"
           radius={[4, 4, 0, 0]}
-          className="fill-[#ff6b6b]"
           stackId="a"
         />
       </BarChart>

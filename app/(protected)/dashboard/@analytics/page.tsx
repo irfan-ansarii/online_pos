@@ -2,74 +2,70 @@ import React from "react";
 import { Inbox, ShoppingBag, Tag, Users } from "lucide-react";
 import Numeral from "numeral";
 
-import {
-  getSaleAnalytics,
-  getPurchaseAnalytics,
-  getCustomersAnalytics,
-  getInventoryAnalytics,
-} from "@/actions/analytics/analytic-actions";
+import { getSaleAnalytics } from "@/actions/analytics/analytic-actions";
 
 import AnaliticCard from "./_component/analitic-card";
 const AnalyticsPage = async ({ searchParams }: { searchParams: any }) => {
   const { period } = searchParams;
-  const { data: sale } = await getSaleAnalytics(period);
-  const { data: purchase } = await getPurchaseAnalytics(period);
-  const { data: s } = await getInventoryAnalytics(period);
-  const { data: customer } = await getCustomersAnalytics(period);
+
+  const {
+    data: { sale, purchase, product, customer },
+  } = await getSaleAnalytics(period);
+
   return (
     <>
-      <div className="col-span-12 md:col-span-6 xl:col-span-3">
+      <div className="col-span-3 md:col-span-1">
         <AnaliticCard
-          title="Sale"
+          title="Revenue"
           href="/sales"
           text={Numeral(sale._sum.total || 0).format()}
           subText={sale._count._all || 0}
           icon={
-            <span className="ml-auto bg-red-500 p-3 rounded-full">
-              <Inbox className="w-4 h-4" />
+            <span className="ml-auto bg-success p-3 rounded-md">
+              <Inbox className="w-5 h-5" />
             </span>
           }
         />
       </div>
-      <div className="col-span-12 md:col-span-6 xl:col-span-3">
+      <div className="col-span-3 md:col-span-1">
         <AnaliticCard
           title="Purchase"
           href="/purchase"
           text={Numeral(purchase._sum.total || 0).format()}
-          subText={purchase._count._all || 0}
+          subText={purchase._count._all}
           icon={
-            <span className="ml-auto bg-red-500 p-3 rounded-full">
-              <ShoppingBag className="w-4 h-4" />
+            <span className="ml-auto bg-warning p-3 rounded-md">
+              <ShoppingBag className="w-5 h-5" />
             </span>
           }
         />
       </div>
-      <div className="col-span-12 md:col-span-6 xl:col-span-3">
+      <div className="col-span-3 md:col-span-1">
         <AnaliticCard
           title="Product Sold"
           href="/products"
-          text="200"
-          subText={Numeral(209020 || 0).format()}
+          text={Numeral(product._sum.quantity).format()}
+          subText={`${Numeral(product._avg.price).format()}`}
           icon={
-            <span className="ml-auto bg-red-500 p-3 rounded-full">
-              <Tag className="w-4 h-4" />
+            <span className="ml-auto bg-info p-3 rounded-md">
+              <Tag className="w-5 h-5" />
             </span>
           }
         />
       </div>
-      <div className="col-span-12 md:col-span-6 xl:col-span-3">
+      {/* <div className="col-span-2 md:col-span-1">
         <AnaliticCard
           title="New Customers"
           href="/contacts"
-          text={customer._count._all || 0}
+          text={Numeral(customer._count._all || 0).format()}
           subText="NA"
           icon={
-            <span className="ml-auto bg-red-500 p-3 rounded-full">
-              <Users className="w-4 h-4" />
+            <span className="ml-auto bg-red-500 p-3 rounded-md">
+              <Users className="w-5 h-5" />
             </span>
           }
         />
-      </div>
+      </div> */}
     </>
   );
 };

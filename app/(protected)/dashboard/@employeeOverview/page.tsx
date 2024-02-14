@@ -1,19 +1,40 @@
-"use client";
 import React from "react";
+import {
+  getEmployeeAnalytics,
+  getRevenueAnalytics,
+} from "@/actions/analytics/analytic-actions";
 
-const EmployeePage = () => {
+import Numeral from "numeral";
+
+const EmployeePage = async ({ searchParams }: { searchParams: any }) => {
+  const { period } = searchParams;
+  const { data: employees } = await getEmployeeAnalytics(period);
+  const { data } = await getRevenueAnalytics(period);
+  const total = employees.reduce(
+    (acc, curr) => (acc += curr._sum.total || 0),
+    0
+  );
+
   return (
     <div className="space-y-4">
-      {[...Array(4)].map((_, i) => (
+      {employees.map((emp, i) => (
         <div key={i}>
           <div className="flex justify-between mb-1">
-            <span className="">Flowbite</span>
-            <span className="text-sm font-medium">45%</span>
+            <span className="">{emp.name}</span>
+            <span className="text-sm font-medium">
+              {Numeral(emp._sum.total).format()}
+            </span>
           </div>
-          <div className="w-full bg-secondary rounded-full h-2.5">
+
+          <div className="w-full bg-secondary rounded-full h-2.5 overflow-hidden">
             <div
-              className="bg-primary h-2.5 rounded-full"
-              style={{ width: "45%" }}
+              className="bg-primary h-2.5 rounded-full "
+              style={{
+                width: `${Math.max(
+                  0,
+                  Math.round((emp._sum.total || 0 / total) * 100)
+                )}%`,
+              }}
             ></div>
           </div>
         </div>

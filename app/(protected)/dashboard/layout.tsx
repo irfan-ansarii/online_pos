@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const Layout = ({
   children,
   analytics,
+  revenueOverTime,
   overview,
   paymentOverview,
   profitOverview,
@@ -12,6 +13,7 @@ const Layout = ({
 }: {
   children: React.ReactNode;
   analytics: React.ReactNode;
+  revenueOverTime: React.ReactNode;
   overview: React.ReactNode;
   paymentOverview: React.ReactNode;
   profitOverview: React.ReactNode;
@@ -27,16 +29,31 @@ const Layout = ({
           {children}
 
           {/* analytics cards */}
-          {analytics}
+          <div className="col-span-12 md:col-span-12 grid grid-cols-3 gap-6">
+            {analytics}
+          </div>
 
-          {/* row 2 */}
           <Card className="col-span-12 xl:col-span-8 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Overview</CardTitle>
+              <CardTitle className="text-base">Revenue</CardTitle>
             </CardHeader>
             <CardContent>{overview}</CardContent>
           </Card>
 
+          <Card className="col-span-12 xl:col-span-4 border rounded-md">
+            <CardHeader>
+              <CardTitle className="text-base">Revenue Over Time</CardTitle>
+            </CardHeader>
+            {/* <CardContent>{revenueOverTime}</CardContent> */}
+          </Card>
+
+          {/* row 2 */}
+          <Card className="col-span-12 xl:col-span-8 border rounded-md">
+            <CardHeader>
+              <CardTitle className="text-base">Revenue Over Time</CardTitle>
+            </CardHeader>
+            <CardContent>{revenueOverTime}</CardContent>
+          </Card>
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
               <CardTitle className="text-base">Payment Overview</CardTitle>

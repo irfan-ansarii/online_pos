@@ -13,6 +13,7 @@ const TotalCard = ({ sale }: any) => {
     text: sale.totalDue === 0 ? "Paid" : sale.totalDue < 0 ? "Overpaid" : "Due",
     value: Math.abs(sale.totalDue || sale.total),
   };
+
   return (
     <Card className="rounded-md border overflow-hidden">
       <CardContent>
