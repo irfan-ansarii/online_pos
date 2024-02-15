@@ -208,41 +208,62 @@ export const getEmployeeAnalytics = async (period: string) => {
   }
 };
 
-export const getRevenueAnalytics = async (period: string) => {
+export const getHourlyRevenueAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
-
-  const endDate = new Date(end);
-  endDate.setUTCHours(23, 59, 59, 999);
 
   try {
     const session = await auth();
     if (!session) throw new Error("unauthorized");
 
-    const whereFilter = {
-      createdAt: {
-        gte: new Date(start),
-        lte: new Date(endDate),
-      },
-    };
-
-    const query =
-      await prisma.$queryRaw(`SELECT DATE_TRUNC('day', createdAt) AS date, DATE_TRUNC('week', createdAt) AS week,
-    DATE_TRUNC('hour', createdAt) AS hour,
-    SUM(value_column) AS total_value
-FROM
-    your_table_name
-GROUP BY
-    DATE_TRUNC('day', createdAt),
-    DATE_TRUNC('week', createdAt),
-    DATE_TRUNC('hour', createdAt)
-ORDER BY
-    date,
-    week,
-    hour`);
-
+    const query = await prisma.$queryRaw(
+      Prisma.sql`SELECT 
+                  DATE_TRUNC('hour', "createdAt"::timestamp) AS name,
+                  SUM(total) as _sum
+                FROM
+                  sales
+                WHERE
+                  "createdAt"::date >= ${start}::date AND "createdAt"::date <= ${end}::date AND "locationId"=${session.location.id}
+                GROUP BY
+                  name
+                ORDER BY
+                  name`
+    );
     console.log(query);
     return {
-      data: {},
+      data: query,
+      message: "success",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+};
+
+export const getRevenueAnalytics = async (period: string) => {
+  const [start, end] = period.split(":");
+
+  try {
+    const session = await auth();
+    if (!session) throw new Error("unauthorized");
+
+    const query = await prisma.$queryRaw(
+      Prisma.sql`SELECT 
+                  DATE_TRUNC('day', "createdAt"::timestamp) AS name,
+                  SUM(total) as _sum
+                FROM
+                  sales
+                WHERE
+                  "createdAt"::date >= ${start}::date AND "createdAt"::date <= ${end}::date AND "locationId"=${session.location.id}
+                GROUP BY
+                  name
+                ORDER BY
+                  name`
+    );
+
+    return {
+      data: query,
       message: "success",
     };
   } catch (error: any) {

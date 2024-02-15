@@ -66,7 +66,11 @@ const DashboardPage = async ({ searchParams }: Props) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-44">
           {periods.map((item) => (
-            <DropdownMenuItem key={item.label} asChild>
+            <DropdownMenuItem
+              key={item.label}
+              asChild
+              className={item.href === active?.href ? "bg-secondary" : ""}
+            >
               <Link href={`/dashboard?period=${item.href}`}>{item.label}</Link>
             </DropdownMenuItem>
           ))}

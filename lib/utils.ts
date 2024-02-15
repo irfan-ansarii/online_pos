@@ -21,3 +21,19 @@ export const store = atom<{ [key: string]: Boolean }>({
   sorting: false,
   filter: false,
 });
+
+export const capitalize = (text: string) => {
+  if (!text || text.length === 0) return text;
+
+  const words = text.split(" ");
+
+  const capitalized = words.map((word) => {
+    const filteredText = word.replace(/[^a-zA-Z]/g, "");
+
+    const firtChar = filteredText.charAt(0).toUpperCase();
+    const res = filteredText.slice(1);
+    return `${firtChar}${res}`;
+  });
+
+  return capitalized.join(" ");
+};

@@ -29,30 +29,17 @@ const Layout = ({
           {children}
 
           {/* analytics cards */}
+          {/* row 1 */}
           <div className="col-span-12 md:col-span-12 grid grid-cols-3 gap-6">
             {analytics}
           </div>
 
+          {/* row 2 */}
           <Card className="col-span-12 xl:col-span-8 border rounded-md">
             <CardHeader>
               <CardTitle className="text-base">Revenue</CardTitle>
             </CardHeader>
             <CardContent>{overview}</CardContent>
-          </Card>
-
-          <Card className="col-span-12 xl:col-span-4 border rounded-md">
-            <CardHeader>
-              <CardTitle className="text-base">Revenue Over Time</CardTitle>
-            </CardHeader>
-            {/* <CardContent>{revenueOverTime}</CardContent> */}
-          </Card>
-
-          {/* row 2 */}
-          <Card className="col-span-12 xl:col-span-8 border rounded-md">
-            <CardHeader>
-              <CardTitle className="text-base">Revenue Over Time</CardTitle>
-            </CardHeader>
-            <CardContent>{revenueOverTime}</CardContent>
           </Card>
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
@@ -62,11 +49,11 @@ const Layout = ({
           </Card>
 
           {/* row 3 */}
-          <Card className="col-span-12 xl:col-span-8 border rounded-md">
+          <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Profit Overview</CardTitle>
+              <CardTitle className="text-base">Payment Overview</CardTitle>
             </CardHeader>
-            <CardContent>{profitOverview}</CardContent>
+            <CardContent>{paymentOverview}</CardContent>
           </Card>
 
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
@@ -75,8 +62,6 @@ const Layout = ({
             </CardHeader>
             <CardContent>{employeeOverview}</CardContent>
           </Card>
-
-          {/* row 5 */}
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
               <CardTitle className="text-base">Stock Overview</CardTitle>
@@ -84,19 +69,12 @@ const Layout = ({
             <CardContent>{stockOverview}</CardContent>
           </Card>
 
-          <Card className="col-span-12 xl:col-span-4 border rounded-md">
+          {/* <Card className="col-span-12 xl:col-span-8 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Dues</CardTitle>
+              <CardTitle className="text-base">Revenue Over Time</CardTitle>
             </CardHeader>
-            <CardContent>{dues}</CardContent>
-          </Card>
-
-          <Card className="col-span-12 xl:col-span-4 border rounded-md">
-            <CardHeader>
-              <CardTitle className="text-base">Customer</CardTitle>
-            </CardHeader>
-            <CardContent></CardContent>
-          </Card>
+            <CardContent>{revenueOverTime}</CardContent>
+          </Card> */}
         </div>
       </div>
     </>

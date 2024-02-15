@@ -1,15 +1,12 @@
 import React from "react";
-import {
-  getEmployeeAnalytics,
-  getRevenueAnalytics,
-} from "@/actions/analytics/analytic-actions";
+import { getEmployeeAnalytics } from "@/actions/analytics/analytic-actions";
 
 import Numeral from "numeral";
 
 const EmployeePage = async ({ searchParams }: { searchParams: any }) => {
   const { period } = searchParams;
   const { data: employees } = await getEmployeeAnalytics(period);
-  const { data } = await getRevenueAnalytics(period);
+
   const total = employees.reduce(
     (acc, curr) => (acc += curr._sum.total || 0),
     0
@@ -32,7 +29,7 @@ const EmployeePage = async ({ searchParams }: { searchParams: any }) => {
               style={{
                 width: `${Math.max(
                   0,
-                  Math.round((emp._sum.total || 0 / total) * 100)
+                  Math.round((Number(emp._sum.total || 0) / total) * 100)
                 )}%`,
               }}
             ></div>

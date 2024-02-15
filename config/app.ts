@@ -94,6 +94,15 @@ export const MENU_ITEMS = [
 
 export const PAGE_SIZE = 12;
 
+export const CHART_COLORS = [
+  "#845EC2",
+  "#D65DB1",
+  "#FF6F91",
+  "#FF9671",
+  "#FFC75F",
+  "#F9F871",
+];
+
 export const PROCEED_SALE_TABS = [
   "employee",
   "customer",
