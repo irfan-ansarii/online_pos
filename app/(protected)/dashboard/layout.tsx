@@ -3,23 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const Layout = ({
   children,
   analytics,
-  revenueOverTime,
-  overview,
-  paymentOverview,
-  profitOverview,
-  stockOverview,
-  employeeOverview,
-  dues,
+  revenue,
+  // expense
+  purchase,
+  stock,
+  bestSellers,
+  employee,
+  customers,
 }: {
   children: React.ReactNode;
   analytics: React.ReactNode;
-  revenueOverTime: React.ReactNode;
-  overview: React.ReactNode;
-  paymentOverview: React.ReactNode;
-  profitOverview: React.ReactNode;
-  stockOverview: React.ReactNode;
-  employeeOverview: React.ReactNode;
-  dues: React.ReactNode;
+  revenue: React.ReactNode;
+  // expense
+  purchase: React.ReactNode;
+  stock: React.ReactNode;
+  bestSellers: React.ReactNode;
+  employee: React.ReactNode;
+  customers: React.ReactNode;
 }) => {
   return (
     <>
@@ -39,42 +39,49 @@ const Layout = ({
             <CardHeader>
               <CardTitle className="text-base">Revenue</CardTitle>
             </CardHeader>
-            <CardContent>{overview}</CardContent>
+            <CardContent>{revenue}</CardContent>
           </Card>
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Payment Overview</CardTitle>
+              <CardTitle className="text-base">Expense</CardTitle>
             </CardHeader>
-            <CardContent>{paymentOverview}</CardContent>
+            <CardContent>Expenses</CardContent>
           </Card>
 
           {/* row 3 */}
+          <Card className="col-span-12 xl:col-span-8 border rounded-md">
+            <CardHeader>
+              <CardTitle className="text-base">Purchase</CardTitle>
+            </CardHeader>
+            <CardContent>{purchase}</CardContent>
+          </Card>
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Payment Overview</CardTitle>
+              <CardTitle className="text-base">Stock</CardTitle>
             </CardHeader>
-            <CardContent>{paymentOverview}</CardContent>
+            <CardContent>{stock}</CardContent>
           </Card>
+
+          {/* row 4 */}
 
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Employee Overview</CardTitle>
+              <CardTitle className="text-base">Best Sellers</CardTitle>
             </CardHeader>
-            <CardContent>{employeeOverview}</CardContent>
+            <CardContent>{bestSellers}</CardContent>
           </Card>
           <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Stock Overview</CardTitle>
+              <CardTitle className="text-base">Top Employees</CardTitle>
             </CardHeader>
-            <CardContent>{stockOverview}</CardContent>
+            <CardContent>{employee}</CardContent>
           </Card>
-
-          {/* <Card className="col-span-12 xl:col-span-8 border rounded-md">
+          <Card className="col-span-12 xl:col-span-4 border rounded-md">
             <CardHeader>
-              <CardTitle className="text-base">Revenue Over Time</CardTitle>
+              <CardTitle className="text-base">Top Customers</CardTitle>
             </CardHeader>
-            <CardContent>{revenueOverTime}</CardContent>
-          </Card> */}
+            <CardContent>{customers}</CardContent>
+          </Card>
         </div>
       </div>
     </>

@@ -1,11 +1,11 @@
 import React from "react";
-import { getEmployeeAnalytics } from "@/actions/analytics/analytic-actions";
+import { getUserAnalytics } from "@/actions/analytics/analytic-actions";
 
 import Numeral from "numeral";
 
 const EmployeePage = async ({ searchParams }: { searchParams: any }) => {
   const { period } = searchParams;
-  const { data: employees } = await getEmployeeAnalytics(period);
+  const { data: employees } = await getUserAnalytics(period);
 
   const total = employees.reduce(
     (acc, curr) => (acc += curr._sum.total || 0),

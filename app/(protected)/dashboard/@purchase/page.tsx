@@ -26,8 +26,6 @@ const OverviewPage = async ({ searchParams }: { searchParams: any }) => {
   } else {
     revenue = await getHourlyRevenueAnalytics(period);
   }
-  const r = capitalize("_ello workd");
-  console.log(r);
 
   return (
     <>

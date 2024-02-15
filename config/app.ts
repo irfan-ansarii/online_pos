@@ -11,6 +11,7 @@ import {
   MessageCircle,
   Printer,
   Minus,
+  ScrollText,
 } from "lucide-react";
 
 export const MENU_ITEMS = [
@@ -71,7 +72,12 @@ export const MENU_ITEMS = [
     href: "/contacts",
     icon: Users,
   },
-
+  {
+    key: "expenses",
+    label: "Expenses",
+    href: "/expenses",
+    icon: ScrollText,
+  },
   {
     key: "reports",
     label: "Reports",
