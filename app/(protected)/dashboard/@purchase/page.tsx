@@ -1,17 +1,15 @@
 import React from "react";
 import format from "date-fns/format";
 import { RevenueBarChart, RevenueLineChart } from "./_components/chart";
-import {
-  getHourlyRevenueAnalytics,
-  getRevenueAnalytics,
-} from "@/actions/analytics/analytic-actions";
+import { getPurchaseAnalytics } from "@/actions/analytics/analytic-actions";
 import { capitalize } from "@/lib/utils";
 
 interface Props {
   name: string;
   _sum: number;
 }
-const OverviewPage = async ({ searchParams }: { searchParams: any }) => {
+
+const PurchasePage = async ({ searchParams }: { searchParams: any }) => {
   const { period } = searchParams;
   const [start, end] = period.split(":");
 
@@ -19,23 +17,25 @@ const OverviewPage = async ({ searchParams }: { searchParams: any }) => {
   const date2 = new Date(end).getTime();
 
   const difference = Math.ceil(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
-  let revenue;
+
+  let groupBy = "hour";
 
   if (difference > 0) {
-    revenue = await getRevenueAnalytics(period);
-  } else {
-    revenue = await getHourlyRevenueAnalytics(period);
+    groupBy = "day";
+  } else if (difference > 90) {
+    groupBy = "month";
   }
+
+  const { data: purchase } = await getPurchaseAnalytics(period, groupBy);
 
   return (
     <>
       {difference > 0 ? (
-        <RevenueBarChart data={revenue.data} />
+        <RevenueBarChart data={purchase} />
       ) : (
-        <RevenueLineChart data={revenue.data} />
+        <RevenueLineChart data={purchase} />
       )}
     </>
   );
 };
-
-export default OverviewPage;
+export default PurchasePage;

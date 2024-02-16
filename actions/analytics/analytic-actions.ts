@@ -4,98 +4,6 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 
-export const getSaleAnalytics = async (period: string) => {
-  const [start, end] = period.split(":");
-
-  const endDate = new Date(end);
-  endDate.setUTCHours(23, 59, 59, 999);
-
-  try {
-    const session = await auth();
-    if (!session) throw new Error("unauthorized");
-
-    const whereFilter = {
-      createdAt: {
-        gte: new Date(start),
-        lte: new Date(endDate),
-      },
-    };
-
-    const query1 = prisma.sale.aggregate({
-      where: {
-        ...whereFilter,
-        locationId: session.location.id,
-      },
-      _count: {
-        _all: true,
-      },
-      _sum: {
-        total: true,
-      },
-      _avg: {
-        total: true,
-      },
-    });
-
-    const query2 = prisma.purchase.aggregate({
-      where: {
-        ...whereFilter,
-        locationId: session.location.id,
-      },
-      _count: {
-        _all: true,
-      },
-      _sum: {
-        total: true,
-      },
-      _avg: {
-        total: true,
-      },
-    });
-
-    const query3 = prisma.lineItem.aggregate({
-      where: {
-        ...whereFilter,
-        locationId: session.location.id,
-        kind: "sale",
-      },
-      _sum: {
-        quantity: true,
-      },
-      _avg: {
-        price: true,
-      },
-    });
-
-    const query4 = prisma.user.aggregate({
-      where: {
-        ...whereFilter,
-        role: "customer",
-      },
-      _count: {
-        _all: true,
-      },
-    });
-
-    const [sale, purchase, product, customer] = await prisma.$transaction([
-      query1,
-      query2,
-      query3,
-      query4,
-    ]);
-
-    return {
-      data: { sale, purchase, product, customer },
-      message: "success",
-    };
-  } catch (error: any) {
-    if (error instanceof Prisma.PrismaClientInitializationError) {
-      throw new Error("Internal server error");
-    }
-    throw new Error(error.message);
-  }
-};
-
 export const getTotalRevenueAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
@@ -141,7 +49,52 @@ export const getTotalRevenueAnalytics = async (period: string) => {
   }
 };
 
-export const getProductSoldAnalytics = async (period: string) => {
+export const getTotalPurchaseAnalytics = async (period: string) => {
+  const [start, end] = period.split(":");
+
+  const endDate = new Date(end);
+  endDate.setUTCHours(23, 59, 59, 999);
+
+  try {
+    const session = await auth();
+    if (!session) throw new Error("unauthorized");
+
+    const whereFilter = {
+      createdAt: {
+        gte: new Date(start),
+        lte: new Date(endDate),
+      },
+    };
+
+    const query = await prisma.purchase.aggregate({
+      where: {
+        ...whereFilter,
+        locationId: session.location.id,
+      },
+      _count: {
+        total: true,
+      },
+      _sum: {
+        total: true,
+      },
+      _avg: {
+        total: true,
+      },
+    });
+
+    return {
+      data: query,
+      message: "success",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+};
+
+export const getTotalProductAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
   const endDate = new Date(end);
@@ -167,6 +120,9 @@ export const getProductSoldAnalytics = async (period: string) => {
       _sum: {
         quantity: true,
       },
+      _avg: {
+        price: true,
+      },
     });
 
     return {
@@ -180,6 +136,73 @@ export const getProductSoldAnalytics = async (period: string) => {
     throw new Error(error.message);
   }
 };
+
+export const getRevenueAnalytics = async (period: string, groupBy = "day") => {
+  const [start, end] = period.split(":");
+
+  try {
+    const session = await auth();
+    if (!session) throw new Error("unauthorized");
+
+    const query = await prisma.$queryRaw(
+      Prisma.sql`SELECT 
+                  DATE_TRUNC(${groupBy}, "createdAt"::timestamp) AS name,
+                  SUM(total) as _sum
+                FROM
+                  sales
+                WHERE
+                  "createdAt"::date >= ${start}::date AND "createdAt"::date <= ${end}::date AND "locationId"=${session.location.id}
+                GROUP BY
+                  name
+                ORDER BY
+                  name`
+    );
+
+    return {
+      data: query,
+      message: "success",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+};
+
+export const getPurchaseAnalytics = async (period: string, groupBy = "day") => {
+  const [start, end] = period.split(":");
+
+  try {
+    const session = await auth();
+    if (!session) throw new Error("unauthorized");
+
+    const query = await prisma.$queryRaw(
+      Prisma.sql`SELECT 
+                  DATE_TRUNC(${groupBy}, "createdAt"::timestamp) AS name,
+                  SUM(total) as _sum
+                FROM
+                  purchase
+                WHERE
+                  "createdAt"::date >= ${start}::date AND "createdAt"::date <= ${end}::date AND "locationId"=${session.location.id}
+                GROUP BY
+                  name
+                ORDER BY
+                  name`
+    );
+
+    return {
+      data: query,
+      message: "success",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+};
+
 export const getPaymentAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
@@ -224,25 +247,33 @@ export const getPaymentAnalytics = async (period: string) => {
   }
 };
 
-export const getHourlyRevenueAnalytics = async (period: string) => {
-  const [start, end] = period.split(":");
-
+export const getStockAnalytics = async () => {
   try {
     const session = await auth();
     if (!session) throw new Error("unauthorized");
 
     const query = await prisma.$queryRaw(
-      Prisma.sql`SELECT 
-                  DATE_TRUNC('hour', "createdAt"::timestamp) AS name,
-                  SUM(total) as _sum
+      Prisma.sql`SELECT
+                  CASE
+                    WHEN stock > 0 THEN 'In Stock'
+                    ELSE 'Out of Stock'
+                  END AS name,
+                  COUNT(id)::int AS _count
                 FROM
-                  sales
+                  inventory
                 WHERE
-                  "createdAt"::date >= ${start}::date AND "createdAt"::date <= ${end}::date AND "locationId"=${session.location.id}
+                  "locationId"=${session.location.id}
+               
                 GROUP BY
                   name
-                ORDER BY
-                  name`
+                UNION ALL
+                SELECT
+                  'Total' AS name,
+                  COUNT(id)::int AS count
+                FROM
+                  inventory
+                WHERE
+                  "locationId"=${session.location.id}`
     );
 
     return {
@@ -257,7 +288,7 @@ export const getHourlyRevenueAnalytics = async (period: string) => {
   }
 };
 
-export const getRevenueAnalytics = async (period: string) => {
+export const getStockAdjustmentAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
   try {
@@ -265,16 +296,17 @@ export const getRevenueAnalytics = async (period: string) => {
     if (!session) throw new Error("unauthorized");
 
     const query = await prisma.$queryRaw(
-      Prisma.sql`SELECT 
-                  DATE_TRUNC('day', "createdAt"::timestamp) AS name,
-                  SUM(total) as _sum
+      Prisma.sql`SELECT
+                  CASE
+                    WHEN quantity > 0 THEN 'In'
+                    ELSE 'Out'
+                  END AS name,
+                  ABS(SUM(quantity)::int) AS _sum
                 FROM
-                  sales
+                  adjustments
                 WHERE
-                  "createdAt"::date >= ${start}::date AND "createdAt"::date <= ${end}::date AND "locationId"=${session.location.id}
+                    "createdAt"::date >= ${start}::date AND "createdAt"::date <= ${end}::date AND "locationId"=${session.location.id}
                 GROUP BY
-                  name
-                ORDER BY
                   name`
     );
 

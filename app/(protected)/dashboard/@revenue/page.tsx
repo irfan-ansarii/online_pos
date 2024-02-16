@@ -1,10 +1,7 @@
 import React from "react";
 import format from "date-fns/format";
 import { RevenueBarChart, RevenueLineChart } from "./_components/chart";
-import {
-  getHourlyRevenueAnalytics,
-  getRevenueAnalytics,
-} from "@/actions/analytics/analytic-actions";
+import { getRevenueAnalytics } from "@/actions/analytics/analytic-actions";
 import { capitalize } from "@/lib/utils";
 
 interface Props {
@@ -19,20 +16,22 @@ const OverviewPage = async ({ searchParams }: { searchParams: any }) => {
   const date2 = new Date(end).getTime();
 
   const difference = Math.ceil(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
-  let revenue;
+  let groupBy = "hour";
 
   if (difference > 0) {
-    revenue = await getRevenueAnalytics(period);
-  } else {
-    revenue = await getHourlyRevenueAnalytics(period);
+    groupBy = "day";
+  } else if (difference > 90) {
+    groupBy = "month";
   }
+
+  const { data: revenue } = await getRevenueAnalytics(period, groupBy);
 
   return (
     <>
       {difference > 0 ? (
-        <RevenueBarChart data={revenue.data} />
+        <RevenueBarChart data={revenue} />
       ) : (
-        <RevenueLineChart data={revenue.data} />
+        <RevenueLineChart data={revenue} />
       )}
     </>
   );

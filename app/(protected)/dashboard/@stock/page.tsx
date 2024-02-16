@@ -1,39 +1,29 @@
-"use client";
-import React from "react";
+import {
+  getStockAdjustmentAnalytics,
+  getStockAnalytics,
+} from "@/actions/analytics/analytic-actions";
+import StockChart from "./_components/chart";
 
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+interface StockProps {
+  name: string;
+  _count: number;
+}
 
-const PaymentOverviewPage = () => {
-  const data = [
-    { name: "Group A", value: 400 },
-    { name: "Group B", value: 300 },
-    { name: "Group C", value: 300 },
-    { name: "Group D", value: 200 },
-  ];
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+interface AdjustmentProps {
+  name: string;
+  _sum: number;
+}
 
-  return (
-    <ResponsiveContainer width="100%" height={260}>
-      <PieChart>
-        <Pie
-          data={data}
-          innerRadius={80}
-          cornerRadius={4}
-          paddingAngle={4}
-          dataKey="value"
-          stroke="none"
-        >
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={COLORS[index % COLORS.length]}
-              style={{ outline: "none" }}
-            />
-          ))}
-        </Pie>
-      </PieChart>
-    </ResponsiveContainer>
-  );
+const PaymentOverviewPage = async ({ searchParams }: { searchParams: any }) => {
+  const { period } = searchParams;
+
+  const { data: total } = (await getStockAnalytics()) as { data: StockProps[] };
+
+  const { data: adjustment } = (await getStockAdjustmentAnalytics(period)) as {
+    data: AdjustmentProps[];
+  };
+
+  return <StockChart stockData={total} adjustmentData={adjustment} />;
 };
 
 export default PaymentOverviewPage;

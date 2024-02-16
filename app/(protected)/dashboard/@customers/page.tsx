@@ -25,7 +25,7 @@ const RevenueOverTime = async ({ searchParams }: { searchParams: any }) => {
           >
             <div className="space-y-0.5">
               <Link
-                href={`/products?search=${item?.name}`}
+                href={`/contacts/${item?.customerId}`}
                 className="hover:underline block font-semibold"
               >
                 {item?.name}

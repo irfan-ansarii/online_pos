@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import {
   getBestSellersAnalytics,
-  getProductSoldAnalytics,
+  getTotalProductAnalytics,
 } from "@/actions/analytics/analytic-actions";
 
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ const OverviewPage = async ({ searchParams }: { searchParams: any }) => {
   const { period } = searchParams;
 
   const { data } = await getBestSellersAnalytics(period);
-  const { data: product } = await getProductSoldAnalytics(period);
+  const { data: product } = await getTotalProductAnalytics(period);
 
   const total = product._sum.quantity || 0;
 
