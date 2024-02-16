@@ -4,11 +4,16 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 
+/**
+ * get total revenue
+ * @param period
+ * @returns
+ */
 export const getTotalRevenueAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
   const endDate = new Date(end);
-  endDate.setUTCHours(23, 59, 59, 999);
+  endDate.setHours(23, 59, 59, 999);
 
   try {
     const session = await auth();
@@ -49,11 +54,16 @@ export const getTotalRevenueAnalytics = async (period: string) => {
   }
 };
 
+/**
+ * get total purchase
+ * @param period
+ * @returns
+ */
 export const getTotalPurchaseAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
   const endDate = new Date(end);
-  endDate.setUTCHours(23, 59, 59, 999);
+  endDate.setHours(23, 59, 59, 999);
 
   try {
     const session = await auth();
@@ -94,11 +104,16 @@ export const getTotalPurchaseAnalytics = async (period: string) => {
   }
 };
 
+/**
+ * get total products sold
+ * @param period
+ * @returns
+ */
 export const getTotalProductAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
   const endDate = new Date(end);
-  endDate.setUTCHours(23, 59, 59, 999);
+  endDate.setHours(23, 59, 59, 999);
 
   try {
     const session = await auth();
@@ -137,6 +152,12 @@ export const getTotalProductAnalytics = async (period: string) => {
   }
 };
 
+/**
+ * get revenue over time analytics
+ * @param period
+ * @param groupBy
+ * @returns
+ */
 export const getRevenueAnalytics = async (period: string, groupBy = "day") => {
   const [start, end] = period.split(":");
 
@@ -170,6 +191,12 @@ export const getRevenueAnalytics = async (period: string, groupBy = "day") => {
   }
 };
 
+/**
+ * get purchase over time analytics
+ * @param period
+ * @param groupBy
+ * @returns
+ */
 export const getPurchaseAnalytics = async (period: string, groupBy = "day") => {
   const [start, end] = period.split(":");
 
@@ -203,11 +230,64 @@ export const getPurchaseAnalytics = async (period: string, groupBy = "day") => {
   }
 };
 
+/**
+ * get expense analytics
+ * @param period
+ * @returns
+ */
+export const getExpenseAnalytics = async (period: string) => {
+  const [start, end] = period.split(":");
+
+  const endDate = new Date(end);
+  endDate.setHours(23, 59, 59, 999);
+
+  try {
+    const session = await auth();
+    if (!session) throw new Error("unauthorized");
+
+    const whereFilter = {
+      createdAt: {
+        gte: new Date(start),
+        lte: new Date(endDate),
+      },
+    };
+
+    const query = await prisma.expense.groupBy({
+      by: ["category"],
+      where: {
+        ...whereFilter,
+        locationId: session.location.id,
+      },
+      _count: {
+        _all: true,
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    return {
+      data: query,
+      message: "success",
+    };
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error("Internal server error");
+    }
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * get payment over time by mode analytics
+ * @param period
+ * @returns
+ */
 export const getPaymentAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
   const endDate = new Date(end);
-  endDate.setUTCHours(23, 59, 59, 999);
+  endDate.setHours(23, 59, 59, 999);
 
   try {
     const session = await auth();
@@ -247,6 +327,10 @@ export const getPaymentAnalytics = async (period: string) => {
   }
 };
 
+/**
+ * get in stock vs out of stock product
+ * @returns
+ */
 export const getStockAnalytics = async () => {
   try {
     const session = await auth();
@@ -263,17 +347,8 @@ export const getStockAnalytics = async () => {
                   inventory
                 WHERE
                   "locationId"=${session.location.id}
-               
                 GROUP BY
-                  name
-                UNION ALL
-                SELECT
-                  'Total' AS name,
-                  COUNT(id)::int AS count
-                FROM
-                  inventory
-                WHERE
-                  "locationId"=${session.location.id}`
+                  name`
     );
 
     return {
@@ -288,6 +363,11 @@ export const getStockAnalytics = async () => {
   }
 };
 
+/**
+ * get product adjustment analytics
+ * @param period
+ * @returns
+ */
 export const getStockAdjustmentAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
@@ -322,11 +402,16 @@ export const getStockAdjustmentAnalytics = async (period: string) => {
   }
 };
 
+/**
+ * get best seller prouct analytics
+ * @param period
+ * @returns
+ */
 export const getBestSellersAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
   const endDate = new Date(end);
-  endDate.setUTCHours(23, 59, 59, 999);
+  endDate.setHours(23, 59, 59, 999);
 
   try {
     const session = await auth();
@@ -368,11 +453,17 @@ export const getBestSellersAnalytics = async (period: string) => {
   }
 };
 
+/**
+ * get top customer analytics
+ * @param period
+ * @param key
+ * @returns
+ */
 export const getUserAnalytics = async (period: string, key = "employeeId") => {
   const [start, end] = period.split(":");
 
   const endDate = new Date(end);
-  endDate.setUTCHours(23, 59, 59, 999);
+  endDate.setHours(23, 59, 59, 999);
 
   const parsedKey = key as Prisma.SaleScalarFieldEnum;
   try {

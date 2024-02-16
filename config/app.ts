@@ -101,12 +101,14 @@ export const MENU_ITEMS = [
 export const PAGE_SIZE = 12;
 
 export const CHART_COLORS = [
-  "#845EC2",
-  "#D65DB1",
-  "#FF6F91",
-  "#FF9671",
-  "#FFC75F",
-  "#F9F871",
+  "#EC4899",
+  "#8B5CF6",
+  "#6366F1",
+  "#3B82F6",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#6B7280",
 ];
 
 export const PROCEED_SALE_TABS = [

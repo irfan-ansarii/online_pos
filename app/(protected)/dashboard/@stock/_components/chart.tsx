@@ -1,6 +1,7 @@
 "use client";
+import { getRandomColor } from "@/lib/utils";
 import React from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 interface Props {
   stockData: {
@@ -14,6 +15,17 @@ interface Props {
 }
 
 const StockChart = ({ stockData, adjustmentData }: Props) => {
+  const usedColors: string[] = [];
+
+  const getColor = () => {
+    let color;
+    do {
+      color = getRandomColor();
+    } while (usedColors.includes(color));
+    usedColors.push(color);
+    return color;
+  };
+
   return (
     <ResponsiveContainer width="100%" height={340}>
       <PieChart>
@@ -24,12 +36,16 @@ const StockChart = ({ stockData, adjustmentData }: Props) => {
           cornerRadius={4}
           paddingAngle={4}
           dataKey="_count"
+          legendType="triangle"
           stroke="none"
+          label={({ percent }) => {
+            return `${(percent * 100).toFixed(0)}%`;
+          }}
         >
           {stockData.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill="red"
+              fill={getColor()}
               style={{ outline: "none" }}
             />
           ))}
@@ -40,16 +56,20 @@ const StockChart = ({ stockData, adjustmentData }: Props) => {
           outerRadius={60}
           dataKey="_sum"
           stroke="none"
+          label={({ percent }) => {
+            return `${(percent * 100).toFixed(0)}%`;
+          }}
         >
           {adjustmentData.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill="red"
+              fill={getColor()}
               style={{ outline: "none" }}
             />
           ))}
         </Pie>
-        <Tooltip />
+
+        <Legend />
       </PieChart>
     </ResponsiveContainer>
   );

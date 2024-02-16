@@ -5,6 +5,7 @@ const Layout = async ({
   analytics,
   revenue,
   expense,
+  payment,
   purchase,
   stock,
   bestSellers,
@@ -15,6 +16,7 @@ const Layout = async ({
   analytics: React.ReactNode;
   revenue: React.ReactNode;
   expense: React.ReactNode;
+  payment: React.ReactNode;
   purchase: React.ReactNode;
   stock: React.ReactNode;
   bestSellers: React.ReactNode;
@@ -60,13 +62,13 @@ const Layout = async ({
             <CardHeader>
               <CardTitle className="text-base">Payments</CardTitle>
             </CardHeader>
-            <CardContent>{employee}</CardContent>
+            <CardContent>{payment}</CardContent>
           </Card>
           <Card className="col-span-12 md:col-span-6 xl:col-span-4 border rounded-md">
             <CardHeader>
               <CardTitle className="text-base">Stock</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">{stock}</CardContent>
+            <CardContent>{stock}</CardContent>
           </Card>
           <Card className="col-span-12 md:col-span-6 xl:col-span-4 border rounded-md">
             <CardHeader>

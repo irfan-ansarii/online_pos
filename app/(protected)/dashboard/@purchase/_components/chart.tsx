@@ -1,5 +1,6 @@
 "use client";
 import { CHART_COLORS } from "@/config/app";
+import { getRandomColor } from "@/lib/utils";
 import { format } from "date-fns";
 import React from "react";
 
@@ -29,39 +30,26 @@ const timeSlots = [
   "10 PM",
 ];
 
-export const RevenueBarChart = ({ data }: { data: any }) => {
-  return (
-    <ResponsiveContainer width="100%" height={320}>
-      <BarChart data={data} margin={{ left: -16, bottom: -6 }}>
-        <XAxis
-          dataKey="name"
-          fontSize={12}
-          tickLine={false}
-          axisLine={true}
-          strokeOpacity={0.3}
-          tickFormatter={(value) => format(new Date(value), "dd-MMM")}
-        />
-        <YAxis fontSize={12} tickLine={false} axisLine={false} />
-        <Bar
-          dataKey="_sum"
-          stroke="#ff6b6b"
-          fill="#ff6b6b"
-          radius={[4, 4, 0, 0]}
-          stackId="a"
-        />
-      </BarChart>
-    </ResponsiveContainer>
-  );
-};
-
-export const RevenueLineChart = ({ data }: { data: any }) => {
+export const RevenueBarChart = ({
+  data,
+  formatter,
+  group,
+}: {
+  data: any;
+  formatter: string;
+  group: string;
+}) => {
   const formatted = timeSlots.reduce((acc, curr) => {
     const slot = data.find(
-      (d: any) => format(new Date(d.name), "hh aa") === curr
+      (d: any) => format(new Date(d.name), formatter) === curr
     );
+
+    const date = new Date();
+    date.setHours(parseInt(curr));
+
     // @ts-expect-error
     acc.push({
-      name: curr,
+      name: date,
       _sum: slot?._sum || 0,
     });
 
@@ -70,23 +58,26 @@ export const RevenueLineChart = ({ data }: { data: any }) => {
 
   return (
     <ResponsiveContainer width="100%" height={320}>
-      <LineChart
-        data={formatted}
-        margin={{
-          left: -16,
-          bottom: -6,
-        }}
+      <BarChart
+        data={group === "hour" ? formatted : data}
+        margin={{ left: -16, bottom: -6 }}
       >
-        <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-        <YAxis fontSize={12} tickLine={false} axisLine={false} />
-
-        <Line
-          type="monotone"
-          dataKey="_sum"
-          stroke={CHART_COLORS[3]}
-          strokeWidth={4}
+        <XAxis
+          dataKey="name"
+          fontSize={12}
+          tickLine={false}
+          axisLine={true}
+          strokeOpacity={0.3}
+          tickFormatter={(value) => format(new Date(value), formatter)}
         />
-      </LineChart>
+        <YAxis fontSize={12} tickLine={false} axisLine={false} />
+        <Bar
+          dataKey="_sum"
+          fill={getRandomColor()}
+          radius={[4, 4, 0, 0]}
+          stackId="a"
+        />
+      </BarChart>
     </ResponsiveContainer>
   );
 };

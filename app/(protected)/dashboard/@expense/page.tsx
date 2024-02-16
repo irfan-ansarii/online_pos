@@ -1,42 +1,18 @@
-"use client";
 import React from "react";
+import Chart from "./_components/chart";
+import { getExpenseAnalytics } from "@/actions/analytics/analytic-actions";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+const PaymentOverviewPage = async ({ searchParams }: { searchParams: any }) => {
+  const { period } = searchParams;
 
-const PaymentOverviewPage = () => {
-  const data = [
-    { name: "Total", value: 400 },
-    { name: "In Stock", value: 300 },
-    { name: "Out of Stock", value: 300 },
-  ];
+  const { data: expenses } = await getExpenseAnalytics(period);
 
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const data = expenses.map((p) => ({
+    name: p.category,
+    value: p._sum.amount,
+  }));
 
-  return (
-    <ResponsiveContainer width="100%" height={340}>
-      <PieChart>
-        <Pie
-          data={data}
-          innerRadius={90}
-          outerRadius={120}
-          cornerRadius={4}
-          paddingAngle={4}
-          dataKey="value"
-          stroke="none"
-        >
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={COLORS[index % COLORS.length]}
-              style={{ outline: "none" }}
-            />
-          ))}
-        </Pie>
-
-        <Legend fontSize={10} />
-      </PieChart>
-    </ResponsiveContainer>
-  );
+  return <Chart data={data} />;
 };
 
 export default PaymentOverviewPage;

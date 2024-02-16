@@ -65,6 +65,7 @@ model Location {
   inventory  Inventory[]
   address    Address?     @relation(fields: [addressId], references: [id], onDelete: SetNull)
   users      User[]
+  expense    Expense[]
 
   @@map("locations")
 }
@@ -383,6 +384,20 @@ model PurchaseTransaction {
   purchase       Purchase                @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
 
   @@map("purchase_transactions")
+}
+
+model Expense {
+  id         Int      @unique @default(autoincrement())
+  locationId Int
+  name       String
+  category   String
+  notes      String   @db.Text
+  amount     Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@map("expenses")
 }
 
 // ==================== ONLINE =====================

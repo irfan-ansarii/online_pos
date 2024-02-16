@@ -1,6 +1,6 @@
 import React from "react";
 import format from "date-fns/format";
-import { RevenueBarChart, RevenueLineChart } from "./_components/chart";
+import { RevenueBarChart } from "./_components/chart";
 import { getPurchaseAnalytics } from "@/actions/analytics/analytic-actions";
 import { capitalize } from "@/lib/utils";
 
@@ -19,22 +19,21 @@ const PurchasePage = async ({ searchParams }: { searchParams: any }) => {
   const difference = Math.ceil(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
 
   let groupBy = "hour";
+  let format = "hh aa";
 
   if (difference > 0) {
     groupBy = "day";
+    format = "dd-MMM";
   } else if (difference > 90) {
     groupBy = "month";
+    format = "MMM";
   }
 
   const { data: purchase } = await getPurchaseAnalytics(period, groupBy);
 
   return (
     <>
-      {difference > 0 ? (
-        <RevenueBarChart data={purchase} />
-      ) : (
-        <RevenueLineChart data={purchase} />
-      )}
+      <RevenueBarChart data={purchase} formatter={format} group={groupBy} />
     </>
   );
 };

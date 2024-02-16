@@ -2,6 +2,7 @@ import { atom } from "jotai";
 import { twMerge } from "tailwind-merge";
 import { type ClassValue, clsx } from "clsx";
 import Numeral from "numeral";
+import { CHART_COLORS } from "@/config/app";
 
 Numeral.defaultFormat("0,0.00");
 
@@ -22,6 +23,9 @@ export const store = atom<{ [key: string]: Boolean }>({
   filter: false,
 });
 
+export const getRandomColor = () => {
+  return CHART_COLORS[Math.floor(Math.random() * CHART_COLORS.length)];
+};
 export const capitalize = (text: string) => {
   if (!text || text.length === 0) return text;
 

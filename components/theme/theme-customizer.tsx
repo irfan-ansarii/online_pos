@@ -1,18 +1,20 @@
 "use client";
 
 import * as React from "react";
-
-import { useTheme as useNextTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+
 import { useTheme } from "@/hooks/useTheme";
-import { Check } from "lucide-react";
-import { themes } from "@/components/theme/themes";
+import { useTheme as useNextTheme } from "next-themes";
+
 import { THEMES } from "@/lib/CONSTANTS";
+import { Check } from "lucide-react";
+
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { themes } from "@/components/theme/themes";
 
 export function ThemeCustomizer() {
   const [config, setConfig] = useTheme();
