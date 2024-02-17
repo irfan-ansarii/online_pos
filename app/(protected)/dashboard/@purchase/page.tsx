@@ -1,15 +1,9 @@
 import React from "react";
-import format from "date-fns/format";
-import { RevenueBarChart } from "./_components/chart";
+import { RevenueBarChart } from "../@revenue/_components/chart";
 import { getPurchaseAnalytics } from "@/actions/analytics/analytic-actions";
-import { capitalize } from "@/lib/utils";
+import BarPlaceholder from "../_components/bar-placeholder";
 
-interface Props {
-  name: string;
-  _sum: number;
-}
-
-const PurchasePage = async ({ searchParams }: { searchParams: any }) => {
+const SalePage = async ({ searchParams }: { searchParams: any }) => {
   const { period } = searchParams;
   const [start, end] = period.split(":");
 
@@ -29,12 +23,13 @@ const PurchasePage = async ({ searchParams }: { searchParams: any }) => {
     format = "MMM";
   }
 
-  const { data: purchase } = await getPurchaseAnalytics(period, groupBy);
+  const { data: report } = (await getPurchaseAnalytics(period, groupBy)) as {
+    data: [];
+  };
 
-  return (
-    <>
-      <RevenueBarChart data={purchase} formatter={format} group={groupBy} />
-    </>
-  );
+  if (!report || report.length === 0) {
+    return <BarPlaceholder />;
+  }
+  return <RevenueBarChart data={report} formatter={format} />;
 };
-export default PurchasePage;
+export default SalePage;

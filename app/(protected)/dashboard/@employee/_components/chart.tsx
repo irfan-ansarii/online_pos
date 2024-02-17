@@ -53,7 +53,7 @@ const Chart = ({ data }: Props) => {
           <LabelList
             dataKey="value"
             formatter={(v: any) => Numeral(v).format()}
-            position="insideStart"
+            position="insideEnd"
             fill="#fff"
           />
         </Pie>

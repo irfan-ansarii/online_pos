@@ -53,7 +53,7 @@ const CartActions = () => {
                 initialFocus
                 selected={new Date(form.watch("createdAt"))}
                 onSelect={(value) => {
-                  form.setValue("createdAt", value?.toISOString());
+                  form.setValue("createdAt", new Date(value!).toISOString());
                   toggle();
                 }}
               />

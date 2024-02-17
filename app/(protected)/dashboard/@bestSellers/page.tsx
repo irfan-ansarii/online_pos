@@ -7,7 +7,6 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import ProgressChart from "./_components/chart";
-import EmptyBox from "@/components/shared/empty-box";
 
 const OverviewPage = async ({ searchParams }: { searchParams: any }) => {
   const { period } = searchParams;
@@ -46,6 +45,7 @@ const OverviewPage = async ({ searchParams }: { searchParams: any }) => {
               </div>
 
               <div className="ml-auto">{item._sum.quantity}</div>
+
               {/* progress */}
               <div className="w-10 h-10 relative">
                 <ProgressChart percent={percent} />
@@ -57,7 +57,9 @@ const OverviewPage = async ({ searchParams }: { searchParams: any }) => {
           );
         })
       ) : (
-        <EmptyBox className="h-[300px]" />
+        <div className="h-[320px] flex items-center justify-center">
+          No Data
+        </div>
       )}
     </div>
   );

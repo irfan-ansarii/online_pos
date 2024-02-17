@@ -1,6 +1,5 @@
 "use server";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 
 import bcryptjs from "bcryptjs";
@@ -78,7 +77,6 @@ export async function login(values: { email: string; password: string }) {
       token,
     };
   } catch (error: any) {
-    console.log(error.message);
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }

@@ -64,8 +64,7 @@ const page = async ({ params }: { params: { id: number } }) => {
     totalRefund: refund,
     transactionKind: data.total + Number(refund) - sale < 0 ? "refund" : "sale",
     taxLines: data.taxLines,
-    createdAt: new Date(data.createdAt),
-
+    createdAt: new Date(data.createdAt).toISOString(),
     transactions: transactions.map((payment) => ({
       id: payment.id,
       name: payment.name,

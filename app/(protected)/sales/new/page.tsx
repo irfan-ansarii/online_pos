@@ -17,7 +17,7 @@ const Page = async () => {
     invoiceTotal: 0,
     totalDue: 0,
     taxLines: [],
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
     saleType: "state",
     transactions: data.map((payment) => ({
       id: payment.id,

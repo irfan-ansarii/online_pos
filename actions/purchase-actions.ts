@@ -119,7 +119,6 @@ export async function createPurchase(values: any) {
       transactions,
       status,
     } = values;
-
     const lineItemsToCreate = lineItems.map((lineItem: LineItem) => ({
       locationId: session.location.id,
       title: lineItem.title,
@@ -147,7 +146,7 @@ export async function createPurchase(values: any) {
         supplierId,
         billingAddress,
         shippingAddress,
-        createdAt,
+        createdAt: new Date(createdAt).toISOString(),
         taxType,
         subtotal: parseFloat(subtotal.toFixed(2)),
         totalTax: parseFloat(totalTax.toFixed(2)),
@@ -279,7 +278,7 @@ export async function updatePurchase(values: any) {
           supplierId,
           billingAddress,
           shippingAddress,
-          createdAt,
+          createdAt: new Date(createdAt).toISOString(),
           purchaseType,
           taxType,
           subtotal: parseFloat(subtotal.toFixed(2)),

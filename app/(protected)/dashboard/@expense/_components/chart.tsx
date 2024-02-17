@@ -1,8 +1,15 @@
 "use client";
 import React from "react";
 import { capitalize, getRandomColor } from "@/lib/utils";
-
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import Numeral from "numeral";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  LabelList,
+} from "recharts";
 
 interface Props {
   data: {
@@ -43,6 +50,12 @@ const Chart = ({ data }: Props) => {
               style={{ outline: "none" }}
             />
           ))}
+          <LabelList
+            dataKey="value"
+            position="insideEnd"
+            fill="#fff"
+            formatter={(v: any) => Numeral(v).format()}
+          />
         </Pie>
         <Legend formatter={(value) => capitalize(value)} />
       </PieChart>

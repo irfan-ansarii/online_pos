@@ -1,7 +1,14 @@
 "use client";
 import { getRandomColor } from "@/lib/utils";
 import React from "react";
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from "recharts";
+import {
+  Cell,
+  LabelList,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+} from "recharts";
 
 interface Props {
   stockData: {
@@ -49,6 +56,7 @@ const StockChart = ({ stockData, adjustmentData }: Props) => {
               style={{ outline: "none" }}
             />
           ))}
+          <LabelList dataKey="_count" position="middle" fill="#fff" />
         </Pie>
 
         <Pie
@@ -67,6 +75,7 @@ const StockChart = ({ stockData, adjustmentData }: Props) => {
               style={{ outline: "none" }}
             />
           ))}
+          <LabelList dataKey="_sum" position="middle" fill="#fff" />
         </Pie>
 
         <Legend />

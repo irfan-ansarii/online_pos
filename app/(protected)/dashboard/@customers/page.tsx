@@ -6,7 +6,7 @@ import {
   getUserAnalytics,
 } from "@/actions/analytics/analytic-actions";
 import ProgressChart from "../@bestSellers/_components/chart";
-import EmptyBox from "@/components/shared/empty-box";
+
 const RevenueOverTime = async ({ searchParams }: { searchParams: any }) => {
   const { period } = searchParams;
 
@@ -47,7 +47,9 @@ const RevenueOverTime = async ({ searchParams }: { searchParams: any }) => {
           </div>
         ))
       ) : (
-        <EmptyBox className="h-[300px]" />
+        <div className="h-[320px] flex items-center justify-center">
+          No Data
+        </div>
       )}
     </div>
   );

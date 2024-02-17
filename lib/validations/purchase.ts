@@ -10,7 +10,7 @@ export const purchaseValidation = z
     supplierId: z.number(),
     billingAddress: z.any(),
     shippingAddress: z.any(),
-    createdAt: z.date(),
+    createdAt: z.string(),
     lineItems: z
       .object({
         kind: z.enum(["purchase", "return"]).default("purchase"),
@@ -108,7 +108,7 @@ export const editPurchaseValidation = z
     supplierId: z.number(),
     billingAddress: z.any(),
     shippingAddress: z.any(),
-    createdAt: z.date(),
+    createdAt: z.string(),
     lineItems: z
       .object({
         itemId: z.union([z.null(), z.number()]),

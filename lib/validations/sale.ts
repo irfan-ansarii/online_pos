@@ -26,7 +26,7 @@ export const saleValidation = z
     billingAddress: z.any(),
     shippingAddress: z.any(),
     employeeId: z.number(),
-    createdAt: z.date(),
+    createdAt: z.string(),
     lineItems: z
       .object({
         kind: z.enum(["sale", "return"]).default("sale"),
@@ -124,7 +124,7 @@ export const editSaleValidation = z
     billingAddress: z.any(),
     shippingAddress: z.any(),
     employeeId: z.number(),
-    createdAt: z.date(),
+    createdAt: z.string(),
     lineItems: z
       .object({
         itemId: z.union([z.null(), z.number()]),

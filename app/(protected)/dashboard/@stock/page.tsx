@@ -3,6 +3,7 @@ import {
   getStockAnalytics,
 } from "@/actions/analytics/analytic-actions";
 import StockChart from "./_components/chart";
+import PiePlaceholder from "../_components/pie-placeholder";
 
 interface StockProps {
   name: string;
@@ -23,7 +24,15 @@ const PaymentOverviewPage = async ({ searchParams }: { searchParams: any }) => {
     data: AdjustmentProps[];
   };
 
-  return <StockChart stockData={total} adjustmentData={adjustment} />;
+  return (
+    <>
+      {total.length === 0 && adjustment.length === 0 ? (
+        <PiePlaceholder />
+      ) : (
+        <StockChart stockData={total} adjustmentData={adjustment} />
+      )}
+    </>
+  );
 };
 
 export default PaymentOverviewPage;
