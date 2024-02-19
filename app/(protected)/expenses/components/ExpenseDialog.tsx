@@ -185,7 +185,7 @@ const ExpenseDialog = ({
                 render={({ field }) => (
                   <FormItem className="flex flex-col gap-2">
                     <FormLabel>Date</FormLabel>
-                    <Popover>
+                    <Popover modal={true}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -197,15 +197,15 @@ const ExpenseDialog = ({
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
+
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
                           selected={new Date(field.value)}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
+                          onSelect={(e) => {
+                            const value = e?.toISOString();
+                            return field.onChange(value);
+                          }}
                         />
                       </PopoverContent>
                     </Popover>

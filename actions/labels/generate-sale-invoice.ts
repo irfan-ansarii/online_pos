@@ -466,7 +466,7 @@ function drawTableTotal(doc: jsPDF, data: Sale, options: Options) {
  * @param {*} saleId
  */
 let loading = false;
-export async function printSaleInvoice(saleId: number) {
+export async function generateSaleInvoice(saleId: number) {
   if (loading) {
     console.log("loading");
     return;

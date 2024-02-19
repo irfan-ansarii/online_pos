@@ -9,7 +9,7 @@ import {
   Cell,
   ResponsiveContainer,
   Legend,
-  LabelList,
+  Tooltip,
 } from "recharts";
 
 interface Props {
@@ -51,15 +51,25 @@ const Chart = ({ data }: Props) => {
               style={{ outline: "none" }}
             />
           ))}
-          <LabelList
-            dataKey="value"
-            formatter={(v: any) => Numeral(v).format()}
-            position="insideEnd"
-            fill="#fff"
-          />
         </Pie>
 
         <Legend formatter={(value) => capitalize(value)} />
+        <Tooltip
+          content={({ active, payload }) => {
+            if (!active) return;
+            return (
+              <div className="bg-secondary/90 p-4 rounded-md text-foreground">
+                <div className="flex justify-between gap-4">
+                  {/*@ts-ignore */}
+                  {capitalize(payload?.[0]?.name)}
+                </div>
+                <div className="flex justify-between gap-4">
+                  Value :<span>{Numeral(payload?.[0].value).format()}</span>
+                </div>
+              </div>
+            );
+          }}
+        />
       </PieChart>
     </ResponsiveContainer>
   );

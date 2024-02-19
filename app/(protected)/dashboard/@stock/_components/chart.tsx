@@ -1,6 +1,7 @@
 "use client";
 import { getRandomColor } from "@/lib/utils";
 import React from "react";
+import Numeral from "numeral";
 import {
   Cell,
   LabelList,
@@ -8,6 +9,7 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
 
 interface Props {
@@ -56,7 +58,6 @@ const StockChart = ({ stockData, adjustmentData }: Props) => {
               style={{ outline: "none" }}
             />
           ))}
-          <LabelList dataKey="_count" position="middle" fill="#fff" />
         </Pie>
 
         <Pie
@@ -68,17 +69,31 @@ const StockChart = ({ stockData, adjustmentData }: Props) => {
             return `${(percent * 100).toFixed(0)}%`;
           }}
         >
-          {adjustmentData.map((entry, index) => (
+          {adjustmentData.map((_, index) => (
             <Cell
               key={`cell-${index}`}
               fill={getColor()}
               style={{ outline: "none" }}
             />
           ))}
-          <LabelList dataKey="_sum" position="middle" fill="#fff" />
         </Pie>
 
         <Legend />
+        <Tooltip
+          content={({ active, payload }) => {
+            if (!active) return;
+            return (
+              <div className="bg-secondary/90 p-4 rounded-md text-foreground">
+                <div className="flex justify-between gap-4">
+                  {payload?.[0].name}
+                </div>
+                <div className="flex justify-between gap-4">
+                  Value :<span>{payload?.[0].value}</span>
+                </div>
+              </div>
+            );
+          }}
+        />
       </PieChart>
     </ResponsiveContainer>
   );

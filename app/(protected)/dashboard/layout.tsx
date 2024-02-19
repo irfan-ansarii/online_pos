@@ -31,25 +31,22 @@ const Layout = async ({
           {children}
 
           {/* row 1 */}
-          <div className="col-span-12 grid grid-cols-3 gap-4 md:gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-1 gap-4 md:gap-6 col-span-3 xl:col-span-1 xl:order-2">
-              {analytics}
-            </div>
-
-            <Card className="col-span-3 xl:col-span-2 border rounded-md xl:order-1">
-              <CardHeader>
-                <CardTitle className="text-base">Revenue</CardTitle>
-              </CardHeader>
-              <CardContent>{revenue}</CardContent>
-            </Card>
+          <div className="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            {analytics}
           </div>
 
           {/* row 2 */}
-          <Card className="col-span-12 xl:col-span-8 border rounded-md">
+          {/* <Card className="col-span-12 xl:col-span-8 border rounded-md">
             <CardHeader>
               <CardTitle className="text-base">Purchase</CardTitle>
             </CardHeader>
             <CardContent>{purchase}</CardContent>
+          </Card> */}
+          <Card className="col-span-12 xl:col-span-8 border rounded-md">
+            <CardHeader>
+              <CardTitle className="text-base">Revenue</CardTitle>
+            </CardHeader>
+            <CardContent>{revenue}</CardContent>
           </Card>
           <Card className="col-span-12 md:col-span-6 xl:col-span-4 border rounded-md">
             <CardHeader>

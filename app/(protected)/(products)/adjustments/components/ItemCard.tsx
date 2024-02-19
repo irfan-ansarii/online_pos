@@ -19,8 +19,8 @@ interface Props extends Adjustment {
 const ItemCard = ({ adjustment }: { adjustment: Props }) => {
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
-      <CardContent className="grid grid-cols-3 items-center gap-2">
-        <div className="flex gap-3 items-center col-span-2">
+      <CardContent className="grid grid-cols-6 items-center gap-2">
+        <div className="flex gap-3 items-center col-span-5 md:col-span-4">
           <div className="border-r pr-4 text-center shrink-0">
             <div className="text-lg leading-tight font-semibold">
               {format(adjustment.createdAt, "dd")}
@@ -47,12 +47,21 @@ const ItemCard = ({ adjustment }: { adjustment: Props }) => {
           </div>
         </div>
 
-        <div className="flex justify-between gap-6">
+        <div
+          className={`font-medium text-base text-right ${
+            adjustment.quantity > 0 ? "text-success" : "text-destructive"
+          }`}
+        >
+          {adjustment.quantity > 0
+            ? `+${adjustment.quantity}`
+            : adjustment.quantity}
+        </div>
+
+        <div className="text-right hidden md:block">
           <Badge
             variant="secondary"
-            className="rounded-md gap-2 py-1 hidden md:inline-flex"
+            className="rounded-md gap-2 py-1 items-end"
           >
-            <span className="capitalize">{adjustment.reason}</span>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="w-4 h-4 text-muted-foreground " />
@@ -61,17 +70,8 @@ const ItemCard = ({ adjustment }: { adjustment: Props }) => {
                 <p className="font-normal">{adjustment.notes}</p>
               </TooltipContent>
             </Tooltip>
+            <span className="capitalize">{adjustment.reason}</span>
           </Badge>
-
-          <div
-            className={`font-medium text-base ml-auto ${
-              adjustment.quantity > 0 ? "text-success" : "text-destructive"
-            }`}
-          >
-            {adjustment.quantity > 0
-              ? `+${adjustment.quantity}`
-              : adjustment.quantity}
-          </div>
         </div>
       </CardContent>
     </Card>

@@ -95,7 +95,7 @@ const PurchaseCard = ({
           <div className="flex gap-3 col-span-4">
             <div className="border-r pr-4 text-center shrink-0">
               <div className="text-lg leading-tight font-semibold">
-                {format(new Date(), "dd")}
+                {format(purchase.createdAt, "dd")}
               </div>
               <div className="leading-tight text-xs text-muted-foreground">
                 {format(purchase.createdAt, "MMM yy")}
@@ -130,7 +130,7 @@ const PurchaseCard = ({
             </div>
             <Badge
               variant="secondary"
-              className={`rounded-md capitalize w-20 justify-center truncate ${
+              className={`rounded-md capitalize justify-center truncate ${
                 status[purchase.status].className
               }`}
             >

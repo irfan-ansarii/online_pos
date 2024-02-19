@@ -6,10 +6,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { useQueryParams } from "@/hooks/useQueryParams";
 
 import { Input } from "@/components/ui/input";
-
-interface QueryParams {
-  [key: string]: null;
-}
+import { useRouter } from "next/navigation";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {}
@@ -18,19 +15,21 @@ const SearchInput = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }, ref) => {
     const { queryParams, setQueryParams } = useQueryParams();
     const { search } = queryParams;
+    const router = useRouter();
+
     const [searchTerm, setSearchTerm] = React.useState(search);
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
     React.useEffect(() => {
-      if (!debouncedSearchTerm && searchTerm) {
-        const nullParams: QueryParams = Object.fromEntries(
-          Object.keys(queryParams).map((key) => [key, null])
-        );
-        setQueryParams({ ...nullParams, search: debouncedSearchTerm || null });
-      } else {
-        setQueryParams({ search: searchTerm });
-      }
-    }, [debouncedSearchTerm, searchTerm, queryParams, setQueryParams]);
+      Object.keys(queryParams).forEach((key) => {
+        if (key !== "search") {
+          setQueryParams({ [key]: null });
+        }
+      });
+
+      const path = setQueryParams({ search: debouncedSearchTerm || null });
+      router.push(path);
+    }, [debouncedSearchTerm]);
 
     return (
       <div className="relative flex-1">

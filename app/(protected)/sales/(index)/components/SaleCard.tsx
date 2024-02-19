@@ -146,7 +146,7 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
             <Badge
               variant="secondary"
               className={cn(
-                `rounded-md capitalize w-20 justify-center truncate text-white`,
+                `rounded-md capitalize justify-center truncate text-white`,
                 status[sale.status].className
               )}
             >

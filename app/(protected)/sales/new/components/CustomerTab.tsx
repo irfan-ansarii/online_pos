@@ -33,29 +33,25 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
 
   const setCustomer = (id: any) => {
     const customer = contacts?.data?.find((c) => c.id === Number(id));
-    const isAddress =
-      Array.isArray(customer?.addresses) && customer?.addresses?.length > 0;
 
-    let billing: any = {
-      name: `${customer?.firstName} ${customer?.lastName}`,
-      phone: customer?.phone,
-      email: customer?.email,
-    };
+    if (!customer) return;
 
-    if (isAddress) {
-      const address = customer.addresses[0];
-      billing = {
-        ...billing,
-        name: address?.company || billing.name,
-        address: `${address?.address} ${
-          address?.address2 ? address?.address2 : ""
-        }`,
-        city: address?.city,
-        state: address?.state,
-        pincode: address?.zip,
-        gstin: address?.gstin,
-      };
+    const { addresses, firstName, lastName, phone, email } = customer;
+    const hasAddress = Array.isArray(addresses) && addresses.length > 0;
+
+    const billing = [`${firstName} ${lastName}`];
+
+    if (hasAddress) {
+      const { company, address, address2, city, state, zip, gstin } =
+        addresses[0];
+      billing[1] = `${company}`;
+      billing[2] = `${address} ${address2 ? address2 : ""}`;
+      billing[3] = `${city} ${state} ${zip}`;
+      billing[4] = `${gstin}`;
     }
+
+    billing[5] = `${phone}`;
+    billing[6] = `${email}`;
 
     form.setValue("billingAddress", billing);
     form.setValue("shippingAddress", billing);

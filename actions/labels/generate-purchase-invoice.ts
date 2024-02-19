@@ -465,7 +465,7 @@ function drawTableTotal(doc: jsPDF, data: Sale, options: Options) {
  * create invoice
  * @param {*} saleId
  */
-export async function getPurchaseInvoice(saleId: number) {
+export async function generatePurchaseInvoice(saleId: number) {
   try {
     const options = {
       width: 148,

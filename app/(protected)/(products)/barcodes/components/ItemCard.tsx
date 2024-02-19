@@ -36,8 +36,9 @@ const ItemCard = ({ item }: { item: any }) => {
           </div>
 
           <div className="flex justify-between items-center gap-6 col-span-2 md:col-span-1">
+            <div className="text-base font-medium">{item.quantity}</div>
             <Badge
-              className={`gap-2 uppercase py-1 rounded-md ${
+              className={`gap-1 capitalize py-1 rounded-md ${
                 badgeClass[item.status]
               }`}
               variant="secondary"
@@ -45,8 +46,6 @@ const ItemCard = ({ item }: { item: any }) => {
               <Printer className="w-3.5 h-3.5" />
               <span>{item.status}</span>
             </Badge>
-
-            <div className="text-base font-medium">{item.quantity}</div>
           </div>
         </CardContent>
       </ItemDialog>

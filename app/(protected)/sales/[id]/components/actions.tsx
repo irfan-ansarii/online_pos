@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { Payment, Sale } from "@prisma/client";
-import { printSaleInvoice } from "@/actions/labels/print-sale-invoice";
+import { generateSaleInvoice } from "@/actions/labels/generate-sale-invoice";
 
 import { useSheetToggle } from "@/hooks/useSheet";
 import { toast } from "@/components/ui/use-toast";
@@ -24,7 +24,7 @@ const Actions = ({ sale, payments }: { sale: Sale; payments: Payment[] }) => {
     try {
       setPrinting(true);
 
-      const res = await printSaleInvoice(sale.id);
+      const res = await generateSaleInvoice(sale.id);
       if (window) window.open(res, "_blank");
     } catch (error) {
       toast({

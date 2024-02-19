@@ -8,7 +8,10 @@ const layout = ({ children }: { children: React.ReactNode }) => {
     <>
       <SearchBar>
         <ExpenseDialog>
-          <Button>Create New</Button>
+          <Button>
+            <Plus className="w-5 h-5 mr-1" />
+            Create New
+          </Button>
         </ExpenseDialog>
       </SearchBar>
 

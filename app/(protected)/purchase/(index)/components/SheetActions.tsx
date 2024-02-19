@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { Sale } from "@prisma/client";
-import { getPurchaseInvoice } from "@/actions/labels/get-purchase-invoice";
+import { generatePurchaseInvoice } from "@/actions/labels/generate-purchase-invoice";
 import { useSheetToggle } from "@/hooks/useSheet";
 
 import {
@@ -45,7 +45,7 @@ export default function SheetActions({
   };
 
   const handleClick = async () => {
-    const response = await getPurchaseInvoice(purchase.id);
+    const response = await generatePurchaseInvoice(purchase.id);
     window.open(response, "_blank");
   };
   return (

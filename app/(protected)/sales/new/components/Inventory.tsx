@@ -28,7 +28,7 @@ const Inventory = ({
   displayPrice?: string;
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const ref = useRef(null);
+  const ref = useRef<HTMLInputElement>(null);
   const { inventory, isLoading, isError } = useInventory({
     search: searchTerm,
   });
@@ -43,7 +43,7 @@ const Inventory = ({
     [onSelect]
   );
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     const input = ref.current;
     if (input) {
       if (e.key === "Enter") {
@@ -57,24 +57,22 @@ const Inventory = ({
         });
 
         if (!isLoading && Array.isArray(inventory?.data)) {
-          const index = inventory?.data?.findIndex(
+          const foundItem = inventory?.data?.find(
             (inv: any) =>
               inv.variant.barcode?.toLowerCase() ===
               searchTerm.toLocaleLowerCase()
           );
 
-          if (index >= 0) {
-            const item = inventory?.data[index];
-
-            if (onSelect) onSelect(item);
+          if (foundItem) {
+            if (onSelect) onSelect(foundItem);
             setSearchTerm("");
           }
         }
       }
     }
   };
+
   React.useEffect(() => {
-    //@ts-ignore
     ref?.current?.focus();
   }, []);
 
