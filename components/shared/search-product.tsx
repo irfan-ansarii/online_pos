@@ -1,22 +1,17 @@
 "use client";
 import React from "react";
 import { useState, useRef, useCallback } from "react";
-import { Command as CommandPrimitive } from "cmdk";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, ScanLine } from "lucide-react";
 import { useToggle } from "@uidotdev/usehooks";
 import { useInventory } from "@/hooks/useInventory";
 
-import {
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 
-import { Badge } from "../ui/badge";
-import { AvatarItem } from "@/components/shared/avatar";
-import LoadingSmall from "./loading-sm";
 import { toast } from "../ui/use-toast";
+import { CommandGroup, CommandItem, CommandList } from "../ui/command";
+import { Command } from "cmdk";
+import { AvatarItem } from "./avatar";
+import { Badge } from "../ui/badge";
 
 export type Option = Record<"value" | "label", string> & Record<string, string>;
 
@@ -30,86 +25,148 @@ const AutoComplete = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [open, toggle] = useToggle(false);
+  const [process, setProcess] = useToggle(false);
+
   const [inputValue, setInputValue] = useState("");
+
   const { inventory, isLoading } = useInventory({ search: inputValue });
 
-  const handleSelectOption = useCallback(
-    (selected: Option) => {
-      onSelect(selected);
-      setInputValue("");
-      inputRef.current?.blur();
-    },
-    [onSelect]
-  );
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      if (!isLoading) {
-        processSelection();
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const input = inputRef.current;
+
+    if (input && input.value && e.key === "Enter") {
+      console.log("key down item");
+      if (isLoading && process) {
+        toast({
+          variant: "info",
+          title: "Please wait...",
+        });
       }
+      setProcess(true);
     }
-  };
+  }, []);
 
   const processSelection = () => {
+    if (!Array.isArray(inventory?.data) || inventory?.data.length === 0) {
+      toast({
+        variant: "error",
+        title: "Invalid barcode",
+      });
+      setProcess(false);
+      return;
+    }
+
     const foundItem = inventory?.data?.find(
       (inv: any) =>
-        inv.variant.barcode?.toLowerCase() === inputValue.toLocaleLowerCase()
+        inv.variant.barcode?.toLowerCase() === inputValue.toLowerCase()
     );
 
     if (foundItem) {
+      // @ts-ignore
       if (onSelect) onSelect(foundItem);
       setInputValue("");
-    } else {
-      toast({
-        variant: "error",
-        title: "error",
-      });
     }
   };
 
   React.useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    inputRef?.current?.focus();
+  }, []);
 
-    if (isLoading) {
-      intervalId = setInterval(() => {
-        if (!isLoading) {
-          clearInterval(intervalId);
-          processSelection();
-        }
-      }, 100);
+  React.useEffect(() => {
+    if (!isLoading && process) {
+      processSelection();
     }
-
-    return () => clearInterval(intervalId);
   }, [isLoading]);
+
   return (
-    <CommandPrimitive>
+    <Command>
       <div className="relative">
         <span className="absolute inset-y-0 left-3 text-muted-foreground inline-flex items-center justify-center">
-          <Search className="w-4 h-4" />
+          <ScanLine className="w-4 h-4" />
         </span>
 
         <Input
           ref={inputRef}
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value !== "") {
+              toggle(true);
+            } else {
+              toggle(false);
+            }
+            setInputValue(e.target.value);
+          }}
           onKeyDown={handleKeyDown}
-          onFocus={() => toggle(true)}
           placeholder="Search..."
           className={`pl-10 ${
             error ? "border-destructive !ring-destructive/50" : ""
           }`}
         />
-
         <span
           className={`absolute inset-y-0 right-3 text-muted-foreground inline-flex items-center justify-cente ${isLoading ? "opacity-100" : "opacity-0"}`}
         >
           <Loader2 className="w-4 h-4 animate-spin" />
         </span>
       </div>
-      {/* error */}
-      {error && (
-        <p className="text-sm font-medium text-destructive mt-2">{error}</p>
-      )}
-    </CommandPrimitive>
+
+      <div className="mt-1.5 relative">
+        {open && !isLoading && inputValue !== "" && (
+          <div className="absolute top-0 z-10 w-full bg-background border rounded-md outline-none animate-in fade-in-0 zoom-in-95">
+            <CommandList className="rounded-md">
+              {Array.isArray(inventory?.data) && inventory?.data?.length > 0 ? (
+                <CommandGroup>
+                  {inventory?.data?.map((inv: any) => {
+                    return (
+                      <CommandItem
+                        key={inv.id}
+                        value={inv.id}
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          console.log("command item");
+                        }}
+                        // onSelect={() => handleKeyDown(inv)}
+                        className="flex items-center gap-2 w-full"
+                      >
+                        <div className="flex gap-3 items-center col-span-2">
+                          <AvatarItem src={`${inv.product?.image?.src}`} />
+
+                          <div>
+                            <div className="font-semibold truncate">
+                              {inv.product.title}
+                            </div>
+
+                            <Badge
+                              className="py-0 text-muted-foreground"
+                              variant="secondary"
+                            >
+                              {inv.variant.title !== "Default" && (
+                                <>
+                                  <span>{inv.variant.title}</span>
+                                  <span className="px-1">|</span>
+                                </>
+                              )}
+                              <span> {inv.variant.barcode}</span>
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <div className="ml-auto">{inv.stock}</div>
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              ) : (
+                <Command.Empty className="select-none rounded-sm px-2 py-3 text-sm text-center">
+                  Empty
+                </Command.Empty>
+              )}
+            </CommandList>
+          </div>
+        )}
+      </div>
+    </Command>
   );
 };
 export default AutoComplete;

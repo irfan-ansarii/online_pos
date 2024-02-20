@@ -17,6 +17,7 @@ import EmptyBox from "@/components/shared/empty-box";
 import { AvatarItem } from "@/components/shared/avatar";
 import { Button } from "@/components/ui/button";
 import CustomProduct from "./CustomProduct";
+import { toast } from "@/components/ui/use-toast";
 
 export type Option = Record<string, any>;
 
@@ -28,6 +29,8 @@ const Inventory = ({
   displayPrice?: string;
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [process, setProcess] = useState(false);
+
   const ref = useRef<HTMLInputElement>(null);
   const { inventory, isLoading, isError } = useInventory({
     search: searchTerm,
@@ -43,38 +46,50 @@ const Inventory = ({
     [onSelect]
   );
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     const input = ref.current;
-    if (input) {
-      if (e.key === "Enter") {
-        await new Promise<void>((resolve) => {
-          const intervalId = setInterval(() => {
-            if (!isLoading) {
-              clearInterval(intervalId);
-              resolve();
-            }
-          }, 100);
+
+    if (input && input.value && e.key === "Enter") {
+      if (isLoading && process) {
+        toast({
+          variant: "info",
+          title: "Please wait...",
         });
-
-        if (!isLoading && Array.isArray(inventory?.data)) {
-          const foundItem = inventory?.data?.find(
-            (inv: any) =>
-              inv.variant.barcode?.toLowerCase() ===
-              searchTerm.toLocaleLowerCase()
-          );
-
-          if (foundItem) {
-            if (onSelect) onSelect(foundItem);
-            setSearchTerm("");
-          }
-        }
       }
+      setProcess(true);
+    }
+  };
+
+  const processSelection = () => {
+    if (!Array.isArray(inventory?.data) || inventory?.data.length === 0) {
+      toast({
+        variant: "error",
+        title: "Invalid barcode",
+      });
+      setProcess(false);
+      return;
+    }
+
+    const foundItem = inventory?.data?.find(
+      (inv: any) =>
+        inv.variant.barcode?.toLowerCase() === searchTerm.toLowerCase()
+    );
+
+    if (foundItem) {
+      if (onSelect) onSelect(foundItem);
+      setSearchTerm("");
     }
   };
 
   React.useEffect(() => {
     ref?.current?.focus();
   }, []);
+
+  React.useEffect(() => {
+    if (!isLoading && process) {
+      processSelection();
+    }
+  }, [isLoading]);
 
   return (
     <>

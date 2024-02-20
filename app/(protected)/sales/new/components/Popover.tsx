@@ -44,7 +44,6 @@ const DiscountPopover = ({
   };
 
   React.useEffect(() => {
-    console.log("first");
     lineItems.forEach((item: any, i: number) => {
       const itemTotal = item.price * item.quantity;
 
