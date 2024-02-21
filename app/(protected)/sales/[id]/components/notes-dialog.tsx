@@ -115,6 +115,7 @@ const NotesDialog = ({ open, toggle, saleId, notes, tags = [] }: Props) => {
                 </FormItem>
               )}
             />
+            <FormLabel>Tags</FormLabel>
             <Input placeholder="" onKeyDown={handleKeyDown} />
 
             <div className="flex gap-2 flex-wrap">

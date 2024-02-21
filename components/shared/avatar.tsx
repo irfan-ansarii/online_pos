@@ -3,6 +3,9 @@ import React, { FC, Children, HTMLProps, useId } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Image as ImageIcon } from "lucide-react";
+
+import { useHover } from "@uidotdev/usehooks";
+
 import {
   Popover,
   PopoverContent,
@@ -18,7 +21,7 @@ interface BadgeProps {
 
 export const AvatarGroup: FC<BadgeProps> = ({ maxCount = 4, children }) => {
   const avatarId = useId();
-
+  const [ref, toggle] = useHover();
   const childrenWithProps = Children.toArray(children).map((child) => child);
 
   const numOfChildren = childrenWithProps.length;
@@ -28,14 +31,13 @@ export const AvatarGroup: FC<BadgeProps> = ({ maxCount = 4, children }) => {
 
   if (maxCount && maxCount < numOfChildren) {
     childrenShow.push(
-      <Popover key={avatarId}>
-        <PopoverTrigger
-          asChild
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <Avatar className="w-10 h-10 border-2 select-none cursor-default">
+      <Popover key={avatarId} open={toggle}>
+        <PopoverTrigger asChild>
+          <Avatar
+            className="w-10 h-10 border-2 select-none cursor-default"
+            // @ts-ignore
+            ref={ref}
+          >
             <AvatarFallback className="text-muted-foreground">
               {`+${numOfChildren - maxCount}`}
             </AvatarFallback>

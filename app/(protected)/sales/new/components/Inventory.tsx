@@ -3,7 +3,7 @@ import React from "react";
 import Numeral from "numeral";
 
 import { useState, useRef, useCallback } from "react";
-import { Plus, ScanLine, Search } from "lucide-react";
+import { Loader2, Plus, ScanLine, Search } from "lucide-react";
 
 import { useInventory } from "@/hooks/useInventory";
 
@@ -49,23 +49,13 @@ const Inventory = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const input = ref.current;
 
-    if (input && input.value && e.key === "Enter") {
-      if (isLoading && process) {
-        toast({
-          variant: "info",
-          title: "Please wait...",
-        });
-      }
+    if (input && input.value && e.key === "Enter" && isLoading) {
       setProcess(true);
     }
   };
 
   const processSelection = () => {
     if (!Array.isArray(inventory?.data) || inventory?.data.length === 0) {
-      toast({
-        variant: "error",
-        title: "Invalid barcode",
-      });
       setProcess(false);
       return;
     }
@@ -80,6 +70,14 @@ const Inventory = ({
       setSearchTerm("");
     }
   };
+
+  const isErrorBarcode = React.useMemo(() => {
+    return (
+      !isLoading &&
+      (!Array.isArray(inventory?.data) || inventory?.data?.length <= 0) &&
+      searchTerm !== ""
+    );
+  }, [isLoading, inventory, searchTerm]);
 
   React.useEffect(() => {
     ref?.current?.focus();
@@ -109,18 +107,31 @@ const Inventory = ({
             value={searchTerm || ""}
           />
 
-          <CustomProduct onSelect={onSelect}>
-            <Button
-              size="icon"
-              variant="secondary"
-              className="absolute right-0 inset-y-0"
-            >
-              <Plus className="w-5 h-5" />
-            </Button>
-          </CustomProduct>
-          <span className="pointer-events-none absolute right-10 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
-            <ScanLine className="w-5 h-5" />
-          </span>
+          {isLoading ? (
+            <span className="pointer-events-none absolute right-0 inset-y-0 h-full flex items-center justify-center text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin" />
+            </span>
+          ) : (
+            <>
+              <CustomProduct onSelect={onSelect}>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="absolute right-0 inset-y-0"
+                >
+                  <Plus className="w-5 h-5" />
+                </Button>
+              </CustomProduct>
+              <span className="pointer-events-none absolute right-10 inset-y-0 h-full flex items-center justify-center w-10 text-muted-foreground">
+                <ScanLine className="w-5 h-5" />
+              </span>
+            </>
+          )}
+          {isErrorBarcode && (
+            <p className="absolute left-8 text-error -bottom-2">
+              Incorrect barcode
+            </p>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4  2xl:grid-cols-5 gap-4">

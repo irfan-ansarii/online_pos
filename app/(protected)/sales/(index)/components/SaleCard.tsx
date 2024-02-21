@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { Payment } from "@prisma/client";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import format from "date-fns/format";
@@ -12,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useToggle } from "@uidotdev/usehooks";
 import { toast } from "@/components/ui/use-toast";
 
-import { Loader2, Trash2, PenSquare } from "lucide-react";
+import { Loader2, Trash2, PenSquare, Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AvatarGroup, AvatarItem } from "@/components/shared/avatar";
@@ -30,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 
-const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
+const SaleCard = ({ sale }: { sale: any }) => {
   const [openDelete, toggleDelete] = useToggle();
   const [loading, setLoading] = React.useState(false);
 
@@ -83,79 +82,88 @@ const SaleCard = ({ sale, payments }: { sale: any; payments: Payment[] }) => {
   };
   return (
     <Card className="hover:bg-accent group relative cursor-pointer">
-      <CardContent
-        className="grid grid-cols-8 gap-3 items-center"
-        onClick={() => router.push(`/sales/${sale.id}`)}
-      >
-        <div className="flex gap-3 col-span-4 md:col-span-3">
-          <div className="border-r pr-4 text-center shrink-0">
-            <div className="text-lg leading-tight font-semibold">
-              {format(sale.createdAt, "dd")}
-            </div>
-            <div className="leading-tight text-xs text-muted-foreground">
-              {format(sale.createdAt, "MMM yy")}
-            </div>
-          </div>
-
-          <div className="flex -space-x-2 truncate">
-            <AvatarGroup maxCount={2}>
-              {sale?.lineItems?.map((lineItem: any) => (
-                <AvatarItem
-                  key={lineItem.id}
-                  src={lineItem?.product?.image?.src}
-                />
-              ))}
-            </AvatarGroup>
-          </div>
-        </div>
-
-        <div
-          className={`grid ${
-            sale.shippingStatus ? "grid-cols-3 md:grid-cols-4" : "grid-cols-3"
-          } col-span-4 md:col-span-5  items-center`}
+      <Link href={`/sales/${sale.id}`}>
+        <CardContent
+          className="grid grid-cols-9 gap-3 items-center"
+          onClick={() => router.push(`/sales/${sale.id}`)}
         >
-          <div className="block  space-y-0.5">
-            <div className="font-medium uppercase">{sale.title}</div>
-            <span className="text-muted-foreground">
-              {sale?.employee?.firstName}
-            </span>
+          <div className="flex gap-3 col-span-5">
+            <div className="border-r pr-4 text-center shrink-0">
+              <div className="text-lg leading-tight font-semibold">
+                {format(sale.createdAt, "dd")}
+              </div>
+              <div className="leading-tight text-xs text-muted-foreground">
+                {format(sale.createdAt, "MMM yy")}
+              </div>
+            </div>
+
+            <div className="flex -space-x-2 truncate">
+              <AvatarGroup maxCount={2}>
+                {sale?.lineItems?.map((lineItem: any) => (
+                  <AvatarItem
+                    key={lineItem.id}
+                    src={lineItem?.product?.image?.src}
+                  />
+                ))}
+              </AvatarGroup>
+            </div>
           </div>
 
-          <div className="hidden md:block space-y-0.5">
-            <div className="font-medium">{sale?.customer?.firstName}</div>
-            <div className="text-muted-foreground">{sale?.customer?.phone}</div>
-          </div>
+          <div className={`grid grid-cols-4 col-span-4 items-center`}>
+            {/* sale id */}
+            <div className="space-y-0.5">
+              <div className="font-medium uppercase">{sale.title}</div>
+              <span className="text-muted-foreground">
+                {sale?.employee?.firstName}
+              </span>
+            </div>
 
-          {sale.shippingStatus && (
-            <div className="text-right space-y-0.5 hidden md:block">
-              <div className="text-xs text-muted-foreground">12-05-2023</div>
+            {/* customer details */}
+            <div className="space-y-0.5 hidden md:block">
+              <div className="font-medium">{sale?.customer?.firstName}</div>
+              <div className="text-muted-foreground">
+                {sale?.customer?.phone}
+              </div>
+            </div>
+
+            {/* shipping status */}
+            {sale.shippingStatus && (
+              <div className="text-right space-y-0.5 hidden md:block">
+                <div className="text-xs text-muted-foreground">12-05-2023</div>
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    `rounded-md capitalize w-20 justify-center truncate bg-success text-white`
+                  )}
+                >
+                  {sale.shippingStatus}
+                </Badge>
+              </div>
+            )}
+
+            {/* sale total */}
+            <div
+              className={`space-y-0.5 text-right col-span-3 ${sale.shippingStatus ? "md:col-span-1" : "md:col-span-2"}`}
+            >
+              <div className={`font-semibold`}>
+                {Numeral(sale.total).format()}
+              </div>
               <Badge
                 variant="secondary"
                 className={cn(
-                  `rounded-md capitalize w-20 justify-center truncate bg-success text-white`
+                  `rounded-md capitalize justify-center truncate text-white`,
+                  status[sale.status].className
                 )}
               >
-                {sale.shippingStatus}
+                {sale.shippingStatus && (
+                  <Check className="w-4 h-4 mr-2 -ml-1 md:hidden" />
+                )}
+                {status[sale.status].text}
               </Badge>
             </div>
-          )}
-          <div className="space-y-0.5 col-span-2 md:col-span-1 text-right">
-            <div className={`font-semibold`}>
-              {Numeral(sale.total).format()}
-            </div>
-            <Badge
-              variant="secondary"
-              className={cn(
-                `rounded-md capitalize justify-center truncate text-white`,
-                status[sale.status].className
-              )}
-            >
-              {status[sale.status].text}
-            </Badge>
           </div>
-        </div>
-      </CardContent>
-
+        </CardContent>
+      </Link>
       <div className="absolute inset-y-0 right-0 px-4 invisible group-hover:visible bg-accent flex items-center gap-2">
         <Link
           href={`/sales/${sale.id}/edit`}
