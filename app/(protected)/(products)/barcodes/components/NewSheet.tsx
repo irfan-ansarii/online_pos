@@ -22,7 +22,7 @@ import {
   SheetContent,
   SheetFooter,
 } from "@/components/ui/sheet";
-import { Form, FormLabel } from "@/components/ui/form";
+import { Form} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AvatarItem } from "@/components/shared/avatar";
@@ -124,21 +124,19 @@ const NewSheet = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
-            className="flex flex-col h-full"
+            className="flex flex-col gap-4 h-full"
           >
-            <SheetHeader>
+            <SheetHeader className="mb-0">
               <SheetTitle>Add to print list</SheetTitle>
             </SheetHeader>
-            <div className="flex flex-col gap-2 mb-2">
-              <FormLabel>Products</FormLabel>
-              <AutoComplete
-                onSelect={onSelect}
-                error={
-                  form.formState.errors.lineItems ? "Product required" : ""
-                }
-              />
-            </div>
-            <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
+            <div className="flex flex-col gap-1">
+            
+            <AutoComplete onSelect={onSelect}/>
+             {
+             form.formState.errors.lineItems ? <p className="text-error">Required</p> : null
+           }
+          </div>
+            <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox">
               {lineItems.fields.map((field, i) => (
                 <div
                   className="flex rounded-md border p-2 pr-0 items-center snap-start"

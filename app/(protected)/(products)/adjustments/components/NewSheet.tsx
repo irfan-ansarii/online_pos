@@ -143,13 +143,13 @@ const NewSheet = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col h-full relative"
+            className="flex flex-col h-full gap-4 relative"
           >
             {loading && (
               <div className="absolute w-full h-full top-0 left-0 z-20"></div>
             )}
 
-            <SheetHeader>
+            <SheetHeader className="mb-0">
               <SheetTitle>New Adjustment</SheetTitle>
             </SheetHeader>
 
@@ -157,7 +157,7 @@ const NewSheet = () => {
               control={form.control}
               name="reason"
               render={({ field }) => (
-                <FormItem className="mb-6">
+                <FormItem >
                   <FormLabel>Reason</FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -190,7 +190,7 @@ const NewSheet = () => {
               control={form.control}
               name="notes"
               render={({ field }) => (
-                <FormItem className="mb-6">
+                <FormItem >
                   <FormLabel>Notes</FormLabel>
 
                   <FormControl>
@@ -201,14 +201,12 @@ const NewSheet = () => {
                 </FormItem>
               )}
             />
-            <div className="flex flex-col gap-2 mb-2">
-              <FormLabel>Products</FormLabel>
-              <AutoComplete
-                onSelect={onSelect}
-                error={
-                  form.formState.errors.lineItems ? "Product required" : ""
-                }
-              />
+            <div className="flex flex-col gap-1">
+            
+              <AutoComplete onSelect={onSelect}/>
+               {
+               form.formState.errors.lineItems ? <p className="text-error">Required</p> : null
+             }
             </div>
             <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
               {lineItems.fields.map((field, i) => (

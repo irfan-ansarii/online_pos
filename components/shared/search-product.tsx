@@ -1,80 +1,93 @@
 "use client";
 import React from "react";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { Loader2, ScanLine } from "lucide-react";
+import { Command } from "cmdk";
+
 import { useToggle } from "@uidotdev/usehooks";
 import { useInventory } from "@/hooks/useInventory";
 
 import { Input } from "@/components/ui/input";
 
-import { toast } from "../ui/use-toast";
 import { CommandGroup, CommandItem, CommandList } from "../ui/command";
-import { Command } from "cmdk";
-import { AvatarItem } from "./avatar";
-import { Badge } from "../ui/badge";
+
+import { AvatarItem } from "@/components/shared/avatar";
+import { Badge } from "@/components/ui/badge";
 
 export type Option = Record<"value" | "label", string> & Record<string, string>;
 
 const AutoComplete = ({
   onSelect,
-  error,
 }: {
   onSelect: (value: Option) => void;
-  error: any;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [open, toggle] = useToggle(false);
   const [process, setProcess] = useToggle(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const [inputValue, setInputValue] = useState("");
+  const { inventory, isLoading } = useInventory({ search: searchTerm });
 
-  const { inventory, isLoading } = useInventory({ search: inputValue });
+  /** handle key down */
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const input = inputRef.current;
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const input = inputRef.current;
+      if (!input) return;
 
-    if (input && input.value && e.key === "Enter") {
-      console.log("key down item");
-      if (isLoading && process) {
-        toast({
-          variant: "info",
-          title: "Please wait...",
-        });
+      if (e.key === "Enter" && input.value !== "" && isLoading) {
+        setProcess(true);
       }
-      setProcess(true);
-    }
-  }, []);
+    },
+    [isLoading]
+  );
 
-  const processSelection = () => {
-    if (!Array.isArray(inventory?.data) || inventory?.data.length === 0) {
-      toast({
-        variant: "error",
-        title: "Invalid barcode",
-      });
-      setProcess(false);
-      return;
-    }
+  /** handle selection */
+  const processSelection = useCallback(
+    (selectedBarcode: string) => {
+      if (selectedBarcode === "") return;
 
-    const foundItem = inventory?.data?.find(
-      (inv: any) =>
-        inv.variant.barcode?.toLowerCase() === inputValue.toLowerCase()
+      if (!Array.isArray(inventory?.data) || inventory?.data.length === 0) {
+        setProcess(false);
+        return;
+      }
+
+      const foundItem = inventory?.data?.find(
+        (inv: any) =>
+          inv.variant.barcode?.toLowerCase() === selectedBarcode.toLowerCase()
+      );
+
+      if (foundItem) {
+        // @ts-ignore
+        if (onSelect) onSelect(foundItem);
+        setSearchTerm("");
+        setProcess(false);
+  
+      }
+    },
+    [searchTerm, isLoading]
+  );
+
+  const showPopup = useMemo(() => {
+    return (
+      !isLoading &&
+      searchTerm !== "" &&
+      Array.isArray(inventory?.data) &&
+      inventory?.data?.length > 0
     );
+  }, [searchTerm, isLoading]);
 
-    if (foundItem) {
-      // @ts-ignore
-      if (onSelect) onSelect(foundItem);
-      setInputValue("");
-    }
-  };
-
-  React.useEffect(() => {
-    inputRef?.current?.focus();
-  }, []);
+  const isError = useMemo(() => {
+    return (
+      !isLoading &&
+      searchTerm !== "" &&
+      (!Array.isArray(inventory?.data) || inventory?.data?.length <= 0)
+    );
+  }, [searchTerm, isLoading]);
 
   React.useEffect(() => {
     if (!isLoading && process) {
-      processSelection();
+      processSelection(searchTerm);
     }
   }, [isLoading]);
 
@@ -87,20 +100,17 @@ const AutoComplete = ({
 
         <Input
           ref={inputRef}
-          value={inputValue}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (value !== "") {
-              toggle(true);
-            } else {
-              toggle(false);
-            }
-            setInputValue(e.target.value);
-          }}
+          value={searchTerm}
           onKeyDown={handleKeyDown}
-          placeholder="Search..."
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onBlur={() => {
+            setSearchTerm("");
+            setProcess(false);
+           
+          }}
+          placeholder="Scan or search..."
           className={`pl-10 ${
-            error ? "border-destructive !ring-destructive/50" : ""
+             isError ? "border-destructive !ring-destructive/50" : ""
           }`}
         />
         <span
@@ -110,8 +120,12 @@ const AutoComplete = ({
         </span>
       </div>
 
-      <div className="mt-1.5 relative">
-        {open && !isLoading && inputValue !== "" && (
+      {isError && (
+        <p className="text-error mt-1.5">Invalid barcode</p>
+      )}
+
+      <div className="mt-0.5 relative">
+        {showPopup && (
           <div className="absolute top-0 z-10 w-full bg-background border rounded-md outline-none animate-in fade-in-0 zoom-in-95">
             <CommandList className="rounded-md">
               {Array.isArray(inventory?.data) && inventory?.data?.length > 0 ? (
@@ -124,9 +138,8 @@ const AutoComplete = ({
                         onMouseDown={(event) => {
                           event.preventDefault();
                           event.stopPropagation();
-                          console.log("command item");
                         }}
-                        // onSelect={() => handleKeyDown(inv)}
+                        onSelect={() => processSelection(inv?.variant?.barcode)}
                         className="flex items-center gap-2 w-full"
                       >
                         <div className="flex gap-3 items-center col-span-2">
