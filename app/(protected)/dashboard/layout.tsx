@@ -1,4 +1,9 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { sub, format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+const dashboardPeriod = `${format(sub(new Date(), { days: 7 }), "yyyy-MM-dd")}:${format(new Date(), "yyyy-MM-dd")}`;
 
 const Layout = async ({
   children,
@@ -23,6 +28,17 @@ const Layout = async ({
   employee: React.ReactNode;
   customers: React.ReactNode;
 }) => {
+  const headerList = headers();
+  const path = headerList.get("x-pathname");
+  const search = headerList.get("x-params");
+
+  const searchParams = new URLSearchParams(search!);
+
+  if (!search || !searchParams.has("period")) {
+    console.log("redirecting to");
+    redirect(`${path}?period=${dashboardPeriod}`);
+  }
+
   return (
     <>
       <div className="grow p-4 gap-4 md:p-6 md:gap-6">
@@ -35,13 +51,6 @@ const Layout = async ({
             {analytics}
           </div>
 
-          {/* row 2 */}
-          {/* <Card className="col-span-12 xl:col-span-8 border rounded-md">
-            <CardHeader>
-              <CardTitle className="text-base">Purchase</CardTitle>
-            </CardHeader>
-            <CardContent>{purchase}</CardContent>
-          </Card> */}
           <Card className="col-span-12 xl:col-span-8 border rounded-md">
             <CardHeader>
               <CardTitle className="text-base">Revenue</CardTitle>

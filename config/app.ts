@@ -14,15 +14,11 @@ import {
   ScrollText,
 } from "lucide-react";
 
-import { sub, format } from "date-fns";
-
-const dashboardPeriod = `${format(sub(new Date(), { days: 7 }), "yyyy-MM-dd")}:${format(new Date(), "yyyy-MM-dd")}`;
-
 export const MENU_ITEMS = [
   {
     key: "dashboard",
     label: "Dashboard",
-    href: `/dashboard?period=${dashboardPeriod}`,
+    href: `/dashboard`,
     icon: LayoutDashboard,
   },
   {

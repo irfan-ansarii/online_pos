@@ -2,8 +2,8 @@ import { NextResponse, NextRequest } from "next/server";
 import { auth } from "./lib/auth";
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
   const path = req.nextUrl.pathname;
+  const params = req.nextUrl.search;
 
   const isPublicPath =
     path === "/login" ||
@@ -17,7 +17,15 @@ export async function middleware(req: NextRequest) {
   //   return NextResponse.redirect(new URL(`/login?`, req.nextUrl));
   // }
 
-  return res;
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-pathname", path);
+  requestHeaders.set("x-params", params);
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 export const config = {
