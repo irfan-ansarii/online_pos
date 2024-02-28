@@ -2,37 +2,58 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
 import { createContact } from "@/actions/contact-actions";
-
-import { Address, User } from "@prisma/client";
-
-import Shopify from 'shopify-api-node';
 import { createTransactions } from "@/actions/sale-actions";
+import { Address } from "@prisma/client";
+import Shopify from "shopify-api-node";
 
-interface CustomerProps extends User {
+interface CustomerProps {
+  firstName: string;
+  lastName: string | null;
+  phone: string;
+  email: string | null;
+  role: string;
   addresses?: Address[];
 }
 
-
-const initShopify = async (domain:string) => {
+const initShopify = async (domain: string) => {
   const location = await prisma.location.findFirst({
     where: { storeUrl: domain },
   });
-  
-  return  new Shopify({
-  shopName: location?.storeUrl!,
-  accessToken: location?.apiKey!
-});
-}
 
-const findOrCreateCustomer = async (args: CustomerProps) => {
-  const { firstName, lastName, phone, email, addresses } = args;
-
-  const customer = await prisma.user.findFirst({
-    where: { OR: [{ phone }, { email }] },
+  return new Shopify({
+    shopName: location?.storeUrl!,
+    accessToken: location?.apiKey!,
   });
+};
 
-  if (!customer) {
-    const customer = await createContact({
+const findProductBySku = async (sku: string) => {
+  try {
+    const product = await prisma.variant.findFirst({
+      where: { sku: sku },
+      include: { product: true },
+    });
+    return product;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * create or update customer
+ * @param args
+ * @returns
+ */
+const findOrCreateCustomer = async (args: CustomerProps) => {
+  const { firstName, lastName, phone, email } = args;
+
+  try {
+    const customer = await prisma.user.findFirst({
+      where: { OR: [{ phone }, { email }] },
+    });
+
+    if (customer) return customer.id;
+
+    const createdCustomer = await createContact({
       firstName,
       lastName,
       phone,
@@ -40,24 +61,134 @@ const findOrCreateCustomer = async (args: CustomerProps) => {
       email,
     });
 
-    return customer;
+    return createdCustomer.data.id;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
-
-  return customer;
 };
 
-const getShipmentStatus = (status: string | null) => {
-  if (status === "restocked") return "returned";
-  if (status === "fulfilled") return "delivered";
-  return "";
+/** create or update customer address */
+
+const findOrCreateCustomerAddress = async (
+  add: any,
+  email: string | undefined
+) => {
+  const {
+    first_name,
+    last_name,
+    phone,
+    address,
+    address2,
+    city,
+    province,
+    zip,
+    country,
+    company,
+  } = add;
+
+  let existingAddress;
+
+  existingAddress = await prisma.address.findFirst({
+    where: {
+      OR: [
+        {
+          address: {
+            endsWith: "prisma.io",
+          },
+        },
+        { address2: { endsWith: "gmail.com" } },
+      ],
+    },
+  });
+
+  const billing = [`${first_name} ${last_name}`];
+  billing[1] = `${company}`;
+  billing[2] = `${address} ${address2 ? address2 : ""}`;
+  billing[3] = `${city} ${province} ${zip}`;
+  billing[4] = `${phone}`;
+  billing[5] = `${email}`;
+
+  return billing.filter((b) => b);
 };
 
-export async function POST(req: NextRequest, res: NextResponse) {
+/**
+ * process line items
+ * @param lineItem
+ * @param locationId
+ * @param shopify
+ * @returns
+ */
+const processLineItem = async (
+  lineItem: any,
+  locationId: number,
+  shopify: Shopify
+) => {
+  const {
+    title,
+    variant_title,
+    sku,
+    barcode,
+    price,
+    variant_id,
+    tax_lines,
+    quantity,
+    requires_shipping,
+    fulfillable_quantity,
+    discount_allocations,
+  } = lineItem;
+
+  /** get variant from db */
+  const variant = await findProductBySku(lineItem.sku);
+
+  /** get variant from shopify */
+  const productVariant = await shopify.productVariant.get(variant_id);
+
+  /** calculate tax rate */
+  const taxRate = tax_lines.reduce((acc: number, curr: any) => {
+    acc += curr.rate;
+    return acc;
+  }, 0);
+
+  /** calculate discount  */
+  const discount = discount_allocations?.reduce((acc: number, curr: any) => {
+    acc += parseFloat(curr.amount);
+    return acc;
+  }, 0);
+
+  /** calculate tax */
+  const totalTax = tax_lines.reduce((acc: number, curr: any) => {
+    acc += parseFloat(curr.price);
+    return acc;
+  }, 0);
+
+  return {
+    locationId: locationId,
+    productId: variant?.product?.id,
+    variantId: variant?.id,
+    title: title,
+    variantTitle: variant_title,
+    sku: sku,
+    hsn: variant?.hsn,
+    barcode: barcode || variant?.barcode,
+    originalPrice: productVariant?.compare_at_price || price,
+    price: price,
+    taxRate: taxRate * 100,
+    quantity: quantity,
+    needShipping: requires_shipping,
+    shippingQuantity: fulfillable_quantity,
+    totalDiscount: discount,
+    totalTax,
+    total: price * quantity,
+    taxLines: tax_lines,
+  };
+};
+
+/** handler */
+export async function POST(req: NextRequest) {
   const body = await req.json();
 
   const headersList = headers();
 
-  /** shopify headers */
   const topic = headersList.get("X-Shopify-Topic");
   const domain = headersList.get("X-Shopify-Shop-Domain");
   const webhookId = headersList.get("X-Shopify-Webhook-Id");
@@ -88,14 +219,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
     line_items,
   } = body;
 
-  /** check if location matches */
+  /** init shopify instance */
+  const shopify = await initShopify(domain);
+
+  /** get location id */
   const location = await prisma.location.findFirst({
     where: { storeUrl: domain },
   });
 
   if (!location) return;
 
-  /** check if sale already exists */
+  /** check if sale already exist */
   const existingSale = await prisma.sale.findFirst({
     where: {
       title: name,
@@ -105,122 +239,43 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   if (existingSale) return;
 
+  const lineItems = await Promise.all(
+    line_items.map(
+      async (lineItem: any) =>
+        await processLineItem(lineItem, location.id, shopify)
+    )
+  );
+
   /** calculate shipping total */
   const shippingTotal = shipping_lines.reduce(
     (acc: string, curr: any) => parseFloat(acc) + parseFloat(curr.price),
     0
   );
 
+  const customerId = await findOrCreateCustomer(customer);
 
-  const lineItems = line_items.map(() => ({
-    "fulfillable_quantity": 1,
-      "fulfillment_service": "amazon",
-      "fulfillment_status": "fulfilled",
-      "grams": 500,
-      "id": 669751112,
-      "price": "199.99",
-      "product_id": 7513594,
-      "quantity": 1,
-      "current_quantity": 1,
-      "requires_shipping": true,
-      "sku": "IPOD-342-N",
-      "title": "IPod Nano",
-      "variant_id": 4264112,
-      "variant_title": "Pink",
-      "vendor": "Apple",
-      "name": "IPod Nano - Pink",
-      "gift_card": false,
-      "price_set": {
-        "shop_money": {
-          "amount": "199.99",
-          "currency_code": "USD"
-        },
-        "presentment_money": {
-          "amount": "173.30",
-          "currency_code": "EUR"
-        }
-      },
-      "properties": [
-        {
-          "name": "custom engraving",
-          "value": "Happy Birthday Mom!"
-        }
-      ],
-      "taxable": true,
-      "tax_lines": [
-        {
-          "title": "HST",
-          "price": "25.81",
-          "price_set": {
-            "shop_money": {
-              "amount": "25.81",
-              "currency_code": "USD"
-            },
-            "presentment_money": {
-              "amount": "20.15",
-              "currency_code": "EUR"
-            }
-          },
-          "channel_liable": true,
-          "rate": 0.13
-        }
-      ],
-      "total_discount": "5.00",
-      "total_discount_set": {
-        "shop_money": {
-          "amount": "5.00",
-          "currency_code": "USD"
-        },
-        "presentment_money": {
-          "amount": "4.30",
-          "currency_code": "EUR"
-        }
-      },
-      "discount_allocations": [
-        {
-          "amount": "5.00",
-          "discount_application_index": 2,
-          "amount_set": {
-            "shop_money": {
-              "amount": "5.00",
-              "currency_code": "USD"
-            },
-            "presentment_money": {
-              "amount": "3.96",
-              "currency_code": "EUR"
-            }
-          }
-        }
-    ],
-      
-      locationId       :location.id
-  productId        Int?
-  variantId        Int?
-  title            String
-  variantTitle     String?
-  sku              String?
-  hsn              String?
-  barcode          String?
-  originalPrice    Decimal?
-  price            Float
-  taxRate          Int
-  kind             String             @default("sale") // sale|return
-  quantity         Int
-  needShipping     Boolean            @default(false)
-  shippingQuantity Int                @default(0)
-  totalDiscount    Float
-  totalTax         Float
-  total            Float
-  taxLines 
+  const parsedBillingAddress = await findOrCreateCustomerAddress(
+    billing_address,
+    customer?.email
+  );
+  const parsedShippingAddress = await findOrCreateCustomerAddress(
+    shipping_address,
+    customer?.email
+  );
 
-  }))
+  let shipmentStatus = "";
 
-  /** create order with line items */
+  if (cancelled_at) shipmentStatus = "cancelled";
+  if (fulfillment_status === "restocked") return "returned";
+  if (fulfillment_status === "fulfilled") return "delivered";
+
   const createdSale = await prisma.sale.create({
     data: {
       locationId: location.id,
       title: name,
-      customerId: undefined,
+      customerId,
+      billingAddress: parsedBillingAddress,
+      shippingAddress: parsedShippingAddress,
       createdAt: created_at,
       taxType: taxes_included ? "included" : "excluded",
       subtotal: total_line_items_price,
@@ -234,22 +289,23 @@ export async function POST(req: NextRequest, res: NextResponse) {
       taxLines: tax_lines,
       notes: note,
       status: financial_status,
-      shippingStatus: cancelled_at
-        ? "cancelled"
-        : getShipmentStatus(fulfillment_status),
+      shippingStatus: shipmentStatus,
+      lineItems: {
+        createMany: { data: lineItems },
+      },
     },
   });
 
-  /** get shopify transactions */
-
-  const shopify = await initShopify(domain);
-
   const transactionslist = await shopify.transaction.list(id);
 
-  const filteredtransactions = transactionslist.filter((transaction) => transaction.status === 'success');
+  const filteredtransactions = transactionslist.filter(
+    (transaction) => transaction.status === "success"
+  );
 
-  await createTransactions({saleId: createdSale.id, data:filteredtransactions})
+  await createTransactions({
+    saleId: createdSale.id,
+    data: filteredtransactions,
+  });
 
-
-  return NextResponse.json({ data:  '', status: 200});
+  return NextResponse.json({ data: "", status: 200 });
 }

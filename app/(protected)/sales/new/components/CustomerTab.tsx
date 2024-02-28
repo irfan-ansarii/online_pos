@@ -53,8 +53,14 @@ const CustomerTab = ({ setActive }: { setActive: (tab: string) => void }) => {
     billing[5] = `${phone}`;
     billing[6] = `${email}`;
 
-    form.setValue("billingAddress", billing);
-    form.setValue("shippingAddress", billing);
+    form.setValue(
+      "billingAddress",
+      billing.filter((b) => b)
+    );
+    form.setValue(
+      "shippingAddress",
+      billing.filter((b) => b)
+    );
   };
 
   return (

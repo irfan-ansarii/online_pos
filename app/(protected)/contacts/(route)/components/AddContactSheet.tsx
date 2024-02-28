@@ -65,6 +65,7 @@ const AddContactSheet = ({
   const onSubmit = async (values: z.infer<typeof contactValidation>) => {
     try {
       setLoading(true);
+
       //@ts-ignore
       const response = await createContact(values);
       toast({

@@ -126,9 +126,15 @@ export async function getContacts(params: ParamsProps) {
  * @param req
  * @returns
  */
-interface CustomerProps extends User {
+interface CustomerProps {
+  firstName: string;
+  lastName: string | null;
+  phone: string;
+  email: string | null;
+  role: UserRole;
   addresses?: Address[];
 }
+
 export async function createContact(values: CustomerProps) {
   try {
     const session = await auth();
