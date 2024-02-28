@@ -7,7 +7,6 @@ import { Inter } from "next/font/google";
 import { Provider } from "@/components/providers";
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 
-import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -42,7 +41,7 @@ export default function RootLayout({
           inter.className
         )}
       >
-        <NextTopLoader />
+       
         <Provider
           attribute="class"
           defaultTheme="system"

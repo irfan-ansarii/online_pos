@@ -38,36 +38,17 @@ export async function createLocation(values: any) {
       throw new Error("Unauthorized");
     }
 
-    const {
-      type,
-      name,
-      phone,
-      email,
-      address,
-      address2,
-      city,
-      state,
-      zip,
-      country,
-    } = values;
+    const { type, name, phone, email, storeUrl, apiKey } = values;
 
     // create location
-    const location = await prisma.address.create({
+    const location = await prisma.location.create({
       data: {
-        address,
-        address2,
-        city,
-        state,
-        zip,
-        country,
-        location: {
-          create: {
-            type,
-            name,
-            email,
-            phone,
-          },
-        },
+        type,
+        name,
+        email,
+        phone,
+        storeUrl,
+        apiKey,
       },
     });
 
@@ -89,10 +70,6 @@ export async function changeLocation(locationId: number) {
     const session = await auth();
     if (!session) {
       throw new Error("Unauthorized");
-    }
-    //@ts-expect-error
-    if (session.role !== "admin") {
-      throw new Error("Access Denied");
     }
 
     const user = await prisma.user.update({

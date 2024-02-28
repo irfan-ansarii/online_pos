@@ -39,8 +39,17 @@ const CreateWorkspace = () => {
   const router = useRouter();
   const form = useForm<z.infer<typeof locationValidation>>({
     resolver: zodResolver(locationValidation),
-    defaultValues: {},
+    defaultValues: {
+      type: "offline",
+      name: "",
+      phone: "",
+      email: "",
+      storeUrl: "fff",
+      apiKey: "hh",
+    },
   });
+
+  const storeType = form.getValues("type");
 
   const onSubmit = async (values: z.infer<typeof locationValidation>) => {
     try {
@@ -86,7 +95,7 @@ const CreateWorkspace = () => {
                   name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Store Type</FormLabel>
+                      <FormLabel>Type</FormLabel>
                       <FormControl>
                         <RadioGroup
                           onValueChange={field.onChange}
@@ -95,18 +104,18 @@ const CreateWorkspace = () => {
                         >
                           <FormItem className="relative space-y-0">
                             <FormControl className="absolute right-3 top-1/2 -translate-y-1/2 ">
-                              <RadioGroupItem value="store" />
+                              <RadioGroupItem value="online" />
                             </FormControl>
                             <FormLabel className="flex text-foreground font-normal p-3 border rounded-md cursor-pointer">
-                              Store
+                              Online
                             </FormLabel>
                           </FormItem>
                           <FormItem className="relative space-y-0">
                             <FormControl className="absolute right-3 top-1/2 -translate-y-1/2">
-                              <RadioGroupItem value="warehouse" />
+                              <RadioGroupItem value="offline" />
                             </FormControl>
                             <FormLabel className="flex  text-foreground font-normal p-3 border rounded-md  cursor-pointer">
-                              Warehouse
+                              Offline
                             </FormLabel>
                           </FormItem>
                         </RadioGroup>
@@ -121,7 +130,7 @@ const CreateWorkspace = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Store Name</FormLabel>
+                      <FormLabel>Name</FormLabel>
                       <div className="relative">
                         <FormControl>
                           <Input type="text" {...field} />
@@ -138,7 +147,7 @@ const CreateWorkspace = () => {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Store Phone</FormLabel>
+                        <FormLabel>Phone</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -151,86 +160,7 @@ const CreateWorkspace = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Store Email</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="address2"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address2</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>City</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>State</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="zip"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Zip</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Country</FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -239,6 +169,36 @@ const CreateWorkspace = () => {
                     )}
                   />
                 </div>
+                {storeType === "online" && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="storeUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Store URL</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="apiKey"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>API Key</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
               </div>
             </div>
 

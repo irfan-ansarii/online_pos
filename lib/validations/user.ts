@@ -16,7 +16,7 @@ export const updateUserValidation = z.object({
   phone: z
     .string()
     .nonempty({ message: "Required" })
-    .regex(/^\d{10}$/, { message: "Invalid phone number" }),
+    .regex(/^\d{10}$/, { message: "Enter valid phone number" }),
   email: z.union([z.string().email(), z.literal("")]),
   role: z.enum(["user", "admin"]),
   status: z.enum(["active", "blocked"]),
