@@ -13,7 +13,7 @@ export const getTotalRevenueAnalytics = async (period: string) => {
   const [start, end] = period.split(":");
 
   const endDate = new Date(end);
-  endDate.setHours(23, 59, 59, 999);
+  endDate.setUTCHours(23, 59, 59, 999);
 
   try {
     const session = await auth();

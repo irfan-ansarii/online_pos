@@ -27,7 +27,7 @@ const CartActions = () => {
   const form = useFormContext();
 
   return (
-    <div className="grid grid-cols-4 mt-4 -mb-2 border-t-2 border-dashed pt-2 items-center divide-x">
+    <div className="grid grid-cols-4 mt-4  border-t-2 border-dashed pt-2 items-center divide-x">
       <div>
         <SaveCartDialog />
       </div>

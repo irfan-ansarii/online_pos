@@ -122,7 +122,7 @@ const CartForm = ({ initialValues }: { initialValues: any }) => {
         </div>
 
         {/* render on desktop */}
-        <div className="hidden lg:block -mr-4 p-4 lg:col-span-6 xl:col-span-5 2xl:col-span-4 sticky bg-accent h-screen top-0 bottom-0 z-50">
+        <div className="hidden lg:block -mr-4 p-4 pb-2 lg:col-span-6 xl:col-span-5 2xl:col-span-4 sticky bg-accent h-screen top-0 bottom-0 z-50">
           <Cart fields={fields} remove={remove} handleUpdate={handleUpdate} />
         </div>
       </div>

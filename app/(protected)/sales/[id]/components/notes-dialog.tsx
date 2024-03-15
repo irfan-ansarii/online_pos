@@ -4,7 +4,7 @@ import { updateNotes } from "@/actions/sale-actions";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +66,12 @@ const NotesDialog = ({ open, toggle, saleId, notes, tags = [] }: Props) => {
     []
   );
 
+  const handleRemoveTag = (index: number) => {
+    const tags = form.watch("tags");
+    tags.splice(index, 1);
+    form.setValue("tags", tags);
+  };
+
   const onSubmit = async (values: any) => {
     setLoading(true);
 
@@ -115,17 +121,26 @@ const NotesDialog = ({ open, toggle, saleId, notes, tags = [] }: Props) => {
                 </FormItem>
               )}
             />
+
             <FormLabel>Tags</FormLabel>
             <Input placeholder="" onKeyDown={handleKeyDown} />
 
             <div className="flex gap-2 flex-wrap">
               {form.watch("tags").map((tag: string, i: number) => (
                 <Badge
-                  variant="secondary"
-                  className="py-1 capitalize"
-                  key={`${tag}-${i}`}
+                  className="pr-1 py-1 gap-2 overflow-hidden justify-between"
+                  variant="outline"
+                  key={`${tag}${i}`}
                 >
-                  {tag}
+                  <span>{tag}</span>
+                  <span
+                    onClick={() => {
+                      handleRemoveTag(i);
+                    }}
+                    className="bg-secondary hover:bg-destructive w-4 flex items-center justify-center h-4 rounded-full cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </span>
                 </Badge>
               ))}
             </div>

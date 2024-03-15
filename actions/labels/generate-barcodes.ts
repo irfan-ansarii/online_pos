@@ -144,7 +144,7 @@ export async function printBarcode() {
   const filePath = `public/files/label.pdf`;
 
   const config = {
-    width: 100,
+    width: 76,
     height: 25,
     columns: 2,
     margin: {

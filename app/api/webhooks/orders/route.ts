@@ -76,6 +76,7 @@ const findOrCreateCustomerAddress = async (
   const {
     first_name,
     last_name,
+    company,
     phone,
     address,
     address2,
@@ -83,7 +84,6 @@ const findOrCreateCustomerAddress = async (
     province,
     zip,
     country,
-    company,
   } = add;
 
   let existingAddress;
@@ -100,6 +100,20 @@ const findOrCreateCustomerAddress = async (
       ],
     },
   });
+
+  if (!existingAddress) {
+    await prisma.address.create({
+      data: {
+        company,
+        address,
+        address2,
+        city,
+        state: province,
+        zip,
+        country,
+      },
+    });
+  }
 
   const billing = [`${first_name} ${last_name}`];
   billing[1] = `${company}`;

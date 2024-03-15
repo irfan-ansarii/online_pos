@@ -27,11 +27,15 @@ const settingRoutes = [
     slug: "/purchase-invoice",
   },
   {
+    label: "Barcode Label",
+    slug: "/barcode",
+  },
+  {
     label: "Notifications",
     slug: "/notifications",
   },
 ];
-const linkClassName = `${buttonVariants({ variant: "ghost" })} !justify-start w-full`;
+const linkClassName = `${buttonVariants({ variant: "ghost" })} !justify-start w-auto lg:w-full`;
 
 const Navigations = () => {
   const pathname = usePathname();
@@ -41,7 +45,7 @@ const Navigations = () => {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="gap-2 flex flex-wrap lg:flex-col">
       {settingRoutes.map((route) => (
         <Link
           key={route.slug}

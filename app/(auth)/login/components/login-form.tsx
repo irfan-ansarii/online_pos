@@ -86,7 +86,7 @@ export function LoginForm() {
                 <span className="absolute text-muted-foreground inset-y-0 left-0 flex flex-col justify-center px-3">
                   <Mail className="w-4 h-4" />
                 </span>
-                <FormControl placeholder="name@domain.com">
+                <FormControl placeholder="name@example.com">
                   <Input type="text" {...field} className="pl-10" />
                 </FormControl>
               </div>

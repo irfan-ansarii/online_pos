@@ -1,6 +1,7 @@
 "use client";
 import {
   Toast,
+  ToastClose,
   ToastDescription,
   ToastProvider,
   ToastTitle,
@@ -54,7 +55,7 @@ export function Toaster() {
         const { variant } = props;
         return (
           <Toast key={id} {...props}>
-            <div className="flex gap-3 items-start">
+            <div className="flex gap-3 items-start w-full">
               {variant && variant !== "default" && (
                 <div className="w-5 h-5">
                   <Icon variant={variant} />
@@ -67,6 +68,8 @@ export function Toaster() {
                   <ToastDescription>{description}</ToastDescription>
                 )}
               </div>
+
+              <ToastClose />
             </div>
           </Toast>
         );
