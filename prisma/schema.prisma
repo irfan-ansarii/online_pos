@@ -466,7 +466,7 @@ model ShipmentEvent {
 model Options {
   id         Int    @id @default(autoincrement())
   locationId Int
-  key        String
+  key        String 
   value      String @db.Text
 }
 

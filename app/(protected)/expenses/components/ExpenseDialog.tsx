@@ -96,7 +96,7 @@ const ExpenseDialog = ({
       }
       toast({
         variant: "success",
-        title: `${id ? "Updated" : "Created"} successfully`,
+        title: `Saved successfully`,
       });
       router.refresh();
       form.reset();
