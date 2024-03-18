@@ -66,6 +66,7 @@ const Inventory = ({
     );
 
     if (foundItem) {
+      console.log(foundItem);
       if (onSelect) onSelect(foundItem);
       setSearchTerm("");
     }

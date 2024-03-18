@@ -1,11 +1,10 @@
 import React from "react";
 import { Printer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-
 import { Badge } from "@/components/ui/badge";
-
-import ItemDialog from "./ItemDialog";
 import { AvatarItem } from "@/components/shared/avatar";
+import ItemDialog from "./ItemDialog";
+import { format } from "date-fns";
 
 const ItemCard = ({ item }: { item: any }) => {
   const badgeClass: { [key: string]: string } = {
@@ -37,15 +36,23 @@ const ItemCard = ({ item }: { item: any }) => {
 
           <div className="flex justify-between items-center gap-6 col-span-2 md:col-span-1">
             <div className="text-base font-medium">{item.quantity}</div>
-            <Badge
-              className={`gap-1 capitalize py-1 rounded-md ${
-                badgeClass[item.status]
-              }`}
-              variant="secondary"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>{item.status}</span>
-            </Badge>
+            <div className="space-y-0.5">
+              <div className="text-xs text-muted-foreground text-right">
+                {format(item.updatedAt, "dd-mm-yyyy")}
+              </div>
+              <Badge
+                className={`gap-1 capitalize py-1 rounded-md h-5 text-white ${
+                  badgeClass[item.status]
+                }`}
+                variant="secondary"
+              >
+                {item.status === "printed" ? (
+                  <Printer className="w-3.5 h-3.5" />
+                ) : null}
+
+                <span>{item.status}</span>
+              </Badge>
+            </div>
           </div>
         </CardContent>
       </ItemDialog>

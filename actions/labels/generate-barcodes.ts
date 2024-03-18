@@ -7,14 +7,36 @@ import jsPDF from "jspdf";
 import { getBarcodes } from "../barcode-actions";
 import { JsonValue } from "@prisma/client/runtime/library";
 import { getOption } from "../option-actions";
-
+import prisma from "@/lib/prisma";
 interface LabelItem {
+  id: number;
   barcode: string;
   sku: string;
   option: JsonValue;
   title: string;
   price: number;
 }
+
+/**
+ * helper function to trim the title
+ * @param text
+ * @param width
+ * @param actualWidth
+ * @returns
+ */
+function truncateText(text: string, width: number, actualWidth: number) {
+  const ellipsis = "...";
+  let truncatedText = text;
+
+  if (actualWidth > width) {
+    const ratio = width / actualWidth;
+    const truncatedLength = Math.floor(text.length * ratio) - ellipsis.length;
+    truncatedText = text.substring(0, truncatedLength) + ellipsis;
+  }
+
+  return truncatedText;
+}
+
 /**
  *
  * @returns
@@ -32,7 +54,8 @@ async function generateBarcodeList() {
 
     data.forEach((label) => {
       const labelItem: LabelItem = {
-        barcode: label?.variant?.barcode || "GN547647",
+        id: label.id,
+        barcode: label?.variant?.barcode!,
         sku: label.variant.sku!,
         option: label.variant.option || [],
         title: label.product.title,
@@ -82,7 +105,7 @@ async function renderBarcode(
 
   const generatedBarcode = await bwipjs.toBuffer(barcodeconfig);
 
-  const barcodeWidth = width - left - right - gap / columns;
+  const barcodeWidth = (width - gap * (columns - 1)) / columns - (left + right);
 
   doc.addImage(generatedBarcode, x, y, barcodeWidth, 8);
 
@@ -109,7 +132,10 @@ async function renderBarcode(
   y += 4;
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
-  doc.text(title, x, y);
+
+  const w = doc.getTextWidth(title);
+  const finalText = truncateText(title, barcodeWidth, w);
+  doc.text(finalText, x, y);
 
   /** draw product options */
   doc.setFont("helvetica", "normal");
@@ -167,12 +193,18 @@ export async function printBarcode() {
   const doc = new jsPDF({
     orientation: "l",
     unit: "mm",
-    format: [config.width * config.columns, config.height],
+    format: [config.width, config.height],
   });
 
   const barcodeList = await generateBarcodeList();
 
-  // increament the loop by number if columns
+  if (barcodeList.length === 0) {
+    throw new Error("No barcode available for printing.");
+  }
+
+  const ids = [];
+
+  // increament the loop by number of columns
   for (let j = 0; j < barcodeList.length; j += config.columns) {
     if (j > 0) {
       doc.addPage();
@@ -183,18 +215,38 @@ export async function printBarcode() {
 
       if (labelIndex < barcodeList.length) {
         const labelItem = barcodeList[labelIndex];
+        const columnWidth =
+          (config.width - config.gap * (config.columns - 1)) / config.columns;
 
-        const x = i * config.width + config.left;
+        const x = i * (columnWidth + config.gap);
 
-        await renderBarcode(doc, config, labelItem, x, config.top);
+        await renderBarcode(
+          doc,
+          config,
+          labelItem,
+          x + config.left,
+          config.top
+        );
+        ids.push(labelItem.id);
       }
     }
   }
 
+  // save the file
   const byte = await doc.output("arraybuffer");
   const buffer = Buffer.from(byte);
-
   fs.writeFileSync(filePath, buffer);
 
+  // change the status to printed
+  await prisma.label.updateMany({
+    where: {
+      id: { in: ids },
+    },
+    data: {
+      status: "printed",
+    },
+  });
+
+  // return the url of the label
   return filePath.replace("public", "");
 }

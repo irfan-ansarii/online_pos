@@ -76,7 +76,7 @@ const ItemDialog = ({
         variant: "success",
         title: "Updated successfully.",
       });
-      form.reset();
+
       router.refresh();
       toggle();
     } catch (error: any) {
@@ -88,6 +88,9 @@ const ItemDialog = ({
       toggleLoading();
     }
   };
+  // React.useEffect(() => {
+  //   form.reset();
+  // }, [open]);
   return (
     <Dialog open={open} onOpenChange={toggle}>
       <DialogTrigger asChild>{children}</DialogTrigger>

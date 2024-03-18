@@ -61,9 +61,7 @@ export async function getBarcodes(params: ParamsProps) {
     const response = prisma.label.findMany({
       skip: offset,
       take: PAGE_SIZE,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       where: {
         ...filters,
       },
@@ -86,7 +84,7 @@ export async function getBarcodes(params: ParamsProps) {
       pagination: {
         page: currentPage,
         pageSize: PAGE_SIZE,
-        pageCount: Math.ceil(pages / PAGE_SIZE),
+        pageCount: Math.max(Math.ceil(pages / PAGE_SIZE), 1),
         total: pages,
       },
     };

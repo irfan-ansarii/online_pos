@@ -82,13 +82,18 @@ const Barcode = () => {
     fetchData();
   }, []);
 
+  const columnWidth =
+    ((form.watch("width") as any) -
+      (form.watch("gap") as any) * ((form.watch("columns") as any) - 1)) /
+      (form.watch("columns") as any) || 0;
+
   return (
     <div className="grid grid-cols-5 gap-6">
-      <div className="col-span-3">
+      <div className="col-span-5 lg:col-span-3">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}>
             <CardTitle className="font-semibold tracking-tight text-base">
-              Template Size
+              Page Size
             </CardTitle>
             <CardDescription className="mb-6">
               Lorem ipsum, dolor sit amet consectetur adipisicing elit.
@@ -131,6 +136,14 @@ const Barcode = () => {
                   </FormItem>
                 )}
               />
+              <div className="col-span-2">
+                <CardTitle className="font-semibold tracking-tight text-base">
+                  Template Column
+                </CardTitle>
+                <CardDescription>
+                  Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                </CardDescription>
+              </div>
               <FormField
                 control={form.control}
                 name="columns"
@@ -248,7 +261,7 @@ const Barcode = () => {
                 )}
               />
               <div className="col-span-2 text-right">
-                <Button type="submit" className="mt-6 w-28">
+                <Button type="submit" className="w-28">
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
@@ -261,14 +274,14 @@ const Barcode = () => {
         </Form>
       </div>
 
-      <Card className="bg-secondary overflow-hidden col-span-2 p-4">
+      <Card className="bg-secondary overflow-hidden col-span-5 lg:col-span-2 p-4">
         <div className="flex flex-col justify-center h-full">
-          <div className="flex" style={{ gap: `${form.watch("gap")}mm` }}>
+          <div className="flex" style={{ gap: `${form.watch("gap") || 0}mm` }}>
             {columns.map((_, i) => (
               <div className="space-y-2 flex-1" key={`key-${i}`}>
                 <div className="bg-background rounded-t-md h-3"></div>
                 <div
-                  className="bg-background rounded-md"
+                  className="bg-background rounded-md flex items-center justify-center text-muted-foreground"
                   style={{
                     height: `${form.watch("height")}mm`,
                     paddingTop: `${form.watch("top")}mm`,
@@ -277,15 +290,14 @@ const Barcode = () => {
                     paddingLeft: `${form.watch("left")}mm`,
                   }}
                 >
-                  {/* <div className="border h-full"></div> */}
+                  {columnWidth.toFixed(2) || 0} X {form.watch("height")}
                 </div>
                 <div className="bg-background rounded-b-md h-3"></div>
               </div>
             ))}
           </div>
           <div className="text-center mt-6 font-medium">
-            {(form.watch("width") as any) * (form.watch("columns") as any)} X{" "}
-            {form.watch("height")}
+            {(form.watch("width") as any) || 0} X {form.watch("height")}
           </div>
         </div>
       </Card>
