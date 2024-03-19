@@ -16,11 +16,7 @@ import { Badge } from "@/components/ui/badge";
 
 export type Option = Record<"value" | "label", string> & Record<string, string>;
 
-const AutoComplete = ({
-  onSelect,
-}: {
-  onSelect: (value: Option) => void;
-}) => {
+const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [process, setProcess] = useToggle(false);
@@ -35,8 +31,12 @@ const AutoComplete = ({
 
       if (!input) return;
 
-      if (e.key === "Enter" && input.value !== "" && isLoading) {
-        setProcess(true);
+      if (e.key === "Enter" && input.value !== "") {
+        if (isLoading) {
+          setProcess(true);
+        } else {
+          processSelection(input.value);
+        }
       }
     },
     [isLoading]
@@ -62,7 +62,6 @@ const AutoComplete = ({
         if (onSelect) onSelect(foundItem);
         setSearchTerm("");
         setProcess(false);
-  
       }
     },
     [searchTerm, isLoading]
@@ -106,11 +105,10 @@ const AutoComplete = ({
           onBlur={() => {
             setSearchTerm("");
             setProcess(false);
-           
           }}
           placeholder="Scan or search..."
           className={`pl-10 ${
-             isError ? "border-destructive !ring-destructive/50" : ""
+            isError ? "border-destructive !ring-destructive/50" : ""
           }`}
         />
         <span
@@ -120,9 +118,7 @@ const AutoComplete = ({
         </span>
       </div>
 
-      {isError && (
-        <p className="text-error mt-1.5">Invalid barcode</p>
-      )}
+      {isError && <p className="text-error mt-1.5">Invalid barcode</p>}
 
       <div className="mt-0.5 relative">
         {showPopup && (

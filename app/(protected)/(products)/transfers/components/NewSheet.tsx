@@ -73,9 +73,7 @@ const NewSheet = ({ session }: any) => {
   const onSelect = (value: Option) => {
     const items = form.getValues("lineItems");
 
-    const index = items.findIndex(
-      (item) => item.barcode === value.variant.barcode
-    );
+    const index = items.findIndex((item) => item.itemId === value.variantId);
 
     if (index !== -1) {
       lineItems.update(index, {
@@ -88,9 +86,9 @@ const NewSheet = ({ session }: any) => {
     }
 
     lineItems.append({
-      itemId: value.id,
+      itemId: value.variantId,
       productId: value.product.id,
-      variantId: value.variant.id,
+      variantId: value.variantId,
       title: value.product.title,
       variantTitle: value.variant.title,
       sku: value.variant.sku,
@@ -216,9 +214,9 @@ const NewSheet = ({ session }: any) => {
             </div>
             <div className="flex flex-col gap-1">
               <AutoComplete onSelect={onSelect} />
-             {
-               form.formState.errors.lineItems ? <p className="text-error">Required</p> : null
-             }
+              {form.formState.errors.lineItems ? (
+                <p className="text-error">Required</p>
+              ) : null}
             </div>
 
             <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox">

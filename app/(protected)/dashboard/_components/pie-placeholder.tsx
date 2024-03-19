@@ -8,7 +8,7 @@ const PiePlaceholder = ({ loading = false }: { loading?: boolean }) => {
           No Data
         </span>
       )}
-      <div className="h-[300px] aspect-square  border-[2.5rem] rounded-full"></div>
+      <div className="h-[240px] aspect-square  border-[2rem] rounded-full mx-auto mt-auto"></div>
     </div>
   );
 };

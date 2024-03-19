@@ -65,9 +65,8 @@ const NewSheet = () => {
 
   const onSelect = (value: Option) => {
     const items = form.getValues("lineItems");
-    const index = items.findIndex(
-      (item) => item.itemId === Number(value.itemId)
-    );
+    console.log(value);
+    const index = items.findIndex((item) => item.itemId === value.variantId);
 
     if (index !== -1) {
       lineItems.update(index, {
@@ -78,9 +77,9 @@ const NewSheet = () => {
     }
 
     lineItems.append({
-      itemId: value.id,
+      itemId: value.variantId,
       productId: value.product.id,
-      variantId: value.variant.id,
+      variantId: value.variantId,
       title: value.product.title,
       variantTitle: value.variant.title,
       barcode: value.variant.barcode,
@@ -157,7 +156,7 @@ const NewSheet = () => {
               control={form.control}
               name="reason"
               render={({ field }) => (
-                <FormItem >
+                <FormItem>
                   <FormLabel>Reason</FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -190,7 +189,7 @@ const NewSheet = () => {
               control={form.control}
               name="notes"
               render={({ field }) => (
-                <FormItem >
+                <FormItem>
                   <FormLabel>Notes</FormLabel>
 
                   <FormControl>
@@ -202,11 +201,10 @@ const NewSheet = () => {
               )}
             />
             <div className="flex flex-col gap-1">
-            
-              <AutoComplete onSelect={onSelect}/>
-               {
-               form.formState.errors.lineItems ? <p className="text-error">Required</p> : null
-             }
+              <AutoComplete onSelect={onSelect} />
+              {form.formState.errors.lineItems ? (
+                <p className="text-error">Required</p>
+              ) : null}
             </div>
             <div className="relative  grow max-h-full overflow-auto snap-y snap-mandatory space-y-2 scrollbox mb-4">
               {lineItems.fields.map((field, i) => (

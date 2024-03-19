@@ -49,8 +49,12 @@ const Inventory = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const input = ref.current;
 
-    if (input && input.value && e.key === "Enter" && isLoading) {
-      setProcess(true);
+    if (input && input.value && e.key === "Enter") {
+      if (isLoading) {
+        setProcess(true);
+      } else {
+        processSelection();
+      }
     }
   };
 
@@ -66,9 +70,9 @@ const Inventory = ({
     );
 
     if (foundItem) {
-      console.log(foundItem);
       if (onSelect) onSelect(foundItem);
       setSearchTerm("");
+      setProcess(false);
     }
   };
 
@@ -88,7 +92,7 @@ const Inventory = ({
     if (!isLoading && process) {
       processSelection();
     }
-  }, [isLoading]);
+  }, [isLoading, inventory]);
 
   return (
     <>
