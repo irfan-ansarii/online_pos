@@ -2,14 +2,19 @@
 import React from "react";
 import { useState, useRef, useCallback, useMemo } from "react";
 import { Loader2, ScanLine } from "lucide-react";
-import { Command } from "cmdk";
 
+import { Command as CommandPrimitive } from "cmdk";
 import { useToggle } from "@uidotdev/usehooks";
 import { useInventory } from "@/hooks/useInventory";
 
 import { Input } from "@/components/ui/input";
 
-import { CommandGroup, CommandItem, CommandList } from "../ui/command";
+import {
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../ui/command";
 
 import { AvatarItem } from "@/components/shared/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -67,14 +72,20 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
     [searchTerm, isLoading]
   );
 
-  const showPopup = useMemo(() => {
-    return (
-      !isLoading &&
-      searchTerm !== "" &&
-      Array.isArray(inventory?.data) &&
-      inventory?.data?.length > 0
-    );
-  }, [searchTerm, isLoading]);
+  // const showPopup = useMemo(() => {
+  //   return (
+  //     !isLoading &&
+  //     searchTerm !== "" &&
+  //     Array.isArray(inventory?.data) &&
+  //     inventory?.data?.length > 0
+  //   );
+  // }, [searchTerm, isLoading]);
+
+  const showPopup =
+    !isLoading &&
+    searchTerm !== "" &&
+    Array.isArray(inventory?.data) &&
+    inventory?.data?.length > 0;
 
   const isError = useMemo(() => {
     return (
@@ -91,13 +102,22 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
   }, [isLoading]);
 
   return (
-    <Command>
-      <div className="relative">
+    <CommandPrimitive onKeyDown={handleKeyDown}>
+      <div className="relative [&_[cmdk-input-wrapper]>svg]:hidden [&_[cmdk-input-wrapper]]:p-0 [&_[cmdk-input-wrapper]]:border-0 [&_[cmdk-input-wrapper]>input]:pl-10 [&_[cmdk-input-wrapper]>input]:border [&_[cmdk-input-wrapper]>input]rounded-md [&_[cmdk-input-wrapper]>input:focus]:ring-2 [&_[cmdk-input-wrapper]>input:focus]:ring-ring [&_[cmdk-input-wrapper]>input:focus]:ring-offset-2 ring-offset-background">
         <span className="absolute inset-y-0 left-3 text-muted-foreground inline-flex items-center justify-center">
           <ScanLine className="w-4 h-4" />
         </span>
-
-        <Input
+        <CommandInput
+          ref={inputRef}
+          value={searchTerm}
+          onValueChange={setSearchTerm}
+          onBlur={() => {
+            // setSearchTerm("");
+            setProcess(false);
+          }}
+          className="text-base"
+        />
+        {/* <Input
           ref={inputRef}
           value={searchTerm}
           onKeyDown={handleKeyDown}
@@ -110,7 +130,7 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
           className={`pl-10 ${
             isError ? "border-destructive !ring-destructive/50" : ""
           }`}
-        />
+        /> */}
         <span
           className={`absolute inset-y-0 right-3 text-muted-foreground inline-flex items-center justify-cente ${isLoading ? "opacity-100" : "opacity-0"}`}
         >
@@ -166,16 +186,15 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
                     );
                   })}
                 </CommandGroup>
-              ) : (
-                <Command.Empty className="select-none rounded-sm px-2 py-3 text-sm text-center">
-                  Empty
-                </Command.Empty>
-              )}
+              ) : // <Command.Empty className="select-none rounded-sm px-2 py-3 text-sm text-center">
+              //   Empty
+              // </Command.Empty>
+              null}
             </CommandList>
           </div>
         )}
       </div>
-    </Command>
+    </CommandPrimitive>
   );
 };
 export default AutoComplete;
