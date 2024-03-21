@@ -7,6 +7,11 @@ import { LogOut } from "lucide-react";
 
 import { AvatarItem } from "@/components/shared/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Profile = ({ session }: { session: JwtPayload }) => {
   const router = useRouter();
@@ -29,11 +34,16 @@ const Profile = ({ session }: { session: JwtPayload }) => {
           </span>
         </div>
       </div>
-      <Button variant="ghost" size="icon" onClick={onClick}>
-        <span className="text-destructive flex gap-2 items-center">
-          <LogOut className="w-5 h-5" />
-        </span>
-      </Button>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" onClick={onClick}>
+            <span className="text-destructive flex gap-2 items-center">
+              <LogOut className="w-5 h-5" />
+            </span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Logout</TooltipContent>
+      </Tooltip>
     </>
   );
 };

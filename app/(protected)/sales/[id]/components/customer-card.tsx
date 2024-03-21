@@ -29,44 +29,48 @@ const CustomerCard = ({ sale }: any) => {
           <div> {customer?.email}</div>
         </div>
       </CardContent>
-      <CardContent>
-        <CardTitle className="text-base mb-2">Shipping Address</CardTitle>
+      {shippingAddress?.name && (
+        <CardContent>
+          <CardTitle className="text-base mb-2">Shipping Address</CardTitle>
 
-        <div className="text-muted-foreground">
-          <div> {shippingAddress?.name}</div>
-          <div> {shippingAddress?.address}</div>
+          <div className="text-muted-foreground">
+            <div> {shippingAddress?.name}</div>
+            <div> {shippingAddress?.address}</div>
 
-          <div>
-            {shippingAddress?.city} {shippingAddress?.state}
-            {shippingAddress?.pinode}
+            <div>
+              {shippingAddress?.city} {shippingAddress?.state}
+              {shippingAddress?.pinode}
+            </div>
+
+            <div> {shippingAddress?.phone}</div>
+            <div> {shippingAddress?.email}</div>
+            {shippingAddress?.gstin && (
+              <div className="uppercase">GSTIN: {shippingAddress?.gstin}</div>
+            )}
           </div>
+        </CardContent>
+      )}
+      {billingAddress?.name && (
+        <CardContent>
+          <CardTitle className="text-base mb-2">Billing Address</CardTitle>
 
-          <div> {shippingAddress?.phone}</div>
-          <div> {shippingAddress?.email}</div>
-          {shippingAddress?.gstin && (
-            <div className="uppercase">GSTIN: {shippingAddress?.gstin}</div>
-          )}
-        </div>
-      </CardContent>
-      <CardContent>
-        <CardTitle className="text-base mb-2">Billing Address</CardTitle>
+          <div className="text-muted-foreground">
+            <div> {billingAddress?.name}</div>
+            <div> {billingAddress?.address}</div>
 
-        <div className="text-muted-foreground">
-          <div> {shippingAddress?.name}</div>
-          <div> {shippingAddress?.address}</div>
+            <div>
+              {billingAddress?.city} {billingAddress?.state}
+              {billingAddress?.pinode}
+            </div>
 
-          <div>
-            {shippingAddress?.city} {shippingAddress?.state}
-            {shippingAddress?.pinode}
+            <div> {billingAddress?.phone}</div>
+            <div> {billingAddress?.email}</div>
+            {billingAddress?.gstin && (
+              <div className="uppercase">GSTIN: {billingAddress?.gstin}</div>
+            )}
           </div>
-
-          <div> {shippingAddress?.phone}</div>
-          <div> {shippingAddress?.email}</div>
-          {shippingAddress?.gstin && (
-            <div className="uppercase">GSTIN: {shippingAddress?.gstin}</div>
-          )}
-        </div>
-      </CardContent>
+        </CardContent>
+      )}
     </Card>
   );
 };

@@ -171,23 +171,21 @@ async function renderBarcode(
 export async function printBarcode() {
   const filePath = `public/files/label.pdf`;
 
-  const res = await getOption("barcodeLabel");
+  const { data }: any = await getOption("barcodeLabel");
 
-  if (!res || !res.data) {
+  if (!data || !data.value) {
     throw new Error("Database Error");
   }
 
-  const parsed = JSON.parse(res.data.value);
-
   const config = {
-    width: parseFloat(parsed.width),
-    height: parseFloat(parsed.height),
-    columns: parseInt(parsed.columns),
-    gap: parseInt(parsed.gap),
-    top: parseInt(parsed.top),
-    bottom: parseInt(parsed.bottom),
-    left: parseInt(parsed.left),
-    right: parseInt(parsed.right),
+    width: parseFloat(data.value?.width),
+    height: parseFloat(data.value?.height),
+    columns: parseInt(data.value?.columns),
+    gap: parseInt(data.value?.gap),
+    top: parseInt(data.value?.top),
+    bottom: parseInt(data.value?.bottom),
+    left: parseInt(data.value?.left),
+    right: parseInt(data.value?.right),
   };
 
   const doc = new jsPDF({

@@ -56,9 +56,9 @@ const SupplierTab = ({ setActive }: { setActive: (tab: string) => void }) => {
 
     billing[5] = `${phone}`;
     billing[6] = `${email}`;
-
-    form.setValue("billingAddress", billing);
-    form.setValue("shippingAddress", billing);
+    const filtered = billing.filter((v) => v);
+    form.setValue("billingAddress", filtered);
+    form.setValue("shippingAddress", filtered);
   };
 
   return (

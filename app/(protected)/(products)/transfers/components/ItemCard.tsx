@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import ItemSheet from "./ItemSheet";
 import { AvatarGroup } from "@/components/shared/avatar";
 import { AvatarItem } from "@/components/shared/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface TransferStatus {
   [key: string]: string;
@@ -25,6 +26,7 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
   const { session } = useSession();
 
   const isReceived = session?.locationId === transfer.toId;
+
   return (
     <Card className="relative group hover:bg-accent overflow-hidden">
       <Sheet open={open} onOpenChange={toggle}>
@@ -55,24 +57,28 @@ const ItemCard = ({ transfer }: { transfer: any }) => {
             </div>
 
             <div className="flex items-center gap-2 justify-end">
-              <Badge
-                variant="secondary"
-                className={`py-1 rounded-md text-white ${
-                  isReceived ? "bg-success" : "bg-warning"
-                }`}
-              >
-                {isReceived ? (
-                  <>
-                    <Download className="w-4 h-4 mr-2" />
-                    Received
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Sent
-                  </>
-                )}
-              </Badge>
+              {!session?.locationId ? (
+                <Skeleton className="h-4 w-20" />
+              ) : (
+                <Badge
+                  variant="secondary"
+                  className={`py-1 rounded-md text-white ${
+                    isReceived ? "bg-success" : "bg-warning"
+                  }`}
+                >
+                  {isReceived ? (
+                    <>
+                      <Download className="w-4 h-4 mr-2" />
+                      Received
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Sent
+                    </>
+                  )}
+                </Badge>
+              )}
             </div>
           </CardContent>
         </SheetTrigger>

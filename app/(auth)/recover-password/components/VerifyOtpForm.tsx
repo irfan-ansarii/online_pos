@@ -23,7 +23,12 @@ import {
 } from "@/components/ui/form";
 import { CardTitle, CardHeader, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 export function VerifyOtpForm() {
   const [resentAt, setResentAt] = React.useState<null | number>(null);
@@ -96,10 +101,8 @@ export function VerifyOtpForm() {
       <CardHeader className="p-0 pb-8">
         <CardTitle className="mb-2">Verify OTP</CardTitle>
         <CardDescription>
-          <span>OTP has been sent to</span>
-          <span className="text-foreground underline pl-1">
-            {form.watch("email")}
-          </span>
+          Please enter the 6-digit OTP sent to your registered mobile number and
+          email address.
         </CardDescription>
       </CardHeader>
 
@@ -118,9 +121,30 @@ export function VerifyOtpForm() {
             name="otp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>OTP</FormLabel>
+                <FormLabel>One-Time Password</FormLabel>
+
                 <FormControl>
-                  <Input type="text" {...field} />
+                  <InputOTP
+                    maxLength={6}
+                    {...field}
+                    onComplete={form.handleSubmit(onSubmit)}
+                  >
+                    <InputOTPGroup className="[&>div]:w-full [&>div]:h-12 flex-1">
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                    </InputOTPGroup>
+
+                    <div className="flex w-10 md:20 justify-center items-center">
+                      <div className="w-3 md:w-6 h-1 md:h-2 rounded-full bg-border"></div>
+                    </div>
+
+                    <InputOTPGroup className="[&>div]:w-full [&>div]:h-12 flex-1">
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
                 </FormControl>
 
                 <FormMessage />

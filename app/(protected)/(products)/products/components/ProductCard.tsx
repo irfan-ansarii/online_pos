@@ -3,7 +3,7 @@ import React from "react";
 import { deleteProduct } from "@/actions/product-actions";
 import Numeral from "numeral";
 
-import { Loader2, PenSquare, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -105,9 +105,13 @@ const ProductCard = ({ product }: { product: any }) => {
               <div className="space-y-0.5 truncate">
                 <div className="font-semibold truncate">{product.title}</div>
                 <div className="flex gap-1">
-                  <Badge variant="secondary" className="py-0">
-                    {product?.variants?.[0]?.sku}
-                  </Badge>
+                  {product?.variants?.[0]?.sku &&
+                    product?.variants?.[0]?.sku !==
+                      product?.variants?.[0]?.barcode && (
+                      <Badge variant="secondary" className="py-0">
+                        {product?.variants?.[0]?.sku}
+                      </Badge>
+                    )}
                   <Badge variant="secondary" className="py-0">
                     {product?.variants?.[0]?.barcode}
                   </Badge>

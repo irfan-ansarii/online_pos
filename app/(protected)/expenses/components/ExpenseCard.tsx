@@ -62,9 +62,9 @@ const ExpenseCard = ({ expense }: { expense: Expense }) => {
   };
 
   return (
-    <Card className="hover:bg-accent group relative cursor-pointer">
-      <CardContent className="grid grid-cols-3 gap-3 items-center">
-        <div className="flex gap-3 col-span-2">
+    <Card className="hover:bg-accent group relative cursor-pointer overflow-hidden">
+      <CardContent className="grid grid-cols-5 gap-3 items-center">
+        <div className="flex gap-3 col-span-3 md:col-span-4">
           <div className="border-r pr-4 text-center shrink-0">
             <div className="text-lg leading-tight font-semibold">
               {format(new Date(expense.createdAt), "dd")}
@@ -92,7 +92,7 @@ const ExpenseCard = ({ expense }: { expense: Expense }) => {
           </div>
         </div>
 
-        <div className="col-span-1 text-right space-y-0.5">
+        <div className="col-span-2 md:col-span-1 text-right space-y-0.5 flex justify-between">
           <div className={`font-semibold`}>
             {Numeral(expense.amount).format()}
           </div>
