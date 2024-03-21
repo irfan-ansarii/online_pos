@@ -41,10 +41,11 @@ const Header = async () => {
             {/* create store dialog */}
             <CreateStore />
           </div>
-          <div className="justify-self-end flex gap-3">
+          <div className="justify-self-end flex gap-3 -mr-2 md:mr-0">
             <Setting />
 
             <Activity />
+
             <Profile session={data} />
           </div>
         </div>

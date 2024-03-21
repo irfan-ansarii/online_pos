@@ -5,6 +5,7 @@ const number = z.any().refine((val) => !isNaN(Number(val)), {
 });
 
 export const barcodeValidation = z.object({
+  key: z.string(),
   width: number,
   height: number,
   columns: number,

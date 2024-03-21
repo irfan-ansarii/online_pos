@@ -72,20 +72,14 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
     [searchTerm, isLoading]
   );
 
-  // const showPopup = useMemo(() => {
-  //   return (
-  //     !isLoading &&
-  //     searchTerm !== "" &&
-  //     Array.isArray(inventory?.data) &&
-  //     inventory?.data?.length > 0
-  //   );
-  // }, [searchTerm, isLoading]);
-
-  const showPopup =
-    !isLoading &&
-    searchTerm !== "" &&
-    Array.isArray(inventory?.data) &&
-    inventory?.data?.length > 0;
+  const showPopup = useMemo(() => {
+    return (
+      !isLoading &&
+      searchTerm !== "" &&
+      Array.isArray(inventory?.data) &&
+      inventory?.data?.length > 0
+    );
+  }, [searchTerm, isLoading]);
 
   const isError = useMemo(() => {
     return (
@@ -103,7 +97,7 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
 
   return (
     <CommandPrimitive onKeyDown={handleKeyDown}>
-      <div className="relative [&_[cmdk-input-wrapper]>svg]:hidden [&_[cmdk-input-wrapper]]:p-0 [&_[cmdk-input-wrapper]]:border-0 [&_[cmdk-input-wrapper]>input]:pl-10 [&_[cmdk-input-wrapper]>input]:border [&_[cmdk-input-wrapper]>input]rounded-md [&_[cmdk-input-wrapper]>input:focus]:ring-2 [&_[cmdk-input-wrapper]>input:focus]:ring-ring [&_[cmdk-input-wrapper]>input:focus]:ring-offset-2 ring-offset-background">
+      <div className="relative [&_[cmdk-input-wrapper]>svg]:hidden [&_[cmdk-input-wrapper]]:p-0 [&_[cmdk-input-wrapper]]:border-0 [&_[cmdk-input-wrapper]>input]:px-10 [&_[cmdk-input-wrapper]>input]:border [&_[cmdk-input-wrapper]>input]rounded-md [&_[cmdk-input-wrapper]>input:focus]:ring-2 [&_[cmdk-input-wrapper]>input:focus]:ring-ring [&_[cmdk-input-wrapper]>input:focus]:ring-offset-2 [&_[cmdk-input-wrapper]>input]:ring-offset-background">
         <span className="absolute inset-y-0 left-3 text-muted-foreground inline-flex items-center justify-center">
           <ScanLine className="w-4 h-4" />
         </span>
@@ -112,25 +106,12 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
           value={searchTerm}
           onValueChange={setSearchTerm}
           onBlur={() => {
-            // setSearchTerm("");
-            setProcess(false);
-          }}
-          className="text-base"
-        />
-        {/* <Input
-          ref={inputRef}
-          value={searchTerm}
-          onKeyDown={handleKeyDown}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onBlur={() => {
             setSearchTerm("");
             setProcess(false);
           }}
-          placeholder="Scan or search..."
-          className={`pl-10 ${
-            isError ? "border-destructive !ring-destructive/50" : ""
-          }`}
-        /> */}
+          placeholder="Scan | Search..."
+        />
+
         <span
           className={`absolute inset-y-0 right-3 text-muted-foreground inline-flex items-center justify-cente ${isLoading ? "opacity-100" : "opacity-0"}`}
         >
@@ -140,7 +121,7 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
 
       {isError && <p className="text-error mt-1.5">Invalid barcode</p>}
 
-      <div className="mt-0.5 relative">
+      <div className="mt-1 relative">
         {showPopup && (
           <div className="absolute top-0 z-10 w-full bg-background border rounded-md outline-none animate-in fade-in-0 zoom-in-95">
             <CommandList className="rounded-md">
@@ -150,7 +131,6 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
                     return (
                       <CommandItem
                         key={inv.id}
-                        value={inv.id}
                         onMouseDown={(event) => {
                           event.preventDefault();
                           event.stopPropagation();
@@ -159,7 +139,7 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
                         className="flex items-center gap-2 w-full"
                       >
                         <div className="flex gap-3 items-center col-span-2">
-                          <AvatarItem src={`${inv.product?.image?.src}`} />
+                          <AvatarItem src={inv.product?.image?.src || ""} />
 
                           <div>
                             <div className="font-semibold truncate">
@@ -186,10 +166,11 @@ const AutoComplete = ({ onSelect }: { onSelect: (value: Option) => void }) => {
                     );
                   })}
                 </CommandGroup>
-              ) : // <Command.Empty className="select-none rounded-sm px-2 py-3 text-sm text-center">
-              //   Empty
-              // </Command.Empty>
-              null}
+              ) : (
+                <CommandPrimitive.Empty className="select-none rounded-sm px-2 py-3 text-sm text-center">
+                  Empty
+                </CommandPrimitive.Empty>
+              )}
             </CommandList>
           </div>
         )}

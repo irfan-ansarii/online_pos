@@ -31,6 +31,10 @@ const settingRoutes = [
     slug: "/barcode",
   },
   {
+    label: "Email and Mesage",
+    slug: "/email-message",
+  },
+  {
     label: "Notifications",
     slug: "/notifications",
   },

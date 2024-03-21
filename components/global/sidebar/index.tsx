@@ -20,9 +20,10 @@ import {
 import Customizer from "@/components/global/sidebar/customizer";
 import ThemeSwitcher from "@/components/global/sidebar/theme-switcher";
 import SearchPanel from "@/components/global/sidebar/search-panel";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-function Sidebar() {
+function Sidebar({ toggle }: { toggle?: (v?: boolean | undefined) => void }) {
   const [active, setActive] = React.useState("");
   const pathname = usePathname();
   const [loading, setLoading] = React.useState(true);
@@ -71,7 +72,17 @@ function Sidebar() {
 
   return (
     <div className="top-0 z-30 h-screen w-full shrink-0 sticky">
-      <div className="flex flex-col px-4 h-full">
+      <div className="flex flex-col px-4 h-full relative">
+        {toggle && (
+          <Button
+            className="absolute top-4"
+            size="icon"
+            variant="ghost"
+            onClick={() => toggle(false)}
+          >
+            <X className="w-4 h-5" />
+          </Button>
+        )}
         <div className="shrink-0 -mx-4">
           <div className="h-[60px] flex items-center justify-center">
             <Image
@@ -95,7 +106,7 @@ function Sidebar() {
           <SearchPanel />
         </div>
 
-        <div className="relative flex-1 max-h-full overflow-y-auto scrollbox -mx-x px-x">
+        <div className="relative flex-1 max-h-full overflow-y-auto scrollbox">
           <Accordion
             type="single"
             collapsible
@@ -165,15 +176,15 @@ function Sidebar() {
         </div>
 
         <div className="mt-4">
-          <Separator className="hidden lg:block" />
+          <Separator className="md:hidden lg:block" />
 
           {!loading && <ThemeSwitcher />}
 
-          <Separator className="mb-2 hidden lg:block" />
-          <div className="pb-4 hidden lg:block">
+          <Separator className="mb-2 md:hidden lg:block" />
+          <div className="pb-4 md:hidden lg:block">
             <ThemeCustomizer />
           </div>
-          <div className="pb-4 lg:hidden mt-2">
+          <div className="pb-4 hidden md:block lg:hidden mt-2">
             <Customizer />
           </div>
         </div>

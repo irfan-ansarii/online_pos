@@ -11,16 +11,19 @@ import { Prisma } from "@prisma/client";
  */
 export async function getOption(key: string) {
   try {
-    const session = await auth();
-    if (!session || typeof session === "string") {
-      throw new Error("Unauthorized");
-    }
+    // const session = await auth();
+    // if (!session || typeof session === "string") {
+    //   throw new Error("Unauthorized");
+    // }
 
     // find option
     const response = await prisma.options.findFirst({
-      where: { key: key, locationId: session.location.id },
+      where: { key: key },
     });
 
+    if (response) {
+      response.value = JSON.parse(response.value);
+    }
     // return response
     return {
       data: response,

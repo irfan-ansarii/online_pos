@@ -15,14 +15,14 @@ const ThemeSwitcher = ({ className }: { className?: string }) => {
   const { theme, setTheme } = useTheme();
   return (
     <ul className="flex flex-col gap-3">
-      <li className="rounded-md overflow-hidden  lg:hidden">
+      <li className="rounded-md overflow-hidden hidden md:block lg:hidden">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-full flex justify-center h-[44px] bg-secondary"
+              className="w-[44px] md:w-full flex justify-center h-[44px] bg-secondary"
             >
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -31,7 +31,7 @@ const ThemeSwitcher = ({ className }: { className?: string }) => {
           <TooltipContent>Dark Mode</TooltipContent>
         </Tooltip>
       </li>
-      <li className="rounded-md overflow-hidden hidden lg:block">
+      <li className="rounded-md overflow-hidden md:hidden lg:block">
         <Label
           htmlFor="dark-mode"
           className={`text-foreground transition duration-500 text-sm font-medium flex items-center space-x-2 justify-between cursor-pointer py-2.5 ${className}`}

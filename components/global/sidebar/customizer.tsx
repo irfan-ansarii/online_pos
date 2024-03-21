@@ -16,7 +16,7 @@ const Customizer = () => {
     <Popover>
       <Tooltip>
         <TooltipTrigger asChild>
-          <PopoverTrigger className="w-full flex justify-center items-center rounded-lg bg-secondary h-[44px]">
+          <PopoverTrigger className="w-[44px] md:w-full flex justify-center items-center rounded-lg bg-secondary h-[44px]">
             <Palette className="w-5 h-5" />
           </PopoverTrigger>
         </TooltipTrigger>

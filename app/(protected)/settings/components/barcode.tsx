@@ -2,7 +2,7 @@
 import React from "react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getOption, upsertOption } from "@/actions/option-actions";
+import { upsertOption } from "@/actions/option-actions";
 import { barcodeValidation } from "@/lib/validations/settings/barcode";
 
 import { useForm } from "react-hook-form";
@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-const Barcode = () => {
+const Barcode = ({ defaultValues }: any) => {
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
 
@@ -30,21 +30,15 @@ const Barcode = () => {
     resolver: zodResolver(barcodeValidation),
     defaultValues: {
       key: "barcodeLabel",
-      width: "",
-      height: "",
-      columns: "",
-      gap: "",
-      top: "0",
-      bottom: "0",
-      left: "0",
-      right: "0",
+      ...defaultValues,
     },
   });
 
   const columns = [...Array(Number(form.watch("columns") || 0)).fill("")];
 
   const onSubmit = async (values: z.infer<typeof barcodeValidation>) => {
-    const stringValue = JSON.stringify(values);
+    const { key, ...rest } = values;
+    const stringValue = JSON.stringify(rest);
 
     try {
       setLoading(true);
@@ -67,20 +61,6 @@ const Barcode = () => {
       setLoading(false);
     }
   };
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const { data } = await getOption("barcodeLabel");
-      if (data) {
-        const parsed = JSON.parse(data.value);
-        form.reset({
-          ...parsed,
-        });
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const columnWidth =
     ((form.watch("width") as any) -

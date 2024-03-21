@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { lazy } from "react";
 
 const Application = lazy(() => import("../components/application"));
 const Sale = lazy(() => import("../components/sale"));
@@ -7,7 +7,7 @@ const SaleInvoice = lazy(() => import("../components/sale-invoice"));
 const PurchaseInvoice = lazy(() => import("../components/purchase-invoice"));
 const Barcode = lazy(() => import("../components/barcode"));
 const Notifications = lazy(() => import("../components/notifications"));
-
+const EmailMessage = lazy(() => import("../components/email-message"));
 const page = ({ params }: { params: { slug: string } }) => {
   switch (params.slug) {
     case "application":
@@ -20,10 +20,10 @@ const page = ({ params }: { params: { slug: string } }) => {
       return <SaleInvoice />;
     case "purchase-invoice":
       return <PurchaseInvoice />;
-    case "barcode":
-      return <Barcode />;
+
     case "notifications":
       return <Notifications />;
+
     default:
       return <div>{params.slug}</div>;
   }

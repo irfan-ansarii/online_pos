@@ -45,10 +45,7 @@ const PageTitle = () => {
       {/* if path is dashbpard then render sidebar sheet */}
       <Sheet open={open} onOpenChange={toggle}>
         <SheetContent className="px-0">
-          {/* <div className="px-4">
-            <SheetHeader>Menu</SheetHeader>
-          </div> */}
-          <Sidebar />
+          <Sidebar toggle={toggle} />
         </SheetContent>
       </Sheet>
     </>

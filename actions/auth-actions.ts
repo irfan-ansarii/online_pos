@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import { sanitize } from "@/lib/sanitize-user";
 import { auth } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
+import { sendEmail } from "@/lib/email";
 
 /**
  * login
@@ -230,7 +231,10 @@ export async function sendOTP(values: { email: string }) {
       },
     });
 
-    // TODO send otp
+    await sendEmail(user.email!, "Please reset your password", {
+      text: `${otp} is your one-time-use PIN for username retrieval`,
+      html: `<h1>${otp} is your one-time-use PIN for username retrieval.</h1>`,
+    });
 
     // 4. return response
     return {
@@ -238,6 +242,7 @@ export async function sendOTP(values: { email: string }) {
       data: { email },
     };
   } catch (error: any) {
+    console.log(error.message);
     if (error instanceof Prisma.PrismaClientInitializationError) {
       throw new Error("Internal server error");
     }
